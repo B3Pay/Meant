@@ -2,8 +2,8 @@
   This page is for code written against <code>@candid-core/schema</code> <code>0.2.0</code> or
   <code>@candid-core/cli</code> <code>0.1.0</code>, and takes it to the surface published on 2026-10-06 as
   <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>
-  under the npm <code>latest</code> dist-tag. The repository has moved on since: it is prepared as
-  <code>0.4.0</code> and <code>0.3.0</code>, not yet published, and
+  under the npm <code>latest</code> dist-tag. <code>latest</code> has moved on since, to
+  <code>0.4.0</code> and <code>0.3.0</code>, published on 2026-10-10, and
   <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> covers that step. Most of the surface below was first published on 2026-10-02 as
   <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> under the <code>beta</code> dist-tag,
   which still names those betas. The record of each change, with the reasoning, is
@@ -24,8 +24,11 @@
 <h2>Installing the stable pair</h2>
 
 <p>
-  A plain install selects the pair from <code>latest</code>. The CLI's optional peer is exactly
-  <code>0.3.0</code>:
+  A plain install selects the newest stable pair from <code>latest</code>,
+  <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code>
+  <code>0.3.0</code>, whose optional peer is exactly <code>0.4.0</code>. Everything below applies
+  there too, and where the CLI's <code>0.3.0</code> differs this page says so;
+  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> has that step:
 </p>
 
 <pre data-lang="bash">
@@ -361,12 +364,12 @@ try {
   <code>delete</code> generates instead of being refused, and you import it by name
   (<code>import { delete as del } from "./service"</code>). Code that imports the generated names is
   unaffected; code that parses or patches the generated source, or relied on its module-scope names,
-  must follow the new layout. In <code>@candid-core/cli</code> <code>0.3.0</code>, prepared and not yet
-  published, the type moves back to the Candid name
+  must follow the new layout. In <code>@candid-core/cli</code> <code>0.3.0</code>, published on
+  2026-10-10, the type moves back to the Candid name
   (<code>export type Tokens = …</code>), so a compiler error names <code>Tokens</code>; only the value
   keeps the <code>$</code> local, and a type keeps it too only where the name cannot be a type in the
-  module (<code>Array</code>, <code>delete</code>). The excerpts below show that layout, the
-  repository's; <code>0.2.0</code> writes <code>type $Tokens = …</code> and
+  module (<code>Array</code>, <code>delete</code>). The excerpts below show that layout,
+  <code>0.3.0</code>'s; <code>0.2.0</code> writes <code>type $Tokens = …</code> and
   <code>$.Schema&lt;$Tokens&gt;</code>. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> has the
   rest of that step.
 </p>

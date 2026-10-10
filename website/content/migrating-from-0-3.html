@@ -1,9 +1,9 @@
 <p>
   This page is for code written against <code>@candid-core/schema</code> <code>0.3.0</code> and
-  <code>@candid-core/cli</code> <code>0.2.0</code>, the pair under the npm <code>latest</code>
-  dist-tag today. The repository is prepared as the next stable pair,
-  <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code>
-  <code>0.3.0</code>, which npm does not hold yet. Every change is recorded under those two versions
+  <code>@candid-core/cli</code> <code>0.2.0</code>, the stable pair published on 2026-10-06, and
+  takes it to the next one, <code>@candid-core/schema</code> <code>0.4.0</code> and
+  <code>@candid-core/cli</code> <code>0.3.0</code>, published on 2026-10-10 under the npm
+  <code>latest</code> dist-tag. Every change is recorded under those two versions
   in the
   <a href="https://github.com/b3hr4d/candid-core/blob/main/crates/candid-core-ts/ts/CHANGELOG.md"><code>@candid-core/schema</code> changelog</a>
   and the
@@ -33,8 +33,8 @@
 
 <callout type="tip" title="The snippets below are compiled">
   <p>
-    Each block is checked against this tree, with <code>./ledger.ts</code> standing for a module the
-    prepared CLI generates. The <em>before</em> block must fail with the error shown, and the
+    Each block is checked against this tree, with <code>./ledger.ts</code> standing for a module
+    CLI <code>0.3.0</code> generates. The <em>before</em> block must fail with the error shown, and the
     <em>after</em> block must compile.
   </p>
 </callout>
@@ -136,11 +136,17 @@ export { $Tokens as Tokens };
 <p>
   Move both packages in one step. The CLI peers its schema release exactly, and npm refuses a
   mismatched pair (<code>ERESOLVE could not resolve</code>): <code>@candid-core/cli</code>
-  <code>0.2.0</code> peers <code>0.3.0</code>, and <code>0.3.0</code> peers <code>0.4.0</code>. Once
-  both are published, the plain <code>npm install --save-exact @candid-core/schema</code> and
-  <code>npm install --save-dev --save-exact @candid-core/cli</code> select them from
-  <code>latest</code>; until then those lines install <code>0.3.0</code> and <code>0.2.0</code>. Then
-  run <code>candid-core-cli gen</code> over every committed module, and fix what the compiler
+  <code>0.2.0</code> peers <code>0.3.0</code>, and <code>0.3.0</code> peers <code>0.4.0</code>. The
+  plain lines select both from <code>latest</code>:
+</p>
+
+<pre data-lang="bash">
+npm install --save-exact @candid-core/schema
+npm install --save-dev --save-exact @candid-core/cli
+</pre>
+
+<p>
+  Then run <code>candid-core-cli gen</code> over every committed module, and fix what the compiler
   reports, which for code that imports the generated names is nothing but an exact-equality test
   like the one above.
 </p>

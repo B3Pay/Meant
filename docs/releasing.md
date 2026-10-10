@@ -822,10 +822,25 @@ above, and these:
   `git grep -n -E 'not yet|prepared|does not hold yet' -- README.md website/README.md website/content`
   is the search, not the phrase alone. It also lists a few lines that are
   not markers and stay (the pre-publish history on `decisions.html`, the
-  bootstrap paragraph on `status.html`, and ordinary uses of "not yet").
-  The pull request then turns the migration page's prose install lines into
-  blocks, records the publish date and both runs on the status page, and
-  appends each npm release note's **Release record**.
+  bootstrap paragraph on `status.html`, the description of the two lists in
+  `website/README.md`, and ordinary uses of "not yet"). The search does not
+  find prose that names the previous pair as `latest`, as "the previous
+  stable release" or only by its version numbers, without a marker. For
+  0.4.0 / 0.3.0 those were the version table and the pre-1.0 warning on
+  `packages.html`, the pre-1.0 warning on the home page, the "Published on
+  npm" note on `cli-npm.html`, the registry table on `status.html`, the
+  install paragraph of `migrating-from-0-2.html` and its lead in
+  `_site.json`. Two more searches are read through, the second with the
+  previous pair's versions (here 0.3.0 and 0.2.0):
+  `git grep -n -E 'latest|previous stable' -- README.md website/README.md website/content`
+  and
+  `git grep -n -E '<code>0\.(2|3)\.0</code>|published <code>@candid-core' -- README.md website/content`.
+  Every hit the second one finds that says what the registry holds now, as
+  a table row or a sentence like "the published `@candid-core/schema` is
+  0.2.0", names the new pair. The pull request then turns the migration
+  page's prose install lines into blocks, records the publish date and both
+  runs on the status page, and appends each npm release note's **Release
+  record**.
 
 ### Promoting to `latest`
 
