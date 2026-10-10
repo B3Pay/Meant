@@ -6,10 +6,10 @@ to WebAssembly, usable as a Node CLI and as a browser library. Data in, data
 out — no eval, no network, and nothing generated is ever executed.
 
 > **0.3.0, the `latest` release.** This README describes 0.3.0. Upgrading
-> from 0.2.0 changes the text of every module `gen` writes (each type is
-> declared under its Candid name, and each method of `Actor` carries its
-> mode), so regenerate committed modules: `gen --check` reports a module
-> 0.2.0 wrote as drifted. It adds the `project` and `check` commands
+> from 0.2.0 changes the text of every module `gen` writes with a
+> declaration or an actor (each type is declared under its Candid name, and
+> each method of `Actor` carries its mode), so regenerate committed modules:
+> `gen --check` reports such a module 0.2.0 wrote as drifted. It adds the `project` and `check` commands
 > ([Projection and compatibility](#projection-and-compatibility)). The modules
 > this release emits need `@candid-core/schema` 0.4.0 exactly, which is the
 > optional peer it declares; install the two as a pair, each with

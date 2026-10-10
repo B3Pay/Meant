@@ -816,11 +816,16 @@ above, and these:
   are the section above's, with the new versions.
 - On publish day the follow-up pull request empties `UNPUBLISHED_NPM_SPECS`,
   rewrites each note so the new pair is the one published and the previous
-  one is the release that differs, drops "not yet published" from every
-  marker that says it (`git grep -n 'not yet published' -- README.md
-  website/content` finds them), turns the migration page's prose install
-  lines into blocks, records the publish date and both runs on the status
-  page, and appends each npm release note's **Release record**.
+  one is the release that differs, and rewrites every marker of the
+  prepared pair: "not yet published", "prepared" and "does not hold yet",
+  some of which wrap across a line break, so
+  `git grep -n -E 'not yet|prepared|does not hold yet' -- README.md website/README.md website/content`
+  is the search, not the phrase alone. It also lists a few lines that are
+  not markers and stay (the pre-publish history on `decisions.html`, the
+  bootstrap paragraph on `status.html`, and ordinary uses of "not yet").
+  The pull request then turns the migration page's prose install lines into
+  blocks, records the publish date and both runs on the status page, and
+  appends each npm release note's **Release record**.
 
 ### Promoting to `latest`
 

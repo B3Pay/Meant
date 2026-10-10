@@ -322,7 +322,9 @@ wrote generated/basic.envelope.json
 <p>
   Five exports, and the whole surface: <code>didToContract</code>, <code>didToModule</code> and
   <code>init</code> here, and <code>projectDid</code> and <code>checkCompatible</code> under
-  <a href="#projection-and-compatibility">Projection and compatibility</a>.
+  <a href="#projection-and-compatibility">Projection and compatibility</a>
+  (<code>projectDid</code> and <code>checkCompatible</code> are new in <code>0.3.0</code>, not yet
+  published; <code>0.2.0</code> has the first three).
   <code>didToContract</code> and <code>didToModule</code> each take one JSON-serializable request;
   <code>projectDid</code> and <code>checkCompatible</code> take two arguments, described in that section.
   Every operation returns one parsed JSON document, and nothing is thrown for a data error.
@@ -590,7 +592,8 @@ const built = schemaFromContract(envelope);
 
 <p>
   Note the shapes there: importing the wasm module directly gives you the raw wasm-bindgen exports,
-  which are string in, string out. The whole wasm ABI is four functions wide —
+  which are string in, string out. The whole wasm ABI is four functions wide in <code>0.3.0</code>,
+  two in <code>0.2.0</code> (<code>projectDid</code> and <code>checkCompatible</code> are new) —
   <code>didToContract(request: string): string</code>,
   <code>didToModule(request: string): string</code>,
   <code>projectDid(request: string): string</code> and
