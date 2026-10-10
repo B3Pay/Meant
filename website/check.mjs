@@ -133,11 +133,12 @@ const SOFT = [
 
 /* The surface the site teaches is the one the repository builds. These names
  * belong to the surface 0.2.0 has and 0.3.0 (and the 0.3 beta before it, and
- * 0.4.0, `latest`, after it) does not, so they may be named only where the change is the subject: the
- * migration page, and the release history on the status page. Anywhere else
- * they would be prose or a snippet that teaches something that no longer
- * exists. The check reads prose and code alike, because a page that shows
- * `createActor` in a block teaches it as surely as one that says so. */
+ * 0.4.0, `latest`, after it) does not, so they may be named only where the
+ * change is the subject: the migration page, and the release history on the
+ * status page. Anywhere else they would be prose or a snippet that teaches
+ * something that no longer exists. The check reads prose and code alike,
+ * because a page that shows `createActor` in a block teaches it as surely as
+ * one that says so. */
 const REMOVED_SURFACE = [
   /\bcreateActor\b/,
   /\bcallFunc\b/,
@@ -161,12 +162,12 @@ const REMOVED_SURFACE_PAGES = new Set(["migrating-from-0-2", "status"]);
 /* Pages that describe the schema runtime or the generator carry the one note
  * saying which release they describe (`latest`, 0.4.0 / 0.3.0), how the
  * previous stable releases (0.3.0 / 0.2.0, and 0.2.0 / 0.1.0 before them)
- * differ, and where to read what changed. */
+ * differ, and where to read what changed: the note links each migration page,
+ * inside the callout itself. */
 const NOTE_TITLE = "Upgrading from an earlier release";
 const NOTE_RE = new RegExp(`<callout[^>]*title="${NOTE_TITLE}"`, "g");
-const NOTE_LINK_RE = new RegExp(
-  `<callout[^>]*title="${NOTE_TITLE}"[\\s\\S]*?href="migrating-from-0-2\\.html"[\\s\\S]*?<\\/callout>`,
-);
+const NOTE_BODY_RE = new RegExp(`<callout[^>]*title="${NOTE_TITLE}"[\\s\\S]*?<\\/callout>`);
+const NOTE_LINKS = ["migrating-from-0-3.html", "migrating-from-0-2.html"];
 const NOTE_PAGES = new Set([
   "index",
   "quickstart-typescript",
@@ -345,8 +346,13 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
         page,
         `must carry exactly one <callout title="${NOTE_TITLE}"> saying how the previous release differs (found ${notes})`,
       );
-    } else if (!NOTE_LINK_RE.test(source)) {
-      fail(page, `the ${NOTE_TITLE} note must link migrating-from-0-2.html`);
+    } else {
+      const note = source.match(NOTE_BODY_RE)[0];
+      for (const href of NOTE_LINKS) {
+        if (!note.includes(`href="${href}"`)) {
+          fail(page, `the ${NOTE_TITLE} note must link ${href}`);
+        }
+      }
     }
   }
   for (const rule of FORBIDDEN_IN_PROSE) {
