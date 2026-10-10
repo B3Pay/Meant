@@ -89,11 +89,13 @@
 //!   the list of the service's methods in the first one's `notes`, once,
 //!   which the compiler bounds (at most 100,000 methods, their names 1 MiB
 //!   in all), and the bound does not count; the bound's own diagnostic, at
-//!   most one, of fixed text and three numbers and no name, at most 422
-//!   bytes at the shipped bound (twenty digits for the names it counts,
-//!   which only the request bounds); and the two bytes `[]` opens by. So it
-//!   takes at most [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] + 463 bytes beside
-//!   the list.
+//!   most one, of fixed text and three numbers and no name, at most 434
+//!   bytes at the shipped bound, with twenty digits for the names it counts
+//!   and for `observed`, which only the request bounds: measuring stops at
+//!   the first frame or message that takes the count past the bound, and a
+//!   message quotes a requested name; and the two bytes `[]` opens by. So
+//!   it takes at most [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] + 475 bytes
+//!   beside the list.
 //! - **Other failures.** `empty_method_list`, `no_service` and
 //!   `projection_bytes` are fixed text and numbers; `invalid_request`
 //!   echoes the request's keys or file names, so it is linear in the

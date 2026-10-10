@@ -68,7 +68,7 @@
 //!   Each response is bounded. A completed check takes at most 1,016 bytes
 //!   more than [`MAX_CHECK_OUTPUT_BYTES`]; a projection's text, at most the
 //!   compiler's 1 MiB bound on one source; and an unknown-method failure,
-//!   at most 463 bytes more than [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] beside
+//!   at most 475 bytes more than [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] beside
 //!   the list of the service's methods. `src/compat.rs` and
 //!   `src/project.rs` go through every field.
 //! - failure, any function: `{"ok": false, "diagnostics": […]}` — the one

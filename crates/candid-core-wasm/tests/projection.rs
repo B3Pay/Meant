@@ -1153,7 +1153,8 @@ fn the_unknown_method_text_is_bounded() {
         .unwrap()
         .ends_with(", so 3 unknown method name(s) are not reported"));
     // A name longer than what is left is counted at its raw length, not
-    // quoted and measured: 1,000 quotes would be 4,030 bytes written.
+    // quoted and measured: 1,000 quotes would be 4,030 bytes written. So
+    // `observed` grows with the name, which only the request bounds.
     let quotes = request(json!(source), &["\"".repeat(1_000)]);
     let long = bounded(&quotes, UNKNOWN_FRAME + 100);
     assert_eq!(
@@ -1202,19 +1203,21 @@ fn the_unknown_method_text_is_bounded() {
 /// What an unknown-method failure may take beyond its bound and the list of
 /// the service's methods, at the shipped bound: its envelope, the two bytes
 /// `[]` opens by, and the bound's diagnostic written with the most digits
-/// each of its numbers can take: the bound's own, eight for `observed` (see
-/// the check's), and twenty for the names it counts, which only the request
-/// bounds.
+/// each of its numbers can take: the bound's own, and twenty, the most a
+/// `usize` takes, for the names it counts and for `observed`, which only
+/// the request bounds. `observed` is at most the bound plus the frame or
+/// message at which measuring stopped, and a message quotes a requested
+/// name, of any length ([`the_unknown_method_text_is_bounded`]).
 fn past_the_bound() -> usize {
     let limit = MAX_PROJECTION_DIAGNOSTIC_BYTES;
-    let count = u64::MAX;
+    let most = u64::MAX;
     FAILURE
         + 2
         + written_bytes(&json!({
             "code": "resource_limit_exceeded",
-            "message": format!("the unknown-method diagnostics reached their projection_diagnostic_bytes bound of {limit}, so {count} unknown method name(s) are not reported"),
+            "message": format!("the unknown-method diagnostics reached their projection_diagnostic_bytes bound of {limit}, so {most} unknown method name(s) are not reported"),
             "phase": "project",
-            "resource_limit": { "limit": limit, "observed": 99_999_999, "resource": "projection_diagnostic_bytes" },
+            "resource_limit": { "limit": limit, "observed": most, "resource": "projection_diagnostic_bytes" },
             "severity": "error",
         }))
 }
@@ -1262,5 +1265,5 @@ fn an_unknown_method_failure_is_bounded_whatever_the_names() {
         .ends_with(", so 172940 unknown method name(s) are not reported"));
     assert_eq!(length, 4_194_936);
     assert!(length <= MAX_PROJECTION_DIAGNOSTIC_BYTES + past_the_bound() + list_bytes(&items[0]));
-    assert_eq!(past_the_bound(), 463);
+    assert_eq!(past_the_bound(), 475);
 }

@@ -127,10 +127,17 @@
 //! - the last diagnostic past the byte bound, at most one: fixed text and
 //!   three numbers, and no name, so at most 442 bytes at the shipped bound.
 //!   That is with the most digits each number can take: seven for the
-//!   bound; eight for `observed`, since measuring stops at the first string
-//!   that passes the bound, and a string measured exactly is at most seven
-//!   times what was left of it, plus eight; and six for the methods it
-//!   counts, at most the compiler's 100,000.
+//!   bound; six for the methods it counts, at most the compiler's 100,000;
+//!   and eight for `observed`. Measuring stops at the first frame or string
+//!   that takes the count past the bound, which it had not passed before,
+//!   so `observed` is at most the bound plus that frame or string, and a
+//!   string adds at most what the response writes for it. A frame takes at
+//!   most 300 bytes, whatever its numbers. A string that holds a name
+//!   writes a byte of it in at most seven (`\u{1f}`, quoted for `Debug` in
+//!   a `method_missing` message or as JSON in a path, then escaped again by
+//!   the JSON), and the compiler holds a name to its `max_string_bytes`,
+//!   1 MiB; the longest is a `method_missing` message, with 35 bytes of its
+//!   own. So `observed` is at most 4 MiB + 7 MiB + 35 = 11,534,371.
 //! - the two bytes `[]` opens by when it holds an item.
 //!
 //! So `c` = 572 + 2 + 442. A failure is not charged against the bound:
@@ -1350,8 +1357,10 @@ const INDENT: usize = 4;
 /// count, and nothing is measured past the bound: however long the names
 /// are, and however many reports and segments a method has, measuring
 /// costs at most the bound's bytes plus one string's, and a frame per
-/// diagnostic measured. The projection's unknown-method diagnostics are
-/// measured the same way.
+/// diagnostic measured. The count it stops at is at most the bound plus the
+/// frame or string that passed it, a string adding at most what the JSON
+/// writes for it. The projection's unknown-method diagnostics are measured
+/// the same way.
 pub(crate) struct Meter {
     pub(crate) counted: usize,
     pub(crate) limit: usize,
@@ -1905,6 +1914,37 @@ mod tests {
         let summary = unreported(4_194_304, 4_194_305, 7);
         assert!(summary.get("method").is_none());
         assert_eq!(summary["unreported_methods"], json!(7));
+        // A frame takes at most 300 bytes whatever its numbers, as the
+        // module's docs say: each report above, and a report of each
+        // resource limit, its numbers of twenty digits, as an error and as
+        // a warning.
+        let widest = [
+            "check_depth",
+            "check_steps",
+            "check_warnings",
+            TOTAL_STEPS,
+            "check_total_warnings",
+        ]
+        .into_iter()
+        .flat_map(|resource| {
+            let exhausted = Exhausted {
+                resource,
+                limit: usize::MAX,
+                observed: usize::MAX,
+            };
+            [
+                Report::fail_closed(&exhausted),
+                Report {
+                    severity: "warning",
+                    ..Report::fail_closed(&exhausted)
+                },
+            ]
+        })
+        .chain(reports)
+        .map(|report| report.frame())
+        .max()
+        .unwrap();
+        assert!(widest <= 300, "{widest}");
     }
 
     /// The node of the service type whose only method is `name`.

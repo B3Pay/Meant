@@ -28,7 +28,7 @@ use std::path::PathBuf;
 use candid::types::internal::{Field, Function, Type, TypeInner};
 use candid::types::subtype::{subtype_with_config, OptReport};
 use candid::TypeEnv;
-use candid_core::compile_did;
+use candid_core::{compile_did, Limits};
 use candid_core_ts::{generate_module, TsNames, TsOptions};
 use candid_core_wasm::{
     check_compatible, check_compatible_with, CheckOptions, MAX_CHECK_OUTPUT_BYTES, MAX_CHECK_STEPS,
@@ -1186,6 +1186,10 @@ fn the_output_is_bounded_across_the_check() {
         response["diagnostics"],
         json!([items[0], items[1], unreported(3 * each - 1, 3 * each, 1)])
     );
+    // A bound narrower than a frame: measuring stops at the first frame,
+    // so `observed` is its 135 bytes, within the bound plus a frame, and
+    // more than seven times the bound.
+    assert_eq!(run(10)["diagnostics"], json!([unreported(10, frame, 3)]));
 
     // The bytes are counted as the JSON response writes them, escapes
     // included: a method name of five bytes, with a tab, a quote and a
@@ -1313,16 +1317,82 @@ fn measuring_the_output_stops_at_the_bound() {
 /// What a successful response may take beyond the output bound at the
 /// shipped bounds, in bytes: its envelope with the verdict `false`, the two
 /// bytes `[]` opens by, and the summary written with the most digits each of
-/// its numbers can take there: the bound's own; eight for `observed`, since
-/// measuring stops at the first string that passes the bound, and a string
-/// measured exactly is at most seven times what was left of it, plus eight;
-/// and six for the methods it counts, at most the compiler's 100,000.
+/// its numbers can take there: the bound's own; eight for `observed`, at
+/// most [`most_observed`]; and six for the methods it counts, at most the
+/// compiler's 100,000.
 fn past_the_bound() -> usize {
+    assert!(most_observed() <= 99_999_999);
+    assert_eq!(Limits::default().max_methods(), 100_000);
     ENVELOPE + 1 + 2 + written_bytes(&unreported(MAX_CHECK_OUTPUT_BYTES, 99_999_999, 100_000))
 }
 
-// Eight digits are enough for `observed` at the shipped bound.
-const _: () = assert!(7 * MAX_CHECK_OUTPUT_BYTES + 8 < 100_000_000);
+/// The most `observed` can be at the shipped bounds. Measuring stops at the
+/// first frame or string that takes the count past the bound, which it had
+/// not passed before, so `observed` is at most the bound plus the widest
+/// frame or the longest string, a string adding at most what the response
+/// writes for it: a name of the compiler's `max_string_bytes` in a
+/// `method_missing` message, seven bytes a byte and 35 more
+/// ([`a_name_takes_at_most_seven_bytes_a_byte_as_the_response_writes_it`]).
+fn most_observed() -> usize {
+    let longest_string = 7 * Limits::default().max_string_bytes() + 35;
+    MAX_CHECK_OUTPUT_BYTES + longest_string.max(widest_frame())
+}
+
+/// At least the frame of any diagnostic the check reports, whatever its
+/// numbers: every key a diagnostic can carry, the longest code, severity
+/// and resource, and numbers of twenty digits, the most a `usize` takes.
+fn widest_frame() -> usize {
+    written_bytes(&json!({
+        "code": "resource_limit_exceeded",
+        "severity": "warning",
+        "method": "",
+        "path": "",
+        "message": "",
+        "resource_limit": { "resource": "check_total_warnings", "limit": u64::MAX, "observed": u64::MAX },
+    }))
+}
+
+/// A name takes at most seven bytes a byte in each string of the response
+/// that holds it: in a `method_missing` message, quoted for `Debug`
+/// (`\u{1f}`) and escaped again by the JSON (`\\u{1f}`); in a segment of a
+/// path, quoted as JSON (`\u001f`) and escaped again (`\\u001f`); and as
+/// `method`, at most six. The message adds 35 bytes of its own, a segment
+/// at most eight, and the check's other messages are fixed text and
+/// numbers: so no string it counts takes more than seven times the
+/// compiler's `max_string_bytes` and 35, which [`most_observed`] rests on.
+#[test]
+fn a_name_takes_at_most_seven_bytes_a_byte_as_the_response_writes_it() {
+    let written = |text: &str| serde_json::to_string(text).unwrap().len() - 2;
+    for character in (0..=0x10_ffff).filter_map(char::from_u32) {
+        let name = character.to_string();
+        // Past the two quotes around the name, each written `\"`.
+        let in_message = written(&format!("{name:?}")) - 4;
+        let in_path = written(&serde_json::to_string(&name).unwrap()) - 4;
+        assert!(in_message <= 7 * name.len(), "{character:?}");
+        assert!(in_path <= 7 * name.len(), "{character:?}");
+        assert!(written(&name) <= 6 * name.len(), "{character:?}");
+    }
+    // Through the check, a written method named by 1,000 `\u{1f}` that the
+    // live service lacks: seven bytes each, and 35.
+    let name = "\u{1f}".repeat(1_000);
+    let response = check(
+        &format!("service : {{ \"{}\" : () -> () }}", "\\u{1f}".repeat(1_000)),
+        "service : {}",
+    );
+    let message = format!("the live service has no method {name:?}");
+    assert_eq!(
+        response["diagnostics"],
+        json!([{
+            "code": "method_missing",
+            "severity": "error",
+            "method": name,
+            "message": message,
+        }])
+    );
+    assert_eq!(written(&message), 7 * name.len() + 35);
+    assert_eq!(widest_frame(), 300);
+    assert_eq!(most_observed(), 11_534_371);
+}
 
 /// A method name for a large service: one to three bytes, identifier-shaped,
 /// never a keyword, and after every name that starts with `A` in name order.
