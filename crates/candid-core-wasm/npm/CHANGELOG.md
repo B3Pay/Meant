@@ -14,11 +14,51 @@ fixtures.
 grammar, the library API, and the request/response shapes. Pin an exact
 version.
 
-## Unreleased
+## 0.3.0 — 2026-10-10
 
-Not yet released; the version is decided at release time. Embeds the
-`candid-core` crate and the `candid-core-ts` generator from the release's
-commit, as every entry does.
+Embeds `candid-core` 0.1.0-beta.3 and the `candid-core-ts` generator from the
+same repository commit the release is dispatched from; the release record
+names the exact SHA. That commit's `candid-core` source is ahead of the
+0.1.0-beta.3 archive on crates.io by five changes not yet in a crate release:
+the four 0.2.0 already carried (a `.did` source may begin with one UTF-8 byte
+order mark; a run of more than 256 consecutive comments is refused; a type on
+a cycle that passes only through `opt` is refused; the crate's Contract JSON
+loaders refuse a struct written as a JSON array) and one more, the crate's
+Contract JSON loaders refuse a unit variant written as a JSON map
+(`"primitive": {"nat": null}` for `"primitive": "nat"`), which beta.3's
+loaders accept. No input of this package reaches the last two: `gen`,
+`project`, `check` and the four library functions read `.did` sources and
+never load a Contract document. The embedded compiler therefore compiles
+every `.did` as 0.2.0's does: every input both accept compiles to the same
+Contract and identities, every envelope `gen` writes is byte-identical to
+0.2.0's, and envelopes still name 0.1.0-beta.3 as their producer.
+
+A stable release, published under the npm `latest` dist-tag, so a plain
+`npx @candid-core/cli` runs it; pin it in a project,
+`npm install --save-dev --save-exact @candid-core/cli`. The `beta` dist-tag
+stays on 0.2.0-beta.1.
+
+**It pairs with exactly one schema release.** The optional peer is exactly
+`@candid-core/schema` `0.4.0` (exactly `0.3.0` in 0.2.0). Each method of the
+`Actor` a generated module declares is typed with `$.WithMode`, which
+`@candid-core/schema` 0.4.0 adds, so a module with an actor method does not
+compile against 0.3.0 (`TS2694`, "has no exported member 'WithMode'", once
+per method). npm refuses to install a mismatched pair (`ERESOLVE could not
+resolve`). Install the pair at exact versions, together.
+
+**Upgrading from 0.2.0.** Two changes break something, each marked
+**BREAKING** below, and both are about generated modules: the peer moves to
+`@candid-core/schema` 0.4.0, which a module with an actor method needs; and
+the text of every generated module with a declaration or an actor changes,
+so `gen --check` reports each module 0.2.0 wrote as drifted (exit 1) until
+you run `gen` again. Upgrade both packages in one step and regenerate.
+Envelopes do not change. Code that imports the generated names keeps
+compiling, with one exception: type-level code that compares a method type
+of `Actor` for exact equality, such as an `Equal<A, B>` test helper, now
+sees the `WithMode` intersection. The commands `project` and `check`, the
+library functions `projectDid` and `checkCompatible`, and their types are
+additive; `gen`, `didToContract` and `didToModule` keep their grammar,
+signatures and results but for the module text.
 
 ### Added
 
@@ -135,6 +175,11 @@ commit, as every entry does.
   appears, and errors about it still name `$Array`. Code that imports the
   generated names is unaffected; code that parses or patches the generated
   source must follow the new text.
+- **BREAKING**: the text of every generated module with a declaration or an
+  actor changes, by the item above and the one below, so `gen --check`
+  against a module 0.2.0 wrote reports it as drifted, exit 1, until `gen`
+  runs again. Measured on the repository's 41 tracked `.did` files: the 37
+  that generate give a different module and a byte-identical envelope.
 - **Each `Actor` method carries its mode.** `gen` and `didToModule` now emit
   each method of `Actor` as its call signature intersected with
   `$.WithMode<mode>` (`"query"`, `"composite_query"`, `"update"` or
@@ -150,9 +195,12 @@ commit, as every entry does.
 
   The call signatures, the method names and the module's exports are
   unchanged, and an actor with no methods still generates an empty `Actor`.
-  `WithMode` is new in `@candid-core/schema`, so a module this release
-  generates needs the schema release paired with it: it does not
-  type-check against `@candid-core/schema` 0.3.0.
+  Type-level code that compares a method type for exact equality sees the
+  intersection; `Parameters<>` and `ReturnType<>` do not.
+- **BREAKING**: `WithMode` is new in `@candid-core/schema` 0.4.0, so a
+  module with an actor method needs that release: against 0.3.0 it fails to
+  compile with `TS2694` ("has no exported member 'WithMode'"), once per
+  method. The peer moves to exactly `0.4.0` for this reason.
 
 ## 0.2.0 — 2026-10-06
 

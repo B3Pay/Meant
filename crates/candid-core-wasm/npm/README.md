@@ -5,21 +5,28 @@ toolchain: the [candid-core] compiler and its TypeScript generator compiled
 to WebAssembly, usable as a Node CLI and as a browser library. Data in, data
 out — no eval, no network, and nothing generated is ever executed.
 
-> **0.2.0, the `latest` release.** This README describes 0.2.0. Upgrading
-> from 0.1.0 is a breaking change: 0.1.0 emits modules in the old layout with
-> an object-shaped principal type, refuses a whole interface with
-> `ts_generation_refused` for one declaration it cannot represent, and returns
-> no `omitted` list. The modules this release emits need
-> `@candid-core/schema` 0.3.0 exactly, which is the optional peer it declares;
-> install the two as a pair, each with `--save-exact`:
-> `npm install --save-exact @candid-core/schema` and
-> `npm install --save-dev --save-exact @candid-core/cli`.
+> **0.3.0, the `latest` release.** This README describes 0.3.0. Upgrading
+> from 0.2.0 changes the text of every module `gen` writes (each type is
+> declared under its Candid name, and each method of `Actor` carries its
+> mode), so regenerate committed modules: `gen --check` reports a module
+> 0.2.0 wrote as drifted. It adds the `project` and `check` commands
+> ([Projection and compatibility](#projection-and-compatibility)). The modules
+> this release emits need `@candid-core/schema` 0.4.0 exactly, which is the
+> optional peer it declares; install the two as a pair, each with
+> `--save-exact`: `npm install --save-exact @candid-core/schema` and
+> `npm install --save-dev --save-exact @candid-core/cli`. Upgrading from
+> 0.1.0 is a larger break: 0.1.0 emits modules in an older layout with an
+> object-shaped principal type, refuses a whole interface with
+> `ts_generation_refused` for one declaration it cannot represent, and
+> returns no `omitted` list.
 >
 > `@candid-core/schema` 0.3 breaks the 0.2 API (principal values are canonical text, collapsing opts are boxed, every `vec nat8` is a `Uint8Array`, generated modules use a new binding layout and may omit declarations, and the `./actor`, `./transport-icp`, `./forms` and `./labels` subpaths are gone); there is no compatibility layer.
 >
-> Every change since 0.1.0 is recorded under `0.2.0` and `0.2.0-beta.1` in
-> the [changelog](./CHANGELOG.md), which ships in the tarball, and the
-> [migration notes](https://b3hr4d.github.io/candid-core/migrating-from-0-2.html)
+> Every change is recorded in the [changelog](./CHANGELOG.md), which ships
+> in the tarball: since 0.2.0 under `0.3.0`, and since 0.1.0 under `0.3.0`,
+> `0.2.0` and `0.2.0-beta.1`. The migration notes
+> [from 0.2.0](https://b3hr4d.github.io/candid-core/migrating-from-0-3.html)
+> and [from 0.1.0](https://b3hr4d.github.io/candid-core/migrating-from-0-2.html)
 > show what each break means for your code, with before and after code where
 > the compiler shows it.
 
@@ -222,9 +229,9 @@ const built = schemaFromContract(await didToContract(didText));
 
 ## Projection and compatibility
 
-> **Not in 0.2.0.** `project`, `check`, `projectDid` and `checkCompatible` are
-> unreleased: they ship in the next release, recorded under `Unreleased` in
-> the [changelog](./CHANGELOG.md).
+> **New in 0.3.0.** `project`, `check`, `projectDid` and `checkCompatible`
+> are not in 0.2.0, which exits 64 with its usage for either command; the
+> [changelog](./CHANGELOG.md) records them under `0.3.0`.
 
 Two commands for an interface you do not own, such as a canister's published
 `.did`. Both work on files already on disk: the tool never fetches anything,
