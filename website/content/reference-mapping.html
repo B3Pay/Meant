@@ -2,8 +2,8 @@
   <p>
     This page describes <code>@candid-core/schema</code> <code>0.4.0</code> and
     <code>@candid-core/cli</code> <code>0.3.0</code>, published on 2026-10-10 under the npm <code>latest</code> dist-tag. The previous
-    stable releases, <code>0.3.0</code> and <code>0.2.0</code>, differ in what the generator writes: the generated <code>export type X = …</code> under the Candid name and the <code>$.WithMode</code> mark on each <code>Actor</code> method are new in <code>0.3.0</code> and <code>0.4.0</code> (<code>0.2.0</code> writes <code>type $X = …</code> and bare call signatures). <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what the upgrade means.
-    The stable releases before those, <code>0.2.0</code> and <code>0.1.0</code>, have the old surface: a principal is an object with <code>toText()</code>,
+    stable releases, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, differ in what the generator writes: the generated <code>export type X = …</code> under the Candid name and the <code>$.WithMode</code> mark on each <code>Actor</code> method are new in <code>@candid-core/cli</code> <code>0.3.0</code> and <code>@candid-core/schema</code> <code>0.4.0</code> (CLI <code>0.2.0</code> writes <code>type $X = …</code> and bare call signatures). <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what the upgrade means.
+    The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface: a principal is an object with <code>toText()</code>,
     a collapsing <code>opt</code> is refused, a <code>type Byte = nat8</code> turns every blob into
     <code>number[]</code>, and one declaration the generator cannot represent refuses the whole
     interface. <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code, and each is recorded in the
