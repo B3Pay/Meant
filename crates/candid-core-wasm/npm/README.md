@@ -247,14 +247,15 @@ written in name order, a service import's among the entry's. An unknown
 method name, or an empty list (`--methods ""`), fails with exit 1 and writes
 nothing: each distinct unknown name gets one `unknown_method` diagnostic
 naming it, and the first diagnostic lists the service's methods in its
-`notes`, once; an empty list gets `empty_method_list`. The unknown names'
-messages are bounded at 4 MiB of text in all, as the JSON writes them: the
-name at which they would pass it, and every one after it, are counted in one
-`resource_limit_exceeded` diagnostic (`projection_diagnostic_bytes`) instead
-of reported. A projection must compile again, so it is at most 1 MiB, the
-compiler's bound on one source: one that would be larger fails with exit 1
-and `resource_limit_exceeded` (`projection_bytes`, whose `observed` is where
-writing stopped) and writes nothing. Each name, requested or reached, is
+`notes`, once; an empty list gets `empty_method_list`. The unknown-method
+diagnostics are bounded at 4 MiB in all, each counted as the JSON writes it
+(the list of methods aside): the name at which they would pass it, and every
+one after it, are counted in one `resource_limit_exceeded` diagnostic
+(`projection_diagnostic_bytes`) instead of reported. A projection must
+compile again, so it is at most 1 MiB, the compiler's bound on one source: one
+that would be larger fails with exit 1 and `resource_limit_exceeded`
+(`projection_bytes`, whose `observed` is where writing stopped) and writes
+nothing. Each name, requested or reached, is
 looked up by binary search among names sorted once, so no lookup scans the
 service or the declarations. `-o` is required, and may not be,
 or become, a source of the input: `project` reads the input as `gen` does (the
@@ -314,17 +315,21 @@ warning (`check_warnings`) saying the rest were dropped; its verdict stands.
 The check as a whole is bounded too, so a service with many methods cannot
 multiply those per-method bounds: 10,000,000 steps in all, one more per
 method decided (`check_total_steps`), 10,000 `special_opt_rule` warnings in all
-(`check_total_warnings`), and 4 MiB of reported text, the `method`, `path`
-and `message` strings of every diagnostic but the fail-closed ones below, as
-the JSON writes them (`check_output_bytes`), measured only up to the first
-string that passes that bound. Methods are checked in name order. When one of these
-is reached, the method at which it was reached and every method after it fail
+(`check_total_warnings`), and 4 MiB of reported diagnostics, each counted as
+the JSON response writes it, keys and indentation included
+(`check_output_bytes`), measured only up to the first string that passes that
+bound. Methods are checked in name order. When the step or warning bound is
+reached, the method at which it was reached and every method after it fail
 closed: each gets one `resource_limit_exceeded` error naming the bound, with
-its limit and the observed value, and nothing else, and the check exits `1`.
+its limit and the observed value, and nothing else. Those count against the
+4 MiB like any other diagnostic: once a method's diagnostics would pass it,
+that method and every method after it are counted in one last
+`resource_limit_exceeded` error naming `check_output_bytes`, which names no
+method and holds the count in `unreported_methods` (without `--json`, the one
+line with no method name). Either way the check exits `1`, and the response is
+at most 4 MiB and 1,016 bytes, however many methods the written side has.
 Below these bounds a method's findings do not depend on the other methods;
-once one is reached, they do. Each method left adds its one diagnostic, 397
-bytes for a six-character name, so past a bound the response grows only with
-the method count. So the walk's time grows with its steps (times that
+once one is reached, they do. So the walk's time grows with its steps (times that
 logarithm) and the reported text's with its bytes; compiling both sides,
 within the compiler's own limits, and ranking the method names are done once
 per check, before the walk.
@@ -349,8 +354,10 @@ const projected = await projectDid(liveDid, ["icrc1_balance_of", "icrc1_transfer
 
 const report = await checkCompatible(writtenDid, liveDid);
 // → { ok: true, compatible, written, live, diagnostics }, each diagnostic
-//   { code, severity, method, path?, message }; or { ok: false, input,
-//   diagnostics } when one side does not compile (`input` names it).
+//   { code, severity, method, path?, message } (the one past the 4 MiB
+//   bound has no method, and counts the methods left in
+//   unreported_methods); or { ok: false, input, diagnostics } when one side
+//   does not compile (`input` names it).
 ```
 
 Both take Candid text or `{ entry, files }`, as `didToModule` does. The check

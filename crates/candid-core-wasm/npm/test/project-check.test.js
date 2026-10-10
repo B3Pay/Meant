@@ -184,19 +184,21 @@ test("an unknown-method failure lists the service's methods once, and its text i
   assert.ok(failure.diagnostics.slice(1).every((item) => item.notes === undefined));
   assert.equal(JSON.stringify(failure, null, 2).length, 522_065);
 
-  // 5,000 unknown names of 1,000 bytes: past 4 MiB of messages the rest are
-  // counted, not reported.
+  // 5,000 unknown names of 1,000 bytes: each diagnostic takes 1,148 bytes
+  // as the failure writes it (118 besides its 1,030-byte message), and past
+  // 4 MiB of them the rest are counted, not reported.
   const long = Array.from({ length: 5000 }, (_, index) => String(index).padStart(1000, "0"));
   const bounded = await projectDid(LEDGER, long);
-  assert.equal(bounded.diagnostics.length, 4073);
-  const last = bounded.diagnostics[4072];
+  assert.equal(bounded.diagnostics.length, 3654);
+  const last = bounded.diagnostics[3653];
   assert.equal(last.code, "resource_limit_exceeded");
   assert.deepEqual(last.resource_limit, {
     resource: "projection_diagnostic_bytes",
     limit: 4_194_304,
-    observed: 4072 * 1030 + 1028,
+    observed: 3653 * 1148 + 118 + 1028,
   });
-  assert.match(last.message, /, so 928 unknown method name\(s\) are not reported$/);
+  assert.match(last.message, /, so 1347 unknown method name\(s\) are not reported$/);
+  assert.equal(JSON.stringify(bounded, null, 2).length + 1, 4_194_278);
 });
 
 test("a projection past the compiler's source bound fails with projection_bytes and writes nothing", () => {
@@ -552,6 +554,40 @@ test("past the whole check's warning bound the methods left fail closed and the 
     limit: 10000,
     observed: 11000,
   });
+});
+
+test("past the byte bound one diagnostic, naming no method, counts the methods left and the check exits 1", async () => {
+  // The first method in name order has 1,000 `special_opt_rule` warnings,
+  // each carrying its 5,000-byte name: more than the 4 MiB the reported
+  // diagnostics may take, so it and the two methods after it are counted
+  // in one last diagnostic instead of reported.
+  const record = (leaf) => {
+    const fields = [];
+    for (let id = 0; id < 1000; id += 1) {
+      fields.push(`${id} : opt ${leaf}`);
+    }
+    return `type R = record { ${fields.join("; ")} };\n`;
+  };
+  const name = "a".repeat(5000);
+  const written = `${record("nat")}service : { ${name} : () -> (R); b : () -> (); c : () -> () }\n`;
+  const live = `${record("text")}service : { ${name} : () -> (R) }\n`;
+  const result = checkPair(written, live);
+  assert.equal(result.status, 1);
+  assert.equal(
+    result.stderr,
+    "error: resource_limit_exceeded: the check of the whole service reached its check_output_bytes bound of 4194304; the last 3 written method(s) in name order fail closed, and nothing is reported for them\n",
+  );
+  assert.match(result.stdout, /^incompatible: 1 error\(s\), 0 warning\(s\)$/m);
+
+  const report = await checkCompatible(written, live);
+  assert.equal(report.compatible, false);
+  assert.equal(report.diagnostics.length, 1);
+  const [summary] = report.diagnostics;
+  assert.equal(summary.method, undefined);
+  assert.equal(summary.unreported_methods, 3);
+  assert.equal(summary.resource_limit.resource, "check_output_bytes");
+  assert.equal(summary.resource_limit.limit, 4194304);
+  assert.ok(summary.resource_limit.observed > 4194304);
 });
 
 test("check reports which side failed to compile, and a missing file", () => {

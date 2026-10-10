@@ -85,9 +85,9 @@ export async function didToModule(sources) {
  * the service's methods in its `notes`, once), `empty_method_list`,
  * `no_service`, `resource_limit_exceeded` (`projection_bytes`: the
  * projection would pass the compiler's 1 MiB bound on one source;
- * `projection_diagnostic_bytes`: the unknown names' messages would pass
- * 4 MiB, and the names left are counted, not reported), or the compiler's
- * diagnostics.
+ * `projection_diagnostic_bytes`: the unknown-method diagnostics would pass
+ * 4 MiB as the failure writes them, and the names left are counted, not
+ * reported), or the compiler's diagnostics.
  */
 export async function projectDid(sources, methods) {
   await init();
@@ -103,7 +103,9 @@ export async function projectDid(sources, methods) {
  * Returns `{ ok: true, compatible, written, live, diagnostics }`, where each
  * diagnostic names its method and, inside a type, the path where the check
  * failed; or `{ ok: false, input, diagnostics }` when a side does not
- * compile (`input` names it).
+ * compile (`input` names it). The diagnostics are bounded at 4 MiB as the
+ * response writes them: past that bound one last diagnostic, which names no
+ * method, counts the methods left in `unreported_methods`.
  */
 export async function checkCompatible(written, live) {
   await init();

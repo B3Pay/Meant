@@ -68,6 +68,38 @@
 //! in time linear in the sources plus `O(n log n)` comparisons of names for
 //! `n` declarations or methods. Compiling the input before, and the text
 //! after, is the compiler's cost, within its own limits.
+//!
+//! # The response
+//!
+//! What `projectDid` writes is bounded whatever the request. Field by field
+//! (pretty-printed, keys sorted):
+//!
+//! - **A projection.** `ok`, the keys, and the identities of the input and
+//!   of the projection, fixed-length digests: 564 bytes. `did`, the text: at
+//!   most the compiler's 1 MiB bound on one source, each byte of which the
+//!   JSON writes in at most six. `methods`: eight bytes a method and its
+//!   name as the JSON writes it, each name being on a line of the text of
+//!   its own, at least eight bytes longer than the name. So a projection
+//!   takes at most 12 MiB + 564 bytes, and about the length of its text for
+//!   names and docs that need few escapes.
+//! - **An unknown-method failure.** `ok` and the key, 39 bytes; each
+//!   `unknown_method` diagnostic, charged against
+//!   [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] before it is reported as the bytes
+//!   it takes with the `,\n` before it, so together they take at most that;
+//!   the list of the service's methods in the first one's `notes`, once,
+//!   which the compiler bounds (at most 100,000 methods, their names 1 MiB
+//!   in all), and the bound does not count; the bound's own diagnostic, at
+//!   most one, of fixed text and three numbers and no name, at most 422
+//!   bytes at the shipped bound (twenty digits for the names it counts,
+//!   which only the request bounds); and the two bytes `[]` opens by. So it
+//!   takes at most [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] + 463 bytes beside
+//!   the list.
+//! - **Other failures.** `empty_method_list`, `no_service` and
+//!   `projection_bytes` are fixed text and numbers; `invalid_request`
+//!   echoes the request's keys or file names, so it is linear in the
+//!   request; a compile failure is the compiler's own diagnostics; and
+//!   `projection_failed`, which no input is known to reach, carries the
+//!   compiler's diagnostics on the text, or the methods it holds.
 
 use std::borrow::Borrow;
 use std::collections::BTreeSet;
@@ -79,14 +111,16 @@ use candid_parser::syntax::{
 };
 use candid_parser::IDLProg;
 
-/// The most text the unknown-method diagnostics of one projection report, in
-/// bytes: their messages, as the JSON response writes them (escapes
-/// included, quotes not). 4 MiB, the compiler's default `max_input_bytes`
-/// and the check's bound on its reported text. The unknown name whose
-/// message would take the text past it, and every unknown name after it,
-/// are not reported; one `resource_limit_exceeded` diagnostic
-/// (`projection_diagnostic_bytes`) says how many were left. The text is
-/// measured only up to the first message that passes the bound.
+/// The most bytes the unknown-method diagnostics of one projection take in
+/// its failure: each diagnostic as the JSON response writes it (its keys,
+/// punctuation, indentation, code, phase and severity, its message with
+/// its escapes, and the `,\n` before it), the list of the service's methods
+/// the first one carries aside. 4 MiB, the compiler's default
+/// `max_input_bytes` and the check's bound on its reported diagnostics. The
+/// unknown name whose diagnostic would take the total past it, and every
+/// unknown name after it, are not reported; one `resource_limit_exceeded`
+/// diagnostic (`projection_diagnostic_bytes`) says how many were left. A
+/// message is measured only up to the first one that passes the bound.
 pub const MAX_PROJECTION_DIAGNOSTIC_BYTES: usize = 4 * 1024 * 1024;
 
 /// How a projection runs. [`ProjectionOptions::default`] is what

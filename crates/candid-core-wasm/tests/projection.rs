@@ -26,7 +26,80 @@ fn project(sources: Value, methods: &[&str]) -> Value {
         other => other,
     };
     request["methods"] = json!(methods);
-    serde_json::from_str(&project_did(&request.to_string())).unwrap()
+    counted(
+        &project_did(&request.to_string()),
+        MAX_PROJECTION_DIAGNOSTIC_BYTES,
+    )
+}
+
+/// The bytes a projection takes besides its text and its methods' names:
+/// `ok`, the keys, and the identities of the input and of the projection,
+/// which are of fixed length.
+const PROJECTION: usize = 564;
+
+/// The bytes a failure with no diagnostic takes: `ok` and the key.
+const FAILURE: usize = 39;
+
+/// The bytes the JSON writes for `text`, quotes aside.
+fn json_len(text: &str) -> usize {
+    serde_json::to_string(text).unwrap().len() - 2
+}
+
+/// The bytes `item` takes in a response: an item of its `diagnostics`
+/// array, two levels deep in the pretty-printed document, with the `,\n`
+/// before it.
+fn written_bytes(item: &Value) -> usize {
+    let text = serde_json::to_string_pretty(item).unwrap();
+    2 + text.len() + 4 * (1 + text.matches('\n').count())
+}
+
+/// What the list of the service's methods adds to the diagnostic that
+/// carries it: the only part of an unknown-method failure its bound does not
+/// count.
+fn list_bytes(item: &Value) -> usize {
+    let mut bare = item.clone();
+    bare.as_object_mut().unwrap().remove("notes");
+    written_bytes(item) - written_bytes(&bare)
+}
+
+/// Parse a `projectDid` response, after holding it to what it is made of. A
+/// projection is [`PROJECTION`] bytes, its text as the JSON writes it, and
+/// eight bytes and its name as the JSON writes it per method. A failure is
+/// [`FAILURE`] bytes and, when it has diagnostics, two bytes more (`[]`
+/// opens to `[\n…\n  ]`) and each item as [`written_bytes`] counts it; of
+/// an unknown-method failure, the items before the bound's own, the list of
+/// the service's methods aside, take at most `limit` bytes.
+fn counted(response: &str, limit: usize) -> Value {
+    let value: Value = serde_json::from_str(response).unwrap();
+    if value["ok"] == json!(true) {
+        for side in ["input", "projection"] {
+            for (identity, length) in [("contract_id", 95), ("interface_id", 96)] {
+                assert_eq!(value[side][identity].as_str().unwrap().len(), length);
+            }
+        }
+        let names: usize = value["methods"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|name| 8 + json_len(name.as_str().unwrap()))
+            .sum();
+        let text = json_len(value["did"].as_str().unwrap());
+        assert_eq!(response.len(), PROJECTION + text + names);
+        return value;
+    }
+    let items = value["diagnostics"].as_array().unwrap();
+    let open = if items.is_empty() { 0 } else { 2 };
+    let bytes: usize = items.iter().map(written_bytes).sum();
+    assert_eq!(response.len(), FAILURE + open + bytes);
+    if items.iter().any(|item| item["code"] == "unknown_method") {
+        let reported: usize = items
+            .iter()
+            .filter(|item| item["code"] == "unknown_method")
+            .map(written_bytes)
+            .sum();
+        assert!(reported - list_bytes(&items[0]) <= limit);
+    }
+    value
 }
 
 fn single(source: &str) -> String {
@@ -479,7 +552,10 @@ fn unknown_and_empty_method_lists_fail_with_diagnostics() {
         json!({ "source": source, "methods": [1] }),
         json!({ "source": source, "methods": [], "extra": true }),
     ] {
-        let response: Value = serde_json::from_str(&project_did(&request.to_string())).unwrap();
+        let response = counted(
+            &project_did(&request.to_string()),
+            MAX_PROJECTION_DIAGNOSTIC_BYTES,
+        );
         assert_eq!(
             response["diagnostics"][0]["code"],
             json!("invalid_request"),
@@ -698,7 +774,7 @@ fn request(sources: Value, methods: &[String]) -> String {
 fn project_with(request: &str, options: ProjectionOptions) -> (Value, usize, ProjectionWork) {
     let (response, work) = project_did_with(request, options);
     (
-        serde_json::from_str(&response).unwrap(),
+        counted(&response, options.diagnostic_byte_limit),
         response.len(),
         work,
     )
@@ -991,12 +1067,19 @@ fn a_projection_past_the_compilers_source_bound_stops_printing() {
     );
 }
 
-/// The text of the unknown-method messages is bounded in all
-/// ([`MAX_PROJECTION_DIAGNOSTIC_BYTES`]), as the check's reported text is:
-/// the name whose message would pass the bound, and every unknown name after
-/// it, are only counted, and one `resource_limit_exceeded` diagnostic
-/// (`projection_diagnostic_bytes`) ends the list. A message is measured as
-/// the JSON writes it, and only while its raw length fits in what is left.
+/// The bytes an `unknown_method` diagnostic takes in a failure besides its
+/// message: its keys, punctuation, indentation, code, phase and severity.
+const UNKNOWN_FRAME: usize = 118;
+
+/// The unknown-method diagnostics are bounded in all
+/// ([`MAX_PROJECTION_DIAGNOSTIC_BYTES`]), as the check's are: each counts as
+/// the failure writes it, its frame and its message, and the name whose
+/// diagnostic would pass the bound, and every unknown name after it, are
+/// only counted, in one `resource_limit_exceeded` diagnostic
+/// (`projection_diagnostic_bytes`) that ends the list. The list of the
+/// service's methods the first diagnostic carries is not counted. A message
+/// is measured as the JSON writes it, and only while its raw length fits in
+/// what is left.
 #[test]
 fn the_unknown_method_text_is_bounded() {
     let source = fixture("ledger");
@@ -1025,11 +1108,24 @@ fn the_unknown_method_text_is_bounded() {
             .map(|item| item["code"].as_str().unwrap().to_string())
             .collect::<Vec<_>>()
     };
-    // `the service has no method \"x\"`: 31 bytes as the JSON writes it,
-    // so three take 93.
-    let all = bounded(&three, 93);
+    assert_eq!(
+        UNKNOWN_FRAME,
+        written_bytes(&json!({
+            "code": "unknown_method",
+            "message": "",
+            "phase": "project",
+            "severity": "error",
+        }))
+    );
+    // `the service has no method \"x\"`: 31 bytes as the JSON writes it, so
+    // an item takes 149, and three 447.
+    let item = UNKNOWN_FRAME + 31;
+    let all = bounded(&three, 3 * item);
     assert_eq!(codes(&all), ["unknown_method"; 3]);
-    let two = bounded(&three, 92);
+    let items = all["diagnostics"].as_array().unwrap();
+    assert_eq!(written_bytes(&items[1]), item);
+    assert_eq!(written_bytes(&items[0]) - list_bytes(&items[0]), item);
+    let two = bounded(&three, 3 * item - 1);
     assert_eq!(
         codes(&two),
         [
@@ -1040,16 +1136,16 @@ fn the_unknown_method_text_is_bounded() {
     );
     assert_eq!(
         two["diagnostics"][2]["resource_limit"],
-        json!({ "resource": "projection_diagnostic_bytes", "limit": 92, "observed": 93 })
+        json!({ "resource": "projection_diagnostic_bytes", "limit": 3 * item - 1, "observed": 3 * item })
     );
     assert_eq!(
         two["diagnostics"][2]["message"],
-        json!("the unknown-method diagnostics reached their projection_diagnostic_bytes bound of 92, so 1 unknown method name(s) are not reported")
+        json!(format!("the unknown-method diagnostics reached their projection_diagnostic_bytes bound of {}, so 1 unknown method name(s) are not reported", 3 * item - 1))
     );
     assert!(two["diagnostics"][0]["notes"].is_array());
     // Not even the first fits: the bound's diagnostic is the first, and it
     // carries the service's methods.
-    let none = bounded(&three, 30);
+    let none = bounded(&three, item - 1);
     assert_eq!(codes(&none), ["resource_limit_exceeded"]);
     assert_eq!(none["diagnostics"][0]["notes"].as_array().unwrap().len(), 8);
     assert!(none["diagnostics"][0]["message"]
@@ -1059,46 +1155,112 @@ fn the_unknown_method_text_is_bounded() {
     // A name longer than what is left is counted at its raw length, not
     // quoted and measured: 1,000 quotes would be 4,030 bytes written.
     let quotes = request(json!(source), &["\"".repeat(1_000)]);
-    let long = bounded(&quotes, 100);
+    let long = bounded(&quotes, UNKNOWN_FRAME + 100);
     assert_eq!(
         long["diagnostics"][0]["resource_limit"]["observed"],
-        json!(26 + 1_000 + 2)
+        json!(UNKNOWN_FRAME + 26 + 1_000 + 2)
     );
-    let measured = bounded(&quotes, 4_030);
+    let measured = bounded(&quotes, UNKNOWN_FRAME + 4_030);
     assert_eq!(codes(&measured), ["unknown_method"]);
     assert_eq!(
-        serde_json::to_string(&measured["diagnostics"][0]["message"])
-            .unwrap()
-            .len()
-            - 2,
+        json_len(measured["diagnostics"][0]["message"].as_str().unwrap()),
         4_030
     );
 
-    // At the default bound: 5,000 unknown names of 1,000 bytes each, 5 MB of
-    // messages (1,030 bytes each as the JSON writes them); the first 4,072
-    // are reported.
+    // At the default bound: 5,000 unknown names of 1,000 bytes each, items
+    // of 1,148 bytes (a 1,030-byte message): the first 3,653 are reported.
     let long_names: Vec<String> = (0..5_000).map(|index| format!("{index:01000}")).collect();
     let (response, length, _) = project_with(
         &request(json!(source), &long_names),
         ProjectionOptions::default(),
     );
     let items = response["diagnostics"].as_array().unwrap();
-    assert_eq!(items.len(), 4_073);
+    let each = UNKNOWN_FRAME + 1_030;
+    let fits = MAX_PROJECTION_DIAGNOSTIC_BYTES / each;
+    assert_eq!(fits, 3_653);
+    assert_eq!(items.len(), fits + 1);
     assert_eq!(
-        items[4_072]["resource_limit"],
+        items[fits]["resource_limit"],
         json!({
             "resource": "projection_diagnostic_bytes",
             "limit": MAX_PROJECTION_DIAGNOSTIC_BYTES,
-            // The 4,073rd is longer than what is left, so it is counted
-            // at its raw length.
-            "observed": 4_072 * 1_030 + 1_028,
+            // The 3,654th's frame fits, and its message is longer than
+            // what is left, so it is counted at its raw length.
+            "observed": fits * each + UNKNOWN_FRAME + 1_028,
         })
     );
-    assert!(items[4_072]["message"]
+    assert!(items[fits]["message"]
         .as_str()
         .unwrap()
-        .ends_with(", so 928 unknown method name(s) are not reported"));
-    // 4 MiB of messages, the per-diagnostic keys, and the ledger's eight
-    // methods once.
-    assert_eq!(length, 4_675_289);
+        .ends_with(", so 1347 unknown method name(s) are not reported"));
+    // At most 4 MiB of diagnostics, the ledger's eight methods once, and
+    // the bound's diagnostic.
+    assert_eq!(length, 4_194_278);
+    assert!(length <= MAX_PROJECTION_DIAGNOSTIC_BYTES + past_the_bound() + list_bytes(&items[0]));
+}
+
+/// What an unknown-method failure may take beyond its bound and the list of
+/// the service's methods, at the shipped bound: its envelope, the two bytes
+/// `[]` opens by, and the bound's diagnostic written with the most digits
+/// each of its numbers can take: the bound's own, eight for `observed` (see
+/// the check's), and twenty for the names it counts, which only the request
+/// bounds.
+fn past_the_bound() -> usize {
+    let limit = MAX_PROJECTION_DIAGNOSTIC_BYTES;
+    let count = u64::MAX;
+    FAILURE
+        + 2
+        + written_bytes(&json!({
+            "code": "resource_limit_exceeded",
+            "message": format!("the unknown-method diagnostics reached their projection_diagnostic_bytes bound of {limit}, so {count} unknown method name(s) are not reported"),
+            "phase": "project",
+            "resource_limit": { "limit": limit, "observed": 99_999_999, "resource": "projection_diagnostic_bytes" },
+            "severity": "error",
+        }))
+}
+
+/// Codex round 5, on the projection: the unknown-method bound counted only
+/// the messages, so each diagnostic's keys, code, phase and severity, 118
+/// bytes, came on top, and many short unknown names took the failure far
+/// past the bound. Each diagnostic now counts whole: 200,000 unknown names
+/// of seven bytes get 27,060 diagnostics, at most the bound plus
+/// [`past_the_bound`] and the list once; before this round the same
+/// request got a 17.6 MB response.
+#[test]
+fn an_unknown_method_failure_is_bounded_whatever_the_names() {
+    let names: Vec<String> = (0..200_000).map(|index| format!("x{index:06}")).collect();
+    let (response, length, _) = project_with(
+        &request(json!(fixture("ledger")), &names),
+        ProjectionOptions::default(),
+    );
+    let items = response["diagnostics"].as_array().unwrap();
+    // `the service has no method \"x000000\"`: 37 bytes, so 155 an item.
+    let each = UNKNOWN_FRAME + 37;
+    let fits = MAX_PROJECTION_DIAGNOSTIC_BYTES / each;
+    assert_eq!(fits, 27_060);
+    assert_eq!(items.len(), fits + 1);
+    for (item, name) in items.iter().zip(&names) {
+        if item["code"] == "unknown_method" {
+            assert_eq!(
+                item["message"],
+                json!(format!("the service has no method {name:?}"))
+            );
+        }
+    }
+    assert_eq!(
+        items[fits]["resource_limit"],
+        json!({
+            "resource": "projection_diagnostic_bytes",
+            "limit": MAX_PROJECTION_DIAGNOSTIC_BYTES,
+            // Four bytes were left, so the next one's frame passed it.
+            "observed": fits * each + UNKNOWN_FRAME,
+        })
+    );
+    assert!(items[fits]["message"]
+        .as_str()
+        .unwrap()
+        .ends_with(", so 172940 unknown method name(s) are not reported"));
+    assert_eq!(length, 4_194_936);
+    assert!(length <= MAX_PROJECTION_DIAGNOSTIC_BYTES + past_the_bound() + list_bytes(&items[0]));
+    assert_eq!(past_the_bound(), 463);
 }

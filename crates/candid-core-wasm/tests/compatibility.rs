@@ -39,7 +39,64 @@ use serde_json::{json, Value};
 
 fn check(written: &str, live: &str) -> Value {
     let request = json!({ "written": { "source": written }, "live": { "source": live } });
-    serde_json::from_str(&check_compatible(&request.to_string())).unwrap()
+    counted(
+        &check_compatible(&request.to_string()),
+        MAX_CHECK_OUTPUT_BYTES,
+    )
+}
+
+/// The bytes a successful response with no diagnostic takes: `ok`, the
+/// verdict, and both sides' identities, which are of fixed length. One more
+/// when the verdict is `false`.
+const ENVELOPE: usize = 571;
+
+/// The bytes `item` takes in a response: an item of its `diagnostics`
+/// array, two levels deep in the pretty-printed document, with the `,\n`
+/// before it.
+fn written_bytes(item: &Value) -> usize {
+    let text = serde_json::to_string_pretty(item).unwrap();
+    2 + text.len() + 4 * (1 + text.matches('\n').count())
+}
+
+/// Whether `item` is the summary that ends a check past its byte bound.
+fn is_summary(item: &Value) -> bool {
+    item.get("unreported_methods").is_some()
+}
+
+/// Parse a `checkCompatible` response, after holding a successful one to
+/// what its byte bound counts: its length is the envelope and, when it has
+/// diagnostics, two bytes more (`[]` opens to `[\n…\n  ]`) and each item as
+/// [`written_bytes`] counts it, and the items before the summary, if there
+/// is one, take at most `limit` bytes. So the meter's model of an item, its
+/// frame and its strings, is held to the bytes `serde_json` writes, on every
+/// response of this file.
+fn counted(response: &str, limit: usize) -> Value {
+    let value: Value = serde_json::from_str(response).unwrap();
+    if value["ok"] != json!(true) {
+        return value;
+    }
+    for side in ["written", "live"] {
+        for (identity, length) in [("contract_id", 95), ("interface_id", 96)] {
+            assert_eq!(value[side][identity].as_str().unwrap().len(), length);
+        }
+    }
+    let items = value["diagnostics"].as_array().unwrap();
+    let envelope = ENVELOPE + usize::from(value["compatible"] == json!(false));
+    let bytes: usize = items.iter().map(written_bytes).sum();
+    let open = if items.is_empty() { 0 } else { 2 };
+    assert_eq!(response.len(), envelope + open + bytes);
+    let reported: usize = items
+        .iter()
+        .filter(|item| !is_summary(item))
+        .map(written_bytes)
+        .sum();
+    assert!(reported <= limit, "{reported} > {limit}");
+    // At most one summary, and only last.
+    let summaries: Vec<usize> = (0..items.len())
+        .filter(|index| is_summary(&items[*index]))
+        .collect();
+    assert!(summaries.is_empty() || summaries == [items.len() - 1]);
+    value
 }
 
 /// `(code, method, path)` of every diagnostic, in order.
@@ -548,7 +605,10 @@ fn bundles_and_failures() {
         } },
         "live": { "source": "service : { get : () -> (record { id : nat; name : opt text }) query }" },
     });
-    let response: Value = serde_json::from_str(&check_compatible(&request.to_string())).unwrap();
+    let response = counted(
+        &check_compatible(&request.to_string()),
+        MAX_CHECK_OUTPUT_BYTES,
+    );
     assert_eq!(response["compatible"], json!(true), "{response}");
 
     // A side that does not compile names itself; the diagnostics are the
@@ -770,7 +830,10 @@ service : { f : () -> (R); g : () -> (R) }";
             step_limit,
             ..CheckOptions::default()
         };
-        serde_json::from_str(&check_compatible_with(&request, options)).unwrap()
+        counted(
+            &check_compatible_with(&request, options),
+            options.output_byte_limit,
+        )
     };
     let response = run(8);
     assert_eq!(response["compatible"], json!(true), "{response}");
@@ -792,11 +855,14 @@ service : { f : () -> (R); g : () -> (R) }";
 /// `checkCompatible` under `options`.
 fn check_with(written: &str, live: &str, options: CheckOptions) -> Value {
     let request = json!({ "written": { "source": written }, "live": { "source": live } });
-    serde_json::from_str(&check_compatible_with(&request.to_string(), options)).unwrap()
+    counted(
+        &check_compatible_with(&request.to_string(), options),
+        options.output_byte_limit,
+    )
 }
 
 /// The fail-closed diagnostic a method gets once the whole check has
-/// reached an aggregate bound.
+/// reached its work or warning bound.
 fn stopped(method: &str, resource: &str, limit: usize, observed: usize) -> Value {
     json!({
         "code": "resource_limit_exceeded",
@@ -804,6 +870,19 @@ fn stopped(method: &str, resource: &str, limit: usize, observed: usize) -> Value
         "method": method,
         "message": format!("the check of the whole service reached its {resource} bound of {limit}; this method fails closed, and nothing else is reported for it"),
         "resource_limit": { "resource": resource, "limit": limit, "observed": observed },
+    })
+}
+
+/// The one diagnostic that ends a check whose report reached its byte
+/// bound: the last `methods` written methods, counted and not reported. It
+/// names no method.
+fn unreported(limit: usize, observed: usize, methods: usize) -> Value {
+    json!({
+        "code": "resource_limit_exceeded",
+        "severity": "error",
+        "message": format!("the check of the whole service reached its check_output_bytes bound of {limit}; the last {methods} written method(s) in name order fail closed, and nothing is reported for them"),
+        "resource_limit": { "resource": "check_output_bytes", "limit": limit, "observed": observed },
+        "unreported_methods": methods,
     })
 }
 
@@ -961,7 +1040,7 @@ fn warnings_are_bounded_across_the_check() {
         (
             request.len(),
             response.len(),
-            serde_json::from_str::<Value>(&response).unwrap(),
+            counted(&response, MAX_CHECK_OUTPUT_BYTES),
         )
     };
     let (_, at_bound_bytes, at_bound) = run(10);
@@ -1006,8 +1085,8 @@ fn warnings_are_bounded_across_the_check() {
     }
     // The sizes the CLI page rounds: 100 methods, a 5.3 KB request, a 2.8 MB
     // response (27.8 MB before this bound, measured on the earlier code, not
-    // pinned here); 3,000 methods, 4.0 MB; and 397 bytes for each method
-    // left past the bound, whose name has six characters.
+    // pinned here); and 397 bytes for each method left past the bound, whose
+    // name has six characters, while those diagnostics fit in the byte bound.
     assert_eq!((sizes[2].2 - sizes[1].2) / (3000 - 100), 397);
     assert_eq!((sizes[2].2 - sizes[1].2) % (3000 - 100), 0);
     assert_eq!(
@@ -1018,13 +1097,44 @@ fn warnings_are_bounded_across_the_check() {
             (3000, 132_879, 3_971_454),
         ]
     );
+
+    // They are charged against it like any other: of 5,000 methods, those
+    // whose fail-closed diagnostic fits are reported, and one summary counts
+    // the rest. Before this round each of the 4,990 got its diagnostic, a
+    // 4,765,454-byte response.
+    let (_, response_bytes, response) = run(5_000);
+    let items = response["diagnostics"].as_array().unwrap();
+    assert_eq!(
+        items[..10 * 1001],
+        at_bound["diagnostics"].as_array().unwrap()[..]
+    );
+    let (summary, closed) = items[10 * 1001..].split_last().unwrap();
+    assert_eq!(closed.len(), 3_552);
+    for (index, item) in closed.iter().enumerate() {
+        assert_eq!(
+            *item,
+            stopped(
+                &format!("m{:05}", 10 + index),
+                "check_total_warnings",
+                MAX_CHECK_TOTAL_WARNINGS,
+                11_000
+            )
+        );
+    }
+    let observed = summary["resource_limit"]["observed"].as_u64().unwrap() as usize;
+    assert_eq!(
+        *summary,
+        unreported(MAX_CHECK_OUTPUT_BYTES, observed, 5_000 - 10 - closed.len())
+    );
+    assert!(response_bytes <= MAX_CHECK_OUTPUT_BYTES + past_the_bound());
 }
 
-/// The diagnostic text the whole check reports is bounded in bytes, so a
-/// long name repeated along paths cannot multiply the response: the
-/// `method`, `path` and `message` strings of each method's diagnostics
-/// count, and the method that would pass the bound, and every method after
-/// it, fail closed.
+/// The diagnostics the whole check reports are bounded in bytes, so a long
+/// name repeated along paths cannot multiply the response: each diagnostic
+/// counts as the response writes it, its keys, punctuation, indentation and
+/// fixed values as well as its `method`, `path` and `message` strings, and
+/// from the method whose diagnostics would pass the bound, the methods left
+/// are counted in one last diagnostic instead of reported.
 #[test]
 fn the_output_is_bounded_across_the_check() {
     assert_eq!(MAX_CHECK_OUTPUT_BYTES, 4 * 1024 * 1024);
@@ -1041,23 +1151,25 @@ fn the_output_is_bounded_across_the_check() {
             list.join(" ")
         )
     };
-    // Each method fails at `$results[0].x`: its text is the method name, the
-    // path and the message.
+    // Each method fails at `$results[0].x`: one diagnostic, its frame and
+    // its three strings.
     let written = source("nat", "x", 3);
     let live = source("text", "x", 3);
     let unbounded = check(&written, &live);
     let items = unbounded["diagnostics"].as_array().unwrap();
     assert_eq!(items.len(), 3);
-    let text = |item: &Value| -> usize {
-        ["method", "path", "message"]
-            .iter()
-            .map(|key| item[*key].as_str().map_or(0, str::len))
-            .sum()
-    };
-    let each = text(&items[0]);
+    let frame = written_bytes(&json!({
+        "code": "method_incompatible",
+        "severity": "error",
+        "method": "",
+        "path": "",
+        "message": "",
+    }));
+    assert_eq!(frame, 135);
+    let each = written_bytes(&items[0]);
     assert_eq!(
         each,
-        "m00000".len() + "$results[0].x".len() + "text is not a subtype of nat".len()
+        frame + "m00000".len() + "$results[0].x".len() + "text is not a subtype of nat".len()
     );
     let run = |output_byte_limit: usize| {
         let options = CheckOptions {
@@ -1068,17 +1180,16 @@ fn the_output_is_bounded_across_the_check() {
     };
     // Exactly at the bound: all three reported.
     assert_eq!(run(3 * each), unbounded);
-    // One byte under: the third is not.
+    // One byte under: the third is not, and the summary counts it.
     let response = run(3 * each - 1);
-    assert_eq!(response["diagnostics"].as_array().unwrap()[..2], items[..2]);
     assert_eq!(
-        response["diagnostics"][2],
-        stopped("m00002", "check_output_bytes", 3 * each - 1, 3 * each)
+        response["diagnostics"],
+        json!([items[0], items[1], unreported(3 * each - 1, 3 * each, 1)])
     );
 
     // The bytes are counted as the JSON response writes them, escapes
     // included: a method name of five bytes, with a tab, a quote and a
-    // control character, takes twelve.
+    // control character, takes twelve, eleven more than `z`.
     let escaped = |leaf: &str| {
         format!(
             "type R = record {{ x : {leaf} }};\nservice : {{ \"t\\tq\\\"\\u{{1}}\" : () -> (R); \"z\" : () -> (R) }}\n"
@@ -1087,16 +1198,9 @@ fn the_output_is_bounded_across_the_check() {
     let unbounded = check(&escaped("nat"), &escaped("text"));
     let items = unbounded["diagnostics"].as_array().unwrap();
     assert_eq!(items[0]["method"], json!("t\tq\"\u{1}"));
-    let written_text = |item: &Value| -> usize {
-        ["method", "path", "message"]
-            .iter()
-            .map(|key| serde_json::to_string(&item[*key]).unwrap().len() - 2)
-            .sum()
-    };
-    let name = "t\\tq\\\"\\u0001".len();
-    assert_eq!(name, 12);
-    assert_eq!(written_text(&items[0]), name + text(&items[1]) - 1);
-    let both = written_text(&items[0]) + written_text(&items[1]);
+    assert_eq!("t\\tq\\\"\\u0001".len(), 12);
+    assert_eq!(written_bytes(&items[0]), written_bytes(&items[1]) + 11);
+    let both = written_bytes(&items[0]) + written_bytes(&items[1]);
     let run = |output_byte_limit: usize| {
         let options = CheckOptions {
             output_byte_limit,
@@ -1106,34 +1210,32 @@ fn the_output_is_bounded_across_the_check() {
     };
     assert_eq!(run(both), unbounded);
     assert_eq!(
-        run(both - 1)["diagnostics"][1],
-        stopped("z", "check_output_bytes", both - 1, both)
+        run(both - 1)["diagnostics"],
+        json!([items[0], unreported(both - 1, both, 1)])
     );
 
     // At the shipped bound: a 100,000-byte field name on every path. 41
-    // methods' text fits in 4 MiB; the 42nd and the rest fail closed.
+    // methods fit in 4 MiB; the 42nd, at whose name the count passes the
+    // bound, and the eight after it are counted in the summary.
     let name = "x".repeat(100_000);
     let response = check(&source("nat", &name, 50), &source("text", &name, 50));
     let items = response["diagnostics"].as_array().unwrap();
-    assert_eq!(items.len(), 50);
-    let each = "m00000".len() + 1 + "$results[0].".len() + name.len() - 1
+    let each = frame
+        + "m00000".len()
+        + "$results[0].".len()
+        + name.len()
         + "text is not a subtype of nat".len();
     let fits = MAX_CHECK_OUTPUT_BYTES / each;
     assert_eq!(fits, 41);
+    assert_eq!(items.len(), fits + 1);
     for item in &items[..fits] {
         assert_eq!(item["code"], json!("method_incompatible"));
+        assert_eq!(written_bytes(item), each);
     }
-    for (index, item) in items[fits..].iter().enumerate() {
-        assert_eq!(
-            *item,
-            stopped(
-                &format!("m{:05}", fits + index),
-                "check_output_bytes",
-                MAX_CHECK_OUTPUT_BYTES,
-                (fits + 1) * each
-            )
-        );
-    }
+    assert_eq!(
+        items[fits],
+        unreported(MAX_CHECK_OUTPUT_BYTES, (fits + 1) * each, 50 - fits)
+    );
 }
 
 /// Measuring a method's text stops at the first string that takes it past
@@ -1185,7 +1287,7 @@ fn measuring_the_output_stops_at_the_bound() {
         );
         assert_eq!(
             response["diagnostics"],
-            json!([stopped("f", "check_output_bytes", limit, observed)])
+            json!([unreported(limit, observed, 1)])
         );
     }
 
@@ -1204,13 +1306,220 @@ fn measuring_the_output_stops_at_the_bound() {
     );
     assert_eq!(
         response["diagnostics"],
-        json!([stopped(
-            &name,
-            "check_output_bytes",
-            MAX_CHECK_OUTPUT_BYTES,
-            observed
-        )])
+        json!([unreported(MAX_CHECK_OUTPUT_BYTES, observed, 1)])
     );
+}
+
+/// What a successful response may take beyond the output bound at the
+/// shipped bounds, in bytes: its envelope with the verdict `false`, the two
+/// bytes `[]` opens by, and the summary written with the most digits each of
+/// its numbers can take there: the bound's own; eight for `observed`, since
+/// measuring stops at the first string that passes the bound, and a string
+/// measured exactly is at most seven times what was left of it, plus eight;
+/// and six for the methods it counts, at most the compiler's 100,000.
+fn past_the_bound() -> usize {
+    ENVELOPE + 1 + 2 + written_bytes(&unreported(MAX_CHECK_OUTPUT_BYTES, 99_999_999, 100_000))
+}
+
+// Eight digits are enough for `observed` at the shipped bound.
+const _: () = assert!(7 * MAX_CHECK_OUTPUT_BYTES + 8 < 100_000_000);
+
+/// A method name for a large service: one to three bytes, identifier-shaped,
+/// never a keyword, and after every name that starts with `A` in name order.
+fn short_name(mut index: usize) -> String {
+    const FIRST: &[u8] = b"BCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const REST: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+    let mut name = vec![FIRST[index % FIRST.len()]];
+    index /= FIRST.len();
+    while index > 0 {
+        index -= 1;
+        name.push(REST[index % REST.len()]);
+        index /= REST.len();
+    }
+    String::from_utf8(name).unwrap()
+}
+
+/// One source of `types`, then a service of the `first` methods and as many
+/// `() -> ()` methods named by [`short_name`] as make `methods` in all.
+fn large_service(types: &str, first: &[String], methods: usize) -> String {
+    let mut source = format!("{types}service:{{\n");
+    for line in first {
+        source.push_str(line);
+        source.push('\n');
+    }
+    for index in 0..methods - first.len() {
+        source.push_str(&format!("{}:()->();\n", short_name(index)));
+    }
+    source.push_str("}\n");
+    source
+}
+
+/// A check of `written`, one source named `a` (whose source ID, `memory:/a`,
+/// is short), against `live`.
+fn large_request(written: &str, live: &str) -> String {
+    json!({
+        "written": { "entry": "a", "files": { "a": written } },
+        "live": { "source": live },
+    })
+    .to_string()
+}
+
+/// The compiler accepts `methods` methods in a written source of this shape,
+/// and refuses one more: so a test of this shape has as many methods as the
+/// compiler accepts. What binds is its canonicalization work, which every
+/// method's name costs on each round of its refinement; with the source info
+/// the check compiles, a Contract's own bound of 100,000 methods is out of
+/// reach.
+fn assert_as_many_as_the_compiler_accepts(
+    types: &str,
+    first: &[String],
+    live: &str,
+    methods: usize,
+) {
+    let refused: Value = serde_json::from_str(&check_compatible(&large_request(
+        &large_service(types, first, methods + 1),
+        live,
+    )))
+    .unwrap();
+    assert_eq!(refused["ok"], json!(false));
+    assert_eq!(refused["input"], json!("written"));
+    assert_eq!(
+        refused["diagnostics"][0]["resource_limit"]["resource"],
+        json!("canonicalization_work")
+    );
+}
+
+/// Codex round 5: once an aggregate bound was reached, every method left got
+/// a fail-closed diagnostic of its own, outside the output bound, so past it
+/// the response grew by about 400 bytes a method. Every diagnostic, a
+/// fail-closed one included, is now charged against the bound, and from the
+/// method whose diagnostics would pass it, the methods left are counted in
+/// one summary. Here the first method in name order, of as many as the
+/// compiler accepts in one source, passes the bound alone: its 1,000
+/// warnings each carry its 5,000-byte name, 5.3 MB in all. So the response
+/// is the summary alone, counting every method, and at most
+/// [`MAX_CHECK_OUTPUT_BYTES`] plus [`past_the_bound`] bytes; before this
+/// round it was 11.5 MB.
+#[test]
+fn a_service_whose_first_method_passes_the_byte_bound_gets_one_summary() {
+    let record = |leaf: &str| {
+        let fields: Vec<String> = (0..1_000).map(|id| format!("{id} : opt {leaf}")).collect();
+        format!("type R = record {{ {} }};\n", fields.join("; "))
+    };
+    let name = "A".repeat(5_000);
+    let first = [format!("{name} : () -> (R);")];
+    let methods = 29_005;
+    let live = format!("{}service : {{ {name} : () -> (R) }}\n", record("text"));
+    assert_as_many_as_the_compiler_accepts(&record("nat"), &first, &live, methods);
+    let response = check_compatible(&large_request(
+        &large_service(&record("nat"), &first, methods),
+        &live,
+    ));
+    let value = counted(&response, MAX_CHECK_OUTPUT_BYTES);
+    assert_eq!(value["ok"], json!(true));
+    assert_eq!(value["compatible"], json!(false));
+    let items = value["diagnostics"].as_array().unwrap();
+    assert_eq!(items.len(), 1, "{}", items[0]);
+    // Measuring stopped at the name that passed the bound.
+    let observed = items[0]["resource_limit"]["observed"].as_u64().unwrap() as usize;
+    assert!(
+        observed > MAX_CHECK_OUTPUT_BYTES && observed <= MAX_CHECK_OUTPUT_BYTES + name.len(),
+        "{observed}"
+    );
+    assert_eq!(
+        items[0],
+        unreported(MAX_CHECK_OUTPUT_BYTES, observed, methods)
+    );
+    assert_eq!(response.len(), ENVELOPE + 1 + 2 + written_bytes(&items[0]));
+    assert!(response.len() <= MAX_CHECK_OUTPUT_BYTES + past_the_bound());
+    assert_eq!(past_the_bound(), 1_016);
+}
+
+/// The same at the work bound. Each of the first ten methods walks 210
+/// records that each hold a 2,400-field record and then fail under an
+/// `opt`, so each probe forgets what it proved and the next walks it again:
+/// each method reaches its own bound of 1,000,000 steps, and the tenth the
+/// whole check's of 10,000,000. It and every method after it fail closed,
+/// and those diagnostics, about 390 bytes each, are charged against the
+/// output bound like any other: the methods that fit are reported, and one
+/// summary counts the rest. Of as many methods as the compiler accepts in
+/// one source, 10,558 more fit; before this round the response was 10.2 MB.
+#[test]
+fn a_check_past_its_work_bound_charges_the_methods_left_to_the_byte_bound() {
+    let types = |leaf: &str| {
+        let wide: Vec<String> = (0..2_400).map(|field| format!("w{field} : nat")).collect();
+        let mut source = format!("type W = record {{ {} }};\n", wide.join("; "));
+        let mut members = Vec::new();
+        for record in 0..210 {
+            // The wide record's field first, by id, so every probe walks it.
+            source.push_str(&format!(
+                "type E{record} = record {{ 0 : W; {} : {leaf} }};\n",
+                record + 1
+            ));
+            members.push(format!("{record} : opt E{record}"));
+        }
+        source.push_str(&format!("type H = record {{ {} }};\n", members.join("; ")));
+        source
+    };
+    let heavy: Vec<String> = (0..10).map(|index| format!("A{index}")).collect();
+    let first: Vec<String> = heavy
+        .iter()
+        .map(|name| format!("{name} : () -> (H);"))
+        .collect();
+    let methods = 25_624;
+    let live = format!("{}service : {{ {} }}\n", types("text"), first.join(" "));
+    assert_as_many_as_the_compiler_accepts(&types("nat"), &first, &live, methods);
+    let response = check_compatible(&large_request(
+        &large_service(&types("nat"), &first, methods),
+        &live,
+    ));
+    let value = counted(&response, MAX_CHECK_OUTPUT_BYTES);
+    assert_eq!(value["ok"], json!(true));
+    let items = value["diagnostics"].as_array().unwrap();
+    // Nine methods stop at their own work bound, each its one error.
+    for (item, name) in items[..9].iter().zip(&heavy) {
+        assert_eq!(
+            *item,
+            json!({
+                "code": "resource_limit_exceeded",
+                "severity": "error",
+                "method": name,
+                "message": "the check of this method stopped at its check_steps bound of 1000000",
+                "resource_limit": { "resource": "check_steps", "limit": 1_000_000, "observed": 1_000_001 },
+            })
+        );
+    }
+    // The tenth reaches the whole check's, and it and the methods after it,
+    // in name order, fail closed while their diagnostics fit.
+    let (summary, closed) = items[9..].split_last().unwrap();
+    assert_eq!(closed.len(), 1 + 10_558);
+    let mut names: Vec<String> = (0..methods - heavy.len()).map(short_name).collect();
+    names.sort();
+    for (item, name) in closed.iter().zip(heavy[9..].iter().chain(&names)) {
+        assert_eq!(
+            *item,
+            stopped(name, "check_total_steps", MAX_CHECK_TOTAL_STEPS, 10_000_001)
+        );
+    }
+    // The next would pass the bound: the summary counts it and the rest.
+    let reported: usize = items[..items.len() - 1].iter().map(written_bytes).sum();
+    let next = stopped(
+        &names[closed.len() - 1],
+        "check_total_steps",
+        MAX_CHECK_TOTAL_STEPS,
+        10_000_001,
+    );
+    assert!(reported + written_bytes(&next) > MAX_CHECK_OUTPUT_BYTES);
+    let observed = summary["resource_limit"]["observed"].as_u64().unwrap() as usize;
+    assert!(
+        observed > MAX_CHECK_OUTPUT_BYTES && observed <= reported + written_bytes(&next),
+        "{observed}"
+    );
+    assert_eq!(
+        *summary,
+        unreported(MAX_CHECK_OUTPUT_BYTES, observed, methods - 9 - closed.len())
+    );
+    assert!(response.len() <= MAX_CHECK_OUTPUT_BYTES + past_the_bound());
 }
 
 /// Once an aggregate bound is reached, every method not yet decided fails
@@ -1686,13 +1995,8 @@ type X = record { x : text };\n";
             .collect::<Vec<_>>())
     );
 
-    // The output bound: the text of every diagnostic.
-    let text: usize = alone
-        .iter()
-        .flat_map(|item| {
-            ["method", "path", "message"].map(|key| item[key].as_str().map_or(0, str::len))
-        })
-        .sum();
+    // The output bound: every diagnostic, as the response writes it.
+    let text: usize = alone.iter().map(written_bytes).sum();
     let output = |output_byte_limit: usize| CheckOptions {
         output_byte_limit,
         ..CheckOptions::default()
@@ -1701,7 +2005,7 @@ type X = record { x : text };\n";
     let response = run(output(text - 1));
     assert_eq!(
         response["diagnostics"].as_array().unwrap().last().unwrap(),
-        &stopped("k", "check_output_bytes", text - 1, text)
+        &unreported(text - 1, text, 1)
     );
 
     // The warning bound: each of ten methods sharing Codex's graph reports
@@ -1738,8 +2042,10 @@ fn assert_equals_the_rewalking_walk(id: &str, written: &str, live: &str) -> Opti
     };
     let request =
         json!({ "written": { "source": written }, "live": { "source": live } }).to_string();
-    let expected: Value =
-        serde_json::from_str(&check_compatible_with(&request, reference)).unwrap();
+    let expected = counted(
+        &check_compatible_with(&request, reference),
+        reference.output_byte_limit,
+    );
     let items = expected["diagnostics"].as_array().unwrap();
     if items
         .iter()

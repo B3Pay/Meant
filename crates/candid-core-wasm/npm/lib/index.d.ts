@@ -225,9 +225,10 @@ export interface ProjectionSuccess {
  * diagnostics. `resource_limit_exceeded` names its bound in
  * `resource_limit.resource`: `projection_bytes` when the projection would
  * pass the 1 MiB the compiler accepts in one source (`observed` is where
- * printing stopped), or `projection_diagnostic_bytes` when the unknown
- * names' messages would pass 4 MiB of text, the names left being counted
- * in that diagnostic instead of reported.
+ * printing stopped), or `projection_diagnostic_bytes` when the
+ * unknown-method diagnostics would pass 4 MiB, each counted as the failure
+ * writes it (the list of methods aside), the names left being counted in
+ * that diagnostic instead of reported.
  *
  * @example
  * const result = await projectDid(ledgerDid, ["icrc1_balance_of", "icrc1_transfer"]);
@@ -258,13 +259,16 @@ export function projectDid(
  *   as a pair of types visited or a field examined) and fails closed. As a
  *   warning (`check_warnings`), the method has more `special_opt_rule`
  *   warnings than the 1,000 reported; its verdict is complete and stands.
- *   As an error naming `check_total_steps`, `check_total_warnings` or
- *   `check_output_bytes`, the check as a whole reached one of its bounds
- *   (10,000,000 steps, 10,000 `special_opt_rule` warnings, or 4 MiB of
- *   `method`, `path` and `message` text as the JSON writes it): methods
- *   are checked in name order, and the method at which the bound was
- *   reached and every method after it get this one diagnostic and nothing
- *   else. Below these bounds a
+ *   As an error naming `check_total_steps` or `check_total_warnings`, the
+ *   check as a whole reached its bound of 10,000,000 steps or 10,000
+ *   `special_opt_rule` warnings: methods are checked in name order, and
+ *   the method at which the bound was reached and every method after it
+ *   get this one diagnostic and nothing else. As an error naming
+ *   `check_output_bytes`, the reported diagnostics reached their bound of
+ *   4 MiB, each counted as the response writes it: this one ends the list,
+ *   names no `method`, and counts in `unreported_methods` the methods it
+ *   stands for, the last written ones in name order, from the one whose
+ *   diagnostics did not fit; they fail closed. Below these bounds a
  *   method's findings do not depend on the other methods.
  */
 export interface CompatibilityDiagnostic {
@@ -275,8 +279,12 @@ export interface CompatibilityDiagnostic {
     | "special_opt_rule"
     | "resource_limit_exceeded";
   severity: "error" | "warning";
-  /** The written method the finding is about. */
-  method: string;
+  /**
+   * The written method the finding is about. Absent only on the
+   * `check_output_bytes` diagnostic that ends a check, which counts methods
+   * in `unreported_methods` instead.
+   */
+  method?: string;
   /**
    * Where in the method's type: `$args[i]` or `$results[i]`, then `.name`
    * (or `["name"]`, or `[id]` for a numeric label) per record field or
@@ -288,6 +296,12 @@ export interface CompatibilityDiagnostic {
   path?: string;
   message: string;
   resource_limit?: ResourceLimitInfo;
+  /**
+   * On the `check_output_bytes` diagnostic only: how many written methods
+   * it stands for, the last ones in name order. They are not reported, and
+   * fail closed.
+   */
+  unreported_methods?: number;
 }
 
 /** A completed compatibility check. */

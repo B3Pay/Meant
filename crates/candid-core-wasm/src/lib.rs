@@ -51,17 +51,26 @@
 //!   `resource_limit`: `projection_bytes`, when the projection's text would
 //!   pass the compiler's bound on one source (1 MiB), which it must stay
 //!   within to be compiled again (`observed` is where printing stopped); and
-//!   `projection_diagnostic_bytes`, when the `unknown_method` messages would
-//!   pass [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] of text: the unknown name at
-//!   which they would, and every one after it, are counted in that one
-//!   diagnostic instead of reported.
+//!   `projection_diagnostic_bytes`, when the `unknown_method` diagnostics
+//!   would pass [`MAX_PROJECTION_DIAGNOSTIC_BYTES`], each counted as the
+//!   failure writes it: the unknown name at which they would, and every one
+//!   after it, are counted in that one diagnostic instead of reported.
 //! - [`check_compatible`] takes `{"written": <sources request>, "live":
 //!   <sources request>}` and returns `{"ok": true, "compatible": …,
 //!   "written": {…}, "live": {…}, "diagnostics": […]}`: the verdict, both
 //!   sides' identities, and one diagnostic per finding, each naming its
-//!   `method` and, inside a type, its `path`. A side that does not compile,
+//!   `method` and, inside a type, its `path`, but the one that ends a check
+//!   past [`MAX_CHECK_OUTPUT_BYTES`]: it names no method and counts the
+//!   methods left in `unreported_methods`. A side that does not compile,
 //!   or declares no service, fails with `{"ok": false, "input": "written" |
 //!   "live", "diagnostics": […]}`.
+//!
+//!   Each response is bounded. A completed check takes at most 1,016 bytes
+//!   more than [`MAX_CHECK_OUTPUT_BYTES`]; a projection's text, at most the
+//!   compiler's 1 MiB bound on one source; and an unknown-method failure,
+//!   at most 463 bytes more than [`MAX_PROJECTION_DIAGNOSTIC_BYTES`] beside
+//!   the list of the service's methods. `src/compat.rs` and
+//!   `src/project.rs` go through every field.
 //! - failure, any function: `{"ok": false, "diagnostics": […]}` — the one
 //!   and only failure shape, plus `input` from [`check_compatible`] when one
 //!   side does not compile or declares no service (a malformed request
@@ -172,9 +181,9 @@ fn compile(entry: &str, resolver: &MemoryResolver) -> Result<Compilation, Compil
 /// ["name", …]`.
 ///
 /// The projection's text is bounded by the compiler's bound on one source,
-/// since it is compiled again, and the text of the unknown-method
-/// diagnostics by [`MAX_PROJECTION_DIAGNOSTIC_BYTES`]; every lookup by name
-/// is a binary search in names sorted once.
+/// since it is compiled again, and the unknown-method diagnostics, as the
+/// failure writes them, by [`MAX_PROJECTION_DIAGNOSTIC_BYTES`]; every lookup
+/// by name is a binary search in names sorted once.
 pub fn project_did(request: &str) -> String {
     project_did_with(request, ProjectionOptions::default()).0
 }
@@ -235,12 +244,19 @@ fn project_request(
     let available = project::Index::new(service.iter().map(|(name, _)| (name.as_str(), ())), work);
     let mut seen = BTreeSet::new();
     let mut unknown = Vec::new();
-    // The text of the `unknown_method` messages, measured only up to the
-    // first that passes its bound; past it, unknown names are only counted.
+    // The `unknown_method` diagnostics as the response writes them, each its
+    // frame and its message, measured only up to the first that passes
+    // their bound; past it, unknown names are only counted. The list of the
+    // service's methods the first one carries is not counted here.
     let mut meter = compat::Meter {
         counted: 0,
         limit: options.diagnostic_byte_limit,
     };
+    let frame = compat::frame_len(&phase_diagnostic(
+        "unknown_method",
+        "project",
+        String::new(),
+    ));
     let mut unreported = 0usize;
     let mut observed = 0usize;
     for name in &requested {
@@ -248,6 +264,7 @@ fn project_request(
             continue;
         }
         if !meter.over() {
+            meter.add(frame);
             // At least this long: quoting never shortens a name, nor JSON a
             // string. A name past what is left of the bound is not quoted.
             let raw = UNKNOWN_METHOD.len() + name.len() + 2;
@@ -364,7 +381,10 @@ fn project_request(
 /// The check is bounded per method ([`MAX_CHECK_DEPTH`], [`MAX_CHECK_STEPS`],
 /// [`MAX_CHECK_WARNINGS`]) and as a whole ([`MAX_CHECK_TOTAL_STEPS`],
 /// [`MAX_CHECK_TOTAL_WARNINGS`], [`MAX_CHECK_OUTPUT_BYTES`]); reaching a
-/// bound of the whole fails closed every method not yet reported.
+/// bound of the whole fails closed every method not yet reported. Every
+/// diagnostic is charged against [`MAX_CHECK_OUTPUT_BYTES`] as the response
+/// writes it, and past it one last diagnostic counts the methods left, so a
+/// successful response is at most that bound plus 1,016 bytes.
 pub fn check_compatible(request: &str) -> String {
     check_compatible_with(request, CheckOptions::default())
 }

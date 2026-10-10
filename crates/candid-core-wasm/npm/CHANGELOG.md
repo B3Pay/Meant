@@ -35,10 +35,11 @@ commit, as every entry does.
   unknown method name fails with `unknown_method`, one per distinct name,
   the first listing the service's methods in its `notes`, once; an empty
   list (`--methods ""`) with `empty_method_list`, a source with no service
-  with `no_service`; each exits 1 and writes nothing. The unknown names'
-  messages are bounded at 4 MiB of text in all, the names past that bound
-  counted in one `resource_limit_exceeded` diagnostic
-  (`projection_diagnostic_bytes`) instead of reported. A projection is at
+  with `no_service`; each exits 1 and writes nothing. The unknown-method
+  diagnostics are bounded at 4 MiB in all, each counted as the JSON writes
+  it (the list of methods aside), the names past that bound counted in one
+  `resource_limit_exceeded` diagnostic (`projection_diagnostic_bytes`)
+  instead of reported. A projection is at
   most 1 MiB, the compiler's bound on one source, since it is compiled
   again: a larger one fails with `resource_limit_exceeded`
   (`projection_bytes`), exit 1, as soon as writing it reaches that bound.
@@ -76,24 +77,32 @@ commit, as every entry does.
   their size. The
   check as a whole is bounded too, so many methods sharing one type cannot
   multiply the per-method bounds: 10,000,000 steps (one more per method),
-  10,000 `special_opt_rule` warnings and 4 MiB of reported text as the JSON
-  writes it, in all
-  (`check_total_steps`, `check_total_warnings`, `check_output_bytes`); the
-  text is measured only up to the first string that passes its bound, so
-  long names cannot make the measuring itself slow. So the walk's time
-  grows with its steps (times that logarithm) and the reported text's with
-  its bytes; compiling both sides, within the compiler's own limits, and
-  ranking the method names are done once per check, before the walk.
-  Methods are checked in name order; when one of these is reached, that
-  method and every method after it get one `resource_limit_exceeded` error
-  each and nothing else, and the check exits 1. Below these bounds a
-  method's findings do not depend on the other methods. The report prints
-  the live interface identity, so an unchanged
+  10,000 `special_opt_rule` warnings and 4 MiB of reported diagnostics, each
+  counted as the JSON response writes it, keys and indentation included, in
+  all (`check_total_steps`, `check_total_warnings`, `check_output_bytes`);
+  a diagnostic is measured only up to the first string that passes the byte
+  bound, so long names cannot make the measuring itself slow. So the walk's
+  time grows with its steps (times that logarithm) and the reported
+  diagnostics' with their bytes; compiling both sides, within the
+  compiler's own limits, and ranking the method names are done once per
+  check, before the walk. Methods are checked in name order; when the step
+  or warning bound is reached, that method and every method after it get
+  one `resource_limit_exceeded` error each and nothing else. Those count
+  against the 4 MiB like any other diagnostic, and once a method's
+  diagnostics would pass it, that method and every method after it are
+  counted in one last `resource_limit_exceeded` error
+  (`check_output_bytes`), which names no method and holds the count in
+  `unreported_methods`. Either way the check exits 1, and a response is at
+  most 4 MiB and 1,016 bytes, however many methods the written side has.
+  Below these bounds a method's findings do not depend on the other
+  methods. The report prints the live interface identity, so an unchanged
   interface can be told from one that changed compatibly.
 - **`projectDid(sources, methods)` and `checkCompatible(written, live)`**,
   the library functions behind the two commands, exported beside
   `didToContract` and `didToModule`, with their types (`ProjectionSuccess`,
-  `CompatibilityReport`, `CompatibilityDiagnostic`, `CheckFailure`,
+  `CompatibilityReport`, `CompatibilityDiagnostic`, whose `method` is absent
+  only on the `check_output_bytes` diagnostic and whose
+  `unreported_methods` is present only there, `CheckFailure`,
   `Identities`). Neither fetches anything; the package still has no runtime
   dependencies.
 

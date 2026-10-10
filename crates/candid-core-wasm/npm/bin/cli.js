@@ -519,7 +519,10 @@ async function runCheck({ written, live, json }) {
   let warnings = 0;
   for (const item of report.diagnostics) {
     const at = item.path === undefined ? "" : ` at ${item.path}`;
-    console.error(`${item.severity}: ${listedName(item.method)}: ${item.code}${at}: ${item.message}`);
+    // The one diagnostic that names no method: the methods left once the
+    // report reached its byte bound, counted.
+    const method = item.method === undefined ? "" : `${listedName(item.method)}: `;
+    console.error(`${item.severity}: ${method}${item.code}${at}: ${item.message}`);
     if (item.severity === "error") {
       errors += 1;
     } else {

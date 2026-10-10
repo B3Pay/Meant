@@ -83,30 +83,61 @@
 //! method also costing one for being decided, so the bound caps the method
 //! count too (`check_total_steps`); [`MAX_CHECK_TOTAL_WARNINGS`]
 //! `special_opt_rule` warnings reported (`check_total_warnings`); and
-//! [`MAX_CHECK_OUTPUT_BYTES`] bytes of diagnostic text — the `method`, `path`
-//! and `message` strings of every diagnostic a method reports, as the JSON
-//! response writes them, escapes included (`check_output_bytes`). Methods
-//! are checked in name order. The step bound is checked as the work is spent;
-//! the other two when a method is decided, against what it would report,
-//! measured only up to the first string that passes the byte bound. The
-//! method at which an aggregate bound is reached, and every method after
-//! it, fail closed: each gets exactly one diagnostic, an *error*
-//! `resource_limit_exceeded` naming the aggregate resource with its limit
-//! and the value observed when it was reached (for the bytes, the count at
-//! the string that passed the bound), and nothing else — not its
-//! `mode_changed`, nor a `method_missing`. Below these bounds a method's
-//! diagnostics do not depend on the other methods; once one is reached,
-//! which methods are reported depends on the methods before them.
+//! [`MAX_CHECK_OUTPUT_BYTES`] bytes of reported diagnostics, each counted as
+//! the response writes it: its keys, punctuation, indentation and fixed
+//! values (its frame, [`frame_len`]) and its `method`, `path` and `message`
+//! strings, escapes included (`check_output_bytes`). Methods are checked in
+//! name order. The step bound is checked as the work is spent, the warning
+//! bound when a method is decided, against what it would report. The method
+//! at which either is reached, and every method after it, fail closed: each
+//! gets exactly one diagnostic, an *error* `resource_limit_exceeded` naming
+//! the aggregate resource with its limit and the value observed when it was
+//! reached, and nothing else — not its `mode_changed`, nor a
+//! `method_missing`.
 //!
-//! So a response holds at most [`MAX_CHECK_OUTPUT_BYTES`] of reported text,
-//! at most [`MAX_CHECK_TOTAL_WARNINGS`] warnings, and per written method at
-//! most three other diagnostics (`mode_changed`, one error, and the
-//! warning-bound notice) or one fail-closed diagnostic, each of fixed shape
-//! apart from its strings: the fail-closed ones grow with the written
-//! method names, that is linearly with the input, 397 bytes each
-//! pretty-printed for a six-character name. Paths borrow their names from
-//! the two compiled sides, so the memory a walk holds does not grow with the
-//! length of a name either.
+//! The byte bound is checked before a method's diagnostics are reported,
+//! its fail-closed one like any other, measured only up to the first string
+//! that passes it. When they would take the total past it, that method and
+//! every method after it are not reported: one last diagnostic, an *error*
+//! `resource_limit_exceeded` naming `check_output_bytes` with its limit and,
+//! as `observed`, the count where measuring stopped, counts them in
+//! `unreported_methods` (the last written methods in name order), names no
+//! method, and ends the check. Below these bounds a method's diagnostics do
+//! not depend on the other methods; once one is reached, which methods are
+//! reported depends on the methods before them. Paths borrow their names
+//! from the two compiled sides, so the memory a walk holds does not grow
+//! with the length of a name either.
+//!
+//! # The response
+//!
+//! A successful response takes at most [`MAX_CHECK_OUTPUT_BYTES`] + `c`
+//! bytes, `c` = 1,016 at the shipped bounds, whatever the input. Field by
+//! field, as `checkCompatible` writes it (pretty-printed, keys sorted):
+//!
+//! - `compatible`, `ok`, and the identities in `live` and `written`: two
+//!   fixed-length digests a side. With the keys and punctuation, 571 bytes,
+//!   572 when `compatible` is `false`.
+//! - `diagnostics`: every item is charged against the byte bound before it
+//!   is reported, the bytes it takes there with the `,\n` before it, except
+//!   the last one past the bound; so together they take at most
+//!   [`MAX_CHECK_OUTPUT_BYTES`]. That covers each method's `method_missing`,
+//!   `mode_changed`, `method_incompatible` and its path, `special_opt_rule`
+//!   warnings and theirs, its own bound's `resource_limit_exceeded`, and
+//!   the fail-closed ones.
+//! - the last diagnostic past the byte bound, at most one: fixed text and
+//!   three numbers, and no name, so at most 442 bytes at the shipped bound.
+//!   That is with the most digits each number can take: seven for the
+//!   bound; eight for `observed`, since measuring stops at the first string
+//!   that passes the bound, and a string measured exactly is at most seven
+//!   times what was left of it, plus eight; and six for the methods it
+//!   counts, at most the compiler's 100,000.
+//! - the two bytes `[]` opens by when it holds an item.
+//!
+//! So `c` = 572 + 2 + 442. A failure is not charged against the bound:
+//! `invalid_request` echoes the request's keys or file names, so it is
+//! linear in the request; a side that does not compile gets the compiler's
+//! own diagnostics for it (one item, or at most `max_diagnostics`, 100,
+//! validation items), which quote its sources; `no_service` is fixed text.
 //!
 //! # Cost
 //!
@@ -129,14 +160,19 @@
 //!   clearing a method's state for the next one cost what was put there,
 //!   which steps paid for. So the walk of a method takes `O(s log s)` time
 //!   for `s` steps.
-//! - **The byte bound** pays for the reported text. A decided method's
-//!   reports are measured string by string (a name, a message, one segment
-//!   of a path) and only up to the first string that passes
-//!   [`MAX_CHECK_OUTPUT_BYTES`]; a string longer than what is left of the
-//!   bound is counted at its raw length, which JSON never shortens, without
-//!   being read. Only text that fits is rendered. So measuring, rendering
-//!   and writing the reported text take time linear in at most the byte
-//!   bound plus one string, over the whole check.
+//! - **The byte bound** pays for the reported diagnostics. A method's
+//!   reports, or its fail-closed one, are measured report by report, a
+//!   frame (built from fixed text and numbers) and then string by string (a
+//!   name, a message, one segment of a path), and only up to the first that
+//!   passes [`MAX_CHECK_OUTPUT_BYTES`]; a string longer than what is left of
+//!   the bound is counted at its raw length, which JSON never shortens,
+//!   without being read. Only diagnostics that fit are rendered, and the
+//!   check stops at the first method whose diagnostics do not, so the
+//!   methods after it are neither decided nor looked up. So measuring,
+//!   rendering and writing the diagnostics take time linear in at most the
+//!   byte bound plus one string, and a frame for each report measured, over
+//!   the whole check: each report reported, and at most 1,003 of the one
+//!   method that does not fit.
 //! - **The input** pays for everything else, once per check or once per
 //!   written method, outside the walk. Before any method is walked, the
 //!   request is parsed and each side compiled, within the compiler's own
@@ -147,14 +183,14 @@
 //!   names only where ids are equal; each method takes one binary search
 //!   for its rank, and each named field label one in its record's fields;
 //!   and the written methods are sorted by name. Each written method is
-//!   then looked up once by name among the live ones. The ranking, the
+//!   then looked up at most once by name among the live ones. The ranking, the
 //!   sort and the lookups by name take `O((S + n) log n)` time together,
 //!   for `n` methods whose names hold `S` bytes in all (the compiler holds
 //!   `S` to 1 MiB a side), however often the walk meets them, and placing
 //!   a label `O(log f)` for a record of `f` fields. Outside the reported
-//!   text the byte bound pays for, a name is copied a bounded number of
-//!   times (into the list of a service's methods, a `method_missing`
-//!   message, a fail-closed diagnostic).
+//!   diagnostics the byte bound pays for, a name is copied a bounded number
+//!   of times (into the list of a service's methods, a `method_missing`
+//!   message).
 
 use std::borrow::Cow;
 use std::collections::BTreeMap;
@@ -204,14 +240,17 @@ pub const MAX_CHECK_TOTAL_STEPS: usize = 10_000_000;
 /// (`check_total_warnings`).
 pub const MAX_CHECK_TOTAL_WARNINGS: usize = 10_000;
 
-/// The most diagnostic text the whole check reports, in bytes: the
-/// `method`, `path` and `message` strings of every diagnostic a method
-/// reports, the fail-closed ones aside, as the JSON response writes them
-/// (escapes included, quotes not). 4 MiB, the compiler's default
-/// `max_input_bytes`, its bound on one document it parses. A method whose
-/// diagnostics would take the total past it, and every method after it,
-/// fail closed (`check_output_bytes`). The text is measured only up to the
-/// first string that passes the bound (see the module's Cost).
+/// The most bytes the diagnostics the whole check reports take in its
+/// response: every diagnostic, the fail-closed ones included, as the JSON
+/// response writes it (its keys, punctuation, indentation and fixed values,
+/// its strings with their escapes, and the `,\n` before it). 4 MiB, the
+/// compiler's default `max_input_bytes`, its bound on one document it
+/// parses. A method whose diagnostics would take the total past it, and
+/// every method after it, are not reported: one last diagnostic counts
+/// them (`check_output_bytes`). So a successful response is at most this
+/// plus 1,016 bytes: the verdict and both sides' identities, and that last
+/// diagnostic, which names no method. A diagnostic is measured only up to
+/// the first string that passes the bound (see the module's Cost).
 pub const MAX_CHECK_OUTPUT_BYTES: usize = 4 * 1024 * 1024;
 
 /// How a check runs. [`CheckOptions::default`] is what `checkCompatible`
@@ -1276,17 +1315,43 @@ fn render_parts<'a>(path: &[Segment<'a>], mut each: impl FnMut(Part<'a>) -> Cont
     }
 }
 
-/// Counts diagnostic text as the JSON response writes it, against the
-/// output bound, and stops counting once past it.
+/// The bytes one diagnostic takes in a response document as this crate
+/// writes it (pretty-printed, an item of the top-level object's
+/// `diagnostics` array) apart from the contents of its strings, together
+/// with the `,\n` that separates it from the item before: its keys,
+/// punctuation, indentation and fixed values. `skeleton` is the diagnostic
+/// with each string whose length varies left empty; the contents of those
+/// strings, as the JSON writes them, are counted on their own, so an item
+/// is never rendered before it is known to fit. A string's contents never
+/// hold a raw newline, so the skeleton has the item's lines, and two levels
+/// down each of them starts four spaces further in.
+pub(crate) fn frame_len(skeleton: &Value) -> usize {
+    let text = serde_json::to_string_pretty(skeleton).expect("JSON values serialize");
+    let lines = 1 + text.bytes().filter(|byte| *byte == b'\n').count();
+    SEPARATOR + text.len() + INDENT * lines
+}
+
+/// The `,\n` before an item of the `diagnostics` array.
+const SEPARATOR: usize = 2;
+
+/// The indentation an item of the `diagnostics` array starts each line
+/// with, beyond its own: two levels of two spaces.
+const INDENT: usize = 4;
+
+/// Counts diagnostics as the JSON response writes them, against the output
+/// bound, and stops counting once past it.
 ///
+/// A diagnostic is counted as its frame (its keys, punctuation,
+/// indentation and fixed values: [`frame_len`]) and then string by string.
 /// A string is measured exactly only while its raw bytes fit in what is
 /// left of the bound. One that does not is counted at its raw length,
 /// which is never more than what JSON writes for it, and that passes the
 /// bound. So measuring a string costs time linear in what it adds to the
 /// count, and nothing is measured past the bound: however long the names
 /// are, and however many reports and segments a method has, measuring
-/// costs at most the bound's bytes plus one string's. The projection's
-/// unknown-method messages are measured the same way.
+/// costs at most the bound's bytes plus one string's, and a frame per
+/// diagnostic measured. The projection's unknown-method diagnostics are
+/// measured the same way.
 pub(crate) struct Meter {
     pub(crate) counted: usize,
     pub(crate) limit: usize,
@@ -1295,6 +1360,13 @@ pub(crate) struct Meter {
 impl Meter {
     pub(crate) fn over(&self) -> bool {
         self.counted > self.limit
+    }
+
+    /// Count `bytes` known without measuring: a diagnostic's frame.
+    pub(crate) fn add(&mut self, bytes: usize) {
+        if !self.over() {
+            self.counted = self.counted.saturating_add(bytes);
+        }
     }
 
     /// Count a string of `raw` bytes whose written length, at least `raw`,
@@ -1311,7 +1383,7 @@ impl Meter {
         self.counted = self.counted.saturating_add(length);
     }
 
-    fn text(&mut self, text: &str) {
+    pub(crate) fn text(&mut self, text: &str) {
         self.count(text.len(), || json_len(text));
     }
 
@@ -1380,9 +1452,26 @@ impl Report<'_> {
         }
     }
 
-    /// Count the bytes of its `method`, `message` and `path` strings, as the
-    /// JSON response writes them, until the count passes the bound.
+    /// The diagnostic `method` gets for a method the whole check reached an
+    /// aggregate bound at, or after: that bound, and nothing else.
+    fn fail_closed(exhausted: &Exhausted) -> Self {
+        Self {
+            resource_limit: Some(exhausted.clone()),
+            ..Report::error(
+                "resource_limit_exceeded",
+                format!(
+                    "the check of the whole service reached its {} bound of {}; this method fails closed, and nothing else is reported for it",
+                    exhausted.resource, exhausted.limit,
+                ),
+            )
+        }
+    }
+
+    /// Count the bytes it takes in the response, as the JSON writes it: its
+    /// frame, then its `method`, `message` and `path` strings, until the
+    /// count passes the bound.
     fn measure(&self, method: &str, meter: &mut Meter) {
+        meter.add(self.frame());
         meter.text(method);
         meter.text(&self.message);
         if let Some(path) = &self.path {
@@ -1390,21 +1479,53 @@ impl Report<'_> {
         }
     }
 
+    /// Its keys, punctuation, indentation and fixed values in the response:
+    /// the item with its `method`, `path` and `message` empty.
+    fn frame(&self) -> usize {
+        frame_len(&self.item("", self.path.as_ref().map(|_| String::new()), ""))
+    }
+
     fn render(&self, method: &str) -> Value {
+        self.item(method, self.path.as_deref().map(render), &self.message)
+    }
+
+    /// The item, with these strings: [`Report::render`] and
+    /// [`Report::frame`] build it alike, so the frame is the item's.
+    fn item(&self, method: &str, path: Option<String>, message: &str) -> Value {
         let mut item = json!({
             "code": self.code,
             "severity": self.severity,
             "method": method,
         });
-        if let Some(path) = &self.path {
-            item["path"] = json!(render(path));
+        if let Some(path) = path {
+            item["path"] = json!(path);
         }
-        item["message"] = json!(self.message);
+        item["message"] = json!(message);
         if let Some(exhausted) = &self.resource_limit {
             item["resource_limit"] = resource_limit(exhausted);
         }
         item
     }
+}
+
+/// The last diagnostic of a check whose report reached its byte bound: the
+/// written methods from the one whose diagnostics did not fit to the last,
+/// counted and not reported. It names no method, so its size does not
+/// depend on any name: three numbers and fixed text.
+fn unreported(limit: usize, observed: usize, methods: usize) -> Value {
+    json!({
+        "code": "resource_limit_exceeded",
+        "severity": "error",
+        "message": format!(
+            "the check of the whole service reached its {OUTPUT_BYTES} bound of {limit}; the last {methods} written method(s) in name order fail closed, and nothing is reported for them",
+        ),
+        "resource_limit": resource_limit(&Exhausted {
+            resource: OUTPUT_BYTES,
+            limit,
+            observed,
+        }),
+        "unreported_methods": methods,
+    })
 }
 
 fn resource_limit(exhausted: &Exhausted) -> Value {
@@ -1417,6 +1538,9 @@ fn resource_limit(exhausted: &Exhausted) -> Value {
 
 /// The resource of the whole check's work bound.
 const TOTAL_STEPS: &str = "check_total_steps";
+
+/// The resource of the whole check's byte bound.
+const OUTPUT_BYTES: &str = "check_output_bytes";
 
 impl<'a> Checker<'a> {
     /// Decide one written method from empty state: its reports, or the whole
@@ -1550,9 +1674,12 @@ impl<'a> Checker<'a> {
 /// exactly when no diagnostic has severity `error`. Both Contracts must have
 /// an actor; the caller refuses one that does not.
 ///
-/// Each method is decided on its own, until the check as a whole reaches one
-/// of its aggregate bounds: from the method at which it does, every method
+/// Each method is decided on its own, until the check as a whole reaches its
+/// work or warning bound: from the method at which it does, every method
 /// gets one `resource_limit_exceeded` error naming it, and nothing else.
+/// Every diagnostic, those included, is charged against the byte bound
+/// before it is reported: from the method whose diagnostics would pass it,
+/// the methods left are counted in one last diagnostic, and the check stops.
 pub fn check(written: &Input<'_>, live: &Input<'_>, options: CheckOptions) -> Vec<Value> {
     let written_methods = actor_methods(written.contract).expect("the caller checked the actor");
     let live_methods = actor_methods(live.contract).expect("the caller checked the actor");
@@ -1569,65 +1696,63 @@ pub fn check(written: &Input<'_>, live: &Input<'_>, options: CheckOptions) -> Ve
     let mut ordered = written_methods;
     ordered.sort_by(|left, right| left.0.cmp(&right.0));
     let mut diagnostics = Vec::new();
-    // The aggregate bound reached, once one is.
+    // The aggregate work or warning bound reached, once one is.
     let mut stopped: Option<Exhausted> = None;
     let mut reported_warnings = 0usize;
-    let mut reported_bytes = 0usize;
-    for (name, written_function) in ordered {
+    // The bytes the reported diagnostics take in the response.
+    let mut reported = Meter {
+        counted: 0,
+        limit: options.output_byte_limit,
+    };
+    for (index, (name, written_function)) in ordered.iter().enumerate() {
+        let mut warnings = reported_warnings;
+        let mut reports = Vec::new();
         if stopped.is_none() {
-            match checker.method(&name, written_function, &live_methods) {
-                Ok(reports) => {
-                    let warnings = reported_warnings
-                        + reports
-                            .iter()
-                            .filter(|report| report.code == "special_opt_rule")
-                            .count();
-                    // Measured up to the first string that passes the bound,
-                    // and no further.
-                    let mut meter = Meter {
-                        counted: reported_bytes,
-                        limit: options.output_byte_limit,
-                    };
-                    for report in &reports {
-                        report.measure(&name, &mut meter);
-                        if meter.over() {
-                            break;
-                        }
-                    }
-                    let bytes = meter.counted;
+            match checker.method(name, *written_function, &live_methods) {
+                Ok(decided) => {
+                    warnings += decided
+                        .iter()
+                        .filter(|report| report.code == "special_opt_rule")
+                        .count();
                     if warnings > options.total_warning_limit {
                         stopped = Some(Exhausted {
                             resource: "check_total_warnings",
                             limit: options.total_warning_limit,
                             observed: warnings,
                         });
-                    } else if meter.over() {
-                        stopped = Some(Exhausted {
-                            resource: "check_output_bytes",
-                            limit: options.output_byte_limit,
-                            observed: bytes,
-                        });
                     } else {
-                        reported_warnings = warnings;
-                        reported_bytes = bytes;
-                        diagnostics.extend(reports.iter().map(|report| report.render(&name)));
-                        continue;
+                        reports = decided;
                     }
                 }
                 Err(exhausted) => stopped = Some(exhausted),
             }
         }
-        let exhausted = stopped.as_ref().expect("an aggregate bound was reached");
-        diagnostics.push(json!({
-            "code": "resource_limit_exceeded",
-            "severity": "error",
-            "method": name,
-            "message": format!(
-                "the check of the whole service reached its {} bound of {}; this method fails closed, and nothing else is reported for it",
-                exhausted.resource, exhausted.limit,
-            ),
-            "resource_limit": resource_limit(exhausted),
-        }));
+        if let Some(exhausted) = &stopped {
+            reports = vec![Report::fail_closed(exhausted)];
+        }
+        // Measured up to the first string that passes the bound, and no
+        // further: a fail-closed diagnostic like any other.
+        let mut meter = Meter {
+            counted: reported.counted,
+            limit: reported.limit,
+        };
+        for report in &reports {
+            report.measure(name, &mut meter);
+            if meter.over() {
+                break;
+            }
+        }
+        if meter.over() {
+            diagnostics.push(unreported(
+                options.output_byte_limit,
+                meter.counted,
+                ordered.len() - index,
+            ));
+            break;
+        }
+        reported = meter;
+        reported_warnings = warnings;
+        diagnostics.extend(reports.iter().map(|report| report.render(name)));
     }
     diagnostics
 }
@@ -1725,6 +1850,61 @@ mod tests {
         assert_eq!(meter.counted, quotes.len());
         meter.text("more");
         assert_eq!(meter.counted, quotes.len());
+    }
+
+    /// A report is measured as exactly the bytes its item takes in the
+    /// response, a fail-closed one included: its frame, then its strings as
+    /// the JSON writes them. The frame is built by the code that renders the
+    /// item, so a key one of them adds and the other lacks fails here.
+    #[test]
+    fn a_report_is_measured_as_the_bytes_its_item_takes() {
+        let written = |item: &Value| {
+            let text = serde_json::to_string_pretty(item).unwrap();
+            2 + text.len() + 4 * (1 + text.matches('\n').count())
+        };
+        let exhausted = Exhausted {
+            resource: TOTAL_STEPS,
+            limit: 10,
+            observed: 11,
+        };
+        let reports = [
+            Report::error(
+                "method_missing",
+                "the live service has no method \"t\\tq\"".to_string(),
+            ),
+            Report {
+                path: Some(vec![Segment::Result(0), Segment::Field(Some("a \"b"), 1)]),
+                ..Report::error(
+                    "method_incompatible",
+                    "text is not a subtype of nat".to_string(),
+                )
+            },
+            Report {
+                code: "special_opt_rule",
+                severity: "warning",
+                path: Some(vec![Segment::Argument(2), Segment::Opt]),
+                message: special_opt_rule(&TypeNode::Primitive {
+                    primitive: PrimitiveType::Nat,
+                }),
+                resource_limit: None,
+            },
+            Report::fail_closed(&exhausted),
+        ];
+        for method in ["f", "t\tq\"\u{1}", ""] {
+            for report in &reports {
+                let mut meter = Meter {
+                    counted: 0,
+                    limit: usize::MAX,
+                };
+                report.measure(method, &mut meter);
+                assert_eq!(meter.counted, written(&report.render(method)));
+            }
+        }
+        // The summary names no method: its size is its three numbers' and
+        // fixed text's.
+        let summary = unreported(4_194_304, 4_194_305, 7);
+        assert!(summary.get("method").is_none());
+        assert_eq!(summary["unreported_methods"], json!(7));
     }
 
     /// The node of the service type whose only method is `name`.
