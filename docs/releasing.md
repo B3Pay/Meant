@@ -822,8 +822,15 @@ above, and these:
   `git grep -n -E 'not yet|prepared|does not hold yet' -- README.md website/README.md website/content`
   is the search, not the phrase alone. It also lists a few lines that are
   not markers and stay (the pre-publish history on `decisions.html`, the
-  bootstrap paragraph on `status.html`, and ordinary uses of "not yet").
-  The pull request then turns the migration page's prose install lines into
+  bootstrap paragraph on `status.html`, the description of the two lists in
+  `website/README.md`, and ordinary uses of "not yet"). The search does not
+  find prose that names the previous pair as `latest` or as "the previous
+  stable release" without a marker (for 0.4.0 / 0.3.0: the version table and
+  the pre-1.0 warning on `packages.html`, the "Published on npm" note on
+  `cli-npm.html`, the registry table on `status.html`, the install paragraph
+  of `migrating-from-0-2.html` and its lead in `_site.json`), so
+  `git grep -n -E 'latest|previous stable' -- README.md website/README.md website/content`
+  is read through as well. The pull request then turns the migration page's prose install lines into
   blocks, records the publish date and both runs on the status page, and
   appends each npm release note's **Release record**.
 
