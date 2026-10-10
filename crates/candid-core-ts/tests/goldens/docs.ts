@@ -7,7 +7,7 @@ import * as $ from "@candid-core/schema";
  * A blank `///` line keeps its paragraph break; `backticks` and an email
  * a@b.c pass through, while an inline {\@link Tokens} is escaped like any tag.
  */
-type $Account = {
+export type Account = {
   undocumented: boolean;
   /**
    * The owner. It says `*\/` mid-line, which would end a naive comment,
@@ -31,11 +31,11 @@ type $Account = {
  * A blank `///` line keeps its paragraph break; `backticks` and an email
  * a@b.c pass through, while an inline {\@link Tokens} is escaped like any tag.
  */
-const $Account: $.Schema<$Account> = $.c.rec(() => $.c.record({ undocumented: $.c.bool, owner: $.c.principal, detached: $.c.nat, memo: $.c.text, note: $.c.text, subaccount: $.c.opt($.c.blob()) }));
+const $Account: $.Schema<Account> = $.c.rec(() => $.c.record({ undocumented: $.c.bool, owner: $.c.principal, detached: $.c.nat, memo: $.c.text, note: $.c.text, subaccount: $.c.opt($.c.blob()) }));
 export { $Account as Account };
 
 /** Only the arm is documented. */
-type $Choice =
+export type Choice =
   | {
       /** The first arm. */
       tag: "A";
@@ -43,11 +43,11 @@ type $Choice =
     }
   | { tag: "B" };
 /** Only the arm is documented. */
-const $Choice: $.Schema<$Choice> = $.c.rec(() => $.c.variant({ A: $.c.nat, B: $.c.null }));
+const $Choice: $.Schema<Choice> = $.c.rec(() => $.c.variant({ A: $.c.nat, B: $.c.null }));
 export { $Choice as Choice };
 
 /** Arms are documented the same way. */
-type $Event =
+export type Event =
   | { tag: "Failed"; value: string }
   | {
       /** Nothing happened. */
@@ -58,21 +58,21 @@ type $Event =
       tag: "Sent";
       value: {
         /** Who received it. */
-        to: $Account;
+        to: Account;
         plain: number;
         /** How much. */
         amount: bigint;
       };
     };
 /** Arms are documented the same way. */
-const $Event: $.Schema<$Event> = $.c.rec(() => $.c.variant({ Failed: $.c.text, Idle: $.c.null, Sent: $.c.record({ to: $Account, plain: $.c.nat8, amount: $.c.nat }) }));
+const $Event: $.Schema<Event> = $.c.rec(() => $.c.variant({ Failed: $.c.text, Idle: $.c.null, Sent: $.c.record({ to: $Account, plain: $.c.nat8, amount: $.c.nat }) }));
 export { $Event as Event };
 
 /**
  * Structurally identical declarations share one node: the first name emits
  * the structure and owns the field docs.
  */
-type $First = {
+export type First = {
   /** x, as First documents it */
   x: bigint;
 };
@@ -80,16 +80,16 @@ type $First = {
  * Structurally identical declarations share one node: the first name emits
  * the structure and owns the field docs.
  */
-const $First: $.Schema<$First> = $.c.rec(() => $.c.record({ x: $.c.nat }));
+const $First: $.Schema<First> = $.c.rec(() => $.c.record({ x: $.c.nat }));
 export { $First as First };
 
 /** A handler; its argument names are the func type's own. */
-type $Handler = { principal: $.Principal; method: string };
+export type Handler = { principal: $.Principal; method: string };
 /** A handler; its argument names are the func type's own. */
-const $Handler: $.Schema<$Handler> = $.c.rec(() => $.c.func([$.c.blob(), $.c.nat], [], "update"));
+const $Handler: $.Schema<Handler> = $.c.rec(() => $.c.func([$.c.blob(), $.c.nat], [], "update"));
 export { $Handler as Handler };
 
-type $Nested = {
+export type Nested = {
   undocumented: bigint;
   /** A list of documented records. */
   items: Array<{
@@ -102,59 +102,59 @@ type $Nested = {
     }> | null;
   }>;
 };
-const $Nested: $.Schema<$Nested> = $.c.rec(() => $.c.record({ undocumented: $.c.nat, items: $.c.vec($.c.record({ name: $.c.text, tags: $.c.opt($.c.vec($.c.record({ tag: $.c.text }))) })) }));
+const $Nested: $.Schema<Nested> = $.c.rec(() => $.c.record({ undocumented: $.c.nat, items: $.c.vec($.c.record({ name: $.c.text, tags: $.c.opt($.c.vec($.c.record({ tag: $.c.text }))) })) }));
 export { $Nested as Nested };
 
 /** Docs on tuple elements have nowhere to attach and are dropped. */
-type $Pair = [bigint, string];
+export type Pair = [bigint, string];
 /** Docs on tuple elements have nowhere to attach and are dropped. */
-const $Pair: $.Schema<$Pair> = $.c.rec(() => $.c.tuple([$.c.nat, $.c.text]));
+const $Pair: $.Schema<Pair> = $.c.rec(() => $.c.tuple([$.c.nat, $.c.text]));
 export { $Pair as Pair };
 
-type $Plain = bigint;
-const $Plain: $.Schema<$Plain> = $.c.rec(() => $.c.nat);
+export type Plain = bigint;
+const $Plain: $.Schema<Plain> = $.c.rec(() => $.c.nat);
 export { $Plain as Plain };
 
 /** Second is documented on its own. */
-type $Second = $First;
+export type Second = First;
 /** Second is documented on its own. */
-const $Second: $.Schema<$Second> = $.c.rec(() => $First);
+const $Second: $.Schema<Second> = $.c.rec(() => $First);
 export { $Second as Second };
 
-type $Sparse = {
+export type Sparse = {
   /** Numeric labels render by id and keep their docs. */
   _0_: bigint;
   _5_: string;
 };
-const $Sparse: $.Schema<$Sparse> = $.c.rec(() => $.c.record({ _0_: $.c.nat, _5_: $.c.text }));
+const $Sparse: $.Schema<Sparse> = $.c.rec(() => $.c.record({ _0_: $.c.nat, _5_: $.c.text }));
 export { $Sparse as Sparse };
 
 /** The amount of a transfer, in e8s. */
-type $Tokens = bigint;
+export type Tokens = bigint;
 /** The amount of a transfer, in e8s. */
-const $Tokens: $.Schema<$Tokens> = $.c.rec(() => $.c.nat);
+const $Tokens: $.Schema<Tokens> = $.c.rec(() => $.c.nat);
 export { $Tokens as Tokens };
 
 /** Two occurrences in one declaration disagree, so the field doc is dropped. */
-type $Twice = { a: { x: boolean }; b: { x: boolean } };
+export type Twice = { a: { x: boolean }; b: { x: boolean } };
 /** Two occurrences in one declaration disagree, so the field doc is dropped. */
-const $Twice: $.Schema<$Twice> = $.c.rec(() => $.c.record({ a: $.c.record({ x: $.c.bool }), b: $.c.record({ x: $.c.bool }) }));
+const $Twice: $.Schema<Twice> = $.c.rec(() => $.c.record({ a: $.c.record({ x: $.c.bool }), b: $.c.record({ x: $.c.bool }) }));
 export { $Twice as Twice };
 
 /** The service. */
 const $actor: $.Schema<$.Principal> = $.c.rec(() => $.c.service({ same_a: $.c.func([$.c.nat], [], "update"), same_b: $.c.func([$.c.nat], [], "update"), noargs: $.c.func([], [$.c.nat], "query"), send: $.c.func([$Account, $.c.nat, $Event], [$.c.bool], "update"), reserved: $.c.func([$.c.nat, $.c.nat, $.c.nat, $.c.nat, $.c.nat, $.c.nat, $.c.nat, $.c.nat, $.c.nat], [], "update"), inline: $.c.func([$.c.record({ id: $.c.nat })], [$.c.record({ ok: $.c.bool })], "update"), handle: $Handler, hostile: $.c.func([$.c.nat], [], "update"), collide: $.c.func([$.c.nat, $.c.text, $.c.nat], [], "update") }));
 /** The service. */
-type $Actor = {
+export type Actor = {
   /**
    * @param x
    */
-  same_a: (x: bigint) => Promise<void>;
+  same_a: ((x: bigint) => Promise<void>) & $.WithMode<"update">;
   /**
    * Same signature as same_a, different names.
    * @param y
    */
-  same_b: (y: bigint) => Promise<void>;
-  noargs: () => Promise<bigint>;
+  same_b: ((y: bigint) => Promise<void>) & $.WithMode<"update">;
+  noargs: (() => Promise<bigint>) & $.WithMode<"query">;
   /**
    * Sends tokens.
    *
@@ -163,26 +163,26 @@ type $Actor = {
    * @param to
    * @param amount
    */
-  send: (to: $Account, amount: bigint, arg2: $Event) => Promise<boolean>;
+  send: ((to: Account, amount: bigint, arg2: Event) => Promise<boolean>) & $.WithMode<"update">;
   /**
    * Every reserved or unusable name falls back to arg{n}.
    * @param type
    * @param $
    */
-  reserved: (arg0: bigint, arg1: bigint, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, type: bigint, $: bigint) => Promise<void>;
+  reserved: ((arg0: bigint, arg1: bigint, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, type: bigint, $: bigint) => Promise<void>) & $.WithMode<"update">;
   /**
    * Anonymous types in a signature are the method's own occurrence.
    * @param doc
    */
-  inline: (doc: {
+  inline: ((doc: {
     /** Documented in the signature. */
     id: bigint;
-  }) => Promise<{ ok: boolean }>;
+  }) => Promise<{ ok: boolean }>) & $.WithMode<"update">;
   /**
    * @param payload
    * @param count
    */
-  handle: (payload: Uint8Array, count: bigint) => Promise<void>;
+  handle: ((payload: Uint8Array, count: bigint) => Promise<void>) & $.WithMode<"update">;
   /**
    * A fence \`\`\`ts and an unclosed {\@link Inline tag, mid-line \@deprecated text,
    * a line of only
@@ -190,12 +190,12 @@ type $Actor = {
    * and a tag line \@param forged, none of which may swallow or forge tags.
    * @param survivor
    */
-  hostile: (survivor: bigint) => Promise<void>;
+  hostile: ((survivor: bigint) => Promise<void>) & $.WithMode<"update">;
   /**
    * A fallback never steals a declared name.
    * @param arg1
    * @param arg0_
    */
-  collide: (arg1: bigint, arg1_: string, arg0_: bigint) => Promise<void>;
+  collide: ((arg1: bigint, arg1_: string, arg0_: bigint) => Promise<void>) & $.WithMode<"update">;
 };
-export { $actor as actor, type $Actor as Actor };
+export { $actor as actor };

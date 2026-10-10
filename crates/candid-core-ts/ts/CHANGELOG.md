@@ -13,6 +13,44 @@ entry here is [docs/releasing.md] in that repository.
 API, the inferred domain types, the codec's wire behaviour, and the codes and
 `$`-rooted paths validation reports. Pin an exact version.
 
+## Unreleased
+
+### Added
+
+- **`WithMode` and `ModeOf`: a method's mode in the type system.** A
+  generated module's `Actor` now types each method as its call signature
+  intersected with `WithMode<mode>` (`"query"`, `"composite_query"`,
+  `"update"` or `"oneway"`, the literal its `c.func` builder takes), and
+  `ModeOf<F>` reads the mode back, so a call layer can refuse an update
+  where it builds a read at compile time, from the `Actor` type it already
+  takes:
+
+  ```ts
+  type Mode = ModeOf<Actor["icrc1_transfer"]>; // "update"
+  ```
+
+  Additive: `WithMode` is one optional property under a symbol no value
+  has, so call signatures, `Parameters<>`/`ReturnType<>`, `keyof Actor` and
+  the module's export names are unchanged, and a plain async function still
+  implements a method. An `Actor` written by hand without the mark stays
+  valid; `ModeOf` reads its methods as the whole `MethodMode` union, mode
+  unknown. A module generated with the mark imports `WithMode` from this
+  package, so it type-checks only against a release that has it.
+- `schema.d.ts` grows from 734 lines to 764, all of it the two
+  declarations above and their documentation. No other declaration
+  changed; one documentation comment did (below).
+
+### Generated modules name their types plainly
+
+Nothing in this package's API changes for this: no export, type, verdict or
+byte. The generator in `@candid-core/cli` now declares each declaration's
+type under its Candid name (`export type Account = …`) and keeps the
+`$`-prefixed local for the schema value only
+(`const $Account: $.Schema<Account> = …`), so the errors an app's compiler
+reports name `Account` and `Actor` rather than `$Account` and `$Actor`. The
+`Schema` documentation comment that quotes the generated line is updated to
+match; the line count of `schema.d.ts` does not change.
+
 ## 0.3.0 — 2026-10-06
 
 Pairs with `candid-core` 0.1.0-beta.3.

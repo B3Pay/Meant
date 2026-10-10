@@ -14,6 +14,146 @@ fixtures.
 grammar, the library API, and the request/response shapes. Pin an exact
 version.
 
+## Unreleased
+
+Not yet released; the version is decided at release time. Embeds the
+`candid-core` crate and the `candid-core-ts` generator from the release's
+commit, as every entry does.
+
+### Added
+
+- **`candid-core-cli project <in.did> --methods <a,b,...> -o <out.did>`**
+  writes a `.did` holding only the methods named and every declaration they
+  reach, as one self-contained file, and prints the interface identities of
+  the input and of the projection. The output is deterministic: the same
+  input and the same set of names give the same bytes, in any order. It
+  keeps declaration names, doc comments (a tuple element's included: a
+  tuple with a documented element is written one element per line) and
+  argument names, so `gen` on the projection emits the same declarations,
+  docs and modes as on the full interface, with an `Actor` that lists only
+  the projected methods. A service class's init arguments are dropped. An
+  unknown method name fails with `unknown_method`, one per distinct name,
+  the first listing the service's methods in its `notes`, once; an empty
+  list (`--methods ""`) with `empty_method_list`, a source with no service
+  with `no_service`; each exits 1 and writes nothing. The unknown-method
+  diagnostics are bounded at 4 MiB in all, each counted as the JSON writes
+  it (the list of methods aside), the names past that bound counted in one
+  `resource_limit_exceeded` diagnostic (`projection_diagnostic_bytes`)
+  instead of reported. A projection is at
+  most 1 MiB, the compiler's bound on one source, since it is compiled
+  again: a larger one fails with `resource_limit_exceeded`
+  (`projection_bytes`), exit 1, as soon as writing it reaches that bound.
+  Every name, requested or reached, is found by binary search among names
+  sorted once. Methods are written in name order, a service import's among
+  the entry's. `-o` is required, and may not be, or become, a source of the
+  input (the entry or any `.did` beneath its directory, which `project` reads
+  as `gen` does): naming one of those files by any path, symlink or hard
+  link, or a new `.did` beneath that directory, fails with
+  `output_is_input`, exit 1, and writes nothing. An output that cannot be
+  read or written fails with `output_write_failed` (its `notes` hold the
+  system error code), exit 1; an existing output of another size is
+  replaced without being read. `--json` prints one document instead of the
+  report, and `{ ok: false, diagnostics }` for every failure.
+- **`candid-core-cli check <written.did> --against <live.did>`** exits 0
+  when the live interface is still a Candid subtype of the written one, and
+  1 otherwise: every written method must exist in the live service with the
+  same mode, its arguments contravariant and its results covariant, and
+  methods only the live service has are ignored. Each finding names its
+  method and a stable code (`method_missing`, `mode_changed`,
+  `method_incompatible`, the warning `special_opt_rule`, and
+  `resource_limit_exceeded`) and, inside a type, the path where the check
+  failed. A `special_opt_rule` warning is reported at every path that
+  decodes as `null` along which no pair of types repeats, a shared type
+  under each path that reaches it. Past 1,000 warnings a method reports the
+  first 1,000 and a `resource_limit_exceeded` warning; its verdict stands.
+  A method whose check reaches its depth or work bound fails closed; work
+  is counted in steps, each one unit of work done (a pair of types visited,
+  a field, arm, method or value examined or passed over, a path segment a
+  warning or a failure copies or a warning re-examines). A step reads no
+  name: service methods are paired by ranks computed once per check and a
+  field's name is read by its position, so a step's cost does not grow with
+  the length of the names: it does a bounded amount of work, and its
+  lookups in the maps of type pairs the walk keeps take time logarithmic in
+  their size. The
+  check as a whole is bounded too, so many methods sharing one type cannot
+  multiply the per-method bounds: 10,000,000 steps (one more per method),
+  10,000 `special_opt_rule` warnings and 4 MiB of reported diagnostics, each
+  counted as the JSON response writes it, keys and indentation included, in
+  all (`check_total_steps`, `check_total_warnings`, `check_output_bytes`);
+  a diagnostic is measured only up to the first string that passes the byte
+  bound, so long names cannot make the measuring itself slow. So the walk's
+  time grows with its steps (times that logarithm) and the reported
+  diagnostics' with their bytes; compiling both sides, within the
+  compiler's own limits, and ranking the method names are done once per
+  check, before the walk. Methods are checked in name order; when the step
+  or warning bound is reached, that method and every method after it get
+  one `resource_limit_exceeded` error each and nothing else. Those count
+  against the 4 MiB like any other diagnostic, and once a method's
+  diagnostics would pass it, that method and every method after it are
+  counted in one last `resource_limit_exceeded` error
+  (`check_output_bytes`), which names no method and holds the count in
+  `unreported_methods`. Either way the check exits 1, and a response is at
+  most 4 MiB and 1,016 bytes, however many methods the written side has.
+  Below these bounds a method's findings do not depend on the other
+  methods. The report prints the live interface identity, so an unchanged
+  interface can be told from one that changed compatibly.
+- **`projectDid(sources, methods)` and `checkCompatible(written, live)`**,
+  the library functions behind the two commands, exported beside
+  `didToContract` and `didToModule`, with their types (`ProjectionSuccess`,
+  `CompatibilityReport`, `CompatibilityDiagnostic`, whose `method` is absent
+  only on the `check_output_bytes` diagnostic and whose
+  `unreported_methods` is present only there, `CheckFailure`,
+  `Identities`). Neither fetches anything; the package still has no runtime
+  dependencies.
+
+### Changed
+
+- **The usage text lists the three commands.** A usage error still exits 64
+  with the usage on stderr and nothing on stdout; its text now has three
+  lines, one per command.
+
+### Generated modules
+
+- **Compiler errors name the types you import.** A generated module now
+  declares each declaration's type under its Candid name and keeps the
+  `$`-prefixed local for the schema value only, so an app's TypeScript errors
+  read `Account` and `Actor`, the names it imports, where they read
+  `$Account` and `$Actor`:
+
+  ```ts
+  export type Account = { owner: $.Principal; subaccount: Uint8Array | null };
+  const $Account: $.Schema<Account> = $.c.rec(() => $.c.record({ … }));
+  export { $Account as Account };
+  ```
+
+  Every export name, and what each one is as a type and as a value, is
+  unchanged, and so is every module's set of declarations. A name that
+  cannot be a type in the module keeps the `$` local for its type too: a
+  global type the generated types use (`Array`, `Record`, `Uint8Array`,
+  `Promise`), and a word TypeScript refuses as a type's name (`delete`,
+  `string`, `default`, `keyof`, `readonly`, …). So `type $Array = …` still
+  appears, and errors about it still name `$Array`. Code that imports the
+  generated names is unaffected; code that parses or patches the generated
+  source must follow the new text.
+- **Each `Actor` method carries its mode.** `gen` and `didToModule` now emit
+  each method of `Actor` as its call signature intersected with
+  `$.WithMode<mode>` (`"query"`, `"composite_query"`, `"update"` or
+  `"oneway"`), which `@candid-core/schema`'s `ModeOf` reads back, so a call
+  layer can tell a query from an update at compile time:
+
+  ```ts
+  export type Actor = {
+    icrc1_balance_of: ((arg0: Account) => Promise<bigint>) & $.WithMode<"query">;
+    icrc1_transfer: ((arg0: TransferArg) => Promise<TransferResult>) & $.WithMode<"update">;
+  };
+  ```
+
+  The call signatures, the method names and the module's exports are
+  unchanged, and an actor with no methods still generates an empty `Actor`.
+  `WithMode` is new in `@candid-core/schema`, so a module this release
+  generates needs the schema release paired with it: it does not
+  type-check against `@candid-core/schema` 0.3.0.
+
 ## 0.2.0 — 2026-10-06
 
 Embeds `candid-core` 0.1.0-beta.3 and the `candid-core-ts` generator from the

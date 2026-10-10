@@ -53,6 +53,9 @@ test("every golden fixture reproduces its reviewed module byte-for-byte", () => 
     "fidelity",
     "docs",
     "omissions",
+    "modes",
+    "methodless",
+    "typenames",
   ]) {
     const scratch = mkdtempSync(path.join(tmpdir(), `candid-cli-${name}-`));
     writeFileSync(

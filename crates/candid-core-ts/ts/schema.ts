@@ -10,7 +10,7 @@
 // consumer (issue #149).
 //
 // `Schema<in out T>` is deliberately invariant. The generator annotates every
-// declaration as `const $X: $.Schema<$X> = …`, so the TypeScript compiler
+// declaration as `const $X: $.Schema<X> = …`, so the TypeScript compiler
 // itself proves, on every golden, that the builder's inferred type is exactly
 // the reviewed alias — assignable in both directions, not merely compatible in
 // one. A mapping regression in either the emitter or this core turns the
@@ -126,9 +126,9 @@ function typeName(value: unknown): string {
  * type system — a schema is plain inert data at runtime.
  *
  * Deliberately **invariant** (`in out T`). Generated modules annotate every
- * declaration as `const $X: $.Schema<$X> = …`, so the compiler itself
- * proves the builder's inferred type is exactly the reviewed alias:
- * assignable in both directions, not merely compatible in one.
+ * declaration `const $X: $.Schema<X> = …` (`$.Schema<$X>` where `X` cannot
+ * be a type), so the compiler proves the builder's inferred type is exactly
+ * the reviewed alias: assignable both ways, not merely compatible in one.
  *
  * @example
  * const Balance: Schema<bigint> = c.nat;
@@ -394,6 +394,44 @@ export interface FuncValue {
  * const mode: MethodMode = "composite_query";
  */
 export type MethodMode = "update" | "query" | "composite_query" | "oneway";
+
+declare const methodModeBrand: unique symbol;
+
+/**
+ * A method's mode, carried in the type system only. A generated module types
+ * each method of its `Actor` as the call signature intersected with this
+ * mark, so the signature is the one a call layer always read, and
+ * [`ModeOf`] reads the mode back at compile time:
+ * `fee: (() => Promise<bigint>) & WithMode<"query">`.
+ *
+ * The property is optional and no value ever has it, so a plain async
+ * function still implements such a method, and an `Actor` written by hand
+ * without it stays valid: its methods read as mode unknown.
+ *
+ * @example
+ * type Ledger = { fee: (() => Promise<bigint>) & WithMode<"query"> };
+ * const ledger: Ledger = { fee: async () => 10_000n };
+ */
+export interface WithMode<M extends MethodMode> {
+  readonly [methodModeBrand]?: M;
+}
+
+/**
+ * The mode a method type carries through [`WithMode`]: `"query"`,
+ * `"composite_query"`, `"update"` or `"oneway"`. A method type that carries
+ * none — an `Actor` written by hand, a plain function — reads as the whole
+ * [`MethodMode`] union, meaning mode unknown: any of the four.
+ *
+ * @example
+ * type Fee = ModeOf<(() => Promise<bigint>) & WithMode<"query">>; // "query"
+ * type Untagged = ModeOf<() => Promise<bigint>>; // MethodMode
+ */
+export type ModeOf<F> =
+  F extends WithMode<infer M>
+    ? [Exclude<M, undefined>] extends [never]
+      ? MethodMode
+      : Exclude<M, undefined>
+    : MethodMode;
 
 /**
  * The signature lives in the node — args, results, mode — while the *value*
