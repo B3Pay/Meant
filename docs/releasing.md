@@ -778,6 +778,55 @@ to 7, with these differences:
 If the merge slips past the date in the two changelog headings, a commit
 correcting the date comes first and is the one dispatched, as for a beta.
 
+### The next stable release of the pair
+
+A stable pair after the first (`0.4.0` / `0.3.0` is the first such) is the
+same pull request again, items 1 to 7 with the differences of the section
+above, and these:
+
+- No beta precedes it, so each changelog's `## Unreleased` section is renamed
+  and becomes the whole entry, written for a reader upgrading from the
+  previous stable pair: the pairing line, what an app on that pair has to do,
+  and every break marked **BREAKING**. The CLI raises its exact peer even
+  when the schema release breaks nothing, and a schema release that only adds
+  API is still a minor (`^0.3.0` does not admit `0.4.0`), so the two stay in
+  lockstep.
+- The one-line non-goal of item 4 describes the release line that broke the
+  API (`@candid-core/schema` 0.3 against 0.2). The READMEs and the new release
+  notes keep it word for word, and the notes say it is that line's; a new
+  changelog entry carries it only if that release breaks the API again,
+  with a line of its own.
+- The release notes say what an app on the previous pair does, step by step,
+  besides the public-API diff against the previous stable release (item 5,
+  rebuilt from its `gitHead`).
+- If the step breaks anything for a user of the previous pair, a short
+  migration page (`migrating-from-<previous minor>.html`, such as
+  `migrating-from-0-3.html`) says what, with compiled before and after
+  blocks where the compiler shows it, and is listed in `_site.json`.
+- The site's notes (`NOTE_TITLE`) keep describing the published pair, which
+  is what the install and `npx` blocks still select, and each gains one
+  sentence: the repository is prepared as the next pair, not yet published,
+  what the page shows that is new there, and a link to that migration page.
+  Every passage that documents something new in the prepared pair says so
+  where it does ("new in `0.3.0`"), and a section that is wholly new carries
+  a note saying it is not yet published. A page outside `NOTE_PAGES` that
+  shows something new says so inline.
+- `UNPUBLISHED_NPM_SPECS` names the two exact versions only, as before.
+- Dispatch, the window between the two publishes and the checks afterwards
+  are the section above's, with the new versions.
+- On publish day the follow-up pull request empties `UNPUBLISHED_NPM_SPECS`,
+  rewrites each note so the new pair is the one published and the previous
+  one is the release that differs, and rewrites every marker of the
+  prepared pair: "not yet published", "prepared" and "does not hold yet",
+  some of which wrap across a line break, so
+  `git grep -n -E 'not yet|prepared|does not hold yet' -- README.md website/README.md website/content`
+  is the search, not the phrase alone. It also lists a few lines that are
+  not markers and stay (the pre-publish history on `decisions.html`, the
+  bootstrap paragraph on `status.html`, and ordinary uses of "not yet").
+  The pull request then turns the migration page's prose install lines into
+  blocks, records the publish date and both runs on the status page, and
+  appends each npm release note's **Release record**.
+
 ### Promoting to `latest`
 
 The supported way to move `latest` is a stable release through the workflows
