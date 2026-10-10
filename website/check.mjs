@@ -86,12 +86,11 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
  * prepared version is a 404. The same two spellings are refused, in code
  * blocks only, so a page can still say in prose what the line will be. The
  * publish-day change empties this list and turns that prose into blocks. */
-// The next stable pair, prepared for `latest`: the version-bump pull request
-// adds each prepared version here and the publish-day change empties the list
-// again, as it did once @candid-core/schema 0.3.0 and @candid-core/cli 0.2.0
-// were published under `latest`. Their tag needs no entry: `latest` resolves
-// already, to the pair before them.
-const UNPUBLISHED_NPM_SPECS = ["@candid-core/schema@0.4.0", "@candid-core/cli@0.3.0"];
+// Emptied when @candid-core/schema 0.4.0 and @candid-core/cli 0.3.0 were
+// published under `latest` on 2026-10-10, as it was for 0.3.0 / 0.2.0 before
+// them. The next version-bump pull request adds its prepared versions back
+// until their own publish.
+const UNPUBLISHED_NPM_SPECS = [];
 
 const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({
   /* The spec followed by anything that cannot continue a version or a tag, so
@@ -133,8 +132,8 @@ const SOFT = [
 ];
 
 /* The surface the site teaches is the one the repository builds. These names
- * belong to the surface 0.2.0 has and 0.3.0 (`latest`, and the 0.3 beta
- * before it) does not, so they may be named only where the change is the subject: the
+ * belong to the surface 0.2.0 has and 0.3.0 (and the 0.3 beta before it, and
+ * 0.4.0, `latest`, after it) does not, so they may be named only where the change is the subject: the
  * migration page, and the release history on the status page. Anywhere else
  * they would be prose or a snippet that teaches something that no longer
  * exists. The check reads prose and code alike, because a page that shows
@@ -160,9 +159,9 @@ const REMOVED_SURFACE = [
 const REMOVED_SURFACE_PAGES = new Set(["migrating-from-0-2", "status"]);
 
 /* Pages that describe the schema runtime or the generator carry the one note
- * saying which release they describe (`latest`, 0.3.0 / 0.2.0), how the
- * previous stable release (0.2.0 / 0.1.0) differs, and where to read what
- * changed. */
+ * saying which release they describe (`latest`, 0.4.0 / 0.3.0), how the
+ * previous stable releases (0.3.0 / 0.2.0, and 0.2.0 / 0.1.0 before them)
+ * differ, and where to read what changed. */
 const NOTE_TITLE = "Upgrading from an earlier release";
 const NOTE_RE = new RegExp(`<callout[^>]*title="${NOTE_TITLE}"`, "g");
 const NOTE_LINK_RE = new RegExp(
