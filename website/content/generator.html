@@ -6,6 +6,7 @@
     whole interface for one declaration it cannot represent, and no JSDoc.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code, and each is recorded in the package
     changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code>.
+    The repository has moved on since: it is prepared as <code>@candid-core/cli</code> <code>0.3.0</code>, with <code>@candid-core/schema</code> <code>0.4.0</code>, not yet published, and this page describes that generator. It declares each type under its Candid name, where <code>0.2.0</code> declares a <code>$</code>-prefixed local for it too (<code>type $Item = …</code>), and types each <code>Actor</code> method with its mode (<code>$.WithMode&lt;"query"&gt;</code>), which <code>0.2.0</code> does not and which needs <code>0.4.0</code>. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what the upgrade means.
   </p>
 </callout>
 
@@ -163,7 +164,9 @@ cannot re-derive from the schema's type. Each method of <code>Actor</code> is it
 intersected with <code>$.WithMode&lt;mode&gt;</code>, the same mode literal, which the schema
 runtime's <code>ModeOf</code> reads back: a call layer can refuse an update where it builds a read at
 compile time. The mark is one optional property no value has, so the signature, the method names and
-the exports are unchanged, and a hand-written <code>Actor</code> without it reads as mode unknown.</p>
+the exports are unchanged, and a hand-written <code>Actor</code> without it reads as mode unknown.
+The mark is new in <code>@candid-core/cli</code> <code>0.3.0</code> and needs
+<code>@candid-core/schema</code> <code>0.4.0</code>, both prepared and not yet published.</p>
 
 <h3>A declared primitive names only itself</h3>
 
@@ -610,12 +613,13 @@ v1, so it pins rather than floats.</p>
   never emits TypeScript: it accepts <code>compile &lt;path&gt; [--no-source-info | --envelope]</code>
   and <code>validate &lt;path&gt;</code>, and prints JSON.</p>
   <p>The command that does emit a module is <a href="cli-npm.html"><code>@candid-core/cli</code></a>,
-  which is this generator compiled to WebAssembly. Its one subcommand is
-  <code>candid-core-cli gen &lt;service.did&gt; [-o &lt;dir&gt;]</code>, and it writes
+  which is this generator compiled to WebAssembly. Its <code>gen</code> command,
+  <code>candid-core-cli gen &lt;service.did&gt;... [-o &lt;dir&gt;]</code>, writes
   <code>&lt;stem&gt;.ts</code> alongside <code>&lt;stem&gt;.envelope.json</code>. That package is
-  published on npm, so <code>npx @candid-core/cli@0.2.0 gen ./service.did</code> runs the
-  generator this page describes with no Rust toolchain; the previous stable release, <code>0.1.0</code>,
-  predates it.</p>
+  published on npm, so <code>npx @candid-core/cli@0.2.0 gen ./service.did</code> runs this
+  generator with no Rust toolchain, as published: it writes the <code>$</code>-prefixed type names and
+  bare method signatures that the prepared <code>0.3.0</code>, which this page describes, replaces (see
+  the note at the top). The previous stable release, <code>0.1.0</code>, predates both.</p>
   <p>The route that needs no build step at all is <code>@candid-core/schema</code>'s
   <code>schemaFromContract</code>, which builds the same schemas at runtime from a compiled Contract
   document — see <a href="schema-from-contract.html">schemas at runtime</a>. What that route cannot

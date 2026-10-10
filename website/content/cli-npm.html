@@ -17,11 +17,17 @@
     <code>ts_generation_refused</code> for an interface with one declaration it cannot represent, and
     returns no <code>omitted</code> list. <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code,
     and each is recorded in the package changelog under <code>0.2.0</code> and <code>0.2.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.2.0-beta.1</code>, which lacks the changes recorded under <code>0.2.0</code>.
+    The repository has moved on since: it is prepared as <code>0.3.0</code>, with <code>@candid-core/schema</code> <code>0.4.0</code>, not yet
+    published. What this page marks as new in <code>0.3.0</code> is not in <code>0.2.0</code>: the
+    <a href="#projection-and-compatibility"><code>project</code> and <code>check</code> commands</a>, with
+    <code>projectDid</code> and <code>checkCompatible</code>, and generated modules that declare each type under its Candid name and each
+    <code>Actor</code> method with its mode. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what the upgrade means, and the
+    package changelog records it under <code>0.3.0</code>.
   </p>
 </callout>
 
 <pre data-lang="bash">
-# 0.2.0, the release this page describes (see the note above)
+# 0.2.0, the release on npm today (see the note above)
 npx @candid-core/cli@0.2.0 gen ./service.did -o ./generated
 </pre>
 
@@ -55,7 +61,7 @@ npx @candid-core/cli@0.2.0 gen ./service.did -o ./generated
   <tbody>
     <tr>
       <td>Name and version</td>
-      <td><code>@candid-core/cli</code>, <code>0.2.0</code> — published on npm under <code>latest</code></td>
+      <td><code>@candid-core/cli</code>, <code>0.3.0</code> in the repository, prepared and not yet published; <code>0.2.0</code> is on npm under <code>latest</code></td>
     </tr>
     <tr>
       <td>Binary</td>
@@ -76,12 +82,14 @@ npx @candid-core/cli@0.2.0 gen ./service.did -o ./generated
       <td>Runtime dependencies</td>
       <td>
         None. <code>@candid-core/schema</code> is declared as an <em>optional</em> peer at exactly
-        <code>0.3.0</code> — every module the CLI emits imports from it, but a
+        <code>0.4.0</code> — every module the CLI emits imports from it, but a
         consumer calling only <code>didToContract</code> never loads it. The modules this page's
-        generator emits need the <code>Principal</code> export that 0.2.0 lacks, and while the two
+        generator emits need the <code>WithMode</code> export that 0.3.0 lacks (new in
+        <code>0.4.0</code>, not yet published), and while the two
         packages move in lockstep every schema release is paired with a CLI release that names it
-        exactly. The published <code>0.2.0-beta.1</code> declares exactly <code>0.3.0-beta.1</code>,
-        and the published <code>0.1.0</code> still declares <code>^0.2.0</code>. The one
+        exactly. The published <code>0.2.0</code> declares exactly <code>0.3.0</code>,
+        <code>0.2.0-beta.1</code> exactly <code>0.3.0-beta.1</code>,
+        and <code>0.1.0</code> still declares <code>^0.2.0</code>. The one
         devDependency, <code>playwright-core</code>, drives the browser test
       </td>
     </tr>
@@ -103,7 +111,7 @@ npx @candid-core/cli@0.2.0 gen ./service.did -o ./generated
 
 <h2>The command</h2>
 
-<p>One command, and these options, nothing else:</p>
+<p><code>gen</code>, and these options, nothing else (the usage's first line; <code>project</code> and <code>check</code>, new in <code>0.3.0</code>, are under <a href="#projection-and-compatibility">Projection and compatibility</a>):</p>
 
 <pre data-lang="text" data-file="crates/candid-core-wasm/npm/bin/cli.js">
 usage: candid-core-cli gen <service.did>... [-o <dir>] [--json] [--check]
@@ -463,11 +471,12 @@ warning: omitted method bad (references_omitted via Bad)
 
 <h2>Projection and compatibility</h2>
 
-<callout type="note" title="Unreleased">
+<callout type="note" title="New in 0.3.0, not yet published">
   <p>
     <code>project</code>, <code>check</code>, <code>projectDid</code> and <code>checkCompatible</code>
-    are built from this repository but in no published version yet; the package changelog records
-    them under <code>Unreleased</code>.
+    are new in <code>0.3.0</code>, which the repository is prepared as and npm does not hold yet; the
+    package changelog records them under <code>0.3.0</code>. The published <code>0.2.0</code> has
+    none of them: it exits 64 with its usage for either command.
   </p>
 </callout>
 

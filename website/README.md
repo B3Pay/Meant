@@ -105,10 +105,12 @@ node website/build.mjs && node website/check.mjs
 - a page that describes the TypeScript packages without carrying exactly one
   `Upgrading from an earlier release` callout (`NOTE_TITLE` in `check.mjs`)
   that links the migration page. The site describes the surface the
-  repository builds, which is what the `latest` dist-tag holds
-  (`@candid-core/schema` 0.3.0 and `@candid-core/cli` 0.2.0); the previous
-  stable release (0.2.0 / 0.1.0) differs, and each page says how once, in that
-  one place;
+  repository builds. The `latest` dist-tag holds `@candid-core/schema` 0.3.0
+  and `@candid-core/cli` 0.2.0, and the repository is prepared as 0.4.0 and
+  0.3.0, not yet published: each page's note says so, names what the page
+  shows that is new in the prepared pair, and links `migrating-from-0-3.html`
+  beside the required migration link; the stable release before (0.2.0 /
+  0.1.0) differs more, and each page says how once, in that one place;
 - any TypeScript or JavaScript snippet that is not verified (next section).
 
 And, **in a code block only** — because a page is expected to discuss the

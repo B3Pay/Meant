@@ -448,9 +448,12 @@ candid-core = "=0.1.0-beta.3"
 
 <p>
   The npm packages version independently of the crate and install normally from
-  <code>latest</code>, which holds the release this site describes: <code>@candid-core/schema</code>
+  <code>latest</code>: <code>@candid-core/schema</code>
   for the runtime, and <a href="cli-npm.html"><code>@candid-core/cli</code></a> for <code>.did</code>
-  to TypeScript with no Rust toolchain at all.
+  to TypeScript with no Rust toolchain at all. <code>latest</code> holds <code>0.3.0</code> and
+  <code>0.2.0</code>; this site describes the repository, prepared as <code>0.4.0</code> and
+  <code>0.3.0</code> and not yet published, whose generated modules (such as the one above) declare
+  each type under its Candid name where <code>0.2.0</code> writes <code>type $Even = …</code>.
 </p>
 
 <pre data-lang="bash">
