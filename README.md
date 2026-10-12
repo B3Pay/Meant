@@ -1,8 +1,8 @@
 # Candid Core
 
-> **Pre-1.0: the Rust crate.** The version being prepared is `candid-core`
-> `0.1.0`, the first without a prerelease suffix; `0.1.0-beta.3` is the current
-> release on crates.io. Until 1.0, any release of the crate may change the
+> **Pre-1.0: the Rust crate.** `candid-core` `0.1.0` is the crate's first
+> version without a prerelease suffix; the three before it were `0.1.0-beta.1`
+> to `0.1.0-beta.3`. Until 1.0, any release of the crate may change the
 > public Rust API, the serialized Contract/Compilation/envelope shapes, the
 > canonical bytes, and every identity computed over them. Pin an exact version.
 > See the [changelog](CHANGELOG.md) for the release's scope and
