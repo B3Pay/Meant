@@ -271,6 +271,13 @@ required-features = ["compiler"]
 name = "source_identity_bounds"
 required-features = ["compiler"]
 
+# Issue #252: source-info collection costs in proportion to the source.
+# Installs its own counting global allocator, so it stays its own binary for
+# the same reason `type_preflight_memory` does.
+[[test]]
+name = "source_info_cost"
+required-features = ["compiler"]
+
 # Every struct position of the documents the bounded loaders read, written in
 # serde's sequence form (#235); the `validate` command case inside is gated on
 # `filesystem-compiler`.

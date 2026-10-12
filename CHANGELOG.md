@@ -94,6 +94,30 @@ and therefore the identities computed over them. Pin an exact version.
   above, including every entry point refusing the largest run
   `max_source_bytes` admits on a 64 KiB stack.
 
+- **Source-info collection is linear in the source** ([issue #252]).
+  Compiling with source info, the default, lowered every record, variant,
+  func and service type written in the source through the pinned upstream
+  `candid_parser`'s `ast_to_type`, which clones the whole type environment on
+  every call, so the work grew as (those types) x (declarations), and it ran
+  before any source-info limit was checked. Measured on aarch64 Linux in a
+  release build, 8 000 one-record declarations compiled in 35.6 s with source
+  info and 0.61 s without; an input over `source_string_bytes` paid the whole
+  collection before being refused. The environment is now cloned once per
+  compilation and every type is checked against it with the same upstream
+  `check_type`, which outside its declaration pass only reads it: the same
+  8 000 declarations compile in 0.86 s. The collection now also honours the
+  runtime context's cancellation and deadline at every declaration, as
+  lowering already did. Every entry point that collects source info is
+  affected, including `@candid-core/cli`'s `gen`, `didToContract`,
+  `didToModule`, `projectDid` and `checkCompatible`, which embed this compiler.
+
+  Output is unchanged: the same Contract, identities and `SourceInfo`, the same
+  error codes and precedence. No public API, limit default, or serialized
+  shape changed. `tests/source_info_cost.rs` pins the property by counting
+  allocated bytes, not time (#39): doubling a flat bundle of 500 declarations
+  must less than triple what the compiler allocates (it doubles; the per-call
+  clone made it 3.47x).
+
 ### Type checking
 
 - **A type on a cycle that passes only through `opt` is refused**
@@ -590,3 +614,4 @@ have seen them:
 [issue #234]: https://github.com/b3hr4d/candid-core/issues/234
 [issue #235]: https://github.com/b3hr4d/candid-core/issues/235
 [issue #238]: https://github.com/b3hr4d/candid-core/issues/238
+[issue #252]: https://github.com/b3hr4d/candid-core/issues/252
