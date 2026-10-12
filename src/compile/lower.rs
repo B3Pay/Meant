@@ -43,14 +43,23 @@ pub(super) fn lower_checked(
     let mut raw_source_info = RawSourceInfo::default();
     if options.include_source_info {
         let actor_service = actor_service_ref(actor.as_ref(), &lowerer).map_err(lower_error)?;
+        // `ast_to_type` clones the whole environment on every call, which made
+        // this collection cost (source types) x (declarations) (#252). One
+        // clone, read through `check_type` for every type, is the same check:
+        // outside the `pre` pass it only reads the environment.
+        let mut checked = environment.clone();
+        let checking = Env {
+            te: &mut checked,
+            pre: false,
+        };
         collect_source_units_info(
             source_units,
             actor_service,
-            environment,
+            &checking,
             &mut lowerer,
             &mut raw_source_info,
-        )
-        .map_err(lower_error)?;
+            budget,
+        )?;
         for (resource, limit, observed) in [
             (
                 "source_declarations",
@@ -792,7 +801,7 @@ struct RawFunctionArgumentInfo {
 }
 
 /// Walk the parser's source AST only for provenance. Every semantic type ref
-/// comes from `ast_to_type` plus the checked environment, never from a
+/// comes from `check_type` plus the checked environment, never from a
 /// handwritten interpretation of Candid grammar or type rules.
 fn actor_service_ref(
     actor: Option<&Actor>,
@@ -811,18 +820,22 @@ fn actor_service_ref(
 fn collect_source_units_info(
     source_units: &[SourceUnit],
     actor_service: Option<TypeRef>,
-    environment: &TypeEnv,
+    environment: &Env<'_>,
     lowerer: &mut Lowerer<'_>,
     output: &mut RawSourceInfo,
-) -> Result<(), String> {
+    budget: &crate::budget::Budget<'_>,
+) -> Result<(), CompileError> {
     for unit in source_units {
         for declaration in &unit.program.decs {
+            budget.checkpoint().map_err(|error| {
+                budget_error(error, DiagnosticPhase::Lower, "provenance collection")
+            })?;
             if let Dec::TypD(binding) = declaration {
                 let origin = SourceOrigin::Declaration {
                     source: unit.name.clone(),
                     name: binding.id.clone(),
                 };
-                let ty = lowerer.lower_named(&binding.id)?;
+                let ty = lowerer.lower_named(&binding.id).map_err(lower_error)?;
                 output.declarations.push(RawDeclarationInfo {
                     source: unit.name.clone(),
                     name: binding.id.clone(),
@@ -836,7 +849,8 @@ fn collect_source_units_info(
                     environment,
                     lowerer,
                     output,
-                )?;
+                )
+                .map_err(lower_error)?;
             }
         }
         if unit.include_actor {
@@ -855,7 +869,8 @@ fn collect_source_units_info(
                     environment,
                     lowerer,
                     output,
-                )?;
+                )
+                .map_err(lower_error)?;
             }
         }
     }
@@ -866,7 +881,7 @@ fn collect_actor_source_info(
     ast: &IDLType,
     origin: &SourceOrigin,
     actor_service: Option<TypeRef>,
-    environment: &TypeEnv,
+    environment: &Env<'_>,
     lowerer: &mut Lowerer<'_>,
     output: &mut RawSourceInfo,
 ) -> Result<(), String> {
@@ -921,7 +936,7 @@ fn collect_type_source_info(
     ast: &IDLType,
     origin: &SourceOrigin,
     path: &str,
-    environment: &TypeEnv,
+    environment: &Env<'_>,
     lowerer: &mut Lowerer<'_>,
     output: &mut RawSourceInfo,
 ) -> Result<(), String> {
@@ -1012,7 +1027,7 @@ fn collect_service_source_info(
     origin: &SourceOrigin,
     path: &str,
     service: TypeRef,
-    environment: &TypeEnv,
+    environment: &Env<'_>,
     lowerer: &mut Lowerer<'_>,
     output: &mut RawSourceInfo,
 ) -> Result<(), String> {
@@ -1039,10 +1054,10 @@ fn collect_service_source_info(
 
 fn lower_ast_type(
     ast: &IDLType,
-    environment: &TypeEnv,
+    environment: &Env<'_>,
     lowerer: &mut Lowerer<'_>,
 ) -> Result<TypeRef, String> {
-    let ty = ast_to_type(environment, ast).map_err(|error| error.to_string())?;
+    let ty = check_type(environment, ast).map_err(|error| error.to_string())?;
     lowerer.lower_type(&ty)
 }
 

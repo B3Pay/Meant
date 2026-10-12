@@ -14,7 +14,7 @@ use candid_parser::check_file;
 use candid_parser::check_prog;
 use candid_parser::syntax::{Dec, IDLMergedProg, IDLProg, IDLType};
 use candid_parser::token::{Token, Tokenizer};
-use candid_parser::typing::ast_to_type;
+use candid_parser::typing::{check_type, Env};
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 #[cfg(feature = "filesystem-compiler")]
