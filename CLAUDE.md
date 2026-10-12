@@ -108,7 +108,12 @@ being digests of exact octets.
 
 Benchmarks: emit the manifest *before* the suite (its mtime is the run epoch);
 comparisons and the reviewed-baseline procedure are in `docs/benchmarks.md`.
-No timing or allocation measurement ever fails a workflow — recorded on #39.
+No timing measurement ever fails a workflow — recorded on #39, narrowed on
+2026-10-12 (#256): a deterministic allocation test that asserts a ratio or an
+invariance over counted bytes is a correctness test and may fail CI
+(`tests/stage_scaling_cost.rs`, `tests/source_info_cost.rs`,
+`tests/type_preflight_memory.rs`). The benchmark comparison's absolute deltas
+still fail nothing.
 A merged `Cargo.lock` change that alters the bench binary's resolved
 dependency graph makes comparisons drift-informational until the documented
 recapture (dispatch `Verify`, review the artifact's `baseline.json`, commit it

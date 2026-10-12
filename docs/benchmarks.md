@@ -140,12 +140,15 @@ The report leads with the **controls**: the `official_*` cases execute only upst
 Baselines live in `benches/baselines/`, outside the `include` allowlist in `Cargo.toml`, so a baseline never ships to a consumer. Committing one is deliberate: updating a baseline should be a reviewed change that records why it moved.
 
 [issue #39]: https://github.com/b3hr4d/candid-core/issues/39
+[issue #256]: https://github.com/b3hr4d/candid-core/issues/256
 [issue #132]: https://github.com/b3hr4d/candid-core/issues/132
 [issue #135]: https://github.com/b3hr4d/candid-core/issues/135
 
 ## CI policy
 
-**No timing or allocation measurement ever fails a workflow in this repository.** That is a recorded decision on [issue #39], not an unfinished feature: GitHub-hosted runners are shared and thermally variable, and a threshold calibrated from their noise would produce a red check maintainers learn to ignore. Detection without enforcement — a regression is surfaced with absolute values, intervals, and raw data, and a human decides. The `--fail-on-regression` flag exists for deliberate local pre-release checks on a machine the operator controls; it is never wired into CI.
+**No timing measurement ever fails a workflow in this repository.** That is a recorded decision on [issue #39], not an unfinished feature: GitHub-hosted runners are shared and thermally variable, and a threshold calibrated from their noise would produce a red check maintainers learn to ignore. Detection without enforcement — a regression is surfaced with absolute values, intervals, and raw data, and a human decides. The comparison's allocation deltas are reported the same way.
+
+One kind of measurement is different, and does fail CI: a deterministic allocation *test*. The bytes a counting global allocator sees are fixed for given code and dependencies, so a test that runs a stage at two input sizes and asserts the ratio of those bytes fails only when the stage's allocation changes shape, never because of the machine. It bounds allocation, not work: a stage that turned quadratic while allocating linearly, through a nested scan or repeated lookups, would pass. Per-item cloning, which is how #252 went quadratic, cannot. The rule was narrowed to timing on 2026-10-12 to say so ([issue #256]). `tests/stage_scaling_cost.rs` holds every stage after parsing to linear allocation growth, `tests/source_info_cost.rs` does the same for source-info collection, and `tests/type_preflight_memory.rs` pins an invariance of the depth guards' work counter. These are ordinary tests, not benchmarks: they assert a ratio, never a number of bytes. The `--fail-on-regression` flag exists for deliberate local pre-release checks on a machine the operator controls; it is never wired into CI.
 
 Three tiers:
 

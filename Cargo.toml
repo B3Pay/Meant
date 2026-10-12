@@ -285,6 +285,13 @@ required-features = ["compiler"]
 name = "source_info_cost"
 required-features = ["compiler"]
 
+# Issue #256: every stage after parsing costs in proportion to its input. Its
+# own binary for the same reason as `source_info_cost`: a counting global
+# allocator.
+[[test]]
+name = "stage_scaling_cost"
+required-features = ["compiler"]
+
 # Every struct position of the documents the bounded loaders read, written in
 # serde's sequence form (#235); the `validate` command case inside is gated on
 # `filesystem-compiler`.

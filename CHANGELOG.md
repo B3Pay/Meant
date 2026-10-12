@@ -7,6 +7,26 @@ release procedure that produces an entry here is [docs/releasing.md](docs/releas
 API, the serialized Contract/Compilation/envelope shapes, the canonical bytes,
 and therefore the identities computed over them. Pin an exact version.
 
+## Unreleased
+
+### Verification
+
+- **Every compile stage after parsing is held to linear allocation** ([issue #256]).
+  `tests/stage_scaling_cost.rs` runs each stage at 500 and 1,000 items, in
+  two shapes (many one-record declarations used by as many service methods;
+  one record and one variant each 1,000 wide), and fails if doubling the
+  input more than triples the bytes a counting allocator sees. The stages are
+  compiling without source info, canonicalization, structural validation,
+  `Contract` and `ContractEnvelope` loading and writing, `SourceInfo`
+  validation, and `Compilation` loading, which recompiles the embedded bundle.
+  Each measures 2.00–2.03 today. Each test was shown to fail on an injected
+  per-item clone of a growing collection. The standing rule from issue #39 is
+  narrowed to say so: no *timing* measurement fails a workflow, while a
+  deterministic allocation test that asserts a ratio is a correctness test.
+  The suite bounds what a stage allocates, not the work it does: a stage that
+  turned quadratic without allocating more, such as a nested scan, would pass
+  it. Nothing in the published crate changed.
+
 ## 0.1.0 — published 2026-10-12
 
 The first version without a prerelease suffix. It is still pre-1.0: any later
@@ -735,3 +755,4 @@ have seen them:
 [issue #241]: https://github.com/b3hr4d/candid-core/issues/241
 [issue #251]: https://github.com/b3hr4d/candid-core/issues/251
 [issue #252]: https://github.com/b3hr4d/candid-core/issues/252
+[issue #256]: https://github.com/b3hr4d/candid-core/issues/256
