@@ -9,8 +9,8 @@
 </p>
 
 <p>
-  Everything on this page is pre-1.0. The current release is
-  <code>0.1.0-beta.3</code>, and any release before 1.0 may change the public API,
+  Everything on this page is pre-1.0. The crate is at
+  <code>0.1.0</code>, and any release before 1.0 may change the public API,
   the serialized shapes, the canonical bytes, and therefore every identity computed
   over them. Pin an exact version.
 </p>
@@ -18,42 +18,40 @@
 <h2>Adding the dependency</h2>
 
 <p>
-  Every published version of <code>candid-core</code> is a prerelease. Cargo only
-  selects a prerelease when the version requirement itself names one, so the usual
-  caret spelling resolves to <em>nothing</em>: <code>candid-core = "0.1"</code> does
-  not match <code>0.1.0-beta.3</code>, and <code>cargo install candid-core</code>
-  fails with a "could not find … with version *" message. Write the exact
-  requirement.
+  Write the exact requirement. <code>0.1.0</code> is the first version without a
+  prerelease suffix, so the usual caret spelling, <code>candid-core = "0.1"</code>,
+  now resolves to it — and to any later <code>0.1.x</code>, which before 1.0 may
+  change the API, the serialized shapes and the identities.
 </p>
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
 # The full surface: compiler, filesystem-compiler and host-value are all
 # enabled by default, so no feature selection is needed.
-candid-core = "=0.1.0-beta.3"
+candid-core = "=0.1.0"
 </pre>
 
 <p>The same thing from the command line:</p>
 
 <pre data-lang="bash">
-cargo add candid-core@=0.1.0-beta.3
+cargo add candid-core@=0.1.0
 </pre>
 
 <p>
-  Pinning with <code>=</code> is worth doing for a second reason beyond
-  prerelease selection. With both the API and the wire format unstable before 1.0,
-  an automatic move to the next prerelease is a change you should opt into
-  deliberately rather than inherit from a <code>cargo update</code>.
+  With both the API and the wire format unstable before 1.0, moving to the next
+  release is a change you should opt into deliberately rather than inherit from a
+  <code>cargo update</code>. Pinning with <code>=</code> is what makes it a choice.
 </p>
 
-<callout type="warn" title="Upgrade rather than pin an earlier beta">
+<callout type="warn" title="Upgrade rather than pin a beta">
   <p>
     <code>0.1.0-beta.1</code> and <code>0.1.0-beta.2</code> walk a declaration graph
     as a tree, so a small <code>.did</code> file with shared type aliases can drive
     work that doubles per level — and no limit refused it, because the walk returned
     <code>Ok</code>. <code>0.1.0-beta.3</code> fixes that and adds
-    <code>max_type_preflight_work</code> so the work is charged. If you compile
-    <code>.did</code> source you did not write, do not pin either earlier version.
+    <code>max_type_preflight_work</code> so the work is charged, and <code>0.1.0</code>
+    fixes four more inputs that crashed or stalled every beta. If you compile
+    <code>.did</code> source you did not write, do not pin any beta.
   </p>
 </callout>
 
@@ -234,7 +232,7 @@ cargo add candid-core@=0.1.0-beta.3
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = { version = "=0.1.0-beta.3", default-features = false, features = ["compiler"] }
+candid-core = { version = "=0.1.0", default-features = false, features = ["compiler"] }
 </pre>
 
 <p>
@@ -271,7 +269,7 @@ println!("contract: {}", compilation.contract().contract_id());
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = { version = "=0.1.0-beta.3", default-features = false }
+candid-core = { version = "=0.1.0", default-features = false }
 </pre>
 
 <pre data-lang="rust">

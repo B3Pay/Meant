@@ -13,10 +13,10 @@ encoding looks the way it does, read <a href="host-values.html">Host
 values</a> first.</p>
 
 <pre data-lang="toml">[dependencies]
-candid-core = "=0.1.0-beta.3"</pre>
+candid-core = "=0.1.0"</pre>
 
-<p>The crate is a prerelease, so the requirement has to be exact. A caret
-requirement never selects a prerelease. Everything below also needs the
+<p>The crate is pre-1.0, so the requirement is exact: a caret requirement
+would take a breaking 0.x release with it. Everything below also needs the
 <span class="pill accent">compiler</span> feature, because the examples
 compile a <code>.did</code> source to get a Contract to validate against; both
 features are on by default.</p>

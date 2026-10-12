@@ -1,10 +1,11 @@
 # Candid Core
 
-> **Unstable beta: the Rust crate.** `candid-core` `0.1.0-beta.3` is the
-> current release on crates.io. Until 1.0, any release of the crate may change
-> the public Rust API, the serialized Contract/Compilation/envelope shapes, the
+> **Pre-1.0: the Rust crate.** The version being prepared is `candid-core`
+> `0.1.0`, the first without a prerelease suffix; `0.1.0-beta.3` is the current
+> release on crates.io. Until 1.0, any release of the crate may change the
+> public Rust API, the serialized Contract/Compilation/envelope shapes, the
 > canonical bytes, and every identity computed over them. Pin an exact version.
-> See the [changelog](CHANGELOG.md) for the beta's scope and
+> See the [changelog](CHANGELOG.md) for the release's scope and
 > [known limitations](CHANGELOG.md#known-limitations), and
 > [docs/releasing.md](docs/releasing.md) for the release procedure. The npm
 > packages [below](#typescript-candid-coreschema) version independently: their
@@ -22,7 +23,7 @@ The compile command emits JSON containing a canonical validated `contract` and a
 
 Those three are not one family. `contract_id` and `interface_id` are **semantic Contract identities**, so documents that mean the same thing share them on purpose; `source_bundle_id` is a **raw-source bundle content identity**, so it does identify raw source-file content — source bytes and import edges included — and formatting and comments inside a source therefore do move it. What none of the three identifies is a complete serialized `Contract`, `ContractEnvelope`, or `Compilation` document. A fourth does: `artifact_id_with_limits` hashes the exact octets of such a document and returns the ID to the caller — use it when exact octets are what must be committed to. See [what each identity claims](#what-each-identity-claims) below; no unkeyed content ID authenticates itself.
 
-See [architecture](docs/architecture.md) and the [Contract graph](docs/contract-graph.md) for the v1 model, constraints, and the explicitly deferred host-value ↔ Candid binary bridge. The byte-level algorithm for the three canonicalized identities is specified normatively in [canonicalization v1](docs/canonicalization-v1.md), and the detached artifact identity in [artifact identity v1](docs/artifact-identity-v1.md). See [release verification gates](docs/verification.md) for the checks required before declaring the format stable across implementations. See [performance benchmarks](docs/benchmarks.md) for reproducible comparisons with the pinned official Candid checker and for allocation measurements. See the [changelog](CHANGELOG.md) for what this beta contains and what it does not, and [releasing](docs/releasing.md) for the exact release-candidate procedure and what is irreversible about publishing.
+See [architecture](docs/architecture.md) and the [Contract graph](docs/contract-graph.md) for the v1 model, constraints, and the explicitly deferred host-value ↔ Candid binary bridge. The byte-level algorithm for the three canonicalized identities is specified normatively in [canonicalization v1](docs/canonicalization-v1.md), and the detached artifact identity in [artifact identity v1](docs/artifact-identity-v1.md). See [release verification gates](docs/verification.md) for the checks required before declaring the format stable across implementations. See [performance benchmarks](docs/benchmarks.md) for reproducible comparisons with the pinned official Candid checker and for allocation measurements. See the [changelog](CHANGELOG.md) for what this release contains and what it does not, and [releasing](docs/releasing.md) for the exact release-candidate procedure and what is irreversible about publishing.
 
 ## TypeScript: `@candid-core/schema`
 
@@ -135,7 +136,7 @@ Seven implemented [foundation ADRs](docs/adrs/README.md) define the boundaries f
 
 All seven decisions are implemented in the Rust reference runtime. Because no stable version has been released, this profile is the clean starting point rather than a compatibility layer over an earlier format.
 
-Implemented is not the same as verified, and the two are tracked separately. **ADR 0002** (independently version schema, Candid semantics, and canonical bytes) is **Verified**: a Python reference outside this crate reproduces all 11 canonicalization vectors, and that run is recorded in [release verification gates](docs/verification.md). **ADRs 0001 and 0003–0007** remain **Implemented, verification pending** — each has an implementation, ADR 0007 also has an independent reference and a dedicated CI job, but no run of that job is recorded yet, and wiring is not evidence. The Contract format is therefore **not** a stable v1, and this beta does not promote it to one.
+Implemented is not the same as verified, and the two are tracked separately. **ADR 0002** (independently version schema, Candid semantics, and canonical bytes) is **Verified**: a Python reference outside this crate reproduces all 11 canonicalization vectors, and that run is recorded in [release verification gates](docs/verification.md). **ADRs 0001 and 0003–0007** remain **Implemented, verification pending** — each has an implementation, ADR 0007 also has an independent reference and a dedicated CI job, but no run of that job is recorded yet, and wiring is not evidence. The Contract format is therefore **not** a stable v1, and this release does not promote it to one.
 
 ## Rust version and dependencies
 
@@ -152,27 +153,27 @@ The crate advertises Rust 1.78 as its minimum supported Rust version (MSRV). Dir
 | `compiler` | `compile_did` and its option/context variants, `compile_with_resolver`, `Compilation`, `CompileOptions`, `CompileError`, `SourceId`/`SourceResolver`/`ResolvedSource`/`MemoryResolver`, `SourceInfo`/`RawSourceInfo` provenance | `candid`, `candid_parser` |
 | `filesystem-compiler` (implies `compiler`) | `WorkspaceResolver`, `compile_did_file` and its variants, source materialization for `candid_parser::check_file`, the `candid-core` binary | `cap-std` |
 
-Because every feature is on by default, the full surface needs no feature selection at all. The version requirement, however, has to name the prerelease explicitly: `0.1.0-beta.3` is a prerelease, and a caret requirement such as `"0.1"` will **not** resolve to it. Cargo only selects a prerelease when the requirement mentions one, so every example below pins the exact version.
+Because every feature is on by default, the full surface needs no feature selection at all. Every example below pins the exact version with `=`. `0.1.0` carries no prerelease suffix, so a caret requirement such as `"0.1"` would resolve to it, and to any later `0.1.x`; but before 1.0 any release may change the API, the serialized shapes and the identities, so the upgrade should be one a consumer chooses.
 
 ```toml
 # the full surface, every feature on by default
-candid-core = "=0.1.0-beta.3"
+candid-core = "=0.1.0"
 
 # a pure Contract consumer: model, validation, canonicalization, identities
-candid-core = { version = "=0.1.0-beta.3", default-features = false }
+candid-core = { version = "=0.1.0", default-features = false }
 
 # ... plus the lossless tagged host value ABI
-candid-core = { version = "=0.1.0-beta.3", default-features = false, features = ["host-value"] }
+candid-core = { version = "=0.1.0", default-features = false, features = ["host-value"] }
 
 # a browser/WASM host that compiles DID source it already has — self-contained
 # or a multi-file bundle with imports
-candid-core = { version = "=0.1.0-beta.3", default-features = false, features = ["compiler"] }
+candid-core = { version = "=0.1.0", default-features = false, features = ["compiler"] }
 
 # a native tool that reads .did files, or uses the CLI
-candid-core = { version = "=0.1.0-beta.3", default-features = false, features = ["filesystem-compiler"] }
+candid-core = { version = "=0.1.0", default-features = false, features = ["filesystem-compiler"] }
 ```
 
-`cargo add candid-core@=0.1.0-beta.3` does the same thing from the command line. Pinning with `=` is the right choice for a prerelease for a second reason: with the API and the wire format both unstable before 1.0, an automatic upgrade to the next prerelease is a change a consumer should opt into deliberately.
+`cargo add candid-core@=0.1.0` does the same thing from the command line. A plain `cargo add candid-core` writes the caret requirement `"0.1.0"`, which Cargo will silently move to the next `0.1.x`; with the API and the wire format both unstable before 1.0, that is a change a consumer should opt into deliberately.
 
 Items outside the selected set are **absent at compile time**, not runtime stubs: a build error names the missing item, and turning on the feature it belongs to is the fix. `tests/model_public_api.rs` pins the root exports of each surface, and `tests/fixtures/packaging/verify_feature_graph.py` proves the dependency claims in the table above against `cargo metadata` — the base graph resolves to 23 packages where the default graph resolves to 126, and a `compiler`-only browser-WASM graph to 106.
 

@@ -32,7 +32,10 @@ const manifest = await readFile(join(HERE, "..", "Cargo.toml"), "utf8");
 const CRATE_VERSION = (manifest.match(/^version\s*=\s*"([^"]+)"/m) || [])[1];
 if (!CRATE_VERSION) throw new Error("could not read the crate version from Cargo.toml");
 const IS_PRERELEASE = CRATE_VERSION.includes("-");
-const REQUIRED_REQ = IS_PRERELEASE ? `=${CRATE_VERSION}` : CRATE_VERSION;
+/* Exact while pre-1.0, not only while a prerelease: any 0.x release may break,
+ * so the pages pin `=0.1.0` as they pinned the betas (issue #259). */
+const IS_PRE_1_0 = CRATE_VERSION.startsWith("0.");
+const REQUIRED_REQ = IS_PRERELEASE || IS_PRE_1_0 ? `=${CRATE_VERSION}` : CRATE_VERSION;
 const slugs = new Set(site.sections.flatMap((section) => section.pages.map((page) => page.slug)));
 
 /* Commands and dependency lines that must never appear in a CODE BLOCK.
@@ -292,8 +295,10 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
    * along with the inline-table form and every other version entirely.
    *
    * While the crate version is a prerelease the `=` is mandatory, because a
-   * caret requirement never selects a prerelease at all. After 1.0 the plain
-   * requirement becomes the correct one and this rule follows automatically.
+   * caret requirement never selects a prerelease at all. Until 1.0 it stays
+   * mandatory by policy, because a caret requirement would pull in a breaking
+   * 0.x release. After 1.0 the plain requirement becomes the correct one and
+   * this rule follows automatically.
    *
    * Scoped to manifest dependency lines on purpose. `cargo install --version
    * 0.1.0-beta.3` is NOT the same defect: cargo's manual states that a
@@ -310,7 +315,11 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
       fail(
         page,
         `candid-core dependency requirement ${JSON.stringify(version)}; it must be ${JSON.stringify(REQUIRED_REQ)}` +
-          (IS_PRERELEASE ? " — a caret requirement never selects a prerelease" : ""),
+          (IS_PRERELEASE
+            ? " — a caret requirement never selects a prerelease"
+            : IS_PRE_1_0
+              ? " — before 1.0 a caret requirement would take a breaking 0.x release"
+              : ""),
       );
     }
   }

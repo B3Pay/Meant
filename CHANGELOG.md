@@ -7,7 +7,44 @@ release procedure that produces an entry here is [docs/releasing.md](docs/releas
 API, the serialized Contract/Compilation/envelope shapes, the canonical bytes,
 and therefore the identities computed over them. Pin an exact version.
 
-## Unreleased
+## 0.1.0 — 2026-10-12
+
+The first version without a prerelease suffix. It is still pre-1.0: any later
+release may change the public Rust API, the serialized
+Contract/Compilation/envelope shapes, the canonical bytes, and the identities
+computed over them, so pin `=0.1.0` rather than take a caret requirement. The
+Contract format is **not** promoted to a stable v1 by this release. As with
+every release, the archive is built and digested before publication, so the
+copy of this file inside the published archive carries the planned date; the
+release record carries the publication evidence.
+
+This version follows the issue #81 bump protocol:
+`ProducerInfo::current().version` (and therefore the octets of newly
+serialized documents) is the only observable change from the bump itself, and
+`tests/release_metadata.rs` asserts it together with the identities that must
+not move. The frozen exact-octet artifact vectors were written before the first
+beta with the placeholder producer version `0.1.0`, which this release now
+shares; they are not regenerated, and their pinned artifact IDs, not the
+version they carry, are what proves it.
+
+**Upgrading from `0.1.0-beta.3`.** The public API is unchanged: both
+inventories, the base and the all-features surface, are identical, and no
+change below is acknowledged as breaking. Every change makes the crate refuse
+something it used to crash on, stall on, or mis-read, so a consumer that
+compiles or loads only well-formed input sees no difference beyond the producer
+version. Four inputs that `0.1.0-beta.3` accepted are now refused:
+
+- a record field whose id is `u32::MAX`, which panicked in a debug build and
+  numbered the next unnamed field 0 in a release build ([issue #230]);
+- a type on a cycle that passes only through `opt` ([issue #234]);
+- a run of consecutive comments longer than `max_source_nesting`, which
+  aborted the process from the stack ([issue #219]);
+- a Contract document that writes a struct as a JSON array or a unit variant
+  as a map ([issue #235], [issue #238]), forms candid-core never writes and
+  `@candid-core/schema` already refused.
+
+Every Contract, envelope and Compilation document candid-core has written,
+`0.1.0-beta.3`'s included, still loads, with the same identities.
 
 ### Source input
 
@@ -288,6 +325,32 @@ and therefore the identities computed over them. Pin an exact version.
   when it is the last one in the file. `tests/fixtures/packaging/test_verify_semver.py`
   pins each case, and the `Semver compatibility` job runs it before the
   comparison. Nothing in the published crate changed.
+
+### Known limitations
+
+- **ADR verification is incomplete.** ADR 0002 is **Verified**; ADRs 0001 and
+  0003–0007 remain **Implemented, verification pending**
+  ([docs/verification.md](docs/verification.md)).
+- **Decided before 1.0, not in this release.** A record field's name attaches
+  to the shared canonical node, so two declarations with the same structure
+  can show each other's spelling ([issue #229]); the fix changes the Contract
+  format. What `maxElements` counts when `@candid-core/schema` validates a
+  record-shaped value differs from candid-core's own bound ([issue #241]).
+- **The `candid-core` binary** refuses an entry `.did` named through a file
+  symlink, or in a different letter case on a case-insensitive filesystem,
+  with `did_source_not_found` ([issue #251]).
+- **Carried from earlier releases.** The HostValue ↔ Candid binary bridge is
+  deferred. Bounded JSON decoding enforces `max_input_bytes` before decoding
+  rather than element by element. `HostValue::from_json_with_limits` gates on
+  `max_value_bytes` with its own error shape. Raising `max_value_nesting`
+  above 128 has no effect beneath `serde_json`'s fixed ceiling.
+  `max_type_preflight_work` bounds the depth guards' own work, so a host whose
+  allocator fails first gets an allocation abort in place of the structured
+  refusal.
+- **The npm packages version independently.** `@candid-core/schema` and
+  `@candid-core/cli` are not part of this crate's published surface;
+  `@candid-core/cli` still embeds an earlier revision of this crate until its
+  own next release.
 
 ## 0.1.0-beta.3 — published 2026-08-24
 
@@ -661,8 +724,11 @@ have seen them:
 [PR #177]: https://github.com/b3hr4d/candid-core/pull/177
 [issue #219]: https://github.com/b3hr4d/candid-core/issues/219
 [issue #222]: https://github.com/b3hr4d/candid-core/issues/222
+[issue #229]: https://github.com/b3hr4d/candid-core/issues/229
 [issue #230]: https://github.com/b3hr4d/candid-core/issues/230
 [issue #234]: https://github.com/b3hr4d/candid-core/issues/234
 [issue #235]: https://github.com/b3hr4d/candid-core/issues/235
 [issue #238]: https://github.com/b3hr4d/candid-core/issues/238
+[issue #241]: https://github.com/b3hr4d/candid-core/issues/241
+[issue #251]: https://github.com/b3hr4d/candid-core/issues/251
 [issue #252]: https://github.com/b3hr4d/candid-core/issues/252

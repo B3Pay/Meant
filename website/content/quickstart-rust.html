@@ -11,13 +11,12 @@ and hashes the canonical bytes. Everything downstream — the TypeScript
 generator, the schema runtime, the CLI — consumes that graph rather than the
 source text.</p>
 
-<callout type="warn" title="This is a prerelease, and the requirement must say so">
-  <p><code>candid-core</code> is at <code>0.1.0-beta.3</code>. Cargo only
-  selects a prerelease when the requirement mentions one, so a caret
-  requirement such as <code>candid-core = "0.1"</code> resolves to
-  <em>nothing</em>. Every example below pins the exact version. Until 1.0, any
+<callout type="warn" title="Pre-1.0, so pin the exact version">
+  <p><code>candid-core</code> is at <code>0.1.0</code>. Until 1.0, any
   release may change the public API, the serialized shapes, the canonical bytes,
-  and therefore every identity computed over them.</p>
+  and therefore every identity computed over them, and a caret requirement such
+  as <code>candid-core = "0.1"</code> would take such a release with it. Every
+  example below pins the exact version.</p>
 </callout>
 
 <h2>From .did source to a Contract</h2>
@@ -26,8 +25,8 @@ source text.</p>
   <li>
     <h3>Add the dependency</h3>
     <pre data-lang="toml" data-file="Cargo.toml">[dependencies]
-candid-core = "=0.1.0-beta.3"</pre>
-    <p>Or from the command line, <code>cargo add candid-core@=0.1.0-beta.3</code>.
+candid-core = "=0.1.0"</pre>
+    <p>Or from the command line, <code>cargo add candid-core@=0.1.0</code>.
     The MSRV is Rust 1.78 and the licence is Apache-2.0.</p>
     <p>That line gives you the whole surface, because all three Cargo features
     are on by default: <span class="pill accent">compiler</span> (the
@@ -202,7 +201,7 @@ budget:  resource=source_bytes limit=16 observed=38</pre>
     It accepts exactly this grammar and nothing else.</p>
     <pre data-lang="text">candid-core compile <path> [--no-source-info | --envelope]
 candid-core validate <path></pre>
-    <pre data-lang="bash">cargo install candid-core --version 0.1.0-beta.3 --locked
+    <pre data-lang="bash">cargo install candid-core --version 0.1.0 --locked
 
 candid-core compile ./service.did              # contract + provenance sidecar
 candid-core compile ./service.did --envelope   # one self-describing document
@@ -227,7 +226,7 @@ candid-core validate ./contract.json           # re-check a document you were gi
     "candid_parser_version": "0.4.0",
     "candid_version": "0.10.30",
     "name": "candid-core",
-    "version": "0.1.0-beta.3"
+    "version": "0.1.0"
   },
   "semantics_profile": "candid-1",
   "types": [ "…the arena, one node per entry…" ]
