@@ -81,6 +81,153 @@ pub(super) fn check_source_nesting(
     Ok(())
 }
 
+/// Refuse a record field whose id would be `u32::MAX` before the upstream
+/// grammar sees it (issue #230).
+///
+/// The pinned `candid_parser` record rule computes the next positional id as
+/// `id + 1` at **every** record field, labelled or not
+/// (`grammar.lalrpop:174-175`). At `u32::MAX` that addition panics in a debug
+/// build and wraps to 0 in a release build, so the next unnamed field silently
+/// gets id 0. The upstream rule cannot be corrected from here, so the field is
+/// refused in both builds alike, with the parser's own code. Variants compute
+/// no next id and are not affected.
+///
+/// A field's id is its decimal or hex label, the Candid hash of its name, or,
+/// unnamed, one more than the previous field's (0 for the first). The refusal
+/// is reported when the record's closing brace arrives, which is when upstream
+/// would reduce the record, so a lexical error inside the record keeps the
+/// parser's own diagnostic: like [`check_source_nesting`], this returns `Ok`
+/// at the first lexical error and leaves it to the parser. The message never
+/// renders the label: a string-literal name can hold bytes that are not valid
+/// UTF-8 (see `parse_error_message`), so the field is located by its span.
+pub(super) fn refuse_record_field_id_overflow(
+    text: &str,
+    offset: usize,
+    source_name: Option<&str>,
+    budget: &crate::budget::Budget<'_>,
+) -> Result<(), CompileError> {
+    enum Frame {
+        Record {
+            next_id: u64,
+            /// At the start of a field: after `{` or `;` at this level.
+            at_field_start: bool,
+            /// The first token of a field that may be a label, until the
+            /// next token says whether it is (`:`) or starts a type.
+            pending_label: Option<(Option<u64>, std::ops::Range<usize>)>,
+            /// The first field whose id is `u32::MAX`.
+            overflow: Option<(u64, std::ops::Range<usize>)>,
+        },
+        Other,
+    }
+    let mut frames: Vec<Frame> = Vec::new();
+    let mut previous_was_record = false;
+    for token in Tokenizer::new(text) {
+        budget
+            .checkpoint()
+            .map_err(|error| budget_error(error, DiagnosticPhase::Parse, "source preflight"))?;
+        let (start, token, end) = match token {
+            Ok(token) => token,
+            Err(_) => return Ok(()),
+        };
+        // Resolve a pending label at the token after it.
+        if let Some(Frame::Record {
+            next_id,
+            pending_label,
+            overflow,
+            ..
+        }) = frames.last_mut()
+        {
+            if let Some((label_id, range)) = pending_label.take() {
+                let id = match (token == Token::Colon, label_id) {
+                    (true, Some(id)) => Some(id),
+                    // A label out of `u32` range: upstream reports it.
+                    (true, None) => None,
+                    // Not a label: the field is unnamed.
+                    (false, _) => Some(*next_id),
+                };
+                if let Some(id) = id {
+                    if id == u64::from(u32::MAX) && overflow.is_none() {
+                        *overflow = Some((id, range));
+                    }
+                    *next_id = id.saturating_add(1);
+                }
+            }
+        }
+        if let Some(Frame::Record {
+            at_field_start,
+            pending_label,
+            next_id,
+            overflow,
+        }) = frames.last_mut()
+        {
+            if *at_field_start && !matches!(token, Token::Semi | Token::RBrace) {
+                *at_field_start = false;
+                let label_id = match &token {
+                    Token::Decimal(digits) => Some(digits.parse::<u32>().ok().map(u64::from)),
+                    Token::Hex(digits) => Some(u32::from_str_radix(digits, 16).ok().map(u64::from)),
+                    Token::Id(name) | Token::Text(name) => {
+                        Some(Some(u64::from(crate::name_hash::candid_name_hash(name))))
+                    }
+                    _ => None,
+                };
+                match label_id {
+                    Some(label_id) => *pending_label = Some((label_id, start..end)),
+                    None => {
+                        let id = *next_id;
+                        if id == u64::from(u32::MAX) && overflow.is_none() {
+                            *overflow = Some((id, start..end));
+                        }
+                        *next_id = id.saturating_add(1);
+                    }
+                }
+            }
+        }
+        match token {
+            Token::LBrace if previous_was_record => frames.push(Frame::Record {
+                next_id: 0,
+                at_field_start: true,
+                pending_label: None,
+                overflow: None,
+            }),
+            Token::LBrace | Token::LParen => frames.push(Frame::Other),
+            Token::RBrace | Token::RParen => {
+                if let Some(Frame::Record {
+                    overflow: Some((id, range)),
+                    ..
+                }) = frames.pop()
+                {
+                    let start = range.start.saturating_add(offset);
+                    let end = range.end.saturating_add(offset);
+                    let mut diagnostic = Diagnostic::compiler(
+                        "did_parse_error",
+                        DiagnosticPhase::Parse,
+                        format!(
+                            "Candid parser error: record field id {id} is not supported at bytes {start}..{end}; \
+                             the pinned candid_parser cannot number a record field after it"
+                        ),
+                    );
+                    diagnostic.span = Some(SourceSpan::exact(
+                        source_name.map(str::to_string),
+                        start as u64,
+                        end as u64,
+                    ));
+                    return Err(CompileError {
+                        diagnostics: vec![diagnostic],
+                    });
+                }
+            }
+            Token::Semi => {
+                if let Some(Frame::Record { at_field_start, .. }) = frames.last_mut() {
+                    *at_field_start = true;
+                }
+            }
+            _ => {}
+        }
+        previous_was_record = token == Token::Record;
+    }
+    Ok(())
+}
+
 /// Count consecutive comments between two real tokens, without recursion and
 /// without the upstream tokenizer.
 ///

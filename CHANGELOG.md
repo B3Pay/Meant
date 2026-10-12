@@ -50,6 +50,38 @@ and therefore the identities computed over them. Pin an exact version.
   serialized shape changed, so this entry acknowledges no break. ADR 0004
   records the rule, and `tests/source_bom.rs` pins each case above.
 
+- **A record field whose id is `u32::MAX` is refused instead of panicking or
+  misnumbering** ([issue #230]). The pinned upstream `candid_parser` record
+  rule computes the next positional id as `id + 1` at every record field,
+  labelled or not. At 4294967295 that addition panicked in a debug build and
+  wrapped to 0 in a release build, where the next unnamed field silently got
+  id 0: `record { 4294967295 : nat; text }` compiled to ids `[0, 4294967295]`.
+  A name reaches the same id through its Candid hash (`hlrnuwa` does), and so
+  does an unnamed field after `4294967294`.
+
+  Before the upstream grammar runs, a token preflight now refuses every record
+  field whose id would be `u32::MAX` (written as a decimal or hex number, as a
+  name or string literal hashing to it, or reached by an unnamed field) with
+  `did_parse_error`, "record field id 4294967295 is not supported at bytes
+  …", and the field's exact span, in every build and on every entry point:
+  `compile_did` and its variants, `compile_with_resolver` (naming the
+  importing source), `compile_did_file` and its variants, the `candid-core`
+  binary, and the `SourceInfo` rederivation behind `SourceInfo::validate` and
+  the `Compilation` loaders. The message locates the field and never renders
+  its name. The refusal waits for the record's closing brace, as upstream's
+  reduction does, so a lexical error inside the record keeps the parser's own
+  diagnostic, and an id past `u32` keeps upstream's "field id out of u32
+  range". Variants and service methods compute no next id and are unaffected.
+
+  **This refuses input that compiled in a release build before**, including
+  valid Candid whose record field id is exactly 4294967295 (about one field
+  name in 2^32). The owner chose this over a new error code and over waiting
+  for an upstream fix; the decision is recorded on the issue. Every other
+  source compiles exactly as before. No public API, error code, or serialized
+  shape changed. `tests/record_field_id_overflow.rs` pins each case above,
+  and, in debug builds, that the pinned upstream grammar still panics on every
+  refused source.
+
 ### Resource bounds
 
 - **A long run of consecutive comments is refused instead of aborting the
@@ -611,6 +643,7 @@ have seen them:
 [issue #176]: https://github.com/b3hr4d/candid-core/issues/176
 [PR #177]: https://github.com/b3hr4d/candid-core/pull/177
 [issue #219]: https://github.com/b3hr4d/candid-core/issues/219
+[issue #230]: https://github.com/b3hr4d/candid-core/issues/230
 [issue #234]: https://github.com/b3hr4d/candid-core/issues/234
 [issue #235]: https://github.com/b3hr4d/candid-core/issues/235
 [issue #238]: https://github.com/b3hr4d/candid-core/issues/238

@@ -267,6 +267,13 @@ required-features = ["compiler"]
 name = "opt_only_cycle"
 required-features = ["compiler"]
 
+# Issue #230: a record field whose id is `u32::MAX` is refused before the
+# upstream grammar; the native-file case inside is gated on
+# `filesystem-compiler`.
+[[test]]
+name = "record_field_id_overflow"
+required-features = ["compiler"]
+
 [[test]]
 name = "source_identity_bounds"
 required-features = ["compiler"]
