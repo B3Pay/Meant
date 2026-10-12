@@ -268,13 +268,19 @@ jobs:
       - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           toolchain: ${{ env.SEMVER_TOOLCHAIN }}
+      # Where the gate looks for an acknowledgement, on fixture changelogs:
+      # `## Unreleased`, and the release's own section on a release commit
+      # (#222). Cheap, so it runs before the tool is built.
+      - name: Test the acknowledgement rule
+        run: python3 tests/fixtures/packaging/test_verify_semver.py
       - name: Install the pinned cargo-semver-checks
         run: cargo install cargo-semver-checks --version "${CARGO_SEMVER_CHECKS_VERSION}" --locked
       # Neither "no breaks" nor "breaks are free". This crate is pre-1.0 and its
       # changelog reserves the right to break, so a hard failure would fight
       # intended work; but a warning nobody must act on is how drift gets
       # through. The rule is no *undocumented* breaks: a reported break must be
-      # acknowledged in the Unreleased section of CHANGELOG.md.
+      # acknowledged in the Unreleased section of CHANGELOG.md, or on a release
+      # commit in the section of the version being released.
       #
       # The script forces `--release-type patch` deliberately. A branch that has
       # not bumped its version compares X -> X, which cargo-semver-checks reads

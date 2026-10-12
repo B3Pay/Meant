@@ -272,6 +272,23 @@ and therefore the identities computed over them. Pin an exact version.
   `tests/unit_variant_map_form.rs` pins each position in each spelling and
   each loader entry point.
 
+### Release gates
+
+- **The semver gate reads a release's own section on its release commit**
+  ([issue #222]). `verify_semver.py` accepted a reported break only when a
+  list item beginning with the bolded `BREAKING` marker acknowledged it under
+  `## Unreleased`. Release prep renames that section to the version being
+  released while the gate still compares against the previous release, so a
+  release that carried an acknowledged break failed the gate on its own
+  release commit. The gate now also reads the section headed by the
+  `Cargo.toml` version whenever that version is not the baseline, which is
+  exactly the release commit. Between releases `Cargo.toml` carries the
+  version already published, and its section is not read: an acknowledgement
+  there is for a break that release already shipped. A section is also found
+  when it is the last one in the file. `tests/fixtures/packaging/test_verify_semver.py`
+  pins each case, and the `Semver compatibility` job runs it before the
+  comparison. Nothing in the published crate changed.
+
 ## 0.1.0-beta.3 — published 2026-08-24
 
 The third prerelease, and the first that carries a fix for a defect in an
@@ -643,6 +660,7 @@ have seen them:
 [issue #176]: https://github.com/b3hr4d/candid-core/issues/176
 [PR #177]: https://github.com/b3hr4d/candid-core/pull/177
 [issue #219]: https://github.com/b3hr4d/candid-core/issues/219
+[issue #222]: https://github.com/b3hr4d/candid-core/issues/222
 [issue #230]: https://github.com/b3hr4d/candid-core/issues/230
 [issue #234]: https://github.com/b3hr4d/candid-core/issues/234
 [issue #235]: https://github.com/b3hr4d/candid-core/issues/235

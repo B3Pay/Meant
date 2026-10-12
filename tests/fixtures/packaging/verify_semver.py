@@ -9,9 +9,19 @@ on worth much — that is how drift gets through.
 
 So the rule here is neither "no breaks" nor "breaks are free". It is **no
 undocumented breaks**: `cargo semver-checks` reports what changed, and a
-reported break must be acknowledged in the `## Unreleased` section of
-`CHANGELOG.md` by a list item that *begins* with the `**BREAKING**` marker.
-Acknowledged, it passes; unacknowledged, it fails and names what to write.
+reported break must be acknowledged in `CHANGELOG.md` by a list item that
+*begins* with the `**BREAKING**` marker. Acknowledged, it passes;
+unacknowledged, it fails and names what to write.
+
+The acknowledgement is read from the `## Unreleased` section and, when the
+version in `Cargo.toml` is not the baseline, from the section headed by that
+version. Release prep renames `## Unreleased` to the version being released
+(`docs/releasing.md` §5) while the baseline is still the previous release, so
+on the release commit the acknowledgement lives under the version heading.
+Between releases `Cargo.toml` carries the version already published, which is
+the baseline, and its section is not read: an acknowledgement there describes a
+break that release already shipped, and would otherwise wave through every new
+one.
 
 The marker must start a list item rather than merely appear somewhere in the
 section. That is not pedantry: the changelog entry describing this gate contains
@@ -44,6 +54,7 @@ import json
 import re
 import subprocess
 import sys
+import tomllib
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -53,6 +64,8 @@ CRATE = "candid-core"
 # non-zero exit is a tool or environment failure and must not be read as "no
 # breaking changes".
 SEMVER_REQUIRED_EXIT = 100
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 SURFACES = (
     ("base", ["--only-explicit-features"]),
@@ -100,15 +113,40 @@ def published_baseline(repo_root: Path) -> str:
 ACKNOWLEDGEMENT = re.compile(r"^[ \t]*[-*][ \t]+\*\*BREAKING\*\*", re.MULTILINE)
 
 
-def unreleased_section(changelog: Path) -> str:
-    """The text between `## Unreleased` and the next `## ` heading."""
-    if not changelog.is_file():
-        fail(f"{changelog} is missing")
-    text = changelog.read_text()
+def section(text: str, heading: str) -> str:
+    """The text between `## <heading>` and the next `## ` heading or the end.
+
+    A version heading carries its date after the version (`## 0.1.0 — published
+    2026-08-24`), so the heading must be followed by whitespace or the line's
+    end: `0.1.0` does not name the `0.1.0-beta.3` section.
+    """
     match = re.search(
-        r"^##\s+Unreleased\s*$(.*?)(?=^##\s+)", text, re.MULTILINE | re.DOTALL
+        rf"^##[ \t]+{re.escape(heading)}(?:[ \t][^\n]*)?$(.*?)(?=^##\s|\Z)",
+        text,
+        re.MULTILINE | re.DOTALL,
     )
     return match.group(1) if match else ""
+
+
+def acknowledging_sections(changelog: str, version: str, baseline: str) -> list:
+    """The changelog sections that may acknowledge a break, as (heading, text)."""
+    headings = ["Unreleased"]
+    if version != baseline:
+        headings.append(version)
+    return [(heading, section(changelog, heading)) for heading in headings]
+
+
+def acknowledgements(changelog: str, version: str, baseline: str) -> int:
+    """How many list items acknowledge a break in the sections that may."""
+    return sum(
+        len(ACKNOWLEDGEMENT.findall(text))
+        for _, text in acknowledging_sections(changelog, version, baseline)
+    )
+
+
+def crate_version(repo_root: Path) -> str:
+    with (repo_root / "Cargo.toml").open("rb") as handle:
+        return tomllib.load(handle)["package"]["version"]
 
 
 def run_surface(name: str, flags: list, baseline: str, repo_root: Path) -> bool:
@@ -144,7 +182,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    repo_root = Path(__file__).resolve().parents[3]
+    repo_root = REPO_ROOT
     baseline = args.baseline_version or published_baseline(repo_root)
     print(f"baseline: {CRATE} {baseline}")
 
@@ -160,22 +198,32 @@ def main() -> int:
         return 0
 
     surfaces = ", ".join(broken)
-    section = unreleased_section(repo_root / "CHANGELOG.md")
-    entries = ACKNOWLEDGEMENT.findall(section)
+    changelog = repo_root / "CHANGELOG.md"
+    if not changelog.is_file():
+        fail(f"{changelog} is missing")
+    text = changelog.read_text()
+    version = crate_version(repo_root)
+    read = " and ".join(
+        f"`## {heading}`"
+        for heading, _ in acknowledging_sections(text, version, baseline)
+    )
+    entries = acknowledgements(text, version, baseline)
     if entries:
         print(
             f"breaking changes reported on: {surfaces}\n"
-            f"acknowledged by {len(entries)} entry/entries in the Unreleased "
-            "section of CHANGELOG.md — allowed, because this crate is pre-1.0 "
-            "and documents that any release may break."
+            f"acknowledged by {entries} entry/entries under {read} in "
+            "CHANGELOG.md — allowed, because this crate is pre-1.0 and documents "
+            "that any release may break."
         )
         return 0
 
     print(
         f"breaking changes reported on: {surfaces}\n"
+        f"no acknowledgement under {read} in CHANGELOG.md\n"
         "\n"
         "This is permitted before 1.0, but it must be written down. Add a list "
-        "item to the `## Unreleased` section of CHANGELOG.md that begins with "
+        "item to the `## Unreleased` section of CHANGELOG.md (on a release "
+        "commit, the section of the version being released) that begins with "
         "the marker, describing what changed and what a consumer must do:\n"
         "\n"
         "    - **BREAKING**: `ContractEnvelope` is no longer re-exported at the "
