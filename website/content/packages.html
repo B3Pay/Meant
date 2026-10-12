@@ -51,7 +51,7 @@
 <p>Four of those seven rows resolve from a package manager today, and two of them are the same crate. The rest are tracked, buildable and gated, and each carries a deliberate <code>publish = false</code>, one of them because its registry name has not been decided yet. All of them exist in the repository; none of them will install from a registry.</p>
 
 <callout type="warn" title="Everything here is pre-1.0">
-  <p>The Rust crate is a prerelease, and the npm packages are <code>0.4.0</code> (<code>@candid-core/schema</code>) and <code>0.3.0</code> (<code>@candid-core/cli</code>) under <code>latest</code>, with the earlier betas <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> still under <code>beta</code>. Until 1.0, any release may change the public API, the serialized document shapes, the canonical bytes, and therefore every identity computed over them. Pin an exact version in both ecosystems. See <a href="status.html">Status, versions and releases</a>.</p>
+  <p>The Rust crate is <code>0.1.0</code>, and the npm packages are <code>0.4.0</code> (<code>@candid-core/schema</code>) and <code>0.3.0</code> (<code>@candid-core/cli</code>) under <code>latest</code>, with the earlier betas <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> still under <code>beta</code>. Until 1.0, any release may change the public API, the serialized document shapes, the canonical bytes, and therefore every identity computed over them. Pin an exact version in both ecosystems. See <a href="status.html">Status, versions and releases</a>.</p>
 </callout>
 
 <callout type="note" title="Upgrading from an earlier release">
@@ -90,18 +90,18 @@
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = "=0.1.0-beta.3"
+candid-core = "=0.1.0"
 </pre>
 
-<callout type="danger" title="A caret requirement will not resolve">
-  <p>A bare version string such as <code>"0.1"</code> is a caret requirement, and it selects nothing here. Cargo's caret requirement never matches a prerelease, and every published version so far is one. Write the exact requirement <code>"=0.1.0-beta.3"</code>, exactly as above.</p>
+<callout type="danger" title="Pin the exact version">
+  <p>A bare version string such as <code>"0.1"</code> is a caret requirement: it resolves to <code>0.1.0</code> and to any later <code>0.1.x</code>, and before 1.0 any release may change the API, the serialized shapes and the identities. Write the exact requirement <code>"=0.1.0"</code>, exactly as above.</p>
 </callout>
 
 <p>To take the model without the Candid engine, turn the defaults off:</p>
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = { version = "=0.1.0-beta.3", default-features = false }
+candid-core = { version = "=0.1.0", default-features = false }
 </pre>
 
 <h3>The four feature surfaces</h3>
@@ -145,7 +145,7 @@ candid-core = { version = "=0.1.0-beta.3", default-features = false }
 <p>Because <code>filesystem-compiler</code> is part of the default set, an ordinary install builds it. From the published crate:</p>
 
 <pre data-lang="bash">
-cargo install candid-core --locked --version '=0.1.0-beta.3'
+cargo install candid-core --locked --version '=0.1.0'
 candid-core compile ./service.did
 </pre>
 
@@ -174,7 +174,7 @@ candid-core validate <path>
   <li><strong>Manifest:</strong> <code>crates/candid-core-ts/Cargo.toml</code>. A member of the root workspace.</li>
   <li><strong>Published:</strong> <strong>no</strong>, and not by accident. The manifest carries <code>publish = false</code> because a crates.io crate name is as permanent as a version, and <code>candid-core-ts</code> is a working name, not a decision. The gate stands until the name is chosen deliberately.</li>
   <li><strong>Version</strong> <code>0.0.0</code>, edition 2021, <code>rust-version = "1.78"</code>, Apache-2.0.</li>
-  <li><strong>Depends on</strong> <code>candid-core</code> at <code>version = "=0.1.0-beta.3"</code> with <code>default-features = false</code>, and a <code>path</code> alongside it so the workspace builds against the sibling. The base surface only, which is the design statement: a generator needs no Candid parser, no filesystem capability and no host-value ABI.</li>
+  <li><strong>Depends on</strong> <code>candid-core</code> at <code>version = "=0.1.0"</code> with <code>default-features = false</code>, and a <code>path</code> alongside it so the workspace builds against the sibling. The base surface only, which is the design statement: a generator needs no Candid parser, no filesystem capability and no host-value ABI.</li>
 </ul>
 
 <h3>Depending on the generator</h3>

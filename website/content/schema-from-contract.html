@@ -388,11 +388,11 @@ type B = record { x : record { 100 : text } };
   </li>
   <li>
     <h3>Compile the .did file</h3>
-    <pre data-lang="bash">cargo install candid-core --version 0.1.0-beta.3 --locked
+    <pre data-lang="bash">cargo install candid-core --version 0.1.0 --locked
 candid-core compile ./collections.did > ./compiled.json</pre>
     <p>
-      <code>candid-core</code> is pre-1.0 with only prereleases on crates.io, so the version has to
-      be explicit — a bare <code>cargo install candid-core</code> resolves to nothing. Plain
+      <code>candid-core</code> is pre-1.0, so name the version you mean rather than install
+      whatever is newest. Plain
       <code>compile</code> prints <code>{ ok, contract, source_info }</code>: the Contract document,
       plus the provenance sidecar that carries the field names.
     </p>

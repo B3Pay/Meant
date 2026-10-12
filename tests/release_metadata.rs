@@ -1,4 +1,4 @@
-//! Issue #81's protocol, applied to the `0.1.0-beta.3` bump: what a version
+//! Issue #81's protocol, applied to the `0.1.0` bump: what a version
 //! bump is allowed to move.
 //!
 //! Bumping the crate version changes exactly one observable thing in the data
@@ -25,24 +25,28 @@ use candid_core::{
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 
-/// The prerelease this repository is preparing, spelled out rather than read
+/// The version this repository is preparing, spelled out rather than read
 /// from the environment. `model_public_api.rs` already proves
 /// `ProducerInfo::current().version == env!("CARGO_PKG_VERSION")`; the point of
 /// a literal here is that changing the crate version has to be a deliberate
 /// edit to a test that says why, not a silent consequence of editing
 /// `Cargo.toml`.
-const PRERELEASE_VERSION: &str = "0.1.0-beta.3";
+const RELEASE_VERSION: &str = "0.1.0";
 
 /// The producer version frozen into `tests/fixtures/artifact-identity/`. Those
-/// vectors are exact-octet protocol evidence, not current build output, so this
-/// deliberately trails `PRERELEASE_VERSION` and must keep doing so.
+/// vectors are exact-octet protocol evidence, not current build output. They
+/// were written before the first beta with the placeholder `0.1.0`, which is
+/// also the version `RELEASE_VERSION` names now: for this one release the
+/// frozen value and the current one coincide, and only the pinned digests can
+/// tell a frozen vector from a regenerated one (see
+/// `the_exact_octet_artifact_vectors_were_not_regenerated`).
 const FROZEN_ARTIFACT_PRODUCER_VERSION: &str = "0.1.0";
 
 /// Every producer version any frozen vector is allowed to carry. `9.9.9` is the
 /// deliberately rewritten producer in the `contract_producer` and
 /// `compilation_producer` vectors, which exist to show that rewriting producer
-/// moves the artifact ID and leaves `contract_id` alone. Neither value is this
-/// build's, and that is the invariant.
+/// moves the artifact ID and leaves `contract_id` alone. No vector may carry any
+/// other version, and that is the invariant.
 const FROZEN_PRODUCER_VERSIONS: [&str; 2] = [FROZEN_ARTIFACT_PRODUCER_VERSION, "9.9.9"];
 
 fn repo(relative: &str) -> PathBuf {
@@ -77,24 +81,26 @@ const ARTIFACT_VECTORS: [&str; 10] = [
 ];
 
 // ---------------------------------------------------------------------------
-// The change: producer metadata reports the prerelease.
+// The change: producer metadata reports the release.
 // ---------------------------------------------------------------------------
 
 #[test]
-fn producer_reports_the_prerelease_version_in_every_configuration() {
+fn producer_reports_the_release_version_in_every_configuration() {
     let producer = ProducerInfo::current();
     assert_eq!(producer.name, "candid-core");
-    assert_eq!(producer.version, PRERELEASE_VERSION);
+    assert_eq!(producer.version, RELEASE_VERSION);
     assert_eq!(producer.version, env!("CARGO_PKG_VERSION"));
 
-    // A prerelease, not a release. `"0.1"` does not select this version, which
-    // is why README and docs/releasing.md require `=0.1.0-beta.3` by name.
-    let (release, prerelease) = producer
-        .version
-        .split_once('-')
-        .expect("the beta version must carry a prerelease suffix");
-    assert_eq!(release, "0.1.0");
-    assert_eq!(prerelease, "beta.3");
+    // The first version without a prerelease suffix, so a caret requirement
+    // would now select it. README and docs/releasing.md still ask for `=0.1.0`
+    // by name: before 1.0 any release may break, and the owner's decision on
+    // issue #259 keeps the exact pin until then.
+    assert!(
+        !producer.version.contains('-') && !producer.version.contains('+'),
+        "{} must carry no prerelease or build suffix",
+        producer.version
+    );
+    assert!(producer.version.starts_with("0."), "still pre-1.0");
 
     // The engine pins are read from the manifest, not from a linked crate, so
     // they are identical here whether or not `compiler` is on. Neither moved.
@@ -111,7 +117,7 @@ fn the_legacy_wire_fixtures_carry_the_current_producer_version() {
     for name in WIRE_FIXTURES {
         let fixture = json(&format!("tests/fixtures/conformance/{name}.contract.json"));
         assert_eq!(
-            fixture["producer"]["version"], PRERELEASE_VERSION,
+            fixture["producer"]["version"], RELEASE_VERSION,
             "{name}.contract.json is current compiler output and must carry the current version"
         );
     }
@@ -158,7 +164,7 @@ fn the_pinned_semantic_identities_are_unchanged_by_the_version_bump() {
             "{name}: the pinned identity payload must never mention producer"
         );
         assert!(
-            !jcs.contains(PRERELEASE_VERSION) && !jcs.contains(FROZEN_ARTIFACT_PRODUCER_VERSION),
+            !jcs.contains(RELEASE_VERSION) && !jcs.contains(FROZEN_ARTIFACT_PRODUCER_VERSION),
             "{name}: no crate version may appear in the identity payload"
         );
     }
@@ -172,7 +178,7 @@ fn rewriting_only_the_producer_version_moves_the_octets_and_no_identity() {
     let original: RawContract =
         serde_json::from_str(&text("tests/fixtures/conformance/basic.contract.json")).unwrap();
     let mut rewritten = original.clone();
-    rewritten.producer.version = format!("{PRERELEASE_VERSION}+rewritten");
+    rewritten.producer.version = format!("{RELEASE_VERSION}+rewritten");
     assert_ne!(original.producer, rewritten.producer);
 
     let original = Contract::try_from_raw(original).unwrap();
@@ -288,10 +294,16 @@ fn the_exact_octet_artifact_vectors_were_not_regenerated() {
                  {FROZEN_PRODUCER_VERSIONS:?}; an exact-octet vector must never be \
                  regenerated with the current build's version"
             );
-            assert_ne!(
-                version, PRERELEASE_VERSION,
-                "{name}: an exact-octet vector was regenerated with the current version"
-            );
+            // While this build's version differs from every frozen value, the
+            // version alone proves the vector was not regenerated. At `0.1.0`
+            // it equals the frozen placeholder, and the pinned artifact ID
+            // checked above is the proof instead.
+            if !FROZEN_PRODUCER_VERSIONS.contains(&RELEASE_VERSION) {
+                assert_ne!(
+                    version, RELEASE_VERSION,
+                    "{name}: an exact-octet vector was regenerated with the current version"
+                );
+            }
         }
     }
     assert_eq!(
@@ -359,7 +371,7 @@ fn compiling_the_conformance_sources_reproduces_the_pinned_identities() {
 
         assert_eq!(
             contract.producer().version,
-            PRERELEASE_VERSION,
+            RELEASE_VERSION,
             "{name}: freshly compiled output must carry the current version"
         );
         assert_eq!(
@@ -381,7 +393,7 @@ fn compiling_the_conformance_sources_reproduces_the_pinned_identities() {
         assert!(
             !serde_json::to_string(source_info)
                 .unwrap()
-                .contains(PRERELEASE_VERSION),
+                .contains(RELEASE_VERSION),
             "{name}: the provenance sidecar must not carry a crate version"
         );
     }

@@ -151,10 +151,21 @@ def main():
         # forward from a previous release — or the word "nonsense" — while the
         # tarball claims verified provenance. `candid-core-wasm` depends on the
         # root crate by path, so the root manifest is what it embeds.
-        embedded = re.search(r"Embeds `candid-core` (\S+)", entry_body)
+        #
+        # Which entry makes the claim follows the sibling gate's rule. While
+        # the changelog carries an `## Unreleased` section, the tree is
+        # development past the packed version: that version's published entry
+        # names what it embedded at its own release commit, and a crate
+        # release since then moves the root manifest under it. The claim this
+        # tree has to keep true is then the one the next release will make, so
+        # the `## Unreleased` section must name the crate as it stands. Release
+        # prep renames that section, which points the check at the entry being
+        # released again.
+        claimant = "Unreleased" if "Unreleased" in entries else version
+        embedded = re.search(r"Embeds `candid-core` (\S+)", entries[claimant][1])
         if not embedded:
             raise SystemExit(
-                f"the changelog entry for {version} names no embedded "
+                f"the changelog entry for {claimant} names no embedded "
                 "`candid-core` revision, which is the pairing this package "
                 "promises in place of a version pairing"
             )
@@ -165,7 +176,7 @@ def main():
             raise SystemExit("could not read the crate version from Cargo.toml")
         if named != actual.group(1):
             raise SystemExit(
-                f"the changelog entry for {version} says it embeds "
+                f"the changelog entry for {claimant} says it embeds "
                 f"`candid-core` {named}, but this build embeds "
                 f"{actual.group(1)}. An npm version is permanent, so the "
                 "provenance it claims has to be the provenance it has."

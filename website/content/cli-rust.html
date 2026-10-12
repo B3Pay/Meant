@@ -22,16 +22,15 @@
 <h2>Installing it</h2>
 
 <pre data-lang="bash">
-cargo install candid-core --version 0.1.0-beta.3 --locked
+cargo install candid-core --version 0.1.0 --locked
 candid-core compile ./service.did --envelope > ./service.json
 </pre>
 
 <p>
-  The version has to be named. Every published version of <code>candid-core</code> is a prerelease, and
-  an unqualified request never selects one, so a bare <code>cargo install candid-core</code> fails with
-  <code>could not find candid-core in registry crates-io with version *</code>. Spelling the exact
-  requirement — <code>--version '=0.1.0-beta.3'</code> — works the same way and matches the dependency
-  line a library consumer writes, <code>candid-core = "=0.1.0-beta.3"</code>. <code>--locked</code>
+  Name the version. <code>candid-core</code> is pre-1.0, and any 0.x release may change what the
+  binary writes, so install the release you mean rather than whatever is newest. Spelling the exact
+  requirement — <code>--version '=0.1.0'</code> — works the same way and matches the dependency
+  line a library consumer writes, <code>candid-core = "=0.1.0"</code>. <code>--locked</code>
   builds against the lockfile shipped inside the crate archive.
 </p>
 
@@ -41,7 +40,7 @@ candid-core compile ./service.did --envelope > ./service.json
   feature selection the release verification uses when it installs the CLI from the packaged archive:
 </p>
 
-<pre data-lang="bash">cargo install candid-core --version 0.1.0-beta.3 --locked --no-default-features --features filesystem-compiler</pre>
+<pre data-lang="bash">cargo install candid-core --version 0.1.0 --locked --no-default-features --features filesystem-compiler</pre>
 
 <p>Working from a clone, the same commands run through Cargo without installing anything:</p>
 
@@ -214,7 +213,7 @@ usage: candid-core compile <path> [--no-source-info | --envelope]
       "candid_parser_version": "0.4.0",
       "candid_version": "0.10.30",
       "name": "candid-core",
-      "version": "0.1.0-beta.3"
+      "version": "0.1.0"
     },
     "semantics_profile": "candid-1",
     "types": [{ "kind": "service", "methods": [] }]
@@ -297,7 +296,7 @@ service : { transfer: (Payload) -> () };
       "candid_parser_version": "0.4.0",
       "candid_version": "0.10.30",
       "name": "candid-core",
-      "version": "0.1.0-beta.3"
+      "version": "0.1.0"
     },
     "semantics_profile": "candid-1",
     "types": [

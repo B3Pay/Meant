@@ -132,12 +132,13 @@ broken spellings, and a copyable line is the thing that must work:
   `Cargo.toml` rather than written down here, so a release makes every stale
   line in the documentation fail on the next run. While that version is a
   prerelease the `=` is mandatory, because a caret requirement never selects
-  a prerelease — and note that a bare `candid-core = "0.1.0-beta.3"` _is_ a
-  caret requirement. After 1.0 the plain requirement becomes the correct one
-  and this rule follows on its own;
+  a prerelease; until 1.0 it stays mandatory by policy, because a caret
+  requirement would take a breaking 0.x release. Note that a bare
+  `candid-core = "0.1.0"` _is_ a caret requirement. After 1.0 the plain
+  requirement becomes the correct one and this rule follows on its own;
 - a bare `cargo add candid-core`, or `cargo add candid-core@<wrong-req>`.
 
-`cargo install candid-core --version 0.1.0-beta.3` is deliberately **not**
+`cargo install candid-core --version 0.1.0` is deliberately **not**
 flagged. Cargo's manual states that a `--version` without a requirement
 operator installs exactly that version and is not treated as a caret
 requirement — unlike a dependency in a manifest, where a bare string is one.

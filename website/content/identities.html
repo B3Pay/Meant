@@ -547,13 +547,13 @@ through the same pipeline so every derived provenance field has to match. See
 types are separate types at all.</p>
 
 <callout type="danger" title="Pre-1.0: the digests themselves are not stable yet">
-  <p>The crate is <code>0.1.0-beta.3</code>. Until 1.0, any release may change
+  <p>The crate is <code>0.1.0</code>. Until 1.0, any release may change
   the public Rust API, the serialized Contract, compilation and envelope shapes,
   the canonical bytes, and therefore every identity computed over them. The
   versioning mechanism described on <a href="canonical-bytes.html">Canonical
   bytes</a> is what makes such a change <em>announceable</em>; it is not a
   promise that today's digests survive. Pin an exact version —
-  <code>candid-core = "=0.1.0-beta.3"</code> — and recompute identities after
+  <code>candid-core = "=0.1.0"</code> — and recompute identities after
   any upgrade rather than assuming stored ones still match.</p>
 </callout>
 

@@ -14,6 +14,18 @@ fixtures.
 grammar, the library API, and the request/response shapes. Pin an exact
 version.
 
+## Unreleased
+
+Embeds `candid-core` 0.1.0, the crate's first version without a prerelease
+suffix, from the repository commit the next release is dispatched from. Against
+the compiler 0.3.0 embeds, two things change. A record field whose id is
+4294967295, written as that number or as a name that hashes to it, is refused
+with `did_parse_error`; 0.3.0's compiler numbered the field after it 0.
+Collecting the provenance sidecar no longer grows with the square of the
+declarations, so a large `.did` file compiles in time proportional to its size.
+Every other input compiles to the same Contract and identities; envelopes `gen`
+writes will name 0.1.0 as their producer.
+
 ## 0.3.0 — 2026-10-10
 
 Embeds `candid-core` 0.1.0-beta.3 and the `candid-core-ts` generator from the

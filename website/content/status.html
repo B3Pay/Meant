@@ -22,7 +22,7 @@
 
 <pre data-lang="toml" data-file="README.md">
 # every feature on by default
-candid-core = "=0.1.0-beta.3"
+candid-core = "=0.1.0"
 </pre>
 
 <pre data-lang="bash">
@@ -30,8 +30,8 @@ npm install --save-exact @candid-core/schema
 npm install --save-dev --save-exact @candid-core/cli
 </pre>
 
-<callout type="warn" title="A caret requirement selects nothing today">
-  <p>Every published version of <code>candid-core</code> is a prerelease, and Cargo only picks a prerelease when the requirement names one. So <code>candid-core = "0.1"</code> resolves to <em>nothing</em>, and a bare <code>cargo install candid-core</code> fails with <code>could not find candid-core in registry crates-io with version *</code>. Write the exact version: <code>candid-core = "=0.1.0-beta.3"</code>, or <code>cargo install candid-core --version 0.1.0-beta.3 --locked</code> for the binary. Pinning with <code>=</code> is the right choice for a second reason too — with the API and the wire format both unstable, moving to the next prerelease should be something you opt into.</p>
+<callout type="warn" title="Pin the exact version">
+  <p><code>0.1.0</code> is the first <code>candid-core</code> version without a prerelease suffix, so <code>candid-core = "0.1"</code> resolves to it, and to any later <code>0.1.x</code>. Before 1.0 any release may change the API, the serialized shapes and the identities, so write the exact version: <code>candid-core = "=0.1.0"</code>, or <code>cargo install candid-core --version 0.1.0 --locked</code> for the binary. Moving to the next release should be something you opt into.</p>
 </callout>
 
 <h3>The CLI</h3>

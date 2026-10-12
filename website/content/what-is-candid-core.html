@@ -435,15 +435,14 @@ export { $Odd as Odd };
   <p>
     Until 1.0, any release may change the public Rust API, the serialized Contract, envelope and
     compilation shapes, the canonical bytes, and therefore every identity computed over them.
-    Every published version of the crate is a prerelease, and a caret requirement never selects
-    a prerelease — <code>candid-core = "0.1"</code> resolves to nothing at all. Name the version
-    exactly, as below.
+    A caret requirement such as <code>candid-core = "0.1"</code> would take such a release with
+    it. Name the version exactly, as below.
   </p>
 </callout>
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = "=0.1.0-beta.3"
+candid-core = "=0.1.0"
 </pre>
 
 <p>
