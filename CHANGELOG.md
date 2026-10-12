@@ -7,16 +7,19 @@ release procedure that produces an entry here is [docs/releasing.md](docs/releas
 API, the serialized Contract/Compilation/envelope shapes, the canonical bytes,
 and therefore the identities computed over them. Pin an exact version.
 
-## 0.1.0 — 2026-10-12
+## 0.1.0 — published 2026-10-12
 
 The first version without a prerelease suffix. It is still pre-1.0: any later
 release may change the public Rust API, the serialized
 Contract/Compilation/envelope shapes, the canonical bytes, and the identities
 computed over them, so pin `=0.1.0` rather than take a caret requirement. The
-Contract format is **not** promoted to a stable v1 by this release. As with
-every release, the archive is built and digested before publication, so the
-copy of this file inside the published archive carries the planned date; the
-release record carries the publication evidence.
+Contract format is **not** promoted to a stable v1 by this release. Released
+from commit `06aceae6b157de10add95c40d486a8768bf4bb0b`. The `.crate` SHA-256
+crates.io recorded is
+`95856ecec9c69d668eb0367085084c789d5427c78b00cafc176a568de2f7f91d`, matching
+the digest the release gates measured, the one the `guard` job reproduced by
+repackaging the commit independently, and the one the `confirm` job read back
+from crates.io after publication.
 
 This version follows the issue #81 bump protocol:
 `ProducerInfo::current().version` (and therefore the octets of newly
