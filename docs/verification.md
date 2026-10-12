@@ -296,7 +296,16 @@ the serialized shapes, the canonical bytes, and every identity computed over
 them; a gate that hard-failed on a break would fight intended work. A warning
 nobody must act on would be ignored. So a reported break must be acknowledged in
 the `## Unreleased` section of `CHANGELOG.md` by a **list item beginning with a
-bolded `BREAKING` marker**: acknowledged it passes, unacknowledged it fails.
+bolded `BREAKING` marker**: acknowledged it passes, unacknowledged it fails. On
+a release commit, where release prep has renamed `## Unreleased`, the section of
+the version being released counts too: the gate reads the section headed by the
+`Cargo.toml` version whenever that version is not the baseline. Between releases
+it is the baseline, and its section, describing breaks already shipped, is not
+read. `tests/fixtures/packaging/test_verify_semver.py` pins where the gate looks:
+
+```sh
+python3 tests/fixtures/packaging/test_verify_semver.py
+```
 
 The marker must start a list item, not merely appear in the section. The
 changelog entry that documents this gate necessarily contains the marker while
