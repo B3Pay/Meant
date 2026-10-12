@@ -314,7 +314,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
+      # The pinned benchmark toolchain, not `stable`: the baseline captured
+      # here is what `Benchmark comparison` runs against with the same pin, and
+      # rustc and cargo are part of the environment identity both sides record.
+      - name: Load the pinned benchmark toolchain
+        run: grep -E '^[A-Z_]+=' tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
+        with:
+          toolchain: ${{ env.BENCH_TOOLCHAIN }}
+      - name: Confirm the pinned toolchain is the one benchmarking
+        run: |
+          set -euo pipefail
+          for tool in rustc cargo; do
+            actual="$("${tool}" --version | cut -d' ' -f2)"
+            if [ "${actual}" != "${BENCH_TOOLCHAIN}" ]; then
+              printf 'expected %s %s, found %s\n' "${tool}" "${BENCH_TOOLCHAIN}" "${actual}" >&2
+              exit 1
+            fi
+          done
       - name: Record environment
         run: |
           mkdir -p benchmark-artifacts

@@ -4,7 +4,9 @@
 pull request against. It is captured on CI — a baseline captured on a
 maintainer's machine can never be environment-compatible with the runner class
 pull requests run on, and `compare.py` refuses such a comparison by
-construction.
+construction. Capture and comparison both run on `BENCH_TOOLCHAIN` from
+`tests/fixtures/packaging/release-tools.env`, which must equal the `rustc`
+version recorded in `main.json`; move the two together.
 
 Updating it is a reviewed change, never an automated one: dispatch the `Verify`
 workflow, review the `baseline.json` inside the `benchmarks-<sha>` artifact,

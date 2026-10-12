@@ -157,13 +157,17 @@ Three tiers:
 
 The comparison workflow lives in its own file because commenting needs `pull-requests: write`, and `Verify` and `Release candidate` deliberately hold nothing beyond `contents: read`.
 
+The Capture and Comparison tiers both run on `BENCH_TOOLCHAIN`, an exact Rust version pinned in [`tests/fixtures/packaging/release-tools.env`](../tests/fixtures/packaging/release-tools.env), and each confirms that the installed `rustc` and `cargo` are that version before measuring. They do not use the rolling `stable` the rest of CI deliberately tracks: rustc and cargo are part of the environment identity `compare.py` checks, so a rolling channel made every comparison informational-only drift as soon as stable moved past the baseline's toolchain. The Smoke tier stays on `stable`; it makes no timing claim.
+
 ### Updating the reviewed baseline
 
-The baseline pull requests compare against is `benches/baselines/main.json`, and only a baseline captured on the same runner class as the comparison can ever be environment-compatible — one captured on a maintainer's machine is refused by construction. To update it:
+The baseline pull requests compare against is `benches/baselines/main.json`, and only a baseline captured on the same runner class and the same `BENCH_TOOLCHAIN` as the comparison can ever be environment-compatible — one captured on a maintainer's machine is refused by construction. To update it:
 
 1. Dispatch the `Verify` workflow on `main` and wait for `Scheduled benchmarks`.
-2. Download the `benchmarks-<sha>` artifact and review `baseline.json`: the commit it names, the corpus identity, and the estimates themselves.
+2. Download the `benchmarks-<sha>` artifact and review `baseline.json`: the commit it names, the corpus identity, the `rustc` it records, and the estimates themselves.
 3. Commit it to `benches/baselines/main.json` with a message recording *why* the baseline moved (new accepted performance level, corpus change, toolchain rollover).
+
+`BENCH_TOOLCHAIN` must equal the `rustc` version recorded in `main.json`. To roll the toolchain forward, change `BENCH_TOOLCHAIN` on a branch, dispatch `Verify` on that branch, and commit the resulting `baseline.json` in the same pull request, so `main` never pairs a toolchain with a baseline captured on another one.
 
 A failing candidate never replaces the reference, and nothing automates this: a baseline update is a reviewed change, deliberately.
 

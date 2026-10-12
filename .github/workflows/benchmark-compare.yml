@@ -39,9 +39,26 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+      # The exact toolchain the reviewed baseline was captured with, not
+      # `stable`. rustc and cargo are part of a run's environment identity, so
+      # a rolling channel turns every comparison into informational-only drift
+      # as soon as stable moves past the baseline. Only the assignments are
+      # loaded: the runner's environment-file parser rejects the comments.
+      - name: Load the pinned benchmark toolchain
+        run: grep -E '^[A-Z_]+=' tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
       - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
-          toolchain: stable
+          toolchain: ${{ env.BENCH_TOOLCHAIN }}
+      - name: Confirm the pinned toolchain is the one benchmarking
+        run: |
+          set -euo pipefail
+          for tool in rustc cargo; do
+            actual="$("${tool}" --version | cut -d' ' -f2)"
+            if [ "${actual}" != "${BENCH_TOOLCHAIN}" ]; then
+              printf 'expected %s %s, found %s\n' "${tool}" "${BENCH_TOOLCHAIN}" "${actual}" >&2
+              exit 1
+            fi
+          done
       # Manifest first: its mtime is the run epoch that lets `compare.py`
       # reject Criterion results left over from an earlier run.
       - name: Emit the benchmark manifest
@@ -56,11 +73,12 @@ jobs:
         run: cargo bench --bench compilation --locked -- --noplot
       - name: Run the allocation probe
         run: cargo bench --bench allocation --locked > comparison/allocations.json
-      # `--allow-environment-drift` is deliberate and permanent here. Hosted
-      # runners change toolchains and hardware on their own schedule, so a
-      # drifted comparison is the common case; the report is marked
-      # informational-only and `compare.py` refuses to gate on it by
-      # construction. Exit 0 (compared) and exit 2 (no comparison was made —
+      # `--allow-environment-drift` is deliberate and permanent here. The
+      # toolchain is pinned above, but a pull request can still move the bench
+      # binary's dependency graph, and between a `BENCH_TOOLCHAIN` bump and the
+      # recaptured baseline the two sides legitimately differ; the report is
+      # then marked informational-only and `compare.py` refuses to gate on it
+      # by construction. Exit 0 (compared) and exit 2 (no comparison was made —
       # baseline missing or manifests incompatible) are both expected outcomes;
       # anything else is the tool breaking and fails the job.
       - name: Compare against the reviewed baseline
