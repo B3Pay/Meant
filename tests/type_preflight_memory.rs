@@ -277,7 +277,9 @@ fn state_heavy_bundle(towers: usize, fields: usize) -> String {
 /// `Limits::max_type_preflight_work` gives for `wasm32` — needs that exchange
 /// rate to be a measured, stable number rather than an implementation detail
 /// free to drift. Measured marginal cost across these four sizes, release
-/// profile: 19.4, 19.3, and 19.4 bytes per unit. The measured quantity is the
+/// profile: 21.0, 20.8, and 21.5 bytes per unit (19.4, 19.3 and 19.4 before
+/// the walks keyed their memo on dense node ids rather than addresses, whose
+/// map holds one entry per distinct node). The measured quantity is the
 /// size each allocation *requests*, not the block an allocator hands back, so
 /// it is a property of the data structures rather than of the platform; the
 /// band below is still wide enough to absorb profile differences while
@@ -303,7 +305,7 @@ fn retained_bytes_per_charged_unit_stay_within_the_documented_band() {
         assert!(
             (8.0..=40.0).contains(bytes_per_unit),
             "marginal retained bytes per charged unit is {bytes_per_unit:.1}, outside the \
-             8-40 band Limits::max_type_preflight_work documents as ~19. Its guidance for \
+             8-40 band Limits::max_type_preflight_work documents as ~21. Its guidance for \
              sizing this limit on a constrained heap is derived from that number, so a real \
              move here has to be re-measured and re-documented, not just re-pinned. \
              Observed across sizes: {observed:?}"
@@ -380,7 +382,7 @@ fn memory_committed_before_a_charge_lands_stays_in_proportion() {
     assert!(
         bytes_per_charged_unit <= 60.0,
         "committed {peak} bytes against {BUDGET} charged units \
-         ({bytes_per_charged_unit:.0} bytes/unit), over three times the ~19 \
+         ({bytes_per_charged_unit:.0} bytes/unit), almost three times the ~21 \
          Limits::max_type_preflight_work documents. A state is allocating ahead of its \
          charge — most likely each child of a wide record is copying the path's active \
          set instead of sharing it."
