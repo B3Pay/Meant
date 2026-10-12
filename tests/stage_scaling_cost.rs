@@ -1,4 +1,4 @@
-//! Every stage after parsing must cost in proportion to its input.
+//! Every stage after parsing must allocate in proportion to its input.
 //!
 //! Issue #252 was a quadratic stage nobody had measured: source-info
 //! collection cloned the type environment once per type, and 8,000
@@ -14,6 +14,10 @@
 //! linear step per item quadruples them. The bound sits at three, far from
 //! both, so a constant overhead or an `N log N` sort cannot trip it and a
 //! per-item clone of a growing collection cannot pass it.
+//!
+//! What this bounds is allocation, not work. A stage that turned quadratic
+//! without allocating more, through a nested scan or repeated lookups, would
+//! pass. Copying per item, which is how #252 went quadratic, cannot.
 //!
 //! Two input shapes, because a stage can be linear in one and quadratic in the
 //! other: `many` is `N` one-record declarations used by `N` service methods,

@@ -11,7 +11,7 @@ and therefore the identities computed over them. Pin an exact version.
 
 ### Verification
 
-- **Every compile stage after parsing is held to linear cost** ([issue #256]).
+- **Every compile stage after parsing is held to linear allocation** ([issue #256]).
   `tests/stage_scaling_cost.rs` runs each stage at 500 and 1,000 items, in
   two shapes (many one-record declarations used by as many service methods;
   one record and one variant each 1,000 wide), and fails if doubling the
@@ -23,7 +23,9 @@ and therefore the identities computed over them. Pin an exact version.
   per-item clone of a growing collection. The standing rule from issue #39 is
   narrowed to say so: no *timing* measurement fails a workflow, while a
   deterministic allocation test that asserts a ratio is a correctness test.
-  Nothing in the published crate changed.
+  The suite bounds what a stage allocates, not the work it does: a stage that
+  turned quadratic without allocating more, such as a nested scan, would pass
+  it. Nothing in the published crate changed.
 
 ## 0.1.0 — published 2026-10-12
 
