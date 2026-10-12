@@ -49,7 +49,7 @@ use loading::{accept_source, load_source_units_with_resolver, SourceUnit};
 use lower::lower_checked;
 #[cfg(feature = "filesystem-compiler")]
 use materialize::MaterializedBundle;
-use nesting::{check_programs_type_depth, check_source_nesting};
+use nesting::{check_programs_type_depth, check_source_nesting, refuse_record_field_id_overflow};
 
 pub fn compile_did(source: &str) -> Result<Compilation, CompileError> {
     compile_did_with_options(source, CompileOptions::default())
@@ -299,6 +299,7 @@ pub(super) fn parse_program(
         .checkpoint()
         .map_err(|error| budget_error(error, DiagnosticPhase::Parse, "Candid parsing"))?;
     let (text, offset) = candid_text(source);
+    refuse_record_field_id_overflow(text, offset, source_name.as_deref(), budget)?;
     let program = text
         .parse::<IDLProg>()
         .map_err(|error| candid_error_at(error, DiagnosticPhase::Parse, source_name, offset))?;

@@ -181,9 +181,9 @@ const NAMES: &[&str] = &[
 /// Distinct names with one label id (`idl_hash`), each to its twin.
 const TWINS: &[(&str, &str)] = &[("aaazaa", "cctakw"), ("cctakw", "aaazaa")];
 // Not 4_294_967_295: `candid_parser` 0.4.0 computes the next positional id
-// as `id + 1` while parsing a record, which overflows (a panic under debug
-// assertions) for a field labelled `u32::MAX` — upstream, outside both sides
-// of this differential.
+// as `id + 1` while parsing a record, which overflows for a field labelled
+// `u32::MAX`, so candid-core refuses such a record field before the upstream
+// grammar (#230). A generated record could not compile with it.
 const IDS: &[u32] = &[0, 1, 2, 3, 5, 7, 100, 4_294_967_294];
 const METHODS: &[&str] = &["m", "get", "put", "run"];
 const MODES: &[&str] = &["", "query", "composite_query", "oneway"];
