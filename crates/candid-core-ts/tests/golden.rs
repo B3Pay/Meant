@@ -313,6 +313,7 @@ fn golden_runtime_contract_documents() {
         "options",
         "fidelity",
         "fixedshapes",
+        "fixedomitted",
         "omissions",
     ] {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
@@ -1137,6 +1138,26 @@ fn golden_omissions() {
     assert_golden_file("omissions.omitted.json", &text);
 }
 
+/// Issue #268: a reserved-name declaration of a fixed shape is omitted on its
+/// own; `X`, which uses the same shapes, and both methods are kept. The
+/// omitted list is a golden the loader crosscheck holds its own list equal to.
+#[test]
+fn golden_fixedomitted() {
+    let generated = generate_fixture_full("fixedomitted");
+    assert_golden_file("fixedomitted.ts", &generated.module);
+    assert_eq!(
+        generated.omitted,
+        vec![
+            declaration_omitted("Actor", OmissionReason::ReservedExportName),
+            declaration_omitted("actor", OmissionReason::ReservedExportName),
+        ],
+    );
+    let mut text = serde_json::to_string_pretty(&omitted_json(&generated.omitted))
+        .expect("the omitted list serializes");
+    text.push('\n');
+    assert_golden_file("fixedomitted.omitted.json", &text);
+}
+
 /// The closure proof: nothing the module emits references an omitted
 /// declaration — neither its `$` local nor its type name appears in code —
 /// and each omitted method is gone from *both* actor surfaces, the `actor`
@@ -1880,22 +1901,30 @@ fn a_declared_fixed_shape_names_only_itself() {
 /// that shape with it.
 #[test]
 fn an_omitted_fixed_shape_declaration_omits_only_itself() {
-    let generated =
-        generate_source_full("type actor = blob; type R = record { b : blob; u : record {} };");
-    assert_eq!(
-        generated.omitted,
-        vec![declaration_omitted(
-            "actor",
-            OmissionReason::ReservedExportName
-        )],
-    );
-    assert!(
-        generated
-            .module
-            .contains("export type R = { b: Uint8Array; u: Record<string, never> };"),
-        "{}",
-        generated.module
-    );
+    for (shape, ty) in [
+        ("blob", "Uint8Array"),
+        ("record {}", "Record<string, never>"),
+        ("variant {}", "never"),
+    ] {
+        let generated = generate_source_full(&format!(
+            "type actor = {shape}; type R = record {{ a : {shape}; n : nat }};"
+        ));
+        assert_eq!(
+            generated.omitted,
+            vec![declaration_omitted(
+                "actor",
+                OmissionReason::ReservedExportName
+            )],
+            "{shape}"
+        );
+        assert!(
+            generated
+                .module
+                .contains(&format!("export type R = {{ a: {ty}; n: bigint }};")),
+            "{shape}: {}",
+            generated.module
+        );
+    }
 }
 
 /// The locality rule of #116 applied to value shapes: adding an unrelated

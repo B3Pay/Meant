@@ -33,6 +33,7 @@ import * as arms from "../../tests/goldens/arms.ts";
 import * as options from "../../tests/goldens/options.ts";
 import * as fidelity from "../../tests/goldens/fidelity.ts";
 import * as fixedshapes from "../../tests/goldens/fixedshapes.ts";
+import * as fixedomitted from "../../tests/goldens/fixedomitted.ts";
 import * as omissions from "../../tests/goldens/omissions.ts";
 
 interface Fixture {
@@ -542,6 +543,21 @@ const FIXTURES: readonly Fixture[] = [
         { a: {}, b: null, n: 1n },
         { a: null, b: { tag: "x" }, n: 1n },
         { a: null, b: null, n: 1 },
+      ],
+    },
+  },
+  {
+    // Issue #268: a reserved-name declaration of a fixed shape is omitted
+    // alone, by the loader as by the generator; `X` and both methods, which
+    // use the same shapes, are kept.
+    name: "fixedomitted",
+    module: fixedomitted,
+    samples: {
+      X: [
+        { a: new Uint8Array([1]), b: {}, c: null, n: 1n },
+        { a: [1], b: {}, c: null, n: 1n },
+        { a: new Uint8Array(0), b: { x: 1 }, c: null, n: 1n },
+        { a: new Uint8Array(0), b: {}, c: {}, n: 1n },
       ],
     },
   },

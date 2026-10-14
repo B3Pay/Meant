@@ -46,7 +46,8 @@ writes will name 0.1.0 as their producer.
   `.did` files: of the 34 that generate, one module changes. A declaration
   of one of these shapes named after an export of the module (`actor`) is
   omitted on its own and no longer takes the other uses of the shape with
-  it.
+  it; `@candid-core/schema`'s `schemaFromContract` applies the same rule
+  from its next release.
 
 ## 0.3.0 — 2026-10-10
 

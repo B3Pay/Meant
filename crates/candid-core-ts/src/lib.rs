@@ -804,8 +804,10 @@ fn first_names(contract: &Contract) -> BTreeMap<TypeRef, String> {
 /// declaration names it: a primitive (`bigint`, `$.c.nat64`), `vec nat8`
 /// (`Uint8Array`, `$.c.blob()`), the empty record (`Record<string, never>`,
 /// `$.c.unit()`) and the empty variant (`never`, `$.c.variant({})`). These are
-/// exactly the nodes [`Generator::enter`] renders without a frame. None has a
-/// child the renderer visits, so none can sit on a cycle.
+/// the nodes [`Generator::enter`] renders to one fixed text in both targets,
+/// with no child to visit, so none can sit on a cycle.
+/// `schemaFromContract`'s omission analysis (`ts/contract.ts`) applies the
+/// same rule.
 fn renders_structurally(contract: &Contract, reference: TypeRef) -> bool {
     let types = contract.types();
     match types.get(reference as usize) {

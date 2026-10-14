@@ -166,7 +166,7 @@
       <td><code>{"kind":"record","fields":[]}</code></td>
       <td><code>Record&lt;string, never&gt;</code></td>
       <td><code>c.unit()</code></td>
-      <td><code>{}</code> means "anything non-nullish" in TypeScript; an empty Candid record is a unit value, and this is its honest type. At every use, a declared <code>type Unit = record {}</code>'s included.</td>
+      <td><code>{}</code> means "anything non-nullish" in TypeScript; an empty Candid record is a unit value, and this is its honest type. A declared <code>type Unit = record {}</code> renders the same way at every use.</td>
     </tr>
     <tr>
       <td><code>record { nat; text }</code> (tuple syntax)</td>
@@ -187,7 +187,7 @@
       <td><code>{"kind":"variant","fields":[]}</code></td>
       <td><code>never</code></td>
       <td><code>c.variant({})</code></td>
-      <td>A variant with no arms is uninhabited. At every use, a declared <code>type Abyss = variant {}</code>&rsquo;s included.</td>
+      <td>A variant with no arms is uninhabited. A declared <code>type Abyss = variant {}</code> renders the same way at every use.</td>
     </tr>
     <tr>
       <td><code>func (nat) -&gt; (text) query</code></td>
