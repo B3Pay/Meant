@@ -534,6 +534,16 @@ test("--json prints exactly one document on stdout, pinned for success", () => {
     ],
     drift: [],
   });
+  // The documented key order: `identities` sits before `omitted`.
+  assert.deepStrictEqual(Object.keys(result.document.entries[0]), [
+    "entry",
+    "status",
+    "module",
+    "envelope",
+    "identities",
+    "omitted",
+    "diagnostics",
+  ]);
   assert.deepStrictEqual(Object.keys(result.document.entries[0].identities), [
     "contract_id",
     "interface_id",

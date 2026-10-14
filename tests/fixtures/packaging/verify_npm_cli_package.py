@@ -294,6 +294,30 @@ def main():
         ]:
             raise SystemExit(f"--check --json lost the identities: {check_json.stdout}")
 
+        # An actorless entry has no `interface_id`, and a failed entry no
+        # `identities` at all, from the tarball too.
+        (consumer / "types").mkdir()
+        (consumer / "types" / "shapes.did").write_text("type Count = nat;\n")
+        (consumer / "broken").mkdir()
+        (consumer / "broken" / "broken.did").write_text("service : {\n")
+        edges = subprocess.run(
+            cli + ["gen", "./types/shapes.did", "./broken/broken.did", "-o", "./edges", "--json"],
+            cwd=consumer,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        shapes, broken = json.loads(edges.stdout)["entries"]
+        shapes_envelope = json.loads((consumer / "edges" / "shapes.envelope.json").read_text())
+        if (
+            edges.returncode != 1
+            or shapes.get("identities")
+            != {"contract_id": shapes_envelope["contract"]["identities"]["contract"]}
+            or broken["status"] != "failed"
+            or "identities" in broken
+        ):
+            raise SystemExit(f"--json identities on an actorless or failed entry: {edges.stdout}")
+
         target = consumer / "out" / "second.ts"
         original = target.read_bytes()
         target.write_bytes(original + b" ")
