@@ -227,10 +227,12 @@ export type DecodeResult<V extends readonly unknown[] = readonly unknown[]> =
   | { readonly ok: false; readonly issues: readonly CodecIssue[] };
 
 /**
- * The static type of a value decoded under `Schema<T>`: `T`, except that an
- * erased schema (`AnySchema` is `Schema<any>`) decodes to `unknown`, never
- * `any`. The decoder checks the bytes against the schema before it returns
- * `ok: true`, so the type is the schema's own domain, not a cast.
+ * The static type of a value decoded under `Schema<T>`: `T`, except that a
+ * schema whose own type is erased (`AnySchema` is `Schema<any>`) decodes to
+ * `unknown`, not `any`. The decoder checks the bytes against the schema
+ * before it returns `ok: true`, so the type is the schema's own domain, not a
+ * cast. The guard is at the top only: a concrete builder around an erased
+ * child, such as `c.vec(erased)`, decodes to what `Infer` gives it (`any[]`).
  */
 type Decoded<T> = 0 extends 1 & T ? unknown : T;
 

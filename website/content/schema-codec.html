@@ -126,8 +126,10 @@ export function decode<T>(
     type, and <code>decodeArgs</code> gives the value tuple of its schemas. That is a check, not a
     cast: the decoder reads the bytes under the schema and refuses, with issues, any that do not
     fit, and the reference-vector suite pins that each decoded value validates <code>ok</code>
-    against the schema it decoded under. A schema whose type was erased to <code>AnySchema</code>
-    still decodes to <code>unknown</code>, never <code>any</code>. <code>0.4.0</code> and earlier
+    against the schema it decoded under. A schema whose own type was erased to
+    <code>AnySchema</code> still decodes to <code>unknown</code>, not <code>any</code>; a concrete
+    builder around an erased child, such as <code>c.vec(erased)</code>, decodes to what
+    <code>Infer</code> gives it. <code>0.4.0</code> and earlier
     type every decoded value as <code>unknown</code>; there, narrow it yourself or cast it.
   </p>
 </callout>

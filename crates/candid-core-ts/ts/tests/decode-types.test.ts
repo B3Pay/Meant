@@ -11,7 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { c, type AnySchema, type Infer } from "../schema.ts";
+import { c, type AnyFieldSchema, type AnySchema, type Infer } from "../schema.ts";
 import {
   decode,
   decodeArgs,
@@ -39,6 +39,7 @@ type Values<R> = Extract<R, { ok: true }> extends { values: infer V } ? V : neve
 
 // Types only: these calls are never made at run time.
 declare const bytes: Uint8Array;
+declare const mutableList: AnyFieldSchema[];
 declare const probe: {
   account: ReturnType<typeof decode<Account>>;
 };
@@ -50,9 +51,10 @@ function typesOnly() {
   const none = decodeArgs([], bytes);
   const fromErased = decode(erased, bytes);
   const fromResults = decodeArgs(func.results, bytes);
+  const fromMutable = decodeArgs(mutableList, bytes);
   const mixed = decodeArgs([Account, erased], bytes);
   const never = decode(c.empty, bytes);
-  return { account, literal, none, fromErased, fromResults, mixed, never };
+  return { account, literal, none, fromErased, fromResults, fromMutable, mixed, never };
 }
 type Probes = ReturnType<typeof typesOnly>;
 
@@ -69,6 +71,11 @@ export const decodeArgsTypesNoArgs: Equal<Values<Probes["none"]>, readonly []> =
 export const erasedDecodesToUnknown: Equal<Value<Probes["fromErased"]>, unknown> = true;
 export const erasedListDecodesToUnknowns: Equal<
   Values<Probes["fromResults"]>,
+  readonly unknown[]
+> = true;
+// A mutable erased list still gives a readonly result.
+export const mutableListDecodesToReadonly: Equal<
+  Values<Probes["fromMutable"]>,
   readonly unknown[]
 > = true;
 export const erasedElementDecodesToUnknown: Equal<
