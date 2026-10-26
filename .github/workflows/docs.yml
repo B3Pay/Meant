@@ -7,8 +7,8 @@
 # install, so the build here runs before the install, and the pull-request
 # check below is what stands between a page and that site. The address is a
 # subpath, not a domain root, and every asset and internal link the generator
-# emits is relative for that reason (check.mjs fails a root-absolute one, in
-# the sources and in the built pages).
+# emits is relative for that reason (check.mjs fails a root-absolute href,
+# src or srcset, in the sources and in the built pages).
 #
 # This repository's own Pages site, https://b3hr4d.github.io/candid-core/, was
 # the site's first address. It now serves redirects there
@@ -163,19 +163,25 @@ jobs:
         run: npm ci
 
       - name: Check
-        run: node website/check.mjs && node website/redirects.mjs
+        run: node website/check.mjs
+
+      - name: Write the redirects
+        if: inputs.publish != 'site'
+        run: node website/redirects.mjs
 
       # Redirects to an address that does not serve the site would strand
       # every link published to this one, so the home page there must be
-      # this site's before they go out.
+      # this site's before they go out. It is compared by its <title>, which
+      # the other repository's build, up to a day old, shares unless a push
+      # changes the site's title: then this fails until that repository's
+      # next run, and a dispatch republishes.
       - name: Check that the new address serves the site
         if: inputs.publish != 'site'
         run: |
           set -euo pipefail
           url=$(node -p 'require("./website/content/_site.json").url')
-          curl -fsSL --retry 3 "$url" -o served.html
-          title=$(grep -o '<title>[^<]*</title>' website/dist/index.html)
-          if ! grep -qF "$title" served.html; then
+          title=$(grep -o -m1 '<title>[^<]*</title>' website/dist/index.html | head -n1)
+          if ! curl -fsSL --retry 3 "$url" -o served.html || ! grep -qF "$title" served.html; then
             echo "::error::$url does not serve this site's home page ($title); not publishing redirects to it" >&2
             exit 1
           fi

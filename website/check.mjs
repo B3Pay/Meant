@@ -433,7 +433,7 @@ if (existsSync(DIST)) {
     const file = join(DIST, `${slug}.html`);
     if (!existsSync(file)) continue;
     const html = await readFile(file, "utf8");
-    for (const match of html.matchAll(/\b(href|src)="(\/(?!\/)[^"]*)"/g)) {
+    for (const match of html.matchAll(/\b(href|src|srcset)\s*=\s*["']?(\/(?!\/)[^"'\s>]*)/gi)) {
       fail(
         `dist/${slug}.html`,
         `root-absolute ${match[1]}="${match[2]}"; the site is served from a subpath, so build.mjs must emit a relative path`,

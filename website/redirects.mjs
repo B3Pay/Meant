@@ -10,7 +10,8 @@
  * new address, its query and #fragment kept; its 404 page sends any other
  * path there too, where a miss lands on the site's home.
  *
- * The new address keeps the site's path, so the 404 page only swaps the host.
+ * The new address must keep the site's path (/candid-core/) and must not be
+ * the old host, whose pages would then send readers to themselves.
  *
  * Zero dependencies. Run after build.mjs:
  *
@@ -27,12 +28,16 @@ const DIST = join(HERE, "dist");
 const OUT = join(HERE, "redirects");
 
 // GitHub Pages serves a project site under its repository's name.
+const OLD_HOST = "b3hr4d.github.io";
 const OLD_BASE = "/candid-core/";
 
 const site = JSON.parse(await readFile(join(HERE, "content", "_site.json"), "utf8"));
 const url = new URL(site.url);
 if (url.protocol !== "https:" || url.pathname !== OLD_BASE || url.search || url.hash) {
   throw new Error(`_site.json "url" must be an https address whose path is ${OLD_BASE}, not ${site.url}`);
+}
+if (url.host === OLD_HOST) {
+  throw new Error(`_site.json "url" is the old address, ${site.url}; its redirects would loop`);
 }
 if (!existsSync(join(DIST, "index.html"))) {
   throw new Error(`${DIST} holds no built site: run node website/build.mjs first`);

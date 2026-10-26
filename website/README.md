@@ -201,10 +201,10 @@ gates, so the pull-request check here is what keeps a broken page off that
 site; its own link check crawls these pages too, and fails its daily run on a
 broken link. So what that repository relies on is this directory's own rules:
 `build.mjs` takes no dependency and writes `website/dist`, and every link and
-asset reference it emits is relative (`check.mjs` fails a root-absolute one,
-in the sources and in the built pages). A merge to `main` normally reaches
-that site at its next daily run; a run that fails leaves the site as it was
-until the failure is fixed.
+asset reference it emits is relative (`check.mjs` fails a root-absolute
+`href`, `src` or `srcset`, in the sources and in the built pages). A merge to
+`main` normally reaches that site at its next daily run; a run that fails
+leaves the site as it was until the failure is fixed.
 
 `.github/workflows/docs.yml` builds and checks the site, and publishes this
 repository's own Pages site, <https://b3hr4d.github.io/candid-core/>, the site's
