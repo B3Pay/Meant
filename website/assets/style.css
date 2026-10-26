@@ -284,6 +284,7 @@ a:hover {
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .header-link:hover {
@@ -1426,6 +1427,10 @@ a.card:hover .card-title {
     display: none;
   }
   .header-links .header-link span {
+    display: none;
+  }
+  /* Text only, so nothing would be left of it; the footer links it too. */
+  .header-links .docs-link {
     display: none;
   }
   .layout {

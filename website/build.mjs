@@ -186,6 +186,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
   <span class="header-spacer"></span>
   <button class="search-trigger" id="search-trigger" type="button">${ICON.search}<span class="search-label">Search</span><kbd>⌘K</kbd></button>
   <div class="header-links">
+    <a class="header-link docs-link" href="${site.docs.url}"><span>${escapeHtml(site.docs.title)}</span></a>
     <a class="header-link" href="${site.repo}" rel="noreferrer noopener">${ICON.github}<span>GitHub</span></a>
     <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme">${ICON.sun}</button>
   </div>
@@ -202,6 +203,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
   <div class="site-footer-inner">
     <span>${escapeHtml(site.title)} — Apache-2.0</span>
     <span class="sep"></span>
+    <a href="${site.docs.url}">${escapeHtml(site.docs.title)}</a>
     <a href="${site.repo}">Repository</a>
     <a href="${site.repo}/issues">Issues</a>
     <a href="https://crates.io/crates/candid-core">crates.io</a>

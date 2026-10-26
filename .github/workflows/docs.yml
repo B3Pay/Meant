@@ -1,10 +1,15 @@
 # The documentation site (website/).
 #
-# Pages is enabled for this repository with "GitHub Actions" as the source, so
-# the site publishes to https://b3hr4d.github.io/candid-core/ — a project
-# subpath, not a domain root. Every asset and internal link the generator emits
-# is relative for that reason; verified by serving website/dist under a
-# /candid-core/ prefix before this workflow was wired up.
+# The site is published at https://ic-reactor.b3pay.net/candid-core/, beside
+# ic-reactor's docs: B3Pay/ic-reactor's docs deploy checks out this
+# repository's main, runs `node website/build.mjs` and serves website/dist
+# there, daily and on its own deploys. That is a subpath, not a domain root,
+# and every asset and internal link the generator emits is relative for that
+# reason (check.mjs fails a root-absolute one).
+#
+# This repository's own Pages site, https://b3hr4d.github.io/candid-core/, was
+# the site's first address. It now serves redirects there
+# (website/redirects.mjs), so the links already published to it keep working.
 #
 # Three triggers, one of which publishes:
 # - `pull_request` builds and checks only. A broken sitemap, a dead internal
@@ -12,8 +17,8 @@
 #   that is not published, a caret dependency line that cannot resolve, or a
 #   TypeScript snippet that no longer compiles against the tree it documents
 #   fails review rather than reaching the published site. It publishes nothing.
-# - `push` to main republishes after a merge, filtered to the paths that can
-#   change the site.
+# - `push` to main republishes the redirects after a merge, filtered to the
+#   paths that can change the site.
 # - `workflow_dispatch` republishes on demand, for a redeploy that no commit
 #   caused. A dispatch can select any ref, and `actions/checkout` would take
 #   that ref, so the deploy job also requires `github.ref` to be main: there is
@@ -95,6 +100,9 @@ jobs:
       - name: Check
         run: node website/check.mjs
 
+      - name: Write the redirects
+        run: node website/redirects.mjs
+
       # A skipped deploy job is easy to misread as a successful one, so a
       # dispatch that cannot publish says so on the run itself.
       - name: Explain why this run will not publish
@@ -136,11 +144,11 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: node website/build.mjs && node website/check.mjs
+        run: node website/build.mjs && node website/check.mjs && node website/redirects.mjs
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: website/dist
+          path: website/redirects
       - id: deploy
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

@@ -266,7 +266,7 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
 
   /* --- root-absolute paths ---
    *
-   * The site publishes to a project subpath (…github.io/candid-core/), so a
+   * The site publishes to a subpath (ic-reactor.b3pay.net/candid-core/), so a
    * root-absolute reference resolves above the site root in production while
    * continuing to work on a local server rooted at "/". That asymmetry makes
    * it the one mistake local preview cannot catch, so it is a hard failure. */
