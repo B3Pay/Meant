@@ -448,8 +448,9 @@ publishing keeps working, because OIDC is not a token.
 ### Every publish after that
 
 Publishing is `npm release` (`.github/workflows/npm-release.yml`),
-dispatch-only, with `{commit, version, dist-tag}` and an optional
-`stable-off-latest`:
+dispatch-only, with `{commit, version, dist-tag}`, an optional
+`stable-off-latest`, and the optional `accept-downstream-failure` and
+`downstream-ref` of [the downstream check](#npm-the-downstream-check):
 
 ```bash
 # A stable version: it becomes what a plain `npm i` installs.
@@ -479,9 +480,12 @@ gh workflow run npm-release.yml \
    (`tests/fixtures/packaging/verify_npm_package.py` — the artifact `npm
    pack` produces must ship exactly the promised files, compile under strict
    TypeScript *without* `skipLibCheck`, and execute standalone).
-2. The `publish` job sits behind the protected `npm-publish` environment;
-   the owner's approval there is the explicit authorization for the
-   irreversible step. It publishes with `--provenance` and
+2. The `downstream` job runs beside `verify` and builds ic-reactor against
+   the tarballs of the same commit ([the downstream
+   check](#npm-the-downstream-check)).
+3. The `publish` job needs both. It sits behind the protected `npm-publish`
+   environment; the owner's approval there is the explicit authorization for
+   the irreversible step. It publishes with `--provenance` and
    `--tag <dist-tag>`, always explicit.
 
 The pinned Node (24.18.0) ships npm 11.16.0, above both floors that matter:
@@ -530,7 +534,8 @@ issue #153, per the #106 precedent), publishing from
 `crates/candid-core-wasm/npm` through
 [`.github/workflows/npm-release-cli.yml`](../.github/workflows/npm-release-cli.yml)
 — a faithful mirror of `npm-release.yml`: dispatch-only `{commit, version,
-dist-tag}` with the optional `stable-off-latest`, the same input shape checks
+dist-tag}` with the optional `stable-off-latest`, `accept-downstream-failure`
+and `downstream-ref`, the same downstream check, the same input shape checks
 and dist-tag guard, the same ancestor-of-main requirement, the same
 protected `npm-publish` environment whose reviewers the verify job confirms
 exist, and OIDC trusted publishing with `--provenance`. Everything in the
@@ -566,6 +571,133 @@ Two differences, both because the artifact embeds a wasm build:
 The name's first publish was the owner's explicit act, per the standing
 release discipline: the once-per-name bootstrap above, then the trusted
 publisher, then a dispatch of this workflow like any other.
+
+## npm: the downstream check
+
+Both npm release workflows run a `downstream` job beside `verify`:
+[`downstream.yml`](../.github/workflows/downstream.yml), which builds
+B3Pay/ic-reactor against the two tarballs the dispatched commit would publish
+instead of the releases ic-reactor pins. The publish job needs it, so the
+`npm-publish` approval is requested only once it passes. The work is
+[`verify_downstream.py`](../tests/fixtures/packaging/verify_downstream.py),
+taken from the ref the workflow runs from (`main`), not from the commit being
+released: a release from a commit older than the check still gets it, and the
+check that judges a release is the reviewed one.
+
+1. It packs `@candid-core/schema` and `@candid-core/cli` from the commit, both
+   of them whichever package is being released, because the pair releases
+   from one commit. The toolchains are the release workflows' pins.
+2. It regenerates every module ic-reactor checks in with that CLI and compares
+   the result with the checked-in bytes. A module is a `.ts` file whose first
+   line is the generator's header, and its source is either the
+   `candid-core-cli gen` script of its package (each example's `gen`) or the
+   `.did` of the same name beside it (`packages/core/tests/fixtures`,
+   `scripts/check-snippets/app/generated`). A module with no source is listed
+   and not regenerated, and modules outside ic-reactor's pnpm workspace (its
+   `evals/`) are listed and left out. ic-reactor's modules were written by the
+   CLI it pins, so the drift covers every change since that release, not only
+   the last one.
+3. It repins ic-reactor to the tarballs' versions the way ic-reactor's own
+   repin does: it writes them into `stack.json` and runs `pnpm sync:stack`,
+   which rewrites every `@candid-core` pin, the vite-plugin's CLI version
+   constant included. Then it installs the tarballs through `pnpm.overrides`,
+   checks that every `@candid-core` package the install links holds exactly
+   the files of its tarball, and runs ic-reactor's `pnpm build`, `typecheck`,
+   `test`, `typecheck:examples` and `check:snippets` against the regenerated
+   modules. Every step runs even when an earlier one failed, so one run shows
+   all of them.
+
+The check fails on ic-reactor's side (the script's exit 1) when ic-reactor
+cannot be checked out or its pnpm enabled, when a step fails (the repin
+included), when the new CLI
+refuses one of ic-reactor's `.did` files, when a `gen` script is anything but
+a plain `candid-core-cli gen <.did>... -o <dir>` (the regenerated set would be
+a guess), or when the install would load other bytes than the tarballs'. It
+fails on candid-core's side when a toolchain or the wasm does not build, when
+the two packages cannot be built, packed or installed, when the packed CLI
+writes another header than the one the script looks for (exit 2), or when the
+script itself crashes (exit 3). It allows one registry link and reports it:
+where a project depends on the CLI and not on the schema (the vite-plugin) and
+the registry already has the schema's version (a release of the CLI alone),
+pnpm resolves the CLI's optional `@candid-core/schema` peer from the registry,
+because an override to a tarball is not a peer range. Only the CLI's own code
+could load that copy, and the check reads the CLI's shipped JavaScript and
+declarations to confirm that they name no `@candid-core/schema`.
+
+ic-reactor pins stable releases only, and `pnpm sync:stack` refuses a
+prerelease, so for a beta the repin step fails, on ic-reactor's side. The run
+goes on against the tarballs, and the report shows what else a beta breaks:
+the vite-plugin test that holds its CLI pin to the installed CLI fails with
+it. A beta goes out over that with `accept-downstream-failure`, below, once
+the report shows nothing else.
+
+Drift does not fail it. A change here often means to change the generated
+modules, and the repin in ic-reactor regenerates them anyway (its
+CONTRIBUTING.md, "The candid-core pins"). The report says which files moved.
+
+The report is the job summary and the `downstream-report` artifact:
+`summary.md`; `report.json`, with both tarballs' SHA-256, the ic-reactor
+commit, and each step's exit code and time; `drift.diff`; and one log per
+step. ic-reactor's `main` moves, so each run records the commit it built, and
+a re-run can build another one.
+
+The check runs ic-reactor's own code (its install, build and tests) in the
+same job. The job holds a token that reads contents and no secret, so that
+code cannot publish anything; the check does trust it not to forge its own
+result. It takes away the runner's file commands (`GITHUB_ENV`, `GITHUB_PATH`,
+`GITHUB_OUTPUT` and the rest) from every ic-reactor command, so those cannot
+change what the job's later steps run or report.
+
+### Proceeding past a downstream failure
+
+Read the report first. A failure this release causes is fixed here, or in
+ic-reactor before the repin, and not accepted. When the failure is
+ic-reactor's own (its `main` is red without this change) or the release has to
+go out anyway (a security fix), dispatch the workflow again with the same
+inputs, `--field accept-downstream-failure=true`, and
+`--field downstream-ref=<the ic-reactor commit the report names>`, so that the
+new run builds the commit whose failure was read and not whatever `main` has
+become since. Read that run's summary too before approving `npm-publish`. Its
+downstream job passes with a warning, the summary says the failure was
+accepted, and the run's name ends with "accepting a downstream failure", which
+the runs list keeps. Say why in the release note's **Release record**.
+
+Only a failure on ic-reactor's side can be accepted. The `verify` job's gates
+and every failure on candid-core's side (above) still stop the publish.
+
+### Outside a release
+
+The same workflow runs every Monday against `main`, so drift that merged shows
+up before a release, and on any pull request that changes the check itself.
+To see what a pull request does to ic-reactor while it is still in review,
+dispatch the workflow with that pull request's head:
+
+```bash
+gh workflow run downstream.yml --field commit=<40-character SHA>
+gh workflow run downstream.yml --field commit=<SHA> --field downstream-ref=<ic-reactor branch, tag or SHA>
+```
+
+A dispatch also takes `accept-failure`, the input a release passes on, so the
+accepting path can be tried without a release.
+
+Locally: build the wasm and run `npm ci` in the schema package, as for the
+packaged-consumer gates, enable pnpm through corepack, and point the script at
+a fresh clone:
+
+```bash
+git clone https://github.com/B3Pay/ic-reactor.git /tmp/ic-reactor
+python3 tests/fixtures/packaging/verify_downstream.py \
+  --downstream /tmp/ic-reactor --report /tmp/downstream-report
+```
+
+`--candid-core <path>` packs another tree than the script's own, as the
+workflow does.
+
+The script writes into the clone (the regenerated modules, the overrides, the
+install), so it refuses a checkout with local changes: clone again for the
+next run. Run it as a user that file permissions apply to. One of ic-reactor's
+vite-plugin tests makes a directory read-only and expects a write into it to
+fail, and a write by root succeeds.
 
 ## npm: a coordinated beta of the pair
 
@@ -649,10 +781,10 @@ a consumer can install the CLI:
 ```bash
 gh workflow run npm-release.yml \
   --field commit=<merge SHA> --field version=0.3.0-beta.1 --field dist-tag=beta
-# approve npm-publish once the verify job is green, then:
+# approve npm-publish once the verify and downstream jobs are green, then:
 gh workflow run npm-release-cli.yml \
   --field commit=<merge SHA> --field version=0.2.0-beta.1 --field dist-tag=beta
-# approve npm-publish once the verify job is green
+# approve npm-publish once the verify and downstream jobs are green
 ```
 
 `stable-off-latest` stays unset (false) for a beta; the verify job refuses a
@@ -744,7 +876,8 @@ to 7, with these differences:
   window, because `latest` does not move. The CLI workflow's verify job
   builds the schema tarball from the same commit and does not need it on the
   registry, so dispatch both workflows from the one commit up front and wait
-  until both verify jobs are green; then approve the schema's `npm-publish`,
+  until both runs' verify and downstream jobs are green; then approve the
+  schema's `npm-publish`,
   check its dist-tags, and approve the CLI's straight after. A CLI verify
   failure is then found before `latest` moves, and the window is the CLI's
   publish job alone. If the CLI's publish fails, either fix
