@@ -421,6 +421,25 @@ if (existsSync(DIST)) {
       );
     }
   }
+
+  /* --- no root-absolute path in the built pages either ---
+   *
+   * The check above reads content/; the head, header and footer build.mjs
+   * wraps each page in exist only in dist/. That is what B3Pay/ic-reactor
+   * publishes under a subpath, as built (README, Publishing), so a
+   * root-absolute reference here breaks the published site and nothing
+   * else. */
+  for (const slug of slugs) {
+    const file = join(DIST, `${slug}.html`);
+    if (!existsSync(file)) continue;
+    const html = await readFile(file, "utf8");
+    for (const match of html.matchAll(/\b(href|src)="(\/(?!\/)[^"]*)"/g)) {
+      fail(
+        `dist/${slug}.html`,
+        `root-absolute ${match[1]}="${match[2]}"; the site is served from a subpath, so build.mjs must emit a relative path`,
+      );
+    }
+  }
 }
 
 if (warnings.length) {

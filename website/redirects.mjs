@@ -7,8 +7,10 @@
  * repository's own Pages site, b3hr4d.github.io/candid-core/, keeps the links
  * already published to it working instead. For each page build.mjs wrote, it
  * holds a page of the same name that sends the reader to that page at the
- * new address, its #fragment kept; its 404 page sends any other path there
- * too, where a miss lands on the site's home.
+ * new address, its query and #fragment kept; its 404 page sends any other
+ * path there too, where a miss lands on the site's home.
+ *
+ * The new address keeps the site's path, so the 404 page only swaps the host.
  *
  * Zero dependencies. Run after build.mjs:
  *
@@ -29,8 +31,8 @@ const OLD_BASE = "/candid-core/";
 
 const site = JSON.parse(await readFile(join(HERE, "content", "_site.json"), "utf8"));
 const url = new URL(site.url);
-if (url.protocol !== "https:" || !url.pathname.endsWith("/") || url.search || url.hash) {
-  throw new Error(`_site.json "url" must be an https address ending in "/", not ${site.url}`);
+if (url.protocol !== "https:" || url.pathname !== OLD_BASE || url.search || url.hash) {
+  throw new Error(`_site.json "url" must be an https address whose path is ${OLD_BASE}, not ${site.url}`);
 }
 if (!existsSync(join(DIST, "index.html"))) {
   throw new Error(`${DIST} holds no built site: run node website/build.mjs first`);
@@ -39,15 +41,14 @@ if (!existsSync(join(DIST, "index.html"))) {
 const escapeHtml = (text) =>
   text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-/* The script goes first, so the fragment survives; the refresh is for a reader
- * without JavaScript, and the canonical link and noindex let a search engine
- * move the page to its new address. */
+/* The script goes first, so the query and the fragment survive; the refresh
+ * is for a reader without JavaScript, and the canonical link tells a search
+ * engine where the page is now. */
 const redirect = ({ title, href, script }) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Moved: ${title}</title>
-<meta name="robots" content="noindex">
 <link rel="canonical" href="${escapeHtml(href)}">
 <script>${script}</script>
 <meta http-equiv="refresh" content="0; url=${escapeHtml(href)}">
@@ -68,7 +69,7 @@ for (const name of names) {
   const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
   if (!title) throw new Error(`${name} has no <title>`);
   const href = name === "index.html" ? url.href : new URL(name, url).href;
-  const script = `location.replace(${JSON.stringify(href)} + location.hash);`;
+  const script = `location.replace(${JSON.stringify(href)} + location.search + location.hash);`;
   await writeFile(join(OUT, name), redirect({ title, href, script }), "utf8");
 }
 
@@ -80,8 +81,5 @@ await writeFile(
   redirect({ title: escapeHtml(site.title), href: url.href, script: notFound }),
   "utf8",
 );
-
-// As build.mjs does: GitHub Pages runs Jekyll unless told not to.
-await writeFile(join(OUT, ".nojekyll"), "", "utf8");
 
 console.log(`wrote ${names.length} redirect pages and a 404 page to ${url.href} -> ${OUT}`);

@@ -3,27 +3,34 @@
 # The site is published at https://ic-reactor.b3pay.net/candid-core/, beside
 # ic-reactor's docs: B3Pay/ic-reactor's docs deploy checks out this
 # repository's main, runs `node website/build.mjs` and serves website/dist
-# there, daily and on its own deploys. That is a subpath, not a domain root,
-# and every asset and internal link the generator emits is relative for that
-# reason (check.mjs fails a root-absolute one).
+# there, daily and on its own deploys. It runs neither check.mjs nor an
+# install, so the build here runs before the install, and the pull-request
+# check below is what stands between a page and that site. The address is a
+# subpath, not a domain root, and every asset and internal link the generator
+# emits is relative for that reason (check.mjs fails a root-absolute one, in
+# the sources and in the built pages).
 #
 # This repository's own Pages site, https://b3hr4d.github.io/candid-core/, was
 # the site's first address. It now serves redirects there
 # (website/redirects.mjs), so the links already published to it keep working.
+# The deploy first checks that the new address serves the site. A dispatch
+# with `publish: site` publishes the site itself here again instead, should
+# the new address stop serving it.
 #
 # Three triggers, one of which publishes:
 # - `pull_request` builds and checks only. A broken sitemap, a dead internal
 #   link, an anchor that no longer resolves, an install line for a package
 #   that is not published, a caret dependency line that cannot resolve, or a
 #   TypeScript snippet that no longer compiles against the tree it documents
-#   fails review rather than reaching the published site. It publishes nothing.
+#   fails review rather than reaching main, which is what gets published. It
+#   publishes nothing.
 # - `push` to main republishes the redirects after a merge, filtered to the
 #   paths that can change the site.
 # - `workflow_dispatch` republishes on demand, for a redeploy that no commit
 #   caused. A dispatch can select any ref, and `actions/checkout` would take
 #   that ref, so the deploy job also requires `github.ref` to be main: there is
 #   one Pages site and no preview channel, so deploying a branch would replace
-#   the public documentation with unmerged content. A dispatch from another ref
+#   the redirects with unmerged content. A dispatch from another ref
 #   builds and checks, and says why it did not publish.
 #
 # The snippet check compiles the site's TypeScript with the compiler already
@@ -38,6 +45,12 @@ name: Docs
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "What this repository's Pages site serves"
+        type: choice
+        options: [redirects, site]
+        default: redirects
   push:
     branches: [main]
     paths:
@@ -88,14 +101,17 @@ jobs:
             exit 1
           fi
 
+      # Before anything is installed, as B3Pay/ic-reactor builds it: a build
+      # that needed the compiler's node_modules would pass here and fail
+      # there.
+      - name: Build
+        run: node website/build.mjs
+
       # The pinned compiler the snippet check compiles with. `npm ci` here is
       # the runtime package's own lockfile, not a dependency of the site.
       - name: Install the pinned TypeScript
         working-directory: crates/candid-core-ts/ts
         run: npm ci
-
-      - name: Build
-        run: node website/build.mjs
 
       - name: Check
         run: node website/check.mjs
@@ -139,16 +155,34 @@ jobs:
         with:
           node-version: "24.18.0"
 
+      - name: Build
+        run: node website/build.mjs
+
       - name: Install the pinned TypeScript
         working-directory: crates/candid-core-ts/ts
         run: npm ci
 
-      - name: Build
-        run: node website/build.mjs && node website/check.mjs && node website/redirects.mjs
+      - name: Check
+        run: node website/check.mjs && node website/redirects.mjs
+
+      # Redirects to an address that does not serve the site would strand
+      # every link published to this one, so the home page there must be
+      # this site's before they go out.
+      - name: Check that the new address serves the site
+        if: inputs.publish != 'site'
+        run: |
+          set -euo pipefail
+          url=$(node -p 'require("./website/content/_site.json").url')
+          curl -fsSL --retry 3 "$url" -o served.html
+          title=$(grep -o '<title>[^<]*</title>' website/dist/index.html)
+          if ! grep -qF "$title" served.html; then
+            echo "::error::$url does not serve this site's home page ($title); not publishing redirects to it" >&2
+            exit 1
+          fi
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: website/redirects
+          path: website/${{ inputs.publish == 'site' && 'dist' || 'redirects' }}
       - id: deploy
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
