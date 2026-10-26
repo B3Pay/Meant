@@ -31,5 +31,7 @@ __pycache__/
 /crates/candid-core-wasm/npm/node_modules/
 
 # The documentation site is generated from website/content; the build output
-# is not committed. Build it with `node website/build.mjs`.
+# is not committed. Build it with `node website/build.mjs`, and the old
+# address's redirects with `node website/redirects.mjs`.
 /website/dist/
+/website/redirects/

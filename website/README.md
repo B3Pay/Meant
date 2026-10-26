@@ -21,6 +21,7 @@ exist yet.
 website/
   build.mjs         the generator: content + assets -> dist/
   check.mjs         the gates (see below)
+  redirects.mjs     the old address's redirects: dist/ -> redirects/
   content/
     _site.json      the sitemap; this is the navigation, and the page order
     <slug>.html     one body fragment per page
@@ -31,9 +32,11 @@ website/
     favicon.svg
   snippets.mjs      the TypeScript snippet gates, run by check.mjs
   dist/             generated; not committed
+  redirects/        generated; not committed
 ```
 
-`dist/` is generated output and is git-ignored. Build it in CI and publish that.
+`dist/` and `redirects/` are generated output and are git-ignored. CI builds
+them; see Publishing.
 
 ## Writing a page
 
@@ -189,22 +192,47 @@ updates itself.
 
 ## Publishing
 
-`.github/workflows/docs.yml` builds the site and deploys `website/dist` to
-GitHub Pages at <https://b3hr4d.github.io/candid-core/>.
+The site is published at <https://ic-reactor.b3pay.net/candid-core/>, beside
+the docs of the libraries built on it. B3Pay/ic-reactor's docs deploy checks
+out this repository's `main`, runs `node website/build.mjs` on Node 24.18.0
+and serves `website/dist` there as it was built, every day and on each of its
+own deploys. It installs nothing and runs neither `check.mjs` nor the snippet
+gates, so the pull-request check here is what keeps a broken page off that
+site; its own link check crawls these pages too, and fails its daily run on a
+broken link. So what that repository relies on is this directory's own rules:
+`build.mjs` takes no dependency and writes `website/dist`, and every link and
+asset reference it emits is relative (`check.mjs` fails a root-absolute
+`href`, `src` or `srcset`, in the sources and in the built pages). A merge to
+`main` normally reaches that site at its next daily run; a run that fails
+leaves the site as it was until the failure is fixed.
+
+`.github/workflows/docs.yml` builds and checks the site, and publishes this
+repository's own Pages site, <https://b3hr4d.github.io/candid-core/>, the site's
+first address. That site now holds redirects (`redirects.mjs`, run after
+`build.mjs`): each page sends the reader to the same page at the new address,
+its query and `#fragment` kept, and its 404 page sends any other path there
+too, where a miss lands on the home page. The links already published to the
+old address, in READMEs on crates.io and npm and in release notes, keep
+working that way. The deploy publishes them only once the new address serves
+this site's home page.
 
 - A **pull request** touching `website/**`, or anything a snippet is compiled
   against or excerpted from (the runtime package's sources and tests, the
   generator's goldens and library, the CLI package's library and tests),
-  installs the pinned compiler, builds and runs `check.mjs`. It publishes
-  nothing.
-- A **merge to `main`** touching the same paths republishes.
+  builds before installing anything, as the other repository does, then
+  installs the pinned compiler, runs `check.mjs` and writes the redirects. It
+  publishes nothing.
+- A **merge to `main`** touching the same paths republishes the redirects.
 - **Run workflow** on the Actions tab republishes on demand — but only with
   `main` selected. There is one Pages site and no preview channel, so a
   dispatch from any other ref builds and checks, prints a warning saying it
-  did not publish, and skips the deploy.
+  did not publish, and skips the deploy. A dispatch with `publish` set to
+  `site` publishes the site itself here instead of the redirects, should the
+  new address stop serving it.
 
-The published URL is a project subpath, not a domain root, which is why every
-asset reference and internal link the generator emits is relative. If you ever
-add an absolute path such as `/assets/style.css`, the site breaks on Pages and
-keeps working locally — the worst kind of bug. To check a change against the
-real shape of the URL, serve `dist` under a prefix rather than at the root.
+The published URL is a subpath, not a domain root, which is why every asset
+reference and internal link the generator emits is relative. If you ever add an
+absolute path such as `/assets/style.css`, the site breaks where it is
+published and keeps working locally — the worst kind of bug. To check a change
+against the real shape of the URL, serve `dist` under a prefix rather than at
+the root.

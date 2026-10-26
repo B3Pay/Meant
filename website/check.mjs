@@ -266,7 +266,7 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
 
   /* --- root-absolute paths ---
    *
-   * The site publishes to a project subpath (…github.io/candid-core/), so a
+   * The site publishes to a subpath (ic-reactor.b3pay.net/candid-core/), so a
    * root-absolute reference resolves above the site root in production while
    * continuing to work on a local server rooted at "/". That asymmetry makes
    * it the one mistake local preview cannot catch, so it is a hard failure. */
@@ -418,6 +418,25 @@ if (existsSync(DIST)) {
       fail(
         link.page,
         `link to "${link.target}.html#${link.anchor}", but that page has no such heading`,
+      );
+    }
+  }
+
+  /* --- no root-absolute path in the built pages either ---
+   *
+   * The check above reads content/; the head, header and footer build.mjs
+   * wraps each page in exist only in dist/. That is what B3Pay/ic-reactor
+   * publishes under a subpath, as built (README, Publishing), so a
+   * root-absolute reference here breaks the published site and nothing
+   * else. */
+  for (const slug of slugs) {
+    const file = join(DIST, `${slug}.html`);
+    if (!existsSync(file)) continue;
+    const html = await readFile(file, "utf8");
+    for (const match of html.matchAll(/\b(href|src|srcset)\s*=\s*["']?(\/(?!\/)[^"'\s>]*)/gi)) {
+      fail(
+        `dist/${slug}.html`,
+        `root-absolute ${match[1]}="${match[2]}"; the site is served from a subpath, so build.mjs must emit a relative path`,
       );
     }
   }

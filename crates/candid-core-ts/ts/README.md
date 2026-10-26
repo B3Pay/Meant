@@ -30,8 +30,8 @@ handling included ([principal values](#principal-values) below).
 > Every change is recorded in the [changelog](./CHANGELOG.md), which ships
 > in the tarball: since 0.3.0 under `0.4.0`, and since 0.2.0 under `0.4.0`,
 > `0.3.0` and `0.3.0-beta.1`. The migration notes
-> [from 0.3.0](https://b3hr4d.github.io/candid-core/migrating-from-0-3.html)
-> and [from 0.2.0](https://b3hr4d.github.io/candid-core/migrating-from-0-2.html)
+> [from 0.3.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-3.html)
+> and [from 0.2.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-2.html)
 > show what each break means for your code, with before and after code where
 > the compiler shows it.
 
