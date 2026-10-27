@@ -60,12 +60,12 @@ REQUIRED_ROOT_DOCUMENTS = {
 }
 
 # Individually named because each one has a distinct failure mode: `lib.rs` is
-# the crate, `bin/candid-core.rs` is the CLI a `cargo install` smoke needs, and
+# the crate, `bin/meant.rs` is the CLI a `cargo install` smoke needs, and
 # `bounded.rs` is reached only through a `#[path]` attribute in the binary, so
 # no `mod` declaration in `lib.rs` would reveal its absence.
 REQUIRED_SOURCE_FILES = {
     "src/lib.rs",
-    "src/bin/candid-core.rs",
+    "src/bin/meant.rs",
     "src/bounded.rs",
 }
 
@@ -110,7 +110,7 @@ EXPECTED_METADATA = {
     "license": "Apache-2.0",
     "repository": "https://github.com/b3hr4d/candid-core",
     "homepage": "https://github.com/b3hr4d/candid-core",
-    "documentation": "https://docs.rs/candid-core",
+    "documentation": "https://docs.rs/meant",
     "readme": "README.md",
 }
 EXPECTED_KEYWORDS = [
@@ -200,11 +200,11 @@ def manifest() -> dict:
     """
     metadata = json.loads(run(["cargo", "metadata", "--no-deps", "--format-version", "1"]))
     package = next(
-        (entry for entry in metadata["packages"] if entry["name"] == "candid-core"),
+        (entry for entry in metadata["packages"] if entry["name"] == "meant"),
         None,
     )
     if package is None:
-        raise Failure("cargo metadata did not report a candid-core package")
+        raise Failure("cargo metadata did not report a meant package")
 
     with (REPO_ROOT / "Cargo.toml").open("rb") as handle:
         declared = tomllib.load(handle)["package"]
@@ -214,7 +214,7 @@ def manifest() -> dict:
 
 
 def locked_version(lockfile: Path) -> str | None:
-    """The `candid-core` version recorded in a lockfile.
+    """The `meant` version recorded in a lockfile.
 
     Both lockfiles carry it, and a bump that updates the manifest but not a
     lockfile is exactly the mistake a `--locked` build reports as an opaque
@@ -223,7 +223,7 @@ def locked_version(lockfile: Path) -> str | None:
     """
     with lockfile.open("rb") as handle:
         for package in tomllib.load(handle).get("package", []):
-            if package.get("name") == "candid-core":
+            if package.get("name") == "meant":
                 return package.get("version")
     return None
 
@@ -325,7 +325,7 @@ def check_manifest_has_not_drifted(package: dict, failures: list[str]) -> None:
         found = locked_version(lockfile)
         if found != version:
             failures.append(
-                f"{lockfile.relative_to(REPO_ROOT).as_posix()} records candid-core "
+                f"{lockfile.relative_to(REPO_ROOT).as_posix()} records meant "
                 f"{found!r}, but Cargo.toml declares {version!r}"
             )
 

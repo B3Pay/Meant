@@ -1117,7 +1117,7 @@ fn unhex(text: &str) -> Vec<u8> {
 /// TypeScript loader reads, normalized exactly as `golden.rs` normalizes the
 /// generator goldens' documents (a fixed producer block, a canonical reparse).
 fn coercion_envelope(source: &str) -> serde_json::Value {
-    let compilation = candid_core::compile_did(source).expect("the coercion fixture must compile");
+    let compilation = meant::compile_did(source).expect("the coercion fixture must compile");
     let mut document =
         serde_json::to_value(compilation.contract()).expect("contract must serialize");
     document["producer"] = serde_json::json!({
@@ -1127,7 +1127,7 @@ fn coercion_envelope(source: &str) -> serde_json::Value {
         "candid_parser_version": "0.0.0-golden",
     });
     let normalized = serde_json::to_string(&document).expect("document must serialize");
-    let contract = candid_core::Contract::from_json(&normalized)
+    let contract = meant::Contract::from_json(&normalized)
         .expect("the normalized document must still be a valid canonical Contract");
     let mut names: std::collections::BTreeMap<(u32, u32), String> =
         std::collections::BTreeMap::new();
@@ -1136,7 +1136,7 @@ fn coercion_envelope(source: &str) -> serde_json::Value {
         .expect("compile_did retains provenance by default")
         .field_labels()
     {
-        if let candid_core::SourceLabel::Named { name } = &provenance.label {
+        if let meant::SourceLabel::Named { name } = &provenance.label {
             names.insert((provenance.container, provenance.id), name.clone());
         }
     }
@@ -1144,12 +1144,12 @@ fn coercion_envelope(source: &str) -> serde_json::Value {
         .into_iter()
         .map(|((container, id), name)| serde_json::json!([container, id, name]))
         .collect();
-    let mut envelope = candid_core::ContractEnvelope::new(contract);
+    let mut envelope = meant::ContractEnvelope::new(contract);
     envelope
         .insert_extension(
             "org.candid-core.field-names/v1",
             serde_json::Value::Array(triples),
-            &candid_core::Limits::default(),
+            &meant::Limits::default(),
         )
         .expect("the field-names extension must validate");
     serde_json::to_value(&envelope).expect("envelope must serialize")

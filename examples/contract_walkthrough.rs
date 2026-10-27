@@ -1,4 +1,4 @@
-use candid_core::{compile_did, Actor, TypeNode};
+use meant::{compile_did, Actor, TypeNode};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {

@@ -192,29 +192,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "candid-core"
-version = "0.1.0"
-dependencies = [
- "candid",
- "candid_parser",
- "cap-std",
- "criterion",
- "hex",
- "ic_principal",
- "proptest",
- "serde",
- "serde_json",
- "sha2",
- "wasm-bindgen-test",
-]
-
-[[package]]
 name = "candid-core-ts"
 version = "0.0.0"
 dependencies = [
  "candid",
- "candid-core",
  "candid_parser",
+ "meant",
  "serde_json",
 ]
 
@@ -859,6 +842,23 @@ name = "maybe-owned"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4facc753ae494aeb6e3c22f839b158aebd4f9270f55cd3c79906c45476c47ab4"
+
+[[package]]
+name = "meant"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "candid_parser",
+ "cap-std",
+ "criterion",
+ "hex",
+ "ic_principal",
+ "proptest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "wasm-bindgen-test",
+]
 
 [[package]]
 name = "memchr"

@@ -6,7 +6,7 @@
 // raw DTO carries no allocation bound, so untrusted bytes must arrive through
 // the bounded parse entry points used below.
 
-use candid_core::{compile_did, Compilation, Contract, ContractJsonError, Limits, RuntimeContext};
+use meant::{compile_did, Compilation, Contract, ContractJsonError, Limits, RuntimeContext};
 use std::error::Error;
 
 fn resource_limit(error: &ContractJsonError) -> String {

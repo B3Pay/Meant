@@ -19,8 +19,8 @@ use std::path::PathBuf;
 
 mod support;
 
-use candid_core::compile_did;
 use candid_core_ts::{generate_module, TsNames, TsOptions};
+use meant::compile_did;
 use support::{in_child_process, on_small_stack};
 
 /// The compiler's default semantic and lexical depth limit.
@@ -165,13 +165,13 @@ fn emit_depth_limit_goldens() {
             "candid_version": "0.0.0-golden",
             "candid_parser_version": "0.0.0-golden",
         });
-        let contract = candid_core::Contract::from_json(
+        let contract = meant::Contract::from_json(
             &serde_json::to_string(&document).expect("document must serialize"),
         )
         .expect("the normalized document must still be a valid canonical Contract");
         let mut names = std::collections::BTreeMap::new();
         for provenance in source_info.field_labels() {
-            if let candid_core::SourceLabel::Named { name } = &provenance.label {
+            if let meant::SourceLabel::Named { name } = &provenance.label {
                 names.insert((provenance.container, provenance.id), name.clone());
             }
         }
@@ -179,12 +179,12 @@ fn emit_depth_limit_goldens() {
             .into_iter()
             .map(|((container, id), label)| serde_json::json!([container, id, label]))
             .collect();
-        let mut envelope = candid_core::ContractEnvelope::new(contract);
+        let mut envelope = meant::ContractEnvelope::new(contract);
         envelope
             .insert_extension(
                 "org.candid-core.field-names/v1",
                 serde_json::Value::Array(triples),
-                &candid_core::Limits::default(),
+                &meant::Limits::default(),
             )
             .expect("the field-names extension must validate");
         let mut text = serde_json::to_string(&envelope).expect("envelope must serialize");

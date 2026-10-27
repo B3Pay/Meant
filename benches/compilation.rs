@@ -1,13 +1,13 @@
 mod support;
 
-use candid_core::{
+use candid_parser::candid::{idl_hash, TypeEnv};
+use candid_parser::{check_file, check_prog, IDLProg};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use meant::{
     compile_did, compile_did_with_context, compile_did_with_options, compile_with_resolver,
     validate_host_value, CompileOptions, Contract, HostValue, Limits, RuntimeContext,
     WorkspaceResolver,
 };
-use candid_parser::candid::{idl_hash, TypeEnv};
-use candid_parser::{check_file, check_prog, IDLProg};
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::time::Duration;
 
 fn official_check(source: &str) {
@@ -21,7 +21,7 @@ fn compile_trusted_benchmark(
     source: &str,
     options: CompileOptions,
     context: &RuntimeContext,
-) -> candid_core::Compilation {
+) -> meant::Compilation {
     compile_did_with_context(source, options, context).expect("benchmark DID must compile")
 }
 

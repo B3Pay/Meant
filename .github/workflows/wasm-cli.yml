@@ -12,7 +12,7 @@
 # - `host`: the crate's own battery — fmt, clippy warnings-denied, and the
 #   parity tests that compare the library's outputs byte-for-byte against
 #   the generator's golden `.ts` modules and the committed envelope fixture
-#   the native `candid-core compile --envelope` binary produced.
+#   the native `meant compile --envelope` binary produced.
 # - `artifact`: the same parity through the real WebAssembly under Node (the
 #   npm test suite runs bin/cli.js, which loads the compiled wasm), plus
 #   artifact determinism: two clean wasm-pack builds must produce identical

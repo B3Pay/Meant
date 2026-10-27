@@ -12,11 +12,11 @@
 
 mod support;
 
-use candid_core::{
+use candid_core_ts::{generate_module, GeneratedModule, TsGenError, TsNames, TsOptions};
+use meant::{
     Actor, Contract, ContractDraft, Declaration, Field, Limits, MethodMode, PrimitiveType,
     ServiceMethod, TypeNode, TypeRef,
 };
-use candid_core_ts::{generate_module, GeneratedModule, TsGenError, TsNames, TsOptions};
 use support::{in_child_process, on_small_stack};
 
 /// The Contract of `type D = vec T; type T = opt T;` with the declaration of

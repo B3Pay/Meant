@@ -1,8 +1,14 @@
-# Candid Core
+# Meant
 
-> **Pre-1.0: the Rust crate.** `candid-core` `0.1.0` is the crate's first
-> version without a prerelease suffix; the three before it were `0.1.0-beta.1`
-> to `0.1.0-beta.3`. Until 1.0, any release of the crate may change the
+> **Renamed.** The Rust crate formerly published as `candid-core` is now
+> [`meant`](https://crates.io/crates/meant): `use candid_core::…` becomes
+> `use meant::…`, and the `candid-core` binary becomes `meant`. Nothing else
+> changed in this rename: the Contract format and its `candid-core:` identity
+> prefixes, and the npm packages under `@candid-core/`, are as before.
+
+> **Pre-1.0: the Rust crate.** `meant` `0.1.0` is `candid-core` `0.1.0`
+> under its new name; that was the crate's first version without a prerelease
+> suffix, after `0.1.0-beta.1` to `0.1.0-beta.3`. Until 1.0, any release of the crate may change the
 > public Rust API, the serialized Contract/Compilation/envelope shapes, the
 > canonical bytes, and every identity computed over them. Pin an exact version.
 > See the [changelog](CHANGELOG.md) for the release's scope and
@@ -15,8 +21,8 @@
 An early, deliberately narrow runtime foundation for turning Candid DID files into a canonical validated Contract graph. When the source compiler is enabled — it is, by default — the Rust core delegates parsing and type checking to the official `candid_parser` implementation; consumers never need to parse Candid source or reproduce its type rules. A consumer that only *consumes* Contracts can switch the compiler off and keep the model; see [Cargo features](#cargo-features).
 
 ```sh
-cargo run --bin candid-core -- compile ./service.did
-cargo run --bin candid-core -- validate ./contract.json
+cargo run --bin meant -- compile ./service.did
+cargo run --bin meant -- validate ./contract.json
 ```
 
 The compile command emits JSON containing a canonical validated `contract` and an optional, identity-bound `source_info` sidecar. The Contract exposes a full `contract_id` and an actor-only `interface_id`; source spelling/comments are identified separately by `source_bundle_id`. That source identity covers only the raw source files and import edges. At an external trust boundary, `SourceInfo::try_from_raw` recompiles that bundle and requires every presented provenance field to match the compiler-derived sidecar.
@@ -48,7 +54,7 @@ Every ID below is a content address over a different projection. **No unkeyed co
 | `artifact_id` | Detached exact-octet, per declared `ArtifactKind` | The exact octet sequence passed to `artifact_id_with_limits` | The same kind and the same bytes | Nothing that is in the bytes; everything that is not. It makes no validity, authenticity, or provenance claim |
 
 ```rust,ignore
-use candid_core::{artifact_id_with_limits, ArtifactKind, Limits};
+use meant::{artifact_id_with_limits, ArtifactKind, Limits};
 
 // Detached: the ID is returned to you, never written into the document, and
 // never computed implicitly by a decode. Validate the artifact separately.
@@ -63,28 +69,28 @@ Reformatting, whitespace, key order, a rewritten `producer`, an extension edit, 
 
 ## Command-line interface
 
-The `candid-core` binary requires the `filesystem-compiler` feature, which is on by default. It accepts exactly this grammar, and nothing else:
+The `meant` binary requires the `filesystem-compiler` feature, which is on by default. It accepts exactly this grammar, and nothing else:
 
 ```text
-candid-core compile <path> [--no-source-info | --envelope]
-candid-core validate <path>
+meant compile <path> [--no-source-info | --envelope]
+meant validate <path>
 ```
 
 ```sh
-cargo run --bin candid-core -- compile ./service.did
-cargo run --bin candid-core -- compile ./service.did --no-source-info
-cargo run --bin candid-core -- compile ./service.did --envelope
-cargo run --bin candid-core -- validate ./contract.json
+cargo run --bin meant -- compile ./service.did
+cargo run --bin meant -- compile ./service.did --no-source-info
+cargo run --bin meant -- compile ./service.did --envelope
+cargo run --bin meant -- validate ./contract.json
 ```
 
 Anything outside the grammar — an unknown command, an unknown option, a missing path, an option before the path, a flag on `validate`, a duplicate flag, `--no-source-info` combined with `--envelope` (the envelope exists to carry the field names that flag suppresses), or any trailing argument — is a usage error: the process writes nothing to stdout, exits with status 64, and prints exactly this usage text on stderr:
 
 ```text
-usage: candid-core compile <path> [--no-source-info | --envelope]
-       candid-core validate <path>
+usage: meant compile <path> [--no-source-info | --envelope]
+       meant validate <path>
 ```
 
-A token that begins with `-` is always treated as an option in the path position, never as a path; spell a dash-leading relative file with a `./` prefix (`candid-core compile ./-service.did`). Path arguments are taken as OS-native bytes, so a non-Unicode path is never an argument-parsing failure: `validate` hands the bytes to the filesystem unchanged, while `compile` additionally requires the entry file name to be valid UTF-8 — it becomes the source ID — and reports a `did_invalid_source_id` diagnostic otherwise. There are no other commands or flags — in particular no flags for custom limits; pass custom `Limits` through the library APIs instead.
+A token that begins with `-` is always treated as an option in the path position, never as a path; spell a dash-leading relative file with a `./` prefix (`meant compile ./-service.did`). Path arguments are taken as OS-native bytes, so a non-Unicode path is never an argument-parsing failure: `validate` hands the bytes to the filesystem unchanged, while `compile` additionally requires the entry file name to be valid UTF-8 — it becomes the source ID — and reports a `did_invalid_source_id` diagnostic otherwise. There are no other commands or flags — in particular no flags for custom limits; pass custom `Limits` through the library APIs instead.
 
 Every non-usage outcome is one pretty-printed JSON document on stdout with an empty stderr:
 
@@ -144,42 +150,42 @@ The crate advertises Rust 1.78 as its minimum supported Rust version (MSRV). Dir
 
 ## Cargo features
 
-`candid-core` stays one published package with one library and one binary. What it *builds* is split into an always-present base plus three features, all enabled by default:
+`meant` stays one published package with one library and one binary. What it *builds* is split into an always-present base plus three features, all enabled by default:
 
 | Feature | Adds | Dependencies it pulls in |
 | --- | --- | --- |
 | *(base)* | `Contract`, `ContractDraft`, `RawContract`, `ContractEnvelope`, validation, canonicalization, the semantic Contract identities, detached `artifact_id_with_limits`/`ArtifactKind`, `Limits`/`RuntimeContext`/`CancellationToken`, `Diagnostic` | `serde`, `serde_json`, `sha2`, `hex` |
 | `host-value` | `HostValue`, `HostFieldValue`, `validate_host_value`, `ContractTypeRef`/`ContractMethodRef`, `Contract::bind_type`/`bind_method` | `ic_principal` |
 | `compiler` | `compile_did` and its option/context variants, `compile_with_resolver`, `Compilation`, `CompileOptions`, `CompileError`, `SourceId`/`SourceResolver`/`ResolvedSource`/`MemoryResolver`, `SourceInfo`/`RawSourceInfo` provenance | `candid`, `candid_parser` |
-| `filesystem-compiler` (implies `compiler`) | `WorkspaceResolver`, `compile_did_file` and its variants, source materialization for `candid_parser::check_file`, the `candid-core` binary | `cap-std` |
+| `filesystem-compiler` (implies `compiler`) | `WorkspaceResolver`, `compile_did_file` and its variants, source materialization for `candid_parser::check_file`, the `meant` binary | `cap-std` |
 
 Because every feature is on by default, the full surface needs no feature selection at all. Every example below pins the exact version with `=`. `0.1.0` carries no prerelease suffix, so a caret requirement such as `"0.1"` would resolve to it, and to any later `0.1.x`; but before 1.0 any release may change the API, the serialized shapes and the identities, so the upgrade should be one a consumer chooses.
 
 ```toml
 # the full surface, every feature on by default
-candid-core = "=0.1.0"
+meant = "=0.1.0"
 
 # a pure Contract consumer: model, validation, canonicalization, identities
-candid-core = { version = "=0.1.0", default-features = false }
+meant = { version = "=0.1.0", default-features = false }
 
 # ... plus the lossless tagged host value ABI
-candid-core = { version = "=0.1.0", default-features = false, features = ["host-value"] }
+meant = { version = "=0.1.0", default-features = false, features = ["host-value"] }
 
 # a browser/WASM host that compiles DID source it already has — self-contained
 # or a multi-file bundle with imports
-candid-core = { version = "=0.1.0", default-features = false, features = ["compiler"] }
+meant = { version = "=0.1.0", default-features = false, features = ["compiler"] }
 
 # a native tool that reads .did files, or uses the CLI
-candid-core = { version = "=0.1.0", default-features = false, features = ["filesystem-compiler"] }
+meant = { version = "=0.1.0", default-features = false, features = ["filesystem-compiler"] }
 ```
 
-`cargo add candid-core@=0.1.0` does the same thing from the command line. A plain `cargo add candid-core` writes the caret requirement `"0.1.0"`, which Cargo will silently move to the next `0.1.x`; with the API and the wire format both unstable before 1.0, that is a change a consumer should opt into deliberately.
+`cargo add meant@=0.1.0` does the same thing from the command line. A plain `cargo add meant` writes the caret requirement `"0.1.0"`, which Cargo will silently move to the next `0.1.x`; with the API and the wire format both unstable before 1.0, that is a change a consumer should opt into deliberately.
 
 Items outside the selected set are **absent at compile time**, not runtime stubs: a build error names the missing item, and turning on the feature it belongs to is the fix. `tests/model_public_api.rs` pins the root exports of each surface, and `tests/fixtures/packaging/verify_feature_graph.py` proves the dependency claims in the table above against `cargo metadata` — the base graph resolves to 23 packages where the default graph resolves to 126, and a `compiler`-only browser-WASM graph to 106.
 
 Two caveats, both deliberate:
 
-- **Cargo unifies features across a build.** If anything else in your dependency graph depends on `candid-core` with defaults, the whole surface is compiled once for every consumer in that build. Feature selection bounds what a *dependency graph* must contain; it cannot subtract from a graph that already asked for more.
+- **Cargo unifies features across a build.** If anything else in your dependency graph depends on `meant` with defaults, the whole surface is compiled once for every consumer in that build. Feature selection bounds what a *dependency graph* must contain; it cannot subtract from a graph that already asked for more.
 - **Feature selection does not shrink the published `.crate` archive.** Every *published* source file ships regardless of which features a consumer enables; a `default-features = false` consumer still downloads the `compiler` sources it will not build. What the archive contains is bounded separately, by the positive `include` allowlist in `Cargo.toml`: production source, runnable examples, the public `docs/` set, and the three root documents. Test suites and their fixtures, benchmarks, the fuzz crate, and CI assets are not published, and `tests/fixtures/packaging/verify_package_manifest.py` asserts that in both directions.
 
 Producer metadata is unaffected by any of this: `ProducerInfo::current` reports the same `name`, `version`, `candid_version`, and `candid_parser_version` in every configuration, because it reads the pinned versions from this package's manifest at compile time rather than from a linked crate. It remains **unverified** provenance held outside the semantic Contract identities: neither `contract_id` nor `interface_id` covers it, so rewriting it leaves both byte-identical. A caller that needs to commit to the producer bytes it actually received commits to an `artifact_id`, and what else travels with them depends on the kind named — `ContractJsonV1` binds the Contract document's octets, `producer` included and nothing more; the envelope and compilation kinds bind those octets plus extensions or the provenance sidecar respectively. See the [identity ADR](docs/adrs/0001-contract-identities.md) and [ADR 0007](docs/adrs/0007-artifact-identity.md).
@@ -189,7 +195,7 @@ Producer metadata is unaffected by any of this: `ProducerInfo::current` reports 
 `compiler` is the browser surface, and it now covers imported bundles as well as self-contained sources ([issue #21]). `compile_with_resolver` takes an entry ID plus a `SourceResolver` and compiles the whole bundle in memory: the sources are merged into one virtual program and type-checked through the official `candid_parser` merged-program APIs. There is no materialization, no temporary directory, no `cap-std`, and no ambient authority anywhere on that path.
 
 ```rust,ignore
-use candid_core::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+use meant::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 
 // Sources the host already holds — fetched, bundled, typed into an editor.
 let resolver = MemoryResolver::new()
@@ -206,7 +212,7 @@ let compilation = compile_with_resolver(
 )?;
 ```
 
-The supported boundary is **synchronous immutable source data supplied by the host**. Implement `SourceResolver` yourself when the bundle is not a `MemoryResolver` — the resolver decides identity and returns bytes, and the compiler owns every limit. `candid-core` never fetches anything, resolves asynchronously, consults a registry, or generates bindings.
+The supported boundary is **synchronous immutable source data supplied by the host**. Implement `SourceResolver` yourself when the bundle is not a `MemoryResolver` — the resolver decides identity and returns bytes, and the compiler owns every limit. `meant` never fetches anything, resolves asynchronously, consults a registry, or generates bindings.
 
 Two target facts, stated plainly:
 
@@ -242,7 +248,7 @@ Each item below is tagged with the feature that provides it; untagged items are 
   cannot drift from compilation.
 - *(`filesystem-compiler`)* `compile_did_file` compiles a `.did` file from a
   sandboxed `WorkspaceResolver` through `candid_parser::check_file` over a
-  materialized copy of the resolved bundle; the `candid-core` binary is built on
+  materialized copy of the resolved bundle; the `meant` binary is built on
   that path.
 - `Limits` and constructor-based `RuntimeContext` bound untrusted compilation
   and validation with one shared budget, monotonic deadlines, and cooperative

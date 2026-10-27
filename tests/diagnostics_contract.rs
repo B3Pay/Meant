@@ -8,12 +8,12 @@
 //! survives every conversion chain.
 
 #[cfg(feature = "compiler")]
-use candid_core::{compile_did, compile_did_with_context, CompileOptions, RuntimeContext};
+use meant::{compile_did, compile_did_with_context, CompileOptions, RuntimeContext};
 #[cfg(feature = "compiler")]
-use candid_core::{compile_with_resolver, MemoryResolver};
+use meant::{compile_with_resolver, MemoryResolver};
 #[cfg(all(feature = "compiler", feature = "host-value"))]
-use candid_core::{validate_host_value, HostValue};
-use candid_core::{
+use meant::{validate_host_value, HostValue};
+use meant::{
     Contract, ContractJsonError, Diagnostic, DiagnosticPhase, Limits, Severity, SourceSpan,
 };
 use serde_json::json;
@@ -75,18 +75,18 @@ fn contract_violations_keep_the_legacy_serialized_shape_exactly() {
 /// `opt` alone), and Contract validation still accepts the graph.
 #[cfg(all(feature = "compiler", feature = "host-value"))]
 fn deep_opt_contract() -> Contract {
-    candid_core::ContractDraft::new(
+    meant::ContractDraft::new(
         vec![
-            candid_core::TypeNode::Opt { inner: 0 },
-            candid_core::TypeNode::Service {
+            meant::TypeNode::Opt { inner: 0 },
+            meant::TypeNode::Service {
                 methods: Vec::new(),
             },
         ],
-        vec![candid_core::Declaration {
+        vec![meant::Declaration {
             name: "Deep".to_string(),
             ty: 0,
         }],
-        Some(candid_core::Actor::Service { service: 1 }),
+        Some(meant::Actor::Service { service: 1 }),
     )
     .build()
     .unwrap()
@@ -315,7 +315,7 @@ fn related_locations_serialize_and_round_trip_exactly() {
             4,
         ))
         .with_related(vec![
-            candid_core::RelatedLocation {
+            meant::RelatedLocation {
                 message: "first related".to_string(),
                 span: Some(SourceSpan::exact(
                     Some("memory:/entry.did".to_string()),
@@ -323,7 +323,7 @@ fn related_locations_serialize_and_round_trip_exactly() {
                     9,
                 )),
             },
-            candid_core::RelatedLocation {
+            meant::RelatedLocation {
                 message: "second related".to_string(),
                 span: Some(SourceSpan::source_only("memory:/lib.did")),
             },
@@ -413,10 +413,10 @@ fn provenance_rederivation_preserves_resource_metadata() {
     // exact {resource, limit, observed} triple instead of flattening to text.
     let compilation =
         compile_did("type Item = opt opt opt opt opt opt nat; service : {};").unwrap();
-    let raw: candid_core::RawSourceInfo =
+    let raw: meant::RawSourceInfo =
         serde_json::from_value(serde_json::to_value(compilation.source_info().unwrap()).unwrap())
             .unwrap();
-    let error = candid_core::SourceInfo::try_from_raw(
+    let error = meant::SourceInfo::try_from_raw(
         raw,
         compilation.contract(),
         &Limits::default().with_max_type_depth(2),
@@ -444,7 +444,7 @@ fn provenance_rederivation_preserves_resource_metadata() {
 fn invalid_contract_error(
     mutate: impl Fn(&mut serde_json::Value),
     limits: &Limits,
-) -> candid_core::ContractValidationError {
+) -> meant::ContractValidationError {
     let fixture = include_str!("fixtures/conformance/empty_actor.contract.json");
     let mut json: serde_json::Value = serde_json::from_str(fixture).unwrap();
     mutate(&mut json);
@@ -560,10 +560,9 @@ fn unknown_keys_are_still_rejected() {
     assert!(
         serde_json::from_str::<SourceSpan>(r#"{"source_name":"s","start":1,"end":2}"#).is_err()
     );
-    assert!(serde_json::from_str::<candid_core::RelatedLocation>(
-        r#"{"message":"m","bogus":true}"#
-    )
-    .is_err());
+    assert!(
+        serde_json::from_str::<meant::RelatedLocation>(r#"{"message":"m","bogus":true}"#).is_err()
+    );
 }
 
 #[test]

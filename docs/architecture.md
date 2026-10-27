@@ -81,7 +81,7 @@ At a useful level of detail, the wire Contract JSON has this shape (arrays and o
     "contract": "candid-core:contract:v1:sha256:<64 lowercase hex>",
     "interface": "candid-core:interface:v1:sha256:<64 lowercase hex>"
   },
-  "producer": { "name": "candid-core", "version": "..." },
+  "producer": { "name": "meant", "version": "..." },
   "types": [
     { "kind": "record", "fields": [
       { "id": 477006482, "type": 0 }

@@ -215,7 +215,7 @@ const HASH_CHUNK_BYTES: usize = 64 * 1024;
 /// # Examples
 ///
 /// ```
-/// use candid_core::{artifact_id_with_limits, ArtifactKind, Limits};
+/// use meant::{artifact_id_with_limits, ArtifactKind, Limits};
 ///
 /// let document = br#"{"contract":{}}"#;
 /// let id = artifact_id_with_limits(
@@ -238,7 +238,7 @@ const HASH_CHUNK_BYTES: usize = 64 * 1024;
 ///     &Limits::default(),
 /// )?;
 /// assert_ne!(id, reformatted);
-/// # Ok::<(), candid_core::ContractValidationError>(())
+/// # Ok::<(), meant::ContractValidationError>(())
 /// ```
 pub fn artifact_id_with_limits(
     kind: ArtifactKind,

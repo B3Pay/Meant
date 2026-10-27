@@ -59,7 +59,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-CRATE = "candid-core"
+CRATE = "meant"
 # `cargo semver-checks` exits 100 when a version bump is required. Any other
 # non-zero exit is a tool or environment failure and must not be read as "no
 # breaking changes".

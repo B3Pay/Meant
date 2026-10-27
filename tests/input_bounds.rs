@@ -7,8 +7,8 @@
 //! directory it needs.
 
 #[cfg(feature = "filesystem-compiler")]
-use candid_core::WorkspaceResolver;
-use candid_core::{
+use meant::WorkspaceResolver;
+use meant::{
     compile_with_resolver, CompileOptions, Limits, MemoryResolver, RawSourceInfo, ResolveError,
     ResolvedSource, RuntimeContext, SourceId, SourceInfo, SourceResolver,
 };

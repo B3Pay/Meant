@@ -79,7 +79,7 @@ jobs:
       - name: Record the archive digest and contents
         run: |
           set -euxo pipefail
-          archive="$(echo target/package/candid-core-*.crate)"
+          archive="$(echo target/package/meant-*.crate)"
           mkdir -p release-evidence
           sha256sum "${archive}" | tee release-evidence/sha256.txt
           wc -c < "${archive}" | tr -d ' ' | tee release-evidence/bytes.txt
@@ -111,7 +111,7 @@ jobs:
         with:
           name: crate-archive-${{ github.sha }}
           path: |
-            target/package/candid-core-*.crate
+            target/package/meant-*.crate
             release-evidence
           retention-days: 30
 
@@ -148,7 +148,7 @@ jobs:
         run: |
           set -euxo pipefail
           shopt -s nullglob
-          archives=(downloaded/target/package/candid-core-*.crate)
+          archives=(downloaded/target/package/meant-*.crate)
           if (( ${#archives[@]} != 1 )); then
             printf 'expected exactly one downloaded crate archive, found %s\n' "${#archives[@]}" >&2
             exit 1
@@ -179,7 +179,7 @@ jobs:
         run: |
           set -euxo pipefail
           shopt -s nullglob
-          archives=(downloaded/target/package/candid-core-*.crate)
+          archives=(downloaded/target/package/meant-*.crate)
           if (( ${#archives[@]} != 1 )); then
             printf 'expected exactly one downloaded crate archive, found %s\n' "${#archives[@]}" >&2
             exit 1
@@ -187,7 +187,7 @@ jobs:
           archive="${archives[0]}"
           workdir="$(mktemp -d)"
           tar -xzf "${archive}" -C "${workdir}"
-          package="$(find "${workdir}" -maxdepth 1 -type d -name 'candid-core-*')"
+          package="$(find "${workdir}" -maxdepth 1 -type d -name 'meant-*')"
           cd "${package}"
           cargo doc --no-deps --locked --no-default-features
           cargo doc --no-deps --locked --all-features

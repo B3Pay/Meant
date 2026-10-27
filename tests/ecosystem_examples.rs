@@ -1,7 +1,7 @@
-use candid_core::{compile_did, Actor, Contract, SourceLabel, TypeNode, TypeRef};
+use meant::{compile_did, Actor, Contract, SourceLabel, TypeNode, TypeRef};
 use std::collections::BTreeSet;
 
-fn compile(source: &str) -> candid_core::Compilation {
+fn compile(source: &str) -> meant::Compilation {
     compile_did(source).unwrap_or_else(|error| panic!("compilation failed: {error:#?}"))
 }
 

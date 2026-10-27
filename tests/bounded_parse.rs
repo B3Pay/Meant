@@ -11,7 +11,7 @@
 //! fresh allowance, and that serialization consumes `max_canonicalization_work`
 //! in addition to whichever structural limit gated construction.
 
-use candid_core::{
+use meant::{
     compile_did, compile_with_resolver, Compilation, CompileOptions, Contract, ContractEnvelope,
     ContractJsonError, Limits, MemoryResolver, RawContract, RuntimeContext,
 };
@@ -561,6 +561,6 @@ fn compile_did_with_limits(source: &str, limits: &Limits) -> Compilation {
 }
 
 fn compile_did_with_context_helper(source: &str, context: &RuntimeContext) -> Compilation {
-    candid_core::compile_did_with_context(source, CompileOptions::default(), context)
+    meant::compile_did_with_context(source, CompileOptions::default(), context)
         .expect("source must compile under the supplied limits")
 }

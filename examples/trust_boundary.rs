@@ -1,4 +1,4 @@
-use candid_core::{compile_did, Contract};
+use meant::{compile_did, Contract};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {

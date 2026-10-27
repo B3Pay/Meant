@@ -63,8 +63,8 @@ recorded:
 
 ```sh
 grep '^version' Cargo.toml
-grep -A1 '^name = "candid-core"$' Cargo.lock
-grep -A1 '^name = "candid-core"$' fuzz/Cargo.lock
+grep -A1 '^name = "meant"$' Cargo.lock
+grep -A1 '^name = "meant"$' fuzz/Cargo.lock
 ```
 
 `tests/release_metadata.rs` pins the expected version as a literal, so a bump
@@ -149,12 +149,12 @@ python3 tests/fixtures/packaging/verify_package_manifest.py --locked
 cargo "+${RELEASE_TOOLCHAIN}" package --list --locked | sort
 
 # How big, and exactly which bytes.
-ls -l target/package/candid-core-*.crate
-shasum -a 256 target/package/candid-core-*.crate     # sha256sum -b on Linux
+ls -l target/package/meant-*.crate
+shasum -a 256 target/package/meant-*.crate     # sha256sum -b on Linux
 
 # The unpacked source, read as a consumer would receive it.
-tar -tzf target/package/candid-core-*.crate | sort
-tar -xzf target/package/candid-core-*.crate -C "$(mktemp -d)"
+tar -tzf target/package/meant-*.crate | sort
+tar -xzf target/package/meant-*.crate -C "$(mktemp -d)"
 ```
 
 Record the byte size and the SHA-256 in the evidence table (step 6), together
@@ -325,7 +325,7 @@ on crates.io that no commit in the repository is identified with.
 ### Doing it by hand
 
 The workflow is the supported path. If it is unavailable, the equivalent manual
-commands are `git tag -a v<version> -m "candid-core <version>" <commit>` and
+commands are `git tag -a v<version> -m "meant <version>" <commit>` and
 `git push origin refs/tags/v<version>`; `cargo "+${RELEASE_TOOLCHAIN}" publish
 --locked` with the operator authenticating interactively; the checksum read-back
 above; and `gh release create v<version> --verify-tag --prerelease`. Record that

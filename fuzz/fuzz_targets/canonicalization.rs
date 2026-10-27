@@ -1,6 +1,6 @@
 #![no_main]
 
-use candid_core::{ContractDraft, RawContract};
+use meant::{ContractDraft, RawContract};
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {

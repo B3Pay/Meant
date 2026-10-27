@@ -203,7 +203,7 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::ops::ControlFlow;
 
-use candid_core::{
+use meant::{
     Actor, Contract, Field, MethodMode, PrimitiveType, ServiceMethod, SourceInfo, SourceLabel,
     TypeNode,
 };
@@ -1967,8 +1967,8 @@ mod tests {
         live: &str,
         forge: impl FnOnce(&Contract, &Contract, &mut Graph<'_>, &mut Graph<'_>),
     ) -> Vec<(&'static str, Option<String>)> {
-        let written = candid_core::compile_did(written).unwrap();
-        let live = candid_core::compile_did(live).unwrap();
+        let written = meant::compile_did(written).unwrap();
+        let live = meant::compile_did(live).unwrap();
         let (written, live) = (
             Input {
                 contract: written.contract(),

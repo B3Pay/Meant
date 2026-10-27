@@ -19,9 +19,7 @@
 //! leaves untouched. Recomputing an expected value from the implementation
 //! under test would make the whole file circular.
 
-use candid_core::{
-    artifact_id_with_limits, ArtifactKind, Contract, Limits, ProducerInfo, RawContract,
-};
+use meant::{artifact_id_with_limits, ArtifactKind, Contract, Limits, ProducerInfo, RawContract};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 
@@ -87,7 +85,7 @@ const ARTIFACT_VECTORS: [&str; 10] = [
 #[test]
 fn producer_reports_the_release_version_in_every_configuration() {
     let producer = ProducerInfo::current();
-    assert_eq!(producer.name, "candid-core");
+    assert_eq!(producer.name, "meant");
     assert_eq!(producer.version, RELEASE_VERSION);
     assert_eq!(producer.version, env!("CARGO_PKG_VERSION"));
 
@@ -365,7 +363,7 @@ fn compiling_the_conformance_sources_reproduces_the_pinned_identities() {
             "tests/fixtures/conformance/expected/{name}.expected.json"
         ));
         let compilation =
-            candid_core::compile_did_file(repo(&format!("tests/fixtures/conformance/{name}.did")))
+            meant::compile_did_file(repo(&format!("tests/fixtures/conformance/{name}.did")))
                 .unwrap_or_else(|error| panic!("{name}: {error:#?}"));
         let contract = compilation.contract();
 

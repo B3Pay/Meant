@@ -36,7 +36,7 @@ pub struct SourceInfo {
 /// Raw data cannot be converted infallibly into validated [`SourceInfo`]:
 ///
 /// ```compile_fail
-/// use candid_core::{RawSourceInfo, SourceInfo};
+/// use meant::{RawSourceInfo, SourceInfo};
 ///
 /// fn bypass_validation(raw: RawSourceInfo) -> SourceInfo {
 ///     raw.into()
