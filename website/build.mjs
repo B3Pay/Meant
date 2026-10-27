@@ -63,7 +63,15 @@ const ICON = {
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg>',
 };
 
-const MARK = `<svg class="brand-mark" viewBox="0 0 32 32" role="img" aria-hidden="true"><defs><linearGradient id="bm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b3fe4"/><stop offset=".55" stop-color="#c94bb0"/><stop offset="1" stop-color="#f7802e"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#bm)"/><path d="M11 10.5h7.5M11 16h5.5M11 21.5h7.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" opacity=".92"/><circle cx="22.6" cy="10.5" r="1.7" fill="#fff"/><circle cx="20.6" cy="16" r="1.7" fill="#fff"/><circle cx="22.6" cy="21.5" r="1.7" fill="#fff"/></svg>`;
+// The logo files set their own colours (an <img> cannot inherit one), so each
+// comes as a pair, one for dark grounds and one for light, and the stylesheet
+// shows the one that matches the theme.
+const LOCKUP =
+  '<img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48">' +
+  '<img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48">';
+const MARK =
+  '<img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20">' +
+  '<img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">';
 
 /* ---------------------------------------------------- content transforms */
 
@@ -182,7 +190,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
   const header = `
 <header class="site-header">
   <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">${ICON.menu}</button>
-  <a class="brand" href="./">${MARK}<span class="brand-name">candid-core</span><span class="brand-tag">docs</span></a>
+  <a class="brand" href="./">${LOCKUP}<span class="brand-tag">docs</span></a>
   <span class="header-spacer"></span>
   <button class="search-trigger" id="search-trigger" type="button">${ICON.search}<span class="search-label">Search</span><kbd>⌘K</kbd></button>
   <div class="header-links">
@@ -201,6 +209,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
   const footer = `
 <footer class="site-footer">
   <div class="site-footer-inner">
+    ${MARK}
     <span>${escapeHtml(site.title)} — Apache-2.0</span>
     <span class="sep"></span>
     <a href="${site.docs.url}">${escapeHtml(site.docs.title)}</a>
