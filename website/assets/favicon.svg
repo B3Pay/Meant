@@ -1,14 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7b3fe4"/>
-      <stop offset=".55" stop-color="#c94bb0"/>
-      <stop offset="1" stop-color="#f7802e"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="url(#g)"/>
-  <path d="M11 10.5h7.5M11 16h5.5M11 21.5h7.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" opacity=".92"/>
-  <circle cx="22.6" cy="10.5" r="1.7" fill="#fff"/>
-  <circle cx="20.6" cy="16" r="1.7" fill="#fff"/>
-  <circle cx="22.6" cy="21.5" r="1.7" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+<title>Meant</title>
+<rect id="Tile" width="96" height="96" rx="22" fill="#121110"/>
+<g id="Meant mark" transform="translate(14 14) scale(.7)">
+  <g id="Brackets (the interface)">
+    <path id="Bracket left" d="M12.000 15.000A3 3 0 0 1 15.000 12.000L35.000 12.000A3 3 0 0 1 38.000 15.000L38.000 21.000A3 3 0 0 1 35.000 24.000L27.000 24.000A3 3 0 0 0 24.000 27.000L24.000 69.000A3 3 0 0 0 27.000 72.000L35.000 72.000A3 3 0 0 1 38.000 75.000L38.000 81.000A3 3 0 0 1 35.000 84.000L15.000 84.000A3 3 0 0 1 12.000 81.000Z" fill="#f1ede6"/>
+    <path id="Bracket right" d="M84.000 81.000A3 3 0 0 1 81.000 84.000L61.000 84.000A3 3 0 0 1 58.000 81.000L58.000 75.000A3 3 0 0 1 61.000 72.000L69.000 72.000A3 3 0 0 0 72.000 69.000L72.000 27.000A3 3 0 0 0 69.000 24.000L61.000 24.000A3 3 0 0 1 58.000 21.000L58.000 15.000A3 3 0 0 1 61.000 12.000L81.000 12.000A3 3 0 0 1 84.000 15.000Z" fill="#f1ede6"/>
+  </g>
+  <circle id="Node (the meaning)" cx="48" cy="48" r="13" fill="#f0b35a"/>
+</g>
 </svg>

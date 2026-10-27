@@ -26,10 +26,11 @@ website/
     _site.json      the sitemap; this is the navigation, and the page order
     <slug>.html     one body fragment per page
   assets/
-    style.css       the whole design system, tokens first
+    style.css       the Meant Docs design system: its tokens, then its component rules
     site.js         theme, mobile nav, search, copy buttons, scrollspy, tabs
     highlight.js    the syntax highlighter, used at build time
-    favicon.svg
+    favicon.svg     the Meant mark on a graphite tile
+    meant-*.svg     the lockup (header) and the mark (footer), one file per ground
   snippets.mjs      the TypeScript snippet gates, run by check.mjs
   dist/             generated; not committed
   redirects/        generated; not committed
@@ -37,6 +38,16 @@ website/
 
 `dist/` and `redirects/` are generated output and are git-ignored. CI builds
 them; see Publishing.
+
+`style.css` is copied from the Meant Docs design system rather than written
+here: its tokens (every colour once per theme, dark first, then spacing, radii,
+layout widths and type styles), then its component rules, which style the class
+names `build.mjs` already emits. Change a value in the design system and copy
+both parts again, so the site and the system never drift. The font stacks name
+the system's faces (Schibsted Grotesk, Martian Mono) first and fall back to
+system faces, because the site loads no webfonts. The logo files set their own
+colours, so the header and footer carry each one twice, `on-dark` and
+`on-light`, and the stylesheet shows the one that matches the theme.
 
 ## Writing a page
 
