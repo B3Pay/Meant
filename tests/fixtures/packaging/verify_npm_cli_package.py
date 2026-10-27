@@ -141,7 +141,7 @@ def main():
                 f"'{heading_date.group(1)}', which is not a real date"
             ) from None
 
-        # This package pairs by *revision*, not version: it embeds a candid-core
+        # This package pairs by *revision*, not version: it embeds a compiler
         # build from one commit. So the wording is "Embeds", where the sibling
         # gate looks for "Pairs with".
         #
@@ -161,23 +161,33 @@ def main():
         # the `## Unreleased` section must name the crate as it stands. Release
         # prep renames that section, which points the check at the entry being
         # released again.
+        #
+        # The crate is named as the root manifest names it (`meant`, published
+        # as `candid-core` before the rename), so an entry that names the old
+        # crate claims provenance this build does not have.
         claimant = "Unreleased" if "Unreleased" in entries else version
-        embedded = re.search(r"Embeds `candid-core` (\S+)", entries[claimant][1])
+        root_manifest = (REPO / "Cargo.toml").read_text()
+        crate = re.search(r'^name\s*=\s*"([^"]+)"', root_manifest, re.M)
+        actual = re.search(r'^version\s*=\s*"([^"]+)"', root_manifest, re.M)
+        if not crate or not actual:
+            raise SystemExit(
+                "could not read the crate name and version from Cargo.toml"
+            )
+        crate = crate.group(1)
+        embedded = re.search(
+            rf"Embeds `{re.escape(crate)}` (\S+)", entries[claimant][1]
+        )
         if not embedded:
             raise SystemExit(
                 f"the changelog entry for {claimant} names no embedded "
-                "`candid-core` revision, which is the pairing this package "
+                f"`{crate}` revision, which is the pairing this package "
                 "promises in place of a version pairing"
             )
         named = embedded.group(1).rstrip(".,;")
-        root_manifest = (REPO / "Cargo.toml").read_text()
-        actual = re.search(r'^version\s*=\s*"([^"]+)"', root_manifest, re.M)
-        if not actual:
-            raise SystemExit("could not read the crate version from Cargo.toml")
         if named != actual.group(1):
             raise SystemExit(
                 f"the changelog entry for {claimant} says it embeds "
-                f"`candid-core` {named}, but this build embeds "
+                f"`{crate}` {named}, but this build embeds "
                 f"{actual.group(1)}. An npm version is permanent, so the "
                 "provenance it claims has to be the provenance it has."
             )

@@ -153,7 +153,7 @@ export function init(input?: unknown): Promise<void>;
 /**
  * Compile Candid sources into a one-document `ContractEnvelope` carrying the
  * `org.candid-core.field-names/v1` extension — exactly the document
- * `candid-core compile <path> --envelope` emits, ready for
+ * `meant compile <path> --envelope` emits, ready for
  * `schemaFromContract`.
  *
  * Discriminate on the envelope, not on `ok`: success carries no `ok` key.
@@ -245,7 +245,7 @@ export interface DocAttributesSuccess {
   /** The canonical Contract, as in `didToContract`'s envelope. */
   contract: unknown;
   /**
-   * The SourceInfo sidecar as `candid-core compile <path>` prints it, typed
+   * The SourceInfo sidecar as `meant compile <path>` prints it, typed
    * `unknown` for the same reason as `contract`: it versions independently.
    */
   source_info: unknown;
@@ -254,7 +254,7 @@ export interface DocAttributesSuccess {
 
 /**
  * Compile Candid sources and read the `@name(key = value, …)` attributes in
- * their doc comments. candid-core gives no attribute a meaning; the reading
+ * their doc comments. The compiler gives no attribute a meaning; the reading
  * tool decides which names it knows. A malformed attribute fails the call
  * with `doc_attribute_malformed` or `doc_attribute_duplicate_key`, whose
  * `path` names the item. Comments never change `contract_id` or

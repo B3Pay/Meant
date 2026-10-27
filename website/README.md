@@ -119,14 +119,18 @@ node website/build.mjs && node website/check.mjs
   a block that shows one teaches it as surely as a sentence does;
 - a page that describes the TypeScript packages without carrying exactly one
   `Upgrading from an earlier release` callout (`NOTE_TITLE` in `check.mjs`)
-  that links both migration pages, `migrating-from-0-3.html` and
-  `migrating-from-0-2.html`, inside the callout itself (`NOTE_LINKS`). The
-  site describes the surface the repository builds, which is what the
-  `latest` dist-tag holds (`@candid-core/schema` 0.4.0 and `@candid-core/cli`
-  0.3.0, published on 2026-10-10). Each page's note names what the previous
-  stable pair (0.3.0 / 0.2.0) lacks of what the page shows, with the first
-  link; the stable pair before that (0.2.0 / 0.1.0) differs more, and each
-  page says how once, in that one place, with the second;
+  that links the three migration pages, `migrating-from-0-4.html`,
+  `migrating-from-0-3.html` and `migrating-from-0-2.html`, inside the callout
+  itself (`NOTE_LINKS`). The site describes the surface the repository
+  builds. The `latest` dist-tag holds `@candid-core/schema` 0.4.0 and
+  `@candid-core/cli` 0.3.0, published on 2026-10-10, and the repository is
+  prepared as 0.5.0 and 0.4.0, not yet published: each page's note says so,
+  names what the page shows that is new in the prepared pair, and links
+  `migrating-from-0-4.html`. Each note also names what the stable pair before
+  `latest` (0.3.0 / 0.2.0) lacks of what the page shows, with
+  `migrating-from-0-3.html`; the stable pair before that (0.2.0 / 0.1.0)
+  differs more, and each page says how once, in that one place, with
+  `migrating-from-0-2.html`;
 - any TypeScript or JavaScript snippet that is not verified (next section).
 
 And, **in a code block only** — because a page is expected to discuss the

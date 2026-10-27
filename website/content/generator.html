@@ -7,6 +7,7 @@
     whole interface for one declaration it cannot represent, and no JSDoc.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code, and each is recorded in the package
     changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since.
+    The repository has moved on since: it is prepared as <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, not yet published, and the generator <code>@candid-core/cli</code> <code>0.4.0</code> embeds renders a declared <code>blob</code>, <code>record {}</code> or <code>variant {}</code> the same at every use (marked below); the envelopes it writes name <code>meant</code> <code>0.1.0</code>, the compiler crate published as <code>candid-core</code> before its rename, as their producer. <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
   </p>
 </callout>
 
@@ -213,8 +214,8 @@ generated module and in <code>schemaFromContract</code> alike. The price is the 
 <code>amount : Tokens</code> reads <code>amount: bigint</code>, the same type.</p>
 
 <p>The same rule covers the three composite shapes with one fixed rendering: <code>blob</code>,
-<code>record {}</code> and <code>variant {}</code>. Since issue #268 a declaration of one of them names
-only itself: <code>type Subaccount = blob</code> is emitted as
+<code>record {}</code> and <code>variant {}</code>. Since issue #268, new in <code>@candid-core/cli</code>
+<code>0.4.0</code> and not yet published, a declaration of one of them names only itself: <code>type Subaccount = blob</code> is emitted as
 <code>export type Subaccount = Uint8Array</code>, and every blob in the interface, the ones written
 <code>opt Subaccount</code> included, reads <code>Uint8Array</code>. Before, the alias whose name sorted
 first named every use, so beside a <code>type Hash = blob</code> the ICRC ledger&rsquo;s
@@ -625,10 +626,12 @@ v1, so it pins rather than floats.</p>
   which is this generator compiled to WebAssembly. Its <code>gen</code> command,
   <code>candid-core-cli gen &lt;service.did&gt;... [-o &lt;dir&gt;]</code>, writes
   <code>&lt;stem&gt;.ts</code> alongside <code>&lt;stem&gt;.envelope.json</code>. That package is
-  published on npm, so <code>npx @candid-core/cli@0.3.0 gen ./service.did</code> runs the
-  generator this page describes with no Rust toolchain. The previous stable release, <code>0.2.0</code>,
-  writes the <code>$</code>-prefixed type names and bare method signatures that <code>0.3.0</code>
-  replaces (see the note at the top), and <code>0.1.0</code> predates both.</p>
+  published on npm, so <code>npx @candid-core/cli@0.3.0 gen ./service.did</code> runs this
+  generator with no Rust toolchain, as published: it names every use of a <code>blob</code>,
+  <code>record {}</code> or <code>variant {}</code> after the first alias of that shape, which the
+  prepared <code>0.4.0</code>, which this page describes, no longer does (see the note at the top).
+  The stable release before, <code>0.2.0</code>, writes the <code>$</code>-prefixed type names and bare
+  method signatures that <code>0.3.0</code> replaced, and <code>0.1.0</code> predates both.</p>
   <p>The route that needs no build step at all is <code>@candid-core/schema</code>'s
   <code>schemaFromContract</code>, which builds the same schemas at runtime from a compiled Contract
   document — see <a href="schema-from-contract.html">schemas at runtime</a>. What that route cannot

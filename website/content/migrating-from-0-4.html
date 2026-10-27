@@ -1,0 +1,247 @@
+<p>
+  This page is for code written against <code>@candid-core/schema</code> <code>0.4.0</code> and
+  <code>@candid-core/cli</code> <code>0.3.0</code>, the pair under the npm <code>latest</code>
+  dist-tag today, published on 2026-10-10. The repository is prepared as the next stable pair,
+  <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code>
+  <code>0.4.0</code>, which npm does not hold yet. Every change is recorded under those two versions
+  in the
+  <a href="https://github.com/b3hr4d/candid-core/blob/main/crates/candid-core-ts/ts/CHANGELOG.md"><code>@candid-core/schema</code> changelog</a>
+  and the
+  <a href="https://github.com/b3hr4d/candid-core/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md"><code>@candid-core/cli</code> changelog</a>.
+  Coming from an earlier pair, read
+  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
+  <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> first.
+</p>
+
+<p>
+  The upgrade is small, and nothing about it changes a wire byte, a Contract or an identity.
+  <code>@candid-core/schema</code> <code>0.5.0</code> breaks code only at the type level:
+  <code>decode</code> and <code>decodeArgs</code> type their values by their schemas, where
+  <code>0.4.0</code> gives <code>unknown</code>. Its runtime is <code>0.4.0</code>'s but for one
+  omission rule of <code>schemaFromContract</code>, which now leaves out less. What changes on the CLI
+  side is the bytes it writes: every envelope names the renamed compiler crate as its producer, and a
+  module that uses a declared <code>blob</code>, <code>record {}</code> or <code>variant {}</code>
+  changes text, so committed output has to be regenerated.
+</p>
+
+<table>
+  <thead>
+    <tr><th>What changed</th><th>What it breaks</th><th>Where</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>decode</code> and <code>decodeArgs</code> type their values by their schemas</td><td>A cast or annotation from a decoded value to a type its schema does not describe; one variable reassigned from <code>decodeArgs</code> calls with different schemas</td><td><a href="#decoded-values">Decoded values</a></td></tr>
+    <tr><td>Envelopes name <code>meant</code> <code>0.1.0</code> as their producer</td><td>Committed envelopes, which <code>gen --check</code> now reports as drifted</td><td><a href="#envelopes">Envelopes</a></td></tr>
+    <tr><td>A declared <code>blob</code>, <code>record {}</code> or <code>variant {}</code> names only itself</td><td>Committed modules that use such a declaration, which <code>gen --check</code> now reports as drifted; code that parses generated source</td><td><a href="#fixed-shapes">Fixed shapes</a></td></tr>
+    <tr><td><code>schemaFromContract</code> omits a reserved-name <code>blob</code>, <code>record {}</code> or <code>variant {}</code> declaration on its own</td><td>Nothing that loaded before: the other uses of that shape now load too</td><td><a href="#fixed-shapes">Fixed shapes</a></td></tr>
+    <tr><td>The CLI's peer is exactly <code>@candid-core/schema</code> <code>0.5.0</code></td><td>Upgrading one package without the other</td><td><a href="#order-of-upgrade">Order of upgrade</a></td></tr>
+    <tr><td><code>didToDocAttributes</code>, and each entry's identities in <code>gen --json</code></td><td>Nothing: they are new</td><td><a href="cli-npm.html#doc-attributes">Doc attributes</a></td></tr>
+  </tbody>
+</table>
+
+<callout type="tip" title="The snippets below are compiled">
+  <p>
+    Each block is checked against this tree, with <code>./shadowing.ts</code> standing for a module
+    CLI <code>0.4.0</code> generates. The <em>before</em> blocks must fail with the error shown, and
+    the <em>after</em> blocks must compile.
+  </p>
+</callout>
+
+<h2 id="decoded-values">Decoded values</h2>
+
+<p>
+  After <code>ok</code>, <code>decode(Account, bytes).value</code> is
+  <code>Infer&lt;typeof Account&gt;</code>, and <code>decodeArgs([A, B], bytes).values</code> is the
+  tuple of the two domains. That is a check, not a cast: the decoder reads the bytes under the schema
+  and refuses those that do not fit before it returns <code>ok: true</code>. A schema whose own type is
+  erased, an <code>AnySchema</code> or a <code>FuncSchema</code>'s <code>results</code>, still decodes to
+  <code>unknown</code>. Nothing changes at run time.
+</p>
+
+<p>
+  Code that cast the old <code>unknown</code> to a type the schema does not describe stops compiling,
+  and <code>tsc</code> reports <code>TS2352</code>, "Conversion of type … may be a mistake":
+</p>
+
+<pre data-lang="ts" data-check-fails="TS2352@12">
+import { c } from "@candid-core/schema";
+import { decode } from "@candid-core/schema/codec";
+
+const Account = c.record({ owner: c.principal, balance: c.nat });
+
+// A 0.4.0-era cast to a hand-written type the schema does not describe.
+type Legacy = { owner: string; balance: number };
+
+declare const bytes: Uint8Array;
+const decoded = decode(Account, bytes);
+if (decoded.ok) {
+  const account = decoded.value as Legacy;
+  void account;
+}
+</pre>
+
+<p>Drop the cast, and take the schema's own type, which the value already has:</p>
+
+<pre data-lang="ts" data-check>
+import { c, type Infer } from "@candid-core/schema";
+import { decode } from "@candid-core/schema/codec";
+
+const Account = c.record({ owner: c.principal, balance: c.nat });
+type Account = Infer<typeof Account>;
+
+declare const bytes: Uint8Array;
+const decoded = decode(Account, bytes);
+if (decoded.ok) {
+  const account: Account = decoded.value;
+  const balance: bigint = account.balance;
+  void balance;
+}
+</pre>
+
+<p>
+  Each <code>decodeArgs</code> call now has its own <code>DecodeResult&lt;…&gt;</code>, so one variable
+  reassigned from calls with different schemas fails with <code>TS2322</code>:
+</p>
+
+<pre data-lang="ts" data-check-fails="TS2322@6">
+import { c } from "@candid-core/schema";
+import { decodeArgs } from "@candid-core/schema/codec";
+
+declare const reply: Uint8Array;
+let result = decodeArgs([c.nat], reply);
+result = decodeArgs([c.text], reply);
+void result;
+</pre>
+
+<p>
+  Give each call its own binding, or type the variable as the bare <code>DecodeResult</code>, which
+  keeps <code>0.4.0</code>'s meaning, <code>readonly unknown[]</code>:
+</p>
+
+<pre data-lang="ts" data-check>
+import { c } from "@candid-core/schema";
+import { decodeArgs, type DecodeResult } from "@candid-core/schema/codec";
+
+declare const reply: Uint8Array;
+const fee = decodeArgs([c.nat], reply);
+if (fee.ok) {
+  const [amount] = fee.values;
+  const tokens: bigint = amount;
+  void tokens;
+}
+
+let result: DecodeResult = decodeArgs([c.nat], reply);
+result = decodeArgs([c.text], reply);
+void result;
+</pre>
+
+<p>
+  A <code>typeof</code> or <code>in</code> check that narrowed the old <code>unknown</code> may now
+  narrow to <code>never</code>; delete it, since the type already says what it checked. A generic
+  wrapper <code>&lt;T&gt;(schema: Schema&lt;T&gt;) =&gt; T</code> still needs <code>as T</code> on the
+  value. <code>encode</code> and <code>encodeArgs</code> still take <code>unknown</code> values.
+</p>
+
+<h2 id="envelopes">Envelopes</h2>
+
+<p>
+  The Rust compiler crate published as <code>candid-core</code> is <code>meant</code> on crates.io
+  since its rename, and <code>meant</code> <code>0.1.0</code> is <code>candid-core</code>
+  <code>0.1.0</code>'s code under the new name. <code>@candid-core/cli</code> <code>0.4.0</code> embeds
+  it, so every envelope it writes names it as the producer:
+</p>
+
+<pre data-lang="json" data-file="tests/fixtures/envelope/basic.envelope.json">
+"producer": {
+  "candid_parser_version": "0.4.0",
+  "candid_version": "0.10.30",
+  "name": "meant",
+  "version": "0.1.0"
+},
+</pre>
+
+<p>
+  <code>0.3.0</code>'s envelopes name <code>candid-core</code> <code>0.1.0-beta.3</code>. No identity
+  covers the producer and <code>schemaFromContract</code> does not read it, so an envelope either
+  release wrote loads the same, with the same Contract and identities. But <code>candid-core-cli gen
+  --check</code> compares bytes, so it reports every envelope <code>0.3.0</code> wrote as
+  <code>drifted</code>, exit 1, until <code>gen</code> runs again. Measured on the repository's tracked
+  <code>.did</code> files, the 40 that both releases compile give envelopes that differ in the
+  <code>producer</code> alone.
+</p>
+
+<p>
+  The native compiler that writes the same envelope from Rust installs under the new name, and
+  <code>meant compile ./service.did --envelope</code> prints it:
+</p>
+
+<pre data-lang="bash">
+cargo install meant --version 0.1.0 --locked
+</pre>
+
+<h2 id="fixed-shapes">Fixed shapes</h2>
+
+<p>
+  <code>blob</code>, <code>record {}</code> and <code>variant {}</code> each have one fixed rendering
+  (<code>Uint8Array</code> / <code>$.c.blob()</code>, <code>Record&lt;string, never&gt;</code> /
+  <code>$.c.unit()</code>, <code>never</code> / <code>$.c.variant({})</code>), and a declaration of one
+  of them now names only itself, as a declared primitive already did. Every use renders the shape.
+  Before, the alias of that shape whose name sorted first named every use of it: beside
+  <code>type Bytes = blob</code> and <code>type Unit = record {}</code>, a method returning
+  <code>(default, Bytes, Unit)</code> read <code>[number, Bytes, Unit]</code>. It now reads:
+</p>
+
+<pre data-lang="ts" data-file="crates/candid-core-ts/tests/goldens/shadowing.ts">
+export type Bytes = Uint8Array;
+// …
+export type Actor = {
+  all: ((arg0: Uses) => Promise<[number, Uint8Array, Record<string, never>]>) & $.WithMode<"query">;
+  // …
+};
+</pre>
+
+<p>
+  The value types, the wire bytes and every export name are unchanged, so code that imports the
+  generated names compiles as before, the alias names included:
+</p>
+
+<pre data-lang="ts" data-check>
+import type { Actor, Bytes, Unit } from "./shadowing.ts";
+
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+
+// 0.3.0 wrote this result as [number, Bytes, Unit]; the types are the same.
+const same: Equal<Awaited<ReturnType<Actor["all"]>>, [number, Bytes, Unit]> = true;
+void same;
+</pre>
+
+<p>
+  Committed modules are not unchanged: a module with two declarations of one of these shapes, or one
+  declaration and a plain use, changes text, and <code>gen --check</code> reports it as
+  <code>drifted</code>. Measured on the repository's 40 compiling <code>.did</code> files, 3 modules
+  change and 37 are byte-identical.
+</p>
+
+<p>
+  <code>schemaFromContract</code> follows the same rule in what it omits. A declaration of one of these
+  shapes under a reserved name (<code>type actor = blob</code>) is left out on its own, and
+  <code>omitted</code> lists it alone, as the generator's list does; <code>0.4.0</code> also left out
+  each declaration and method that held a plain blob, empty record or empty variant beside it. Every
+  other Contract loads and omits as before.
+</p>
+
+<h2 id="order-of-upgrade">Order of upgrade</h2>
+
+<p>
+  Move both packages in one step. The CLI peers its schema release exactly, and npm refuses a
+  mismatched pair (<code>ERESOLVE could not resolve</code>): <code>@candid-core/cli</code>
+  <code>0.3.0</code> peers <code>0.4.0</code>, and <code>0.4.0</code> peers <code>0.5.0</code>. Once
+  both are published, the plain <code>npm install --save-exact @candid-core/schema</code> and
+  <code>npm install --save-dev --save-exact @candid-core/cli</code> select them from
+  <code>latest</code>; until then those lines install <code>0.4.0</code> and <code>0.3.0</code>. Then
+  run <code>candid-core-cli gen</code> over every committed module, and fix what the compiler
+  reports, which for code that imports the generated names is nothing, and where code decodes is
+  the casts above. Every module either CLI writes for the repository's <code>.did</code> files
+  compiles against either schema release, so the order inside that one step does not matter to
+  <code>tsc</code>.
+</p>

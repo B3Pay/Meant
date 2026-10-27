@@ -9,6 +9,7 @@
     <code>vec nat8</code> beside a declared <code>nat8</code> alias, and lists no omissions.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
     after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and <code>0.4.0</code>.
+    The repository has moved on since: it is prepared as <code>0.5.0</code>, not yet published, in which a declaration of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> under a reserved name is omitted on its own (marked below). <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
   </p>
 </callout>
 
@@ -360,6 +361,13 @@ type B = record { x : record { 100 : text } };
       <code>Actor</code>), <code>invalid_declaration_name</code> (a name that is not
       identifier-shaped) and <code>references_omitted</code>, whose <code>via</code> names the omitted
       declaration referenced. The actor is never omitted; it loses only the listed methods.
+    </p>
+    <p>
+      A declaration of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> names only
+      itself, as in the generator, so one under a reserved name (<code>type actor = blob</code>) is
+      omitted alone and every other use of its shape loads. That is new in <code>0.5.0</code>, not yet
+      published: <code>0.4.0</code> also leaves out each declaration and method that holds a plain blob,
+      empty record or empty variant beside such a declaration.
     </p>
     <p>
       The loader could build some of these; it leaves them out so that its schemas are exactly the

@@ -20,6 +20,7 @@ install below pulls in nothing else.</p>
   there is no <code>principal()</code> function, and the generated modules use the old layout. What
   changes, with before and after code, is on <a href="migrating-from-0-2.html">Migrating from 0.2.0</a>, and each change is recorded in the package
   changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since.
+  The repository has moved on since: it is prepared as <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, not yet published, in which <code>decode</code> types its value by its schema (marked below); nothing else this guide does differs. <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
   </p>
 </callout>
 
@@ -209,8 +210,9 @@ if (decoded.ok) {
     <p>Two things to note. <code>decode</code> hands back the schema&rsquo;s own
     type (<code>Decoded&lt;T&gt;</code> is <code>T</code>, or <code>unknown</code>
     for an erased schema), because the decoder checked the bytes against that
-    schema; <code>0.4.0</code> and earlier return <code>value: unknown</code>,
-    and there the annotation above needs <code>as Account</code>. And <code>encode</code> is stricter than
+    schema. That is new in <code>0.5.0</code>, not yet published: <code>0.4.0</code> and earlier,
+    which the install line above selects until then, return <code>value: unknown</code>, and there the
+    annotation above needs <code>as Account</code>. And <code>encode</code> is stricter than
     <code>validate</code> in a few places on purpose: a <code>float32</code>
     that is not <code>Math.fround</code>-exact fails with
     <code>unrepresentable_float32</code> rather than being rounded, and a
