@@ -2,7 +2,7 @@
 mod bounded;
 
 use bounded::{read_bounded_utf8, BoundedUtf8Error};
-use candid_core::{
+use meant::{
     compile_did_file_with_options, CompileOptions, Contract, ContractEnvelope, ContractJsonError,
     ContractValidationError, ContractViolation, Limits, SourceInfo, SourceLabel,
 };
@@ -13,7 +13,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-const USAGE: &str = "usage: candid-core compile <path> [--no-source-info | --envelope]\n       candid-core validate <path>";
+const USAGE: &str =
+    "usage: meant compile <path> [--no-source-info | --envelope]\n       meant validate <path>";
 
 /// The extension carrying field-name triples in an emitted envelope; see
 /// [`ContractEnvelope`]'s documentation for the recorded convention.

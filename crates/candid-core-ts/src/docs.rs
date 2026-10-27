@@ -16,7 +16,7 @@
 
 use std::collections::BTreeMap;
 
-use candid_core::TypeRef;
+use meant::TypeRef;
 
 /// Where a piece of provenance was written: a named declaration, or the
 /// service actor. Declaration names are unique across a bundle (a duplicate is
@@ -126,8 +126,8 @@ fn slice(docs: Option<&Docs>) -> &[String] {
 
 #[cfg(feature = "compiler")]
 impl Provenance {
-    pub(crate) fn from_source_info(source_info: &candid_core::SourceInfo) -> Self {
-        use candid_core::{SourceFunctionArgumentDirection, SourceOrigin};
+    pub(crate) fn from_source_info(source_info: &meant::SourceInfo) -> Self {
+        use meant::{SourceFunctionArgumentDirection, SourceOrigin};
 
         let origin_of = |origin: &SourceOrigin| match origin {
             SourceOrigin::Declaration { name, .. } => Origin::Declaration(name.clone()),

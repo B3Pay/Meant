@@ -148,22 +148,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "candid-core"
-version = "0.1.0"
-dependencies = [
- "candid",
- "candid_parser",
- "hex",
- "serde",
- "serde_json",
- "sha2",
-]
-
-[[package]]
 name = "candid-core-ts"
 version = "0.0.0"
 dependencies = [
- "candid-core",
+ "meant",
 ]
 
 [[package]]
@@ -171,9 +159,9 @@ name = "candid-core-wasm"
 version = "0.1.0"
 dependencies = [
  "candid",
- "candid-core",
  "candid-core-ts",
  "candid_parser",
+ "meant",
  "serde_json",
  "wasm-bindgen",
 ]
@@ -621,6 +609,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "24fb722b06a9dc12adb0963ed585f19fc61dc5413e6a9be9422ef92c091e731d"
 dependencies = [
  "logos-codegen",
+]
+
+[[package]]
+name = "meant"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "candid_parser",
+ "hex",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]

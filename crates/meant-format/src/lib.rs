@@ -18,7 +18,7 @@
 //!   look-alike letter from another script never matches.
 //!
 //! ```
-//! use meant::{AmountFormat, Code};
+//! use meant_format::{AmountFormat, Code};
 //!
 //! let icp = AmountFormat::new(8).with_symbol("ICP")?;
 //! assert_eq!(icp.parse("1.5 ICP")?, "150000000");
@@ -28,7 +28,7 @@
 //! let err = icp.parse("0.123456789").unwrap_err();
 //! assert_eq!(err.code(), Code::ExcessPrecision);
 //! assert_eq!(err.code().as_str(), "E_EXCESS_PRECISION");
-//! # Ok::<(), meant::FormatError>(())
+//! # Ok::<(), meant_format::FormatError>(())
 //! ```
 //!
 //! # Where the rules come from

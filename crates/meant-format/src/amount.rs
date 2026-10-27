@@ -12,12 +12,12 @@ use crate::{Code, FormatError, IntType, MAX_INPUT_UTF16_LEN};
 /// never floats, so an amount of any size converts exactly.
 ///
 /// ```
-/// use meant::{AmountFormat, IntType};
+/// use meant_format::{AmountFormat, IntType};
 ///
 /// let usdc = AmountFormat::new(6).with_symbol("USDC")?.with_candid(IntType::Nat64);
 /// assert_eq!(usdc.parse("1.5 usdc")?, "1500000");
 /// assert_eq!(usdc.display_u128(1_500_000)?, "1.5 USDC");
-/// # Ok::<(), meant::FormatError>(())
+/// # Ok::<(), meant_format::FormatError>(())
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AmountFormat {
@@ -174,14 +174,14 @@ impl AmountFormat {
     /// - text longer than [`MAX_INPUT_UTF16_LEN`]: [`Code::TooLong`].
     ///
     /// ```
-    /// use meant::{AmountFormat, Code, IntType};
+    /// use meant_format::{AmountFormat, Code, IntType};
     ///
     /// let eth = AmountFormat::new(18).with_symbol("ckETH")?;
     /// assert_eq!(eth.parse("1.000000000000000001")?, "1000000000000000001");
     ///
     /// let byte = AmountFormat::new(0).with_candid(IntType::Nat8);
     /// assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
-    /// # Ok::<(), meant::FormatError>(())
+    /// # Ok::<(), meant_format::FormatError>(())
     /// ```
     pub fn parse(&self, input: &str) -> Result<String, FormatError> {
         if too_long(input) {

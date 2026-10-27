@@ -1,8 +1,8 @@
 [package]
-name = "meant"
+name = "meant-format"
 # Pre-1.0, like everything in this repository: any 0.x release may change the
 # public API and the text `display` produces. Consumers should pin an exact
-# version (`meant = "=0.1.0"`), as they do for `candid-core`.
+# version (`meant-format = "=0.1.0"`), as they do for `meant`.
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.78"

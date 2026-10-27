@@ -1,4 +1,4 @@
-# meant
+# meant-format
 
 Exact conversion between the amounts people write and the base units a
 contract call carries. It never rounds.
@@ -6,10 +6,10 @@ contract call carries. It never rounds.
 A token ledger's `transfer` takes `amount : nat` in base units. A person, or an
 agent acting for one, writes `"1.5 ICP"`. With 8 decimals that is `150000000`;
 with 6 it is `1500000`. A wrong guess sends ten or a thousand times the money,
-so `meant` refuses to guess:
+so `meant-format` refuses to guess:
 
 ```rust
-use meant::{AmountFormat, Code, IntType};
+use meant_format::{AmountFormat, Code, IntType};
 
 let icp = AmountFormat::new(8).with_symbol("ICP").unwrap();
 assert_eq!(icp.parse("1.5 ICP").unwrap(), "150000000");
@@ -42,9 +42,12 @@ assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
 
 ## Where the rules come from
 
-`meant` is the first Rust crate of Meant, the meaning layer for contract calls,
-developed for now in the [candid-core](https://github.com/b3hr4d/candid-core)
-repository. The rules are the `amount` tag of
+`meant-format` is part of Meant, the meaning layer for contract calls. Its
+sibling [`meant`](https://crates.io/crates/meant) compiles Candid interfaces
+into a canonical, identity-addressed graph; this crate converts the values a
+profile describes, and depends on nothing, `meant` included. Both are developed
+in the [candid-core](https://github.com/b3hr4d/candid-core) repository for now.
+The rules are the `amount` tag of
 [Candid Profile v0](https://github.com/b3hr4d/candid-profile/blob/main/docs/profile-v0.md)
 (§5.3). The JavaScript package `@candid-core/profile-format` is the reference
 implementation. For the same input this crate gives the same answer: the same
@@ -61,7 +64,7 @@ Pre-1.0: any 0.x release may change the API or the text `display` produces.
 Pin an exact version:
 
 ```toml
-meant = "=0.1.0"
+meant-format = "=0.1.0"
 ```
 
 The minimum supported Rust version is 1.78.

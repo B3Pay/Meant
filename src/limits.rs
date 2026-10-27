@@ -70,7 +70,7 @@ macro_rules! limit_fields {
         /// `with_*` builders:
         ///
         /// ```
-        /// use candid_core::{Limits, LimitsProfile};
+        /// use meant::{Limits, LimitsProfile};
         ///
         /// let limits = LimitsProfile::InteractiveV1
         ///     .limits()
@@ -806,7 +806,7 @@ impl Eq for CancellationToken {}
 /// intentionally private so adding one does not reopen exhaustive literals.
 ///
 /// ```compile_fail
-/// use candid_core::{Limits, RuntimeContext};
+/// use meant::{Limits, RuntimeContext};
 ///
 /// let _ = RuntimeContext { limits: Limits::default() };
 /// ```

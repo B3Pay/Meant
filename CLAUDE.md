@@ -7,14 +7,14 @@ that make those modes concrete.
 
 ## What this is
 
-A Rust workspace. The root package `candid-core` (published on crates.io) projects Candid `.did` interfaces into a canonical, validated,
+A Rust workspace. The root package `meant` (published on crates.io; formerly `candid-core`) projects Candid `.did` interfaces into a canonical, validated,
 identity-addressed Contract graph. `crates/candid-core-ts` (unpublishable by
 design) generates a Zod-style TypeScript schema runtime from that graph — the
 program tracked by umbrella issue #38 and its slice issues, each of which is
-self-contained. `crates/meant` (publishable, versioned on its own, no
-dependencies, `no_std`) is the first Rust crate of the Meant brand: exact
-conversion for the profile `amount` tag, matched case by case against the
-JavaScript reference in the candid-profile repository. `fuzz/` is its own
+self-contained. `crates/meant-format` (publishable, versioned on its own, no
+dependencies, `no_std`) is exact value conversion for the profile `amount`
+tag, matched case by case against the JavaScript reference in the
+candid-profile repository. `fuzz/` is its own
 workspace root with its own lockfile.
 
 ## Non-negotiables
@@ -90,18 +90,18 @@ opts, with `opt opt`/`opt null`/`opt reserved` — an opt whose inner type admit
 `Uint8Array`, `bigint`; agent-js wire compatibility is an explicit non-goal,
 recorded on #38).
 
-Meant crate (with and without the default `std` feature):
+Format crate, `meant-format` (with and without the default `std` feature):
 
-    cargo clippy -p meant --all-targets --locked -- -D warnings
-    cargo clippy -p meant --all-targets --no-default-features --locked -- -D warnings
-    cargo test  -p meant --locked
-    cargo test  -p meant --no-default-features --locked
-    cargo check -p meant --lib --no-default-features --target thumbv7em-none-eabihf --locked
+    cargo clippy -p meant-format --all-targets --locked -- -D warnings
+    cargo clippy -p meant-format --all-targets --no-default-features --locked -- -D warnings
+    cargo test  -p meant-format --locked
+    cargo test  -p meant-format --no-default-features --locked
+    cargo check -p meant-format --lib --no-default-features --target thumbv7em-none-eabihf --locked
 
 `tests/parity.rs` is the cross-implementation gate: every case in
 `tests/vectors/amount.json` must get the JavaScript reference's value, or its
 error code and message. The vectors are generated, never hand-edited: from the
-repository root, `node crates/meant/tests/vectors/generate-amount.mjs <path to
+repository root, `node crates/meant-format/tests/vectors/generate-amount.mjs <path to
 a candid-profile checkout>`, then review the diff. The file records the commit
 it came from, and the parity test pins the case count the crate's README states.
 

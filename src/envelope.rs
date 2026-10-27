@@ -235,7 +235,7 @@ impl ContractEnvelope {
 /// is the decode path, and the envelope carries no [`Deserialize`] impl:
 ///
 /// ```compile_fail
-/// let _: candid_core::ContractEnvelope = serde_json::from_str("{}").unwrap();
+/// let _: meant::ContractEnvelope = serde_json::from_str("{}").unwrap();
 /// ```
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

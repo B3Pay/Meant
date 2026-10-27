@@ -52,7 +52,7 @@
 // with a clear message rather than silently truncating or overflowing a
 // literal.
 #[cfg(not(any(target_pointer_width = "32", target_pointer_width = "64")))]
-compile_error!("candid-core supports only 32- and 64-bit targets: portable u64 wire values must represent every usize exactly (usize must not exceed 64 bits), and the InteractiveV1 default limits require a usize of at least 32 bits");
+compile_error!("meant supports only 32- and 64-bit targets: portable u64 wire values must represent every usize exactly (usize must not exceed 64 bits), and the InteractiveV1 default limits require a usize of at least 32 bits");
 
 mod artifact_id;
 // `bounded` reads a capped byte count off a `std::io::Read`; only the native
@@ -126,47 +126,47 @@ pub use value::{
 #[cfg(not(feature = "compiler"))]
 mod compiler_surface_is_absent_without_its_feature {
     //! ```compile_fail
-    //! let _ = candid_core::compile_did("service : {};");
+    //! let _ = meant::compile_did("service : {};");
     //! ```
     //!
     //! ```compile_fail
-    //! let _: candid_core::MemoryResolver = candid_core::MemoryResolver::new();
+    //! let _: meant::MemoryResolver = meant::MemoryResolver::new();
     //! ```
     //!
     //! ```compile_fail
-    //! fn takes(_: candid_core::SourceInfo) {}
+    //! fn takes(_: meant::SourceInfo) {}
     //! ```
     //!
     //! ```compile_fail
-    //! let _ = candid_core::compile_with_resolver;
+    //! let _ = meant::compile_with_resolver;
     //! ```
 }
 
 #[cfg(all(feature = "compiler", not(feature = "filesystem-compiler")))]
 mod filesystem_surface_is_absent_without_its_feature {
     //! ```compile_fail
-    //! let _ = candid_core::compile_did_file("service.did");
+    //! let _ = meant::compile_did_file("service.did");
     //! ```
     //!
     //! ```compile_fail
-    //! let _ = candid_core::WorkspaceResolver::new(".");
+    //! let _ = meant::WorkspaceResolver::new(".");
     //! ```
     //!
     //! Imported-bundle compilation is on the other side of this boundary: it
     //! is `compiler` surface since issue #21, so it must still resolve here.
     //!
     //! ```
-    //! let _ = candid_core::compile_with_resolver;
+    //! let _ = meant::compile_with_resolver;
     //! ```
 }
 
 #[cfg(not(feature = "host-value"))]
 mod host_value_surface_is_absent_without_its_feature {
     //! ```compile_fail
-    //! let _ = candid_core::HostValue::null();
+    //! let _ = meant::HostValue::null();
     //! ```
     //!
     //! ```compile_fail
-    //! fn takes(_: candid_core::HostValueValidationError) {}
+    //! fn takes(_: meant::HostValueValidationError) {}
     //! ```
 }

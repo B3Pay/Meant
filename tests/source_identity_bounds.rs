@@ -9,7 +9,7 @@
 //! computed from that closed form, so a pass that stopped charging — or
 //! charged twice — would move the boundary and fail these tests.
 
-use candid_core::{
+use meant::{
     compile_with_resolver, CancellationToken, Compilation, CompileOptions, Limits, MemoryResolver,
     RawContract, RawSourceInfo, RuntimeContext, SourceInfo,
 };

@@ -23,7 +23,7 @@
 
 #![cfg(feature = "compiler")]
 
-use candid_core::{
+use meant::{
     artifact_id_with_context, artifact_id_with_limits, compile_did, compile_with_resolver,
     ArtifactKind, CancellationToken, CompileError, CompileOptions, DiagnosticPhase, Limits,
     MemoryResolver, RawSourceInfo, RuntimeContext, SourceId, SourceInfo,
@@ -145,7 +145,7 @@ fn resolver(sources: &[(&str, &str)]) -> MemoryResolver {
     resolver
 }
 
-fn compile_bundle(context: &RuntimeContext) -> Result<candid_core::Compilation, CompileError> {
+fn compile_bundle(context: &RuntimeContext) -> Result<meant::Compilation, CompileError> {
     compile_with_resolver(
         "memory:/entry.did",
         &resolver(BUNDLE),
@@ -228,9 +228,9 @@ browser_case! {
         // The service import contributed its method to the merged actor; the
         // type imports contributed types and no methods.
         let methods: Vec<&str> = match compilation.contract().actor() {
-            Some(candid_core::Actor::Service { service }) => {
+            Some(meant::Actor::Service { service }) => {
                 match &compilation.contract().types()[*service as usize] {
-                    candid_core::TypeNode::Service { methods } => {
+                    meant::TypeNode::Service { methods } => {
                         methods.iter().map(|method| method.name.as_str()).collect()
                     }
                     other => panic!("the actor must select a service node: {other:?}"),
@@ -435,8 +435,8 @@ browser_case! {
 
 /// Compile [`SELF_CONTAINED`] inline under `limits`, so the deadline case can
 /// check the entry point that takes no resolver as well as the one that does.
-fn compile_inline(limits: &Limits) -> Result<candid_core::Compilation, CompileError> {
-    candid_core::compile_did_with_context(
+fn compile_inline(limits: &Limits) -> Result<meant::Compilation, CompileError> {
+    meant::compile_did_with_context(
         SELF_CONTAINED,
         CompileOptions::default(),
         &RuntimeContext::new(limits.clone()),

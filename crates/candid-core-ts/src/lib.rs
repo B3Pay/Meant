@@ -300,7 +300,7 @@
 use std::collections::BTreeMap;
 use std::fmt;
 
-use candid_core::{Contract, Field, PrimitiveType, ServiceMethod, TypeNode, TypeRef};
+use meant::{Contract, Field, PrimitiveType, ServiceMethod, TypeNode, TypeRef};
 
 mod cycles;
 mod docs;
@@ -357,10 +357,10 @@ impl TsNames {
     /// JSDoc; see the crate docs for the occurrence rule that picks which
     /// occurrence documents a node the arena has de-duplicated.
     #[cfg(feature = "compiler")]
-    pub fn from_source_info(source_info: &candid_core::SourceInfo) -> Self {
+    pub fn from_source_info(source_info: &meant::SourceInfo) -> Self {
         let mut names = Self::new();
         for provenance in source_info.field_labels() {
-            if let candid_core::SourceLabel::Named { name } = &provenance.label {
+            if let meant::SourceLabel::Named { name } = &provenance.label {
                 names.insert(provenance.container, provenance.id, name.clone());
             }
         }
@@ -646,8 +646,8 @@ fn actor_service(contract: &Contract) -> Result<Option<(TypeRef, bool)>, TsGenEr
         return Ok(None);
     };
     Ok(Some(match actor {
-        candid_core::Actor::Service { service } => (*service, false),
-        candid_core::Actor::Class { class } => match omissions::node(contract, *class)? {
+        meant::Actor::Service { service } => (*service, false),
+        meant::Actor::Class { class } => match omissions::node(contract, *class)? {
             TypeNode::Class { service, .. } => (*service, true),
             _ => (*class, false),
         },
@@ -900,7 +900,7 @@ enum Frame {
         arguments: usize,
         children: Vec<TypeRef>,
         rendered: Vec<String>,
-        mode: candid_core::MethodMode,
+        mode: meant::MethodMode,
     },
     Service {
         methods: Vec<ServiceMethod>,
@@ -1869,12 +1869,12 @@ fn is_reserved_numeric_name(name: &str) -> bool {
     digits.parse::<u64>().is_ok_and(|value| value < 1 << 32)
 }
 /// The Candid method mode as the builder literal the schema core takes.
-fn mode_text(mode: candid_core::MethodMode) -> &'static str {
+fn mode_text(mode: meant::MethodMode) -> &'static str {
     match mode {
-        candid_core::MethodMode::Update => "update",
-        candid_core::MethodMode::Query => "query",
-        candid_core::MethodMode::CompositeQuery => "composite_query",
-        candid_core::MethodMode::Oneway => "oneway",
+        meant::MethodMode::Update => "update",
+        meant::MethodMode::Query => "query",
+        meant::MethodMode::CompositeQuery => "composite_query",
+        meant::MethodMode::Oneway => "oneway",
     }
 }
 
@@ -1954,7 +1954,7 @@ mod tests {
     // usable without any feature.
     #[test]
     fn base_surface_links_without_features() {
-        let limits = candid_core::Limits::default();
+        let limits = meant::Limits::default();
         assert!(limits.max_input_bytes() > 0);
     }
 

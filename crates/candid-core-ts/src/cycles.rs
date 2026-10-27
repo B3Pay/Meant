@@ -37,7 +37,7 @@
 
 use std::collections::BTreeMap;
 
-use candid_core::{Contract, TypeNode, TypeRef};
+use meant::{Contract, TypeNode, TypeRef};
 
 use crate::omissions::{children, node, Analysis};
 use crate::{actor_service, TsGenError};

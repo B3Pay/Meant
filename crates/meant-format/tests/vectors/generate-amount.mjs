@@ -1,12 +1,12 @@
 // Generates amount.json: the answers of the JavaScript reference implementation
 // (@candid-core/profile-format, in the candid-profile repository) for a fixed,
-// seeded set of inputs. tests/parity.rs requires the meant crate to give the
+// seeded set of inputs. tests/parity.rs requires the meant-format crate to give the
 // same answer for every case: the same value, or the same error code and
 // message.
 //
-//   node crates/meant/tests/vectors/generate-amount.mjs <path to a candid-profile checkout>
+//   node crates/meant-format/tests/vectors/generate-amount.mjs <path to a candid-profile checkout>
 //
-// Run it from the repository root. It writes crates/meant/tests/vectors/amount.json
+// Run it from the repository root. It writes crates/meant-format/tests/vectors/amount.json
 // and records the candid-profile commit, the package version, and the Node and
 // Unicode versions it ran on. The cases are a pure function of SEED, so the
 // output changes only when the reference's answers (or this script) change.
@@ -17,11 +17,11 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const SEED = 20261027;
-const OUT = "crates/meant/tests/vectors/amount.json";
+const OUT = "crates/meant-format/tests/vectors/amount.json";
 
 const profileRoot = process.argv[2];
 if (!profileRoot) {
-  console.error("usage: node crates/meant/tests/vectors/generate-amount.mjs <candid-profile checkout>");
+  console.error("usage: node crates/meant-format/tests/vectors/generate-amount.mjs <candid-profile checkout>");
   process.exit(64);
 }
 const formatDir = resolve(profileRoot, "packages/format");

@@ -1,6 +1,6 @@
 #![no_main]
 
-use candid_core::SourceId;
+use meant::SourceId;
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {

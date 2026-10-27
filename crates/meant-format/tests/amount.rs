@@ -2,7 +2,7 @@
 //! package's `test/amount.test.mjs`, plus the cases where Rust and JavaScript
 //! could part ways (whitespace sets, UTF-16 length, `u128` and `i128`).
 
-use meant::{AmountFormat, Code, FormatError, IntType, MAX_INPUT_UTF16_LEN};
+use meant_format::{AmountFormat, Code, FormatError, IntType, MAX_INPUT_UTF16_LEN};
 
 fn icp() -> AmountFormat {
     AmountFormat::new(8).with_symbol("ICP").unwrap()

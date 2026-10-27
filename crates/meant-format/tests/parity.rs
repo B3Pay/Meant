@@ -5,7 +5,7 @@
 
 use std::collections::BTreeSet;
 
-use meant::{AmountFormat, FormatError};
+use meant_format::{AmountFormat, FormatError};
 use serde_json::Value;
 
 const VECTORS: &str = include_str!("vectors/amount.json");

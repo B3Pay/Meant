@@ -6,7 +6,7 @@
 //! either direction — fails to compile here rather than silently changing what
 //! a downstream `default-features = false` consumer can reach.
 
-use candid_core::{
+use meant::{
     Actor, ArtifactKind, CancellationToken, Contract, ContractDraft, ContractEnvelope,
     ContractIdentities, ContractJsonError, ContractValidationError, ContractViolation, Declaration,
     Diagnostic, DiagnosticPhase, Field, Limits, LimitsConfig, LimitsConfigError, LimitsProfile,
@@ -74,9 +74,9 @@ fn model_api_remains_available_at_the_crate_root() {
 #[test]
 fn artifact_identity_api_remains_available_at_the_crate_root() {
     let _: fn(ArtifactKind, &[u8], &Limits) -> Result<String, ContractValidationError> =
-        candid_core::artifact_id_with_limits;
+        meant::artifact_id_with_limits;
     let _: fn(ArtifactKind, &[u8], &RuntimeContext) -> Result<String, ContractValidationError> =
-        candid_core::artifact_id_with_context;
+        meant::artifact_id_with_context;
 
     let kinds = [
         (
@@ -94,7 +94,7 @@ fn artifact_identity_api_remains_available_at_the_crate_root() {
     ];
     let mut rendered = Vec::new();
     for (kind, prefix) in kinds {
-        let id = candid_core::artifact_id_with_limits(kind, b"{}", &Limits::default())
+        let id = meant::artifact_id_with_limits(kind, b"{}", &Limits::default())
             .expect("hashing two bytes must fit the default budgets");
         assert!(id.starts_with(prefix), "{kind:?}: {id}");
         rendered.push(id);
@@ -125,7 +125,7 @@ fn artifact_identity_api_remains_available_at_the_crate_root() {
 #[test]
 fn producer_metadata_is_feature_independent() {
     let producer = ProducerInfo::current();
-    assert_eq!(producer.name, "candid-core");
+    assert_eq!(producer.name, "meant");
     assert_eq!(producer.version, env!("CARGO_PKG_VERSION"));
     assert!(
         !producer.candid_version.is_empty() && !producer.candid_parser_version.is_empty(),
@@ -138,7 +138,7 @@ fn producer_metadata_is_feature_independent() {
 #[cfg(feature = "compiler")]
 mod compiler_surface {
     use super::assert_public_type;
-    use candid_core::{
+    use meant::{
         Compilation, CompileError, CompileOptions, FieldLabelProvenance, MemoryResolver,
         RawSourceInfo, ResolveError, ResolvedSource, RuntimeContext, SourceActorInfo,
         SourceDeclaration, SourceFileInfo, SourceFunctionArgumentDirection,
@@ -177,19 +177,19 @@ mod compiler_surface {
     /// pointer pins its argument and return types too.
     #[test]
     fn compiler_entry_point_signatures_are_unchanged() {
-        let _: fn(&str) -> Result<Compilation, CompileError> = candid_core::compile_did;
+        let _: fn(&str) -> Result<Compilation, CompileError> = meant::compile_did;
         let _: fn(&str, CompileOptions) -> Result<Compilation, CompileError> =
-            candid_core::compile_did_with_options;
+            meant::compile_did_with_options;
         let _: fn(&str, CompileOptions, &RuntimeContext) -> Result<Compilation, CompileError> =
-            candid_core::compile_did_with_context;
+            meant::compile_did_with_context;
         // Imported-bundle compilation is `compiler` surface since issue #21;
         // its signature is unchanged by the promotion.
         let _: fn(
             &str,
-            &dyn candid_core::SourceResolver,
+            &dyn meant::SourceResolver,
             CompileOptions,
             &RuntimeContext,
-        ) -> Result<Compilation, CompileError> = candid_core::compile_with_resolver;
+        ) -> Result<Compilation, CompileError> = meant::compile_with_resolver;
     }
 }
 
@@ -197,9 +197,7 @@ mod compiler_surface {
 #[cfg(feature = "filesystem-compiler")]
 mod filesystem_compiler_surface {
     use super::assert_public_type;
-    use candid_core::{
-        Compilation, CompileError, CompileOptions, RuntimeContext, WorkspaceResolver,
-    };
+    use meant::{Compilation, CompileError, CompileOptions, RuntimeContext, WorkspaceResolver};
     use std::path::Path;
 
     #[test]
@@ -213,13 +211,11 @@ mod filesystem_compiler_surface {
         // by turbofish; the closure coercion pins one concrete instantiation
         // plus the exact return type.
         let _: fn(&Path) -> Result<Compilation, CompileError> =
-            |path| candid_core::compile_did_file(path);
+            |path| meant::compile_did_file(path);
         let _: fn(&Path, CompileOptions) -> Result<Compilation, CompileError> =
-            |path, options| candid_core::compile_did_file_with_options(path, options);
+            |path, options| meant::compile_did_file_with_options(path, options);
         let _: fn(&Path, CompileOptions, &RuntimeContext) -> Result<Compilation, CompileError> =
-            |path, options, context| {
-                candid_core::compile_did_file_with_context(path, options, context)
-            };
+            |path, options, context| meant::compile_did_file_with_context(path, options, context);
     }
 }
 
@@ -227,7 +223,7 @@ mod filesystem_compiler_surface {
 #[cfg(feature = "host-value")]
 mod host_value_surface {
     use super::assert_public_type;
-    use candid_core::{
+    use meant::{
         Contract, ContractMethodRef, ContractTypeRef, HostFieldValue, HostValue,
         HostValueJsonError, HostValueValidationError, HostValueViolation, RuntimeContext,
     };
@@ -249,13 +245,13 @@ mod host_value_surface {
             &Contract,
             &ContractTypeRef,
             &HostValue,
-            &candid_core::Limits,
-        ) -> Result<(), HostValueValidationError> = candid_core::validate_host_value;
+            &meant::Limits,
+        ) -> Result<(), HostValueValidationError> = meant::validate_host_value;
         let _: fn(
             &Contract,
             &ContractTypeRef,
             &HostValue,
             &RuntimeContext,
-        ) -> Result<(), HostValueValidationError> = candid_core::validate_host_value_with_context;
+        ) -> Result<(), HostValueValidationError> = meant::validate_host_value_with_context;
     }
 }
