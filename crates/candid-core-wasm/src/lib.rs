@@ -94,11 +94,11 @@
 
 use std::collections::BTreeSet;
 
+use candid_core_ts::{generate_module, Omission, TsNames, TsOptions};
 use meant::{
     compile_did_with_options, compile_with_resolver, Compilation, CompileError, CompileOptions,
     ContractEnvelope, Limits, MemoryResolver, RuntimeContext, SourceInfo, SourceLabel,
 };
-use candid_core_ts::{generate_module, Omission, TsNames, TsOptions};
 use serde_json::{json, Map, Value};
 
 mod compat;
