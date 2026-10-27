@@ -961,7 +961,11 @@ above, and these:
   `packages.html`, the pre-1.0 warning on the home page, the "Published on
   npm" note on `cli-npm.html`, the registry table on `status.html`, the
   install paragraph of `migrating-from-0-2.html` and its lead in
-  `_site.json`. Two more searches are read through, the second with the
+  `_site.json`. For 0.5.0 / 0.4.0 they were also the lead and the install
+  lines of every earlier migration page, which say what a plain install
+  selects, the install paragraph of `what-is-candid-core.html`, and the
+  pinned `npx @candid-core/cli@<version>` lines, which
+  `git grep -n '@candid-core/cli@' -- website/content` finds. Two more searches are read through, the second with the
   previous pair's versions (here 0.3.0 and 0.2.0):
   `git grep -n -E 'latest|previous stable' -- README.md website/README.md website/content`
   and
