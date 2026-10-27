@@ -14,7 +14,7 @@
 //! | --- | --- | --- |
 //! | *(base)* `default-features = false` | `Contract`, `ContractDraft`, `RawContract`, validation, canonicalization, the semantic Contract identities, detached [`artifact_id_with_limits`], `Limits`/`RuntimeContext`, `Diagnostic`, `ContractEnvelope` | `serde`, `serde_json`, `sha2`, `hex` |
 //! | `host-value` | `HostValue` and graph-directed value validation | `ic_principal` |
-//! | `compiler` | `compile_did`, `compile_with_resolver`, `Compilation`, `SourceId`/`SourceResolver`/`MemoryResolver`, `SourceInfo` provenance | `candid`, `candid_parser` |
+//! | `compiler` | `compile_did`, `compile_with_resolver`, `Compilation`, `SourceId`/`SourceResolver`/`MemoryResolver`, `SourceInfo` provenance, `DocAttributes` | `candid`, `candid_parser` |
 //! | `filesystem-compiler` (implies `compiler`) | `WorkspaceResolver`, `compile_did_file`, source materialization, the `candid-core` binary | `cap-std` |
 //!
 //! Items outside the enabled set are absent at compile time rather than
@@ -80,7 +80,8 @@ pub use artifact_id::{artifact_id_with_context, artifact_id_with_limits, Artifac
 #[cfg(feature = "compiler")]
 pub use compile::{
     compile_did, compile_did_with_context, compile_did_with_options, compile_with_resolver,
-    Compilation, CompileOptions,
+    Compilation, CompileOptions, DocArgument, DocAttribute, DocAttributes, DocItem, DocItemKind,
+    DocValue, DOC_ATTRIBUTES_VERSION,
 };
 #[cfg(feature = "filesystem-compiler")]
 pub use compile::{compile_did_file, compile_did_file_with_context, compile_did_file_with_options};
@@ -135,6 +136,10 @@ mod compiler_surface_is_absent_without_its_feature {
     //!
     //! ```compile_fail
     //! fn takes(_: candid_core::SourceInfo) {}
+    //! ```
+    //!
+    //! ```compile_fail
+    //! fn takes(_: candid_core::DocAttributes) {}
     //! ```
     //!
     //! ```compile_fail

@@ -9,6 +9,7 @@
 import initWasm, {
   checkCompatible as wasmCheckCompatible,
   didToContract as wasmDidToContract,
+  didToDocAttributes as wasmDidToDocAttributes,
   didToModule as wasmDidToModule,
   projectDid as wasmProjectDid,
 } from "../wasm/candid_core_wasm.js";
@@ -70,6 +71,21 @@ export async function didToContract(sources) {
 export async function didToModule(sources) {
   await init();
   return JSON.parse(wasmDidToModule(requestOf(sources)));
+}
+
+/**
+ * Compile Candid sources and read the `@name(key = value, …)` attributes in
+ * their doc comments (`docs/doc-attributes.md` in the candid-core
+ * repository). Returns `{ ok: true, contract, source_info, doc_attributes }`
+ * — the Contract and SourceInfo `candid-core compile <path>` prints, plus
+ * every documented item's prose and attributes keyed by its SourceInfo path
+ * — or `{ ok: false, diagnostics }`: `doc_attribute_malformed`,
+ * `doc_attribute_duplicate_key`, `resource_limit_exceeded`, or the
+ * compiler's diagnostics.
+ */
+export async function didToDocAttributes(sources) {
+  await init();
+  return JSON.parse(wasmDidToDocAttributes(requestOf(sources)));
 }
 
 /**

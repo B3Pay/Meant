@@ -9,6 +9,25 @@ and therefore the identities computed over them. Pin an exact version.
 
 ## Unreleased
 
+### Added
+
+- **Doc attributes v1: `@name(key = value, …)` lines in doc comments** ([issue #278]).
+  `DocAttributes::from_source_info` (and `_with_context`) reads the docs a
+  `SourceInfo` already records and returns every documented item (the actor,
+  a declaration, a field, a method) with its prose lines and its attributes,
+  keyed by the item's SourceInfo path. `docs/doc-attributes.md` specifies the
+  syntax: a line is an attribute only when it starts with `@`, a lowercase
+  dotted name, then `(` or nothing, so other `@` prose is untouched; values
+  are text, numbers kept as written, bools, identifiers, calls, lists and
+  records. A malformed attribute fails closed (`doc_attribute_malformed`,
+  `doc_attribute_duplicate_key`), nesting is bounded by `max_source_nesting`
+  with an explicit stack, and errors by `max_diagnostics`. candid-core gives
+  no name a meaning; the reading tool decides. Comments live in the sidecar,
+  so they never move `contract_id` or `interface_id`. New public items, all
+  `compiler` surface: `DocAttributes`, `DocItem`, `DocItemKind`,
+  `DocAttribute`, `DocArgument`, `DocValue`, `DOC_ATTRIBUTES_VERSION`. Nothing
+  existing changed.
+
 ### Verification
 
 - **Every compile stage after parsing is held to linear allocation** ([issue #256]).
@@ -755,4 +774,5 @@ have seen them:
 [issue #241]: https://github.com/b3hr4d/candid-core/issues/241
 [issue #251]: https://github.com/b3hr4d/candid-core/issues/251
 [issue #252]: https://github.com/b3hr4d/candid-core/issues/252
+[issue #278]: https://github.com/b3hr4d/candid-core/issues/278
 [issue #256]: https://github.com/b3hr4d/candid-core/issues/256

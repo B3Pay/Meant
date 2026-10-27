@@ -90,6 +90,70 @@ impl core::marker::Unpin for candid_core::DiagnosticPhase
 impl core::marker::UnsafeUnpin for candid_core::DiagnosticPhase
 impl core::panic::unwind_safe::RefUnwindSafe for candid_core::DiagnosticPhase
 impl core::panic::unwind_safe::UnwindSafe for candid_core::DiagnosticPhase
+pub enum candid_core::DocItemKind
+pub candid_core::DocItemKind::Actor
+pub candid_core::DocItemKind::Declaration
+pub candid_core::DocItemKind::Field
+pub candid_core::DocItemKind::Method
+impl core::clone::Clone for candid_core::DocItemKind
+pub fn candid_core::DocItemKind::clone(&self) -> candid_core::DocItemKind
+impl core::cmp::Eq for candid_core::DocItemKind
+impl core::cmp::Ord for candid_core::DocItemKind
+pub fn candid_core::DocItemKind::cmp(&self, &candid_core::DocItemKind) -> core::cmp::Ordering
+impl core::cmp::PartialEq for candid_core::DocItemKind
+pub fn candid_core::DocItemKind::eq(&self, &candid_core::DocItemKind) -> bool
+impl core::cmp::PartialOrd for candid_core::DocItemKind
+pub fn candid_core::DocItemKind::partial_cmp(&self, &candid_core::DocItemKind) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for candid_core::DocItemKind
+pub fn candid_core::DocItemKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for candid_core::DocItemKind
+impl core::marker::StructuralPartialEq for candid_core::DocItemKind
+impl serde_core::ser::Serialize for candid_core::DocItemKind
+pub fn candid_core::DocItemKind::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for candid_core::DocItemKind
+pub fn candid_core::DocItemKind::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for candid_core::DocItemKind
+impl core::marker::Send for candid_core::DocItemKind
+impl core::marker::Sync for candid_core::DocItemKind
+impl core::marker::Unpin for candid_core::DocItemKind
+impl core::marker::UnsafeUnpin for candid_core::DocItemKind
+impl core::panic::unwind_safe::RefUnwindSafe for candid_core::DocItemKind
+impl core::panic::unwind_safe::UnwindSafe for candid_core::DocItemKind
+pub enum candid_core::DocValue
+pub candid_core::DocValue::Bool
+pub candid_core::DocValue::Bool::value: bool
+pub candid_core::DocValue::Call
+pub candid_core::DocValue::Call::args: alloc::vec::Vec<candid_core::DocValue>
+pub candid_core::DocValue::Call::name: alloc::string::String
+pub candid_core::DocValue::Ident
+pub candid_core::DocValue::Ident::value: alloc::string::String
+pub candid_core::DocValue::List
+pub candid_core::DocValue::List::items: alloc::vec::Vec<candid_core::DocValue>
+pub candid_core::DocValue::Number
+pub candid_core::DocValue::Number::value: alloc::string::String
+pub candid_core::DocValue::Record
+pub candid_core::DocValue::Record::fields: alloc::vec::Vec<candid_core::DocArgument>
+pub candid_core::DocValue::Text
+pub candid_core::DocValue::Text::value: alloc::string::String
+impl core::clone::Clone for candid_core::DocValue
+pub fn candid_core::DocValue::clone(&self) -> candid_core::DocValue
+impl core::cmp::Eq for candid_core::DocValue
+impl core::cmp::PartialEq for candid_core::DocValue
+pub fn candid_core::DocValue::eq(&self, &candid_core::DocValue) -> bool
+impl core::fmt::Debug for candid_core::DocValue
+pub fn candid_core::DocValue::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for candid_core::DocValue
+impl serde_core::ser::Serialize for candid_core::DocValue
+pub fn candid_core::DocValue::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for candid_core::DocValue
+pub fn candid_core::DocValue::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for candid_core::DocValue
+impl core::marker::Send for candid_core::DocValue
+impl core::marker::Sync for candid_core::DocValue
+impl core::marker::Unpin for candid_core::DocValue
+impl core::marker::UnsafeUnpin for candid_core::DocValue
+impl core::panic::unwind_safe::RefUnwindSafe for candid_core::DocValue
+impl core::panic::unwind_safe::UnwindSafe for candid_core::DocValue
 pub enum candid_core::HostValueJsonError
 pub candid_core::HostValueJsonError::Cancelled
 pub candid_core::HostValueJsonError::Cancelled::path: alloc::string::String
@@ -735,6 +799,100 @@ impl core::marker::Unpin for candid_core::Diagnostic
 impl core::marker::UnsafeUnpin for candid_core::Diagnostic
 impl core::panic::unwind_safe::RefUnwindSafe for candid_core::Diagnostic
 impl core::panic::unwind_safe::UnwindSafe for candid_core::Diagnostic
+pub struct candid_core::DocArgument
+pub candid_core::DocArgument::key: alloc::string::String
+pub candid_core::DocArgument::value: candid_core::DocValue
+impl core::clone::Clone for candid_core::DocArgument
+pub fn candid_core::DocArgument::clone(&self) -> candid_core::DocArgument
+impl core::cmp::Eq for candid_core::DocArgument
+impl core::cmp::PartialEq for candid_core::DocArgument
+pub fn candid_core::DocArgument::eq(&self, &candid_core::DocArgument) -> bool
+impl core::fmt::Debug for candid_core::DocArgument
+pub fn candid_core::DocArgument::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for candid_core::DocArgument
+impl serde_core::ser::Serialize for candid_core::DocArgument
+pub fn candid_core::DocArgument::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for candid_core::DocArgument
+pub fn candid_core::DocArgument::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for candid_core::DocArgument
+impl core::marker::Send for candid_core::DocArgument
+impl core::marker::Sync for candid_core::DocArgument
+impl core::marker::Unpin for candid_core::DocArgument
+impl core::marker::UnsafeUnpin for candid_core::DocArgument
+impl core::panic::unwind_safe::RefUnwindSafe for candid_core::DocArgument
+impl core::panic::unwind_safe::UnwindSafe for candid_core::DocArgument
+pub struct candid_core::DocAttribute
+pub candid_core::DocAttribute::args: alloc::vec::Vec<candid_core::DocArgument>
+pub candid_core::DocAttribute::doc_line: u32
+pub candid_core::DocAttribute::name: alloc::string::String
+impl core::clone::Clone for candid_core::DocAttribute
+pub fn candid_core::DocAttribute::clone(&self) -> candid_core::DocAttribute
+impl core::cmp::Eq for candid_core::DocAttribute
+impl core::cmp::PartialEq for candid_core::DocAttribute
+pub fn candid_core::DocAttribute::eq(&self, &candid_core::DocAttribute) -> bool
+impl core::fmt::Debug for candid_core::DocAttribute
+pub fn candid_core::DocAttribute::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for candid_core::DocAttribute
+impl serde_core::ser::Serialize for candid_core::DocAttribute
+pub fn candid_core::DocAttribute::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for candid_core::DocAttribute
+pub fn candid_core::DocAttribute::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for candid_core::DocAttribute
+impl core::marker::Send for candid_core::DocAttribute
+impl core::marker::Sync for candid_core::DocAttribute
+impl core::marker::Unpin for candid_core::DocAttribute
+impl core::marker::UnsafeUnpin for candid_core::DocAttribute
+impl core::panic::unwind_safe::RefUnwindSafe for candid_core::DocAttribute
+impl core::panic::unwind_safe::UnwindSafe for candid_core::DocAttribute
+pub struct candid_core::DocAttributes
+impl candid_core::DocAttributes
+pub fn candid_core::DocAttributes::doc_attributes_version(&self) -> u32
+pub fn candid_core::DocAttributes::from_source_info(&candid_core::SourceInfo) -> core::result::Result<Self, candid_core::CompileError>
+pub fn candid_core::DocAttributes::from_source_info_with_context(&candid_core::SourceInfo, &candid_core::RuntimeContext) -> core::result::Result<Self, candid_core::CompileError>
+pub fn candid_core::DocAttributes::items(&self) -> &[candid_core::DocItem]
+impl core::clone::Clone for candid_core::DocAttributes
+pub fn candid_core::DocAttributes::clone(&self) -> candid_core::DocAttributes
+impl core::cmp::Eq for candid_core::DocAttributes
+impl core::cmp::PartialEq for candid_core::DocAttributes
+pub fn candid_core::DocAttributes::eq(&self, &candid_core::DocAttributes) -> bool
+impl core::fmt::Debug for candid_core::DocAttributes
+pub fn candid_core::DocAttributes::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for candid_core::DocAttributes
+impl serde_core::ser::Serialize for candid_core::DocAttributes
+pub fn candid_core::DocAttributes::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for candid_core::DocAttributes
+impl core::marker::Send for candid_core::DocAttributes
+impl core::marker::Sync for candid_core::DocAttributes
+impl core::marker::Unpin for candid_core::DocAttributes
+impl core::marker::UnsafeUnpin for candid_core::DocAttributes
+impl core::panic::unwind_safe::RefUnwindSafe for candid_core::DocAttributes
+impl core::panic::unwind_safe::UnwindSafe for candid_core::DocAttributes
+pub struct candid_core::DocItem
+pub candid_core::DocItem::attributes: alloc::vec::Vec<candid_core::DocAttribute>
+pub candid_core::DocItem::kind: candid_core::DocItemKind
+pub candid_core::DocItem::name: core::option::Option<alloc::string::String>
+pub candid_core::DocItem::origin: candid_core::SourceOrigin
+pub candid_core::DocItem::path: alloc::string::String
+pub candid_core::DocItem::prose: alloc::vec::Vec<alloc::string::String>
+impl core::clone::Clone for candid_core::DocItem
+pub fn candid_core::DocItem::clone(&self) -> candid_core::DocItem
+impl core::cmp::Eq for candid_core::DocItem
+impl core::cmp::PartialEq for candid_core::DocItem
+pub fn candid_core::DocItem::eq(&self, &candid_core::DocItem) -> bool
+impl core::fmt::Debug for candid_core::DocItem
+pub fn candid_core::DocItem::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for candid_core::DocItem
+impl serde_core::ser::Serialize for candid_core::DocItem
+pub fn candid_core::DocItem::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for candid_core::DocItem
+pub fn candid_core::DocItem::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for candid_core::DocItem
+impl core::marker::Send for candid_core::DocItem
+impl core::marker::Sync for candid_core::DocItem
+impl core::marker::Unpin for candid_core::DocItem
+impl core::marker::UnsafeUnpin for candid_core::DocItem
+impl core::panic::unwind_safe::RefUnwindSafe for candid_core::DocItem
+impl core::panic::unwind_safe::UnwindSafe for candid_core::DocItem
 pub struct candid_core::Field
 pub candid_core::Field::id: u32
 pub candid_core::Field::ty: candid_core::TypeRef
@@ -1519,6 +1677,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for candid_core::WorkspaceResolver
 impl core::panic::unwind_safe::UnwindSafe for candid_core::WorkspaceResolver
 pub const candid_core::CANONICALIZATION_PROFILE: &str
 pub const candid_core::CONTRACT_FORMAT: &str
+pub const candid_core::DOC_ATTRIBUTES_VERSION: u32
 pub const candid_core::FORMAT_VERSION: u32
 pub const candid_core::LIMITS_CONFIG_VERSION: u64
 pub const candid_core::SEMANTICS_PROFILE: &str

@@ -28,6 +28,16 @@ writes will name 0.1.0 as their producer.
 
 ### Added
 
+- **`didToDocAttributes` reads `@name(…)` attributes in doc comments.** It
+  compiles the sources and returns `{ ok: true, contract, source_info,
+  doc_attributes }`: the Contract and the SourceInfo sidecar
+  `candid-core compile <path>` prints, which no function of this package
+  exposed before, and every documented item's prose and attributes keyed by
+  its SourceInfo path, as `docs/doc-attributes.md` specifies (doc attributes
+  v1). A malformed attribute fails the call with `doc_attribute_malformed`
+  or `doc_attribute_duplicate_key`. The declarations add `DocAttributes`,
+  `DocItem`, `DocAttribute`, `DocArgument`, `DocValue`, `SourceOrigin` and
+  `DocAttributesSuccess`. The other functions are unchanged.
 - **`gen --json` reports each entry's identities.** Every entry that compiled
   (`written`, `unchanged` or `drifted`, with or without `--check`) carries
   `identities: { contract_id, interface_id }`, equal to its envelope's

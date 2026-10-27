@@ -1,0 +1,754 @@
+{
+  "contract": {
+    "actor": {
+      "kind": "service",
+      "service": 0
+    },
+    "canonicalization_profile": "candid-core-canon-1",
+    "declarations": [
+      {
+        "name": "Outcome",
+        "type": 9
+      },
+      {
+        "name": "Tokens",
+        "type": 15
+      }
+    ],
+    "format": "candid-core",
+    "format_version": 1,
+    "identities": {
+      "contract": "candid-core:contract:v1:sha256:6c55606b8a16d3c804f4de384aacaae26a7709feee2173fd023dde3ce55a1a07",
+      "interface": "candid-core:interface:v1:sha256:70747b409fce442e38daab9a895fa52ccd3c7a4d7ebbfe8e650efa151986fdf1"
+    },
+    "producer": {
+      "candid_parser_version": "0.4.0",
+      "candid_version": "0.10.30",
+      "name": "candid-core",
+      "version": "0.1.0"
+    },
+    "semantics_profile": "candid-1",
+    "types": [
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 1,
+            "id": 308955842,
+            "name": "decimals"
+          },
+          {
+            "function": 3,
+            "id": 1280347464,
+            "name": "send"
+          },
+          {
+            "function": 13,
+            "id": 1292232696,
+            "name": "tune"
+          }
+        ]
+      },
+      {
+        "args": [],
+        "kind": "func",
+        "mode": "query",
+        "results": [
+          2
+        ]
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat8"
+      },
+      {
+        "args": [
+          4
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": [
+          9
+        ]
+      },
+      {
+        "fields": [
+          {
+            "id": 25979,
+            "type": 5
+          },
+          {
+            "id": 1213809850,
+            "type": 6
+          },
+          {
+            "id": 3573748184,
+            "type": 8
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "principal"
+      },
+      {
+        "inner": 7,
+        "kind": "opt"
+      },
+      {
+        "inner": 2,
+        "kind": "vec"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat"
+      },
+      {
+        "fields": [
+          {
+            "id": 17724,
+            "type": 8
+          },
+          {
+            "id": 3456837,
+            "type": 10
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "fields": [
+          {
+            "id": 1103409453,
+            "type": 11
+          },
+          {
+            "id": 2584819143,
+            "type": 12
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat32"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "text"
+      },
+      {
+        "args": [
+          14
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "fields": [
+          {
+            "id": 5941054,
+            "type": 5
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "fields": [
+          {
+            "id": 5035232,
+            "type": 16
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat64"
+      }
+    ]
+  },
+  "doc_attributes": {
+    "doc_attributes_version": 1,
+    "items": [
+      {
+        "attributes": [
+          {
+            "args": [],
+            "doc_line": 1,
+            "name": "deprecated"
+          }
+        ],
+        "kind": "actor",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor",
+        "prose": [
+          "A ledger."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "name",
+                "value": {
+                  "kind": "text",
+                  "value": "Ledger"
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "ui.group"
+          }
+        ],
+        "kind": "declaration",
+        "name": "Tokens",
+        "origin": {
+          "kind": "declaration",
+          "name": "Tokens",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Tokens",
+        "prose": [
+          "Token amounts."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "title",
+                "value": {
+                  "kind": "text",
+                  "value": "Send"
+                }
+              },
+              {
+                "key": "template",
+                "value": {
+                  "kind": "text",
+                  "value": "Send {amount} to {to}[ with memo {memo}]"
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "intent"
+          },
+          {
+            "args": [
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "text",
+                  "value": "transfer"
+                }
+              },
+              {
+                "key": "irreversible",
+                "value": {
+                  "kind": "bool",
+                  "value": true
+                }
+              }
+            ],
+            "doc_line": 5,
+            "name": "effect"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "amount"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "args": [
+                    {
+                      "kind": "ident",
+                      "value": "decimals"
+                    }
+                  ],
+                  "kind": "call",
+                  "name": "query"
+                }
+              },
+              {
+                "key": "symbol",
+                "value": {
+                  "kind": "text",
+                  "value": "TOK"
+                }
+              }
+            ],
+            "doc_line": 6,
+            "name": "amount"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "memo"
+                }
+              },
+              {
+                "key": "encoding",
+                "value": {
+                  "kind": "text",
+                  "value": "utf8"
+                }
+              },
+              {
+                "key": "max_len",
+                "value": {
+                  "kind": "number",
+                  "value": "32"
+                }
+              }
+            ],
+            "doc_line": 7,
+            "name": "bytes"
+          },
+          {
+            "args": [
+              {
+                "key": "classes",
+                "value": {
+                  "fields": [
+                    {
+                      "key": "Ok",
+                      "value": {
+                        "kind": "text",
+                        "value": "success"
+                      }
+                    },
+                    {
+                      "key": "Err.code",
+                      "value": {
+                        "kind": "text",
+                        "value": "fail"
+                      }
+                    }
+                  ],
+                  "kind": "record"
+                }
+              },
+              {
+                "key": "default",
+                "value": {
+                  "kind": "text",
+                  "value": "fail"
+                }
+              }
+            ],
+            "doc_line": 8,
+            "name": "outcome"
+          }
+        ],
+        "kind": "method",
+        "name": "send",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[1]",
+        "prose": [
+          "Send tokens to another principal."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "values",
+                "value": {
+                  "items": [
+                    {
+                      "kind": "number",
+                      "value": "-1"
+                    },
+                    {
+                      "kind": "number",
+                      "value": "0"
+                    },
+                    {
+                      "kind": "number",
+                      "value": "0.25"
+                    },
+                    {
+                      "kind": "text",
+                      "value": "😀"
+                    }
+                  ],
+                  "kind": "list"
+                }
+              },
+              {
+                "key": "flags",
+                "value": {
+                  "items": [
+                    {
+                      "kind": "bool",
+                      "value": true
+                    },
+                    {
+                      "kind": "bool",
+                      "value": false
+                    }
+                  ],
+                  "kind": "list"
+                }
+              },
+              {
+                "key": "nothing",
+                "value": {
+                  "items": [],
+                  "kind": "list"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "ranges"
+          }
+        ],
+        "kind": "method",
+        "name": "tune",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[2]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "ident",
+                  "value": "success"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "class"
+          }
+        ],
+        "kind": "field",
+        "name": "Ok",
+        "origin": {
+          "kind": "declaration",
+          "name": "Outcome",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Outcome.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [],
+        "kind": "field",
+        "name": "Err",
+        "origin": {
+          "kind": "declaration",
+          "name": "Outcome",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Outcome.fields[1]",
+        "prose": [
+          "@param code prose, not an attribute"
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              },
+              {
+                "key": "symbol",
+                "value": {
+                  "kind": "text",
+                  "value": "ICP"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "e8s",
+        "origin": {
+          "kind": "declaration",
+          "name": "Tokens",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Tokens.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "label",
+                "value": {
+                  "kind": "text",
+                  "value": "Who"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "describe"
+          }
+        ],
+        "kind": "field",
+        "name": "who",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[2].function.args[0].type.fields[0]",
+        "prose": []
+      }
+    ]
+  },
+  "ok": true,
+  "source_info": {
+    "actors": [
+      {
+        "docs": [
+          "/ A ledger.",
+          "/ @deprecated"
+        ],
+        "source": "memory:/service.did"
+      }
+    ],
+    "contract_id": "candid-core:contract:v1:sha256:6c55606b8a16d3c804f4de384aacaae26a7709feee2173fd023dde3ce55a1a07",
+    "declarations": [
+      {
+        "name": "Outcome",
+        "source": "memory:/service.did",
+        "type": 9
+      },
+      {
+        "docs": [
+          "/ Token amounts.",
+          "/ @ui.group(name = \"Ledger\")"
+        ],
+        "name": "Tokens",
+        "source": "memory:/service.did",
+        "type": 15
+      }
+    ],
+    "field_labels": [
+      {
+        "container": 9,
+        "docs": [
+          "/ @class(kind = success)"
+        ],
+        "id": 17724,
+        "label": {
+          "kind": "named",
+          "name": "Ok"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Outcome",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Outcome.fields[0]"
+      },
+      {
+        "container": 9,
+        "docs": [
+          "/ @param code prose, not an attribute"
+        ],
+        "id": 3456837,
+        "label": {
+          "kind": "named",
+          "name": "Err"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Outcome",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Outcome.fields[1]"
+      },
+      {
+        "container": 10,
+        "id": 1103409453,
+        "label": {
+          "kind": "named",
+          "name": "code"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Outcome",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Outcome.fields[1].type.fields[0]"
+      },
+      {
+        "container": 10,
+        "id": 2584819143,
+        "label": {
+          "kind": "named",
+          "name": "message"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Outcome",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Outcome.fields[1].type.fields[1]"
+      },
+      {
+        "container": 15,
+        "docs": [
+          "/ @amount(decimals = 8, symbol = \"ICP\")"
+        ],
+        "id": 5035232,
+        "label": {
+          "kind": "named",
+          "name": "e8s"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Tokens",
+          "source": "memory:/service.did"
+        },
+        "path": "type:Tokens.fields[0]"
+      },
+      {
+        "container": 4,
+        "id": 25979,
+        "label": {
+          "kind": "named",
+          "name": "to"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[0]"
+      },
+      {
+        "container": 4,
+        "id": 1213809850,
+        "label": {
+          "kind": "named",
+          "name": "memo"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[1]"
+      },
+      {
+        "container": 4,
+        "id": 3573748184,
+        "label": {
+          "kind": "named",
+          "name": "amount"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[2]"
+      },
+      {
+        "container": 14,
+        "docs": [
+          "/ @describe(label = \"Who\")"
+        ],
+        "id": 5941054,
+        "label": {
+          "kind": "named",
+          "name": "who"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[2].function.args[0].type.fields[0]"
+      }
+    ],
+    "function_arguments": [],
+    "imports": [],
+    "methods": [
+      {
+        "name": "decimals",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[0]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ Send tokens to another principal.",
+          "/ @intent(",
+          "/   title = \"Send\",",
+          "/   template = \"Send {amount} to {to}[ with memo {memo}]\",",
+          "/ )",
+          "/ @effect(kind = \"transfer\", irreversible = true)",
+          "/ @amount(at = \"amount\", decimals = query(decimals), symbol = \"TOK\")",
+          "/ @bytes(at = \"memo\", encoding = \"utf8\", max_len = 32)",
+          "/ @outcome(classes = { Ok = \"success\", \"Err.code\" = \"fail\" }, default = \"fail\")"
+        ],
+        "name": "send",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[1]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @ranges(values = [-1, 0, 0.25, \"\\u{1F600}\"], flags = [true, false], nothing = [])"
+        ],
+        "name": "tune",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/service.did"
+        },
+        "path": "actor.methods[2]",
+        "service": 0
+      }
+    ],
+    "source_bundle_id": "candid-core:source-bundle:v1:sha256:f7ad0230f785c9dfc57e392615f476097b4fad2247191320e2bf4ee7d07c25eb",
+    "source_info_version": 1,
+    "sources": [
+      {
+        "name": "memory:/service.did",
+        "source": "// Doc attributes v1 (docs/doc-attributes.md): the input of the\n// attributes.doc-attributes.json golden, which tests/doc_attributes.rs and\n// npm/test/doc-attributes.test.js both compare against.\n\n/// Token amounts.\n/// @ui.group(name = \"Ledger\")\ntype Tokens = record {\n  /// @amount(decimals = 8, symbol = \"ICP\")\n  e8s : nat64;\n};\n\ntype Outcome = variant {\n  /// @class(kind = success)\n  Ok : nat;\n  /// @param code prose, not an attribute\n  Err : record { code : nat32; message : text };\n};\n\n/// A ledger.\n/// @deprecated\nservice : {\n  decimals : () -> (nat8) query;\n  /// Send tokens to another principal.\n  /// @intent(\n  ///   title = \"Send\",\n  ///   template = \"Send {amount} to {to}[ with memo {memo}]\",\n  /// )\n  /// @effect(kind = \"transfer\", irreversible = true)\n  /// @amount(at = \"amount\", decimals = query(decimals), symbol = \"TOK\")\n  /// @bytes(at = \"memo\", encoding = \"utf8\", max_len = 32)\n  /// @outcome(classes = { Ok = \"success\", \"Err.code\" = \"fail\" }, default = \"fail\")\n  send : (record { to : principal; amount : nat; memo : opt blob }) -> (Outcome);\n  /// @ranges(values = [-1, 0, 0.25, \"\\u{1F600}\"], flags = [true, false], nothing = [])\n  tune : (record {\n    /// @describe(label = \"Who\")\n    who : principal;\n  }) -> ();\n}\n"
+      }
+    ]
+  }
+}

@@ -426,8 +426,8 @@ def main():
         # make this probe fail for a reason that has nothing to do with the
         # package's own declarations.
         (consumer / "check.ts").write_text(
-            'import { checkCompatible, didToContract, didToModule, projectDid } from "@candid-core/cli";\n'
-            'import type { CliIdentities, CliReport, CompatibilityDiagnostic } from "@candid-core/cli";\n'
+            'import { checkCompatible, didToContract, didToDocAttributes, didToModule, projectDid } from "@candid-core/cli";\n'
+            'import type { CliIdentities, CliReport, CompatibilityDiagnostic, DocItem, DocValue } from "@candid-core/cli";\n'
             'import { schemaFromContract } from "@candid-core/schema/contract";\n'
             "\n"
             "export async function main(): Promise<string[]> {\n"
@@ -440,6 +440,18 @@ def main():
             "    for (const issue of result.diagnostics) {\n"
             '      notes.push(`${issue.code}: ${issue.message} ${issue.phase ?? ""}`);\n'
             "    }\n"
+            "  }\n"
+            '  const documented = await didToDocAttributes("service : {\\n  /// @deprecated(since = 2)\\n  ping : () -> ();\\n}");\n'
+            "  if (documented.ok) {\n"
+            "    const items: DocItem[] = documented.doc_attributes.items;\n"
+            "    for (const item of items) {\n"
+            "      for (const attribute of item.attributes) {\n"
+            "        const first: DocValue | undefined = attribute.args[0]?.value;\n"
+            '        notes.push(item.path, attribute.name, first?.kind === "number" ? first.value : "");\n'
+            "      }\n"
+            "    }\n"
+            "  } else {\n"
+            "    notes.push(...documented.diagnostics.map((issue) => issue.code));\n"
             "  }\n"
             '  const emitted = await didToModule({ source: "service : { ping : () -> (); }" });\n'
             '  notes.push(emitted.ok ? String(emitted.module.length) : "failed");\n'

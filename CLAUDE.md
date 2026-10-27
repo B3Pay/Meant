@@ -52,7 +52,7 @@ Root crate (run before any PR):
     cargo clippy --all-targets --all-features --locked -- -D warnings
     cargo test --all-targets --locked
     cargo test --all-targets --locked --no-default-features
-    python3 tests/fixtures/packaging/verify_package_manifest.py --locked   # must say: 57 paths
+    python3 tests/fixtures/packaging/verify_package_manifest.py --locked   # must say: 59 paths
     python3 tests/fixtures/packaging/verify_feature_graph.py
     python3 tests/fixtures/packaging/verify_semver.py
 
