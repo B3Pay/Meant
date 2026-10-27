@@ -1,7 +1,7 @@
 #![no_main]
 
-use meant::{Compilation, Limits};
 use libfuzzer_sys::fuzz_target;
+use meant::{Compilation, Limits};
 
 fuzz_target!(|data: &[u8]| {
     // Exercises the bounded parse path that replaced `impl Deserialize for
