@@ -30,7 +30,9 @@ one changes `source_bundle_id` (the source text changed) and never `contract_id`
 Doc lines are the `docs` that `SourceInfo` records for an item: the `//` and `///` line comments on their own lines
 directly above it, with no blank line between them and the item. A comment that follows code on the same line, a block
 comment, and a comment separated from the item by a blank line are not doc lines (that is how the pinned
-`candid_parser` attaches comments).
+`candid_parser` attaches comments). Nor is a comment above a quoted name (`"foo-bar" : nat`, a quoted method name):
+the pinned lexer hands buffered comments to the next token, and a quoted name is a text token, which never takes
+them. A file's header comment with no blank line after it documents the first item below it.
 
 Items that carry docs: the actor (`service : …`), a declaration (`type T = …`), a field or variant case
 (`field_labels`), and a service method. Function parameters carry none, so a tool that needs to describe a parameter

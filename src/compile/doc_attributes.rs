@@ -10,6 +10,7 @@
 //! nesting preflight never saw the brackets inside them.
 
 use super::diagnostics::budget_error;
+use crate::budget::{Budget, BudgetError};
 use crate::diagnostics::{
     CompileError, Diagnostic, DiagnosticPhase, ResourceLimitInfo, SourceSpan,
 };
@@ -109,9 +110,7 @@ impl DocAttributes {
                          docs: &[String],
                          errors: &mut ErrorCollector|
          -> Result<(), CompileError> {
-            budget.checkpoint().map_err(|error| {
-                budget_error(error, DiagnosticPhase::Parse, "doc attribute parsing")
-            })?;
+            checkpoint(&budget)?;
             if docs.is_empty() {
                 return Ok(());
             }
@@ -124,7 +123,7 @@ impl DocAttributes {
                 path: &path,
                 source: &source,
             };
-            let (prose, attributes) = parse_docs(docs, max_nesting, &place, errors)?;
+            let (prose, attributes) = parse_docs(docs, max_nesting, &place, errors, &budget)?;
             items.push(DocItem {
                 kind,
                 origin,
@@ -186,6 +185,8 @@ impl DocAttributes {
             )?;
         }
 
+        // a cancellation that arrives while the last item is parsed still wins
+        checkpoint(&budget)?;
         errors.into_result()?;
         Ok(Self {
             doc_attributes_version: DOC_ATTRIBUTES_VERSION,
@@ -201,6 +202,17 @@ impl DocAttributes {
         &self.items
     }
 }
+
+fn checkpoint(budget: &Budget<'_>) -> Result<(), CompileError> {
+    budget
+        .checkpoint()
+        .map_err(|error| budget_error(error, DiagnosticPhase::Parse, "doc attribute parsing"))
+}
+
+/// Poll cancellation and the deadline every this many bytes of one
+/// attribute's text, as `check_value_nesting` does for host values: a long
+/// attribute stays responsive without an atomic load per token.
+const CHECKPOINT_INTERVAL: usize = 4096;
 
 /// Where an item's docs were written, for error reports.
 struct Place<'a> {
@@ -320,11 +332,13 @@ fn parse_docs(
     max_nesting: usize,
     place: &Place<'_>,
     errors: &mut ErrorCollector,
+    budget: &Budget<'_>,
 ) -> Result<(Vec<String>, Vec<DocAttribute>), CompileError> {
     let mut prose = Vec::new();
     let mut attributes = Vec::new();
     let mut index = 0;
     while index < docs.len() {
+        checkpoint(budget)?;
         let line = normalize(&docs[index]);
         let Some((name, after)) = attribute_head(line) else {
             prose.push(line.to_string());
@@ -343,16 +357,22 @@ fn parse_docs(
             continue;
         };
         // Gather continuation lines while a bracket is still open outside a
-        // text value.
+        // text value. The scan keeps its state from line to line, so each
+        // byte is scanned once however many lines the attribute spans.
         let mut text = line[after..].to_string();
+        let mut scan = BracketScan::new();
+        let mut state = scan.feed(&text);
         index += 1;
         let gathered = loop {
-            match open_brackets(&text) {
+            match state {
                 Scan::Closed => break Ok(()),
                 Scan::OpenText => break Err("a text value is not closed on its line".to_string()),
                 Scan::Open if index < docs.len() => {
+                    checkpoint(budget)?;
+                    let start = text.len();
                     text.push('\n');
                     text.push_str(normalize(&docs[index]));
+                    state = scan.feed(&text[start..]);
                     index += 1;
                 }
                 // out of lines: the parser names what is missing
@@ -361,13 +381,20 @@ fn parse_docs(
         };
         let parsed = gathered
             .map_err(|message| (DocErrorKind::Malformed, message))
-            .and_then(|()| parse_arguments(&text, max_nesting));
+            .and_then(|()| parse_arguments(&text, max_nesting, budget));
         match parsed {
             Ok(args) => attributes.push(DocAttribute {
                 name: name.to_string(),
                 doc_line: line_number(first),
                 args,
             }),
+            Err((DocErrorKind::Budget(error), _)) => {
+                return Err(budget_error(
+                    error,
+                    DiagnosticPhase::Parse,
+                    "doc attribute parsing",
+                ));
+            }
             Err((DocErrorKind::Nesting { observed }, message)) => {
                 return Err(CompileError {
                     diagnostics: vec![Diagnostic::compiler(
@@ -387,9 +414,9 @@ fn parse_docs(
             Err((kind, message)) => {
                 let code = match kind {
                     DocErrorKind::DuplicateKey => "doc_attribute_duplicate_key",
-                    DocErrorKind::Malformed | DocErrorKind::Nesting { .. } => {
-                        "doc_attribute_malformed"
-                    }
+                    DocErrorKind::Malformed
+                    | DocErrorKind::Nesting { .. }
+                    | DocErrorKind::Budget(_) => "doc_attribute_malformed",
                 };
                 errors.push(
                     Diagnostic::compiler(
@@ -421,42 +448,58 @@ enum Scan {
     OpenText,
 }
 
-/// Whether the attribute that `text` continues (its `(` already consumed) has
-/// closed every bracket, outside text values. Malformed bracket order is the
-/// parser's to report.
-fn open_brackets(text: &str) -> Scan {
-    let mut depth: usize = 1;
-    let mut in_text = false;
-    let mut escaped = false;
-    for c in text.chars() {
-        if in_text {
-            if escaped {
-                escaped = false;
-            } else if c == '\\' {
-                escaped = true;
-            } else if c == '"' {
-                in_text = false;
-            } else if c == '\n' {
-                return Scan::OpenText;
-            }
-            continue;
-        }
-        match c {
-            '"' => in_text = true,
-            '(' | '[' | '{' => depth += 1,
-            ')' | ']' | '}' => {
-                depth -= 1;
-                if depth == 0 {
-                    return Scan::Closed;
-                }
-            }
-            _ => {}
+/// Whether the attribute an argument text continues (its `(` already
+/// consumed) has closed every bracket, outside text values, fed one line at a
+/// time. Malformed bracket order is the parser's to report.
+struct BracketScan {
+    depth: usize,
+    in_text: bool,
+    escaped: bool,
+}
+
+impl BracketScan {
+    fn new() -> Self {
+        Self {
+            depth: 1,
+            in_text: false,
+            escaped: false,
         }
     }
-    if in_text {
-        Scan::OpenText
-    } else {
-        Scan::Open
+
+    /// Scans the next part of the text, picking up where the last part ended.
+    fn feed(&mut self, part: &str) -> Scan {
+        #[cfg(test)]
+        tests::SCANNED.with(|scanned| scanned.set(scanned.get() + part.len()));
+        for c in part.chars() {
+            if self.in_text {
+                if self.escaped {
+                    self.escaped = false;
+                } else if c == '\\' {
+                    self.escaped = true;
+                } else if c == '"' {
+                    self.in_text = false;
+                } else if c == '\n' {
+                    return Scan::OpenText;
+                }
+                continue;
+            }
+            match c {
+                '"' => self.in_text = true,
+                '(' | '[' | '{' => self.depth += 1,
+                ')' | ']' | '}' => {
+                    self.depth -= 1;
+                    if self.depth == 0 {
+                        return Scan::Closed;
+                    }
+                }
+                _ => {}
+            }
+        }
+        if self.in_text {
+            Scan::OpenText
+        } else {
+            Scan::Open
+        }
     }
 }
 
@@ -464,6 +507,7 @@ enum DocErrorKind {
     Malformed,
     DuplicateKey,
     Nesting { observed: usize },
+    Budget(BudgetError),
 }
 
 type ParseResult<T> = Result<T, (DocErrorKind, String)>;
@@ -563,8 +607,13 @@ enum State {
 
 /// Parses the text after an attribute's `(` to its matching `)` and checks
 /// nothing but space follows.
-fn parse_arguments(text: &str, max_nesting: usize) -> ParseResult<Vec<DocArgument>> {
+fn parse_arguments(
+    text: &str,
+    max_nesting: usize,
+    budget: &Budget<'_>,
+) -> ParseResult<Vec<DocArgument>> {
     let mut cursor = Cursor { text, pos: 0 };
+    let mut next_checkpoint = CHECKPOINT_INTERVAL;
     let mut frames = vec![Frame::Arguments {
         args: Vec::new(),
         keys: BTreeSet::new(),
@@ -573,6 +622,12 @@ fn parse_arguments(text: &str, max_nesting: usize) -> ParseResult<Vec<DocArgumen
     check_nesting(frames.len(), max_nesting)?;
     let mut state = State::ItemOrClose;
     loop {
+        if cursor.pos >= next_checkpoint {
+            budget
+                .checkpoint()
+                .map_err(|error| (DocErrorKind::Budget(error), String::new()))?;
+            next_checkpoint = cursor.pos.saturating_add(CHECKPOINT_INTERVAL);
+        }
         cursor.skip_space();
         let top = frames
             .last_mut()
@@ -817,9 +872,22 @@ fn parse_number(cursor: &mut Cursor<'_>) -> ParseResult<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{CancellationToken, Limits};
+    use std::cell::Cell;
+
+    thread_local! {
+        /// Bytes the bracket scan has read on this thread.
+        pub(super) static SCANNED: Cell<usize> = const { Cell::new(0) };
+    }
 
     fn parse(lines: &[&str]) -> Result<(Vec<String>, Vec<DocAttribute>), Vec<Diagnostic>> {
         parse_with(lines, 256, 100)
+    }
+
+    fn cancelled() -> CancellationToken {
+        let token = CancellationToken::new();
+        token.cancel();
+        token
     }
 
     fn parse_with(
@@ -833,8 +901,10 @@ mod tests {
             path: "actor.methods[0]",
             source: "memory:/t.did",
         };
-        let parsed =
-            parse_docs(&docs, max_nesting, &place, &mut errors).map_err(|e| e.diagnostics)?;
+        let limits = Limits::default();
+        let budget = Budget::from_limits(&limits);
+        let parsed = parse_docs(&docs, max_nesting, &place, &mut errors, &budget)
+            .map_err(|e| e.diagnostics)?;
         errors.into_result().map_err(|e| e.diagnostics)?;
         Ok(parsed)
     }
@@ -1156,5 +1226,48 @@ mod tests {
             parse_with(&[&deep_calls], 256, 100).unwrap_err()[0].code,
             "resource_limit_exceeded"
         );
+    }
+
+    /// An attribute spanning many lines is scanned once, not once per line:
+    /// the continuation scan keeps its state instead of rescanning the text
+    /// gathered so far.
+    #[test]
+    fn a_long_continued_attribute_is_scanned_once() {
+        let mut lines = vec!["@a(x = [".to_string()];
+        lines.extend((0..200).map(|i| format!("{i},")));
+        lines.push("])".to_string());
+        let refs: Vec<&str> = lines.iter().map(String::as_str).collect();
+        SCANNED.with(|scanned| scanned.set(0));
+        let (_, attributes) = parse(&refs).unwrap();
+        let DocValue::List { items } = &attributes[0].args[0].value else {
+            panic!("a list")
+        };
+        assert_eq!(items.len(), 200);
+        // the text after `(`, plus one line break per continued line
+        let text: usize = "x = [".len() + lines[1..].iter().map(|l| l.len() + 1).sum::<usize>();
+        assert_eq!(SCANNED.with(Cell::get), text);
+    }
+
+    #[test]
+    fn cancellation_is_observed_inside_an_items_docs() {
+        let limits = Limits::default();
+        let budget = Budget::new(&limits, cancelled());
+        let place = Place {
+            path: "actor.methods[0]",
+            source: "memory:/t.did",
+        };
+        let mut errors = ErrorCollector::new(100);
+        let docs = vec!["/ @a(x = 1)".to_string()];
+        let error = parse_docs(&docs, 256, &place, &mut errors, &budget).unwrap_err();
+        assert_eq!(error.diagnostics[0].code, "operation_cancelled");
+
+        // and inside one long attribute, every CHECKPOINT_INTERVAL bytes
+        let long = format!("x = [{}])", "1,".repeat(CHECKPOINT_INTERVAL));
+        assert!(matches!(
+            parse_arguments(&long, 256, &budget),
+            Err((DocErrorKind::Budget(BudgetError::Cancelled), _))
+        ));
+        let short = "x = [1, 2])";
+        assert!(parse_arguments(short, 256, &budget).is_ok());
     }
 }

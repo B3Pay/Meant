@@ -196,6 +196,33 @@ fn only_doc_lines_carry_attributes() {
     assert!(attributes.items().is_empty(), "{:?}", attributes.items());
 }
 
+/// A comment above a quoted name is dropped by the pinned lexer (a quoted
+/// name is a text token, and only other tokens take the buffered comments),
+/// so it documents nothing. Pinned so a parser upgrade that changes it shows.
+#[test]
+fn a_comment_above_a_quoted_name_documents_nothing() {
+    let attributes = attributes_of(
+        "type T = record {\n  /// @a(x = 1)\n  \"quoted-field\" : nat;\n};\nservice : {\n  /// @b(x = 1)\n  \"quoted-method\" : (T) -> ();\n  /// @c(x = 1)\n  plain : () -> ();\n}",
+    )
+    .unwrap();
+    let paths: Vec<_> = attributes
+        .items()
+        .iter()
+        .map(|item| {
+            (
+                item.path.as_str(),
+                item.name.as_deref(),
+                item.attributes
+                    .iter()
+                    .map(|a| a.name.as_str())
+                    .collect::<Vec<_>>(),
+            )
+        })
+        .collect();
+    // nor does the dropped comment reach the next item
+    assert_eq!(paths, [("actor.methods[0]", Some("plain"), vec!["c"])]);
+}
+
 #[test]
 fn a_malformed_attribute_fails_closed_with_its_place() {
     let error = attributes_of(
