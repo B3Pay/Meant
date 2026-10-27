@@ -89,12 +89,11 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
  * prepared version is a 404. The same two spellings are refused, in code
  * blocks only, so a page can still say in prose what the line will be. The
  * publish-day change empties this list and turns that prose into blocks. */
-// The next stable pair, prepared for `latest`: the version-bump pull request
-// adds each prepared version here and the publish-day change empties the list
-// again, as it did once @candid-core/schema 0.4.0 and @candid-core/cli 0.3.0
-// were published under `latest` on 2026-10-10. Their tag needs no entry:
-// `latest` resolves already, to the pair before them.
-const UNPUBLISHED_NPM_SPECS = ["@candid-core/schema@0.5.0", "@candid-core/cli@0.4.0"];
+// Emptied when @candid-core/schema 0.5.0 and @candid-core/cli 0.4.0 were
+// published under `latest` on 2026-10-27, as it was for 0.4.0 / 0.3.0 before
+// them. The next version-bump pull request adds its prepared versions back
+// until their own publish.
+const UNPUBLISHED_NPM_SPECS = [];
 
 const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({
   /* The spec followed by anything that cannot continue a version or a tag, so
