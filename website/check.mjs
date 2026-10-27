@@ -89,11 +89,12 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
  * prepared version is a 404. The same two spellings are refused, in code
  * blocks only, so a page can still say in prose what the line will be. The
  * publish-day change empties this list and turns that prose into blocks. */
-// Emptied when @candid-core/schema 0.4.0 and @candid-core/cli 0.3.0 were
-// published under `latest` on 2026-10-10, as it was for 0.3.0 / 0.2.0 before
-// them. The next version-bump pull request adds its prepared versions back
-// until their own publish.
-const UNPUBLISHED_NPM_SPECS = [];
+// The next stable pair, prepared for `latest`: the version-bump pull request
+// adds each prepared version here and the publish-day change empties the list
+// again, as it did once @candid-core/schema 0.4.0 and @candid-core/cli 0.3.0
+// were published under `latest` on 2026-10-10. Their tag needs no entry:
+// `latest` resolves already, to the pair before them.
+const UNPUBLISHED_NPM_SPECS = ["@candid-core/schema@0.5.0", "@candid-core/cli@0.4.0"];
 
 const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({
   /* The spec followed by anything that cannot continue a version or a tag, so
@@ -170,7 +171,7 @@ const REMOVED_SURFACE_PAGES = new Set(["migrating-from-0-2", "status"]);
 const NOTE_TITLE = "Upgrading from an earlier release";
 const NOTE_RE = new RegExp(`<callout[^>]*title="${NOTE_TITLE}"`, "g");
 const NOTE_BODY_RE = new RegExp(`<callout[^>]*title="${NOTE_TITLE}"[\\s\\S]*?<\\/callout>`);
-const NOTE_LINKS = ["migrating-from-0-3.html", "migrating-from-0-2.html"];
+const NOTE_LINKS = ["migrating-from-0-4.html", "migrating-from-0-3.html", "migrating-from-0-2.html"];
 const NOTE_PAGES = new Set([
   "index",
   "quickstart-typescript",

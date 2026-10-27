@@ -8,6 +8,7 @@
     depends on how the schema was built, and a misspelled limit is ignored.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
     after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and <code>0.4.0</code>.
+    The repository has moved on since: it is prepared as <code>0.5.0</code>, not yet published, in which <code>decode</code> and <code>decodeArgs</code> type their values by their schemas (the note on decoding below). <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
   </p>
 </callout>
 
@@ -129,8 +130,8 @@ export function decode<T>(
     against the schema it decoded under. A schema whose own type was erased to
     <code>AnySchema</code> still decodes to <code>unknown</code>, not <code>any</code>; a concrete
     builder around an erased child, such as <code>c.vec(erased)</code>, decodes to what
-    <code>Infer</code> gives it. <code>0.4.0</code> and earlier
-    type every decoded value as <code>unknown</code>; there, narrow it yourself or cast it.
+    <code>Infer</code> gives it. This is new in <code>0.5.0</code>, not yet published: <code>0.4.0</code>
+    and earlier type every decoded value as <code>unknown</code>; there, narrow it yourself or cast it.
   </p>
 </callout>
 
@@ -149,7 +150,7 @@ const value: Account = { owner: principal("aaaaa-aa"), balance: 5n };
 validate(Account, value); // { ok: true } | { ok: false, issues }
 const encoded = encode(Account, value); // { ok: true, bytes } | { ok: false, issues }
 if (encoded.ok) {
-  decode(Account, encoded.bytes);
+  decode(Account, encoded.bytes); // { ok: true, value: Account } | { ok: false, issues }
 }
 </pre>
 

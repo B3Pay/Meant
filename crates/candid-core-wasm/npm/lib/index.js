@@ -50,7 +50,7 @@ function requestOf(sources) {
 /**
  * Compile Candid sources into a one-document ContractEnvelope carrying the
  * `org.candid-core.field-names/v1` extension — exactly the document
- * `candid-core compile <path> --envelope` emits, ready for
+ * `meant compile <path> --envelope` emits, ready for
  * `schemaFromContract`. `sources` is Candid text, or
  * `{ entry, files: { name: text } }` for a multi-file bundle.
  *
@@ -77,7 +77,7 @@ export async function didToModule(sources) {
  * Compile Candid sources and read the `@name(key = value, …)` attributes in
  * their doc comments (`docs/doc-attributes.md` in the candid-core
  * repository). Returns `{ ok: true, contract, source_info, doc_attributes }`
- * — the Contract and SourceInfo `candid-core compile <path>` prints, plus
+ * — the Contract and SourceInfo `meant compile <path>` prints, plus
  * every documented item's prose and attributes keyed by its SourceInfo path
  * — or `{ ok: false, diagnostics }`: `doc_attribute_malformed`,
  * `doc_attribute_duplicate_key`, `resource_limit_exceeded`, or the

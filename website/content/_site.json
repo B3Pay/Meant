@@ -189,6 +189,12 @@
           "title": "Migrating from 0.3.0",
           "nav": "Migrating from 0.3.0",
           "lead": "What changes in @candid-core/schema 0.4.0 and @candid-core/cli 0.3.0, published on 2026-10-10 under the latest dist-tag, for code written against @candid-core/schema 0.3.0 and @candid-core/cli 0.2.0: method modes and plain type names in generated modules, which need the two packages upgraded together."
+        },
+        {
+          "slug": "migrating-from-0-4",
+          "title": "Migrating from 0.4.0",
+          "nav": "Migrating from 0.4.0",
+          "lead": "What changes in @candid-core/schema 0.5.0 and @candid-core/cli 0.4.0, prepared for the latest dist-tag and not yet published, for code written against @candid-core/schema 0.4.0 and @candid-core/cli 0.3.0: decoded values typed by their schemas, envelopes from the renamed compiler, and fixed shapes in generated modules, which need the two packages upgraded together."
         }
       ]
     },
