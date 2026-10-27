@@ -1013,18 +1013,18 @@ impl meant::MemoryResolver
 pub fn meant::MemoryResolver::insert(&mut self, impl core::convert::AsRef<str>, impl core::convert::Into<alloc::string::String>) -> core::result::Result<(), meant::ResolveError>
 pub fn meant::MemoryResolver::new() -> Self
 pub fn meant::MemoryResolver::with_source(self, impl core::convert::AsRef<str>, impl core::convert::Into<alloc::string::String>) -> core::result::Result<Self, meant::ResolveError>
-impl meant::SourceResolver for meant::MemoryResolver
-pub fn meant::MemoryResolver::identify(&self, core::option::Option<&meant::SourceId>, &str) -> core::result::Result<meant::SourceId, meant::ResolveError>
-pub fn meant::MemoryResolver::load(&self, &meant::SourceId, &meant::Limits) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
-pub fn meant::MemoryResolver::load_with_context(&self, &meant::SourceId, &meant::RuntimeContext) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
-pub fn meant::MemoryResolver::resolve(&self, core::option::Option<&meant::SourceId>, &str, &meant::Limits) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
-pub fn meant::MemoryResolver::resolve_with_context(&self, core::option::Option<&meant::SourceId>, &str, &meant::RuntimeContext) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
 impl core::clone::Clone for meant::MemoryResolver
 pub fn meant::MemoryResolver::clone(&self) -> meant::MemoryResolver
 impl core::default::Default for meant::MemoryResolver
 pub fn meant::MemoryResolver::default() -> meant::MemoryResolver
 impl core::fmt::Debug for meant::MemoryResolver
 pub fn meant::MemoryResolver::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl meant::SourceResolver for meant::MemoryResolver
+pub fn meant::MemoryResolver::identify(&self, core::option::Option<&meant::SourceId>, &str) -> core::result::Result<meant::SourceId, meant::ResolveError>
+pub fn meant::MemoryResolver::load(&self, &meant::SourceId, &meant::Limits) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
+pub fn meant::MemoryResolver::load_with_context(&self, &meant::SourceId, &meant::RuntimeContext) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
+pub fn meant::MemoryResolver::resolve(&self, core::option::Option<&meant::SourceId>, &str, &meant::Limits) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
+pub fn meant::MemoryResolver::resolve_with_context(&self, core::option::Option<&meant::SourceId>, &str, &meant::RuntimeContext) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
 impl core::marker::Freeze for meant::MemoryResolver
 impl core::marker::Send for meant::MemoryResolver
 impl core::marker::Sync for meant::MemoryResolver
@@ -1500,16 +1500,16 @@ pub struct meant::WorkspaceResolver
 impl meant::WorkspaceResolver
 pub fn meant::WorkspaceResolver::new(impl core::convert::AsRef<std::path::Path>) -> core::result::Result<Self, meant::ResolveError>
 pub fn meant::WorkspaceResolver::root(&self) -> &std::path::Path
+impl core::clone::Clone for meant::WorkspaceResolver
+pub fn meant::WorkspaceResolver::clone(&self) -> meant::WorkspaceResolver
+impl core::fmt::Debug for meant::WorkspaceResolver
+pub fn meant::WorkspaceResolver::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl meant::SourceResolver for meant::WorkspaceResolver
 pub fn meant::WorkspaceResolver::identify(&self, core::option::Option<&meant::SourceId>, &str) -> core::result::Result<meant::SourceId, meant::ResolveError>
 pub fn meant::WorkspaceResolver::load(&self, &meant::SourceId, &meant::Limits) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
 pub fn meant::WorkspaceResolver::load_with_context(&self, &meant::SourceId, &meant::RuntimeContext) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
 pub fn meant::WorkspaceResolver::resolve(&self, core::option::Option<&meant::SourceId>, &str, &meant::Limits) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
 pub fn meant::WorkspaceResolver::resolve_with_context(&self, core::option::Option<&meant::SourceId>, &str, &meant::RuntimeContext) -> core::result::Result<meant::ResolvedSource, meant::ResolveError>
-impl core::clone::Clone for meant::WorkspaceResolver
-pub fn meant::WorkspaceResolver::clone(&self) -> meant::WorkspaceResolver
-impl core::fmt::Debug for meant::WorkspaceResolver
-pub fn meant::WorkspaceResolver::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for meant::WorkspaceResolver
 impl core::marker::Send for meant::WorkspaceResolver
 impl core::marker::Sync for meant::WorkspaceResolver

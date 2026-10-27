@@ -1,7 +1,7 @@
 #![no_main]
 
-use meant::{ContractEnvelope, Limits};
 use libfuzzer_sys::fuzz_target;
+use meant::{ContractEnvelope, Limits};
 
 fuzz_target!(|data: &[u8]| {
     // Envelope parsing is a trust boundary with no other coverage: it gates
