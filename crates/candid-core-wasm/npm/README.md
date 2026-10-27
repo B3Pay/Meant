@@ -384,6 +384,49 @@ against the subtype check of the `candid` crate it pins and against the one
 subtype (its coinductive memo can keep a pair proven under an assumption it
 later retracted), this check refuses it, as the decoder does.
 
+## Doc attributes
+
+`didToDocAttributes(sources)` compiles the sources and reads the
+`@name(key = value, …)` lines in their doc comments, as specified in
+[`docs/doc-attributes.md`](https://github.com/b3hr4d/candid-core/blob/main/docs/doc-attributes.md):
+
+```candid
+service : {
+  /// Send tokens to another principal.
+  /// @intent(title = "Send", template = "Send {amount} to {to}")
+  /// @amount(at = "amount", decimals = query(decimals))
+  send : (record { to : principal; amount : nat }) -> ();
+}
+```
+
+```js
+import { didToDocAttributes } from "@candid-core/cli";
+
+const result = await didToDocAttributes(didText);
+if (result.ok) {
+  for (const item of result.doc_attributes.items) {
+    // item.path is "actor.methods[0]"; item.prose is ["Send tokens to another principal."]
+    for (const attribute of item.attributes) console.log(attribute.name, attribute.args);
+  }
+}
+```
+
+Success is `{ ok: true, contract, source_info, doc_attributes }`: the
+Contract and SourceInfo that `candid-core compile <path>` prints, and every
+documented item (the actor, a declaration, a field, a method) with its prose
+lines and its attributes in order. An attribute is `{ name, doc_line, args }`,
+and each argument value is tagged: `text`, `number` (the digits as written,
+never a float), `bool`, `ident`, `call` (`query(decimals)`), `list` or
+`record`. candid-core gives no name a meaning: the tool that reads them
+decides which it knows.
+
+A line counts as an attribute only when it starts with `@`, a lowercase
+name, then `(` or nothing: `@param amount the value` and `@amount (…)` stay
+prose. Once a line is an attribute it must parse to its end, so a malformed
+one fails the call with `doc_attribute_malformed`, and a repeated key with
+`doc_attribute_duplicate_key`; each names its item's `path`. Comments never
+change `contract_id` or `interface_id`.
+
 ## Omissions
 
 `didToModule`'s success carries `omitted`, an array of

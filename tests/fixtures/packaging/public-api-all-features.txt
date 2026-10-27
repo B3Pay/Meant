@@ -90,6 +90,70 @@ impl core::marker::Unpin for meant::DiagnosticPhase
 impl core::marker::UnsafeUnpin for meant::DiagnosticPhase
 impl core::panic::unwind_safe::RefUnwindSafe for meant::DiagnosticPhase
 impl core::panic::unwind_safe::UnwindSafe for meant::DiagnosticPhase
+pub enum meant::DocItemKind
+pub meant::DocItemKind::Actor
+pub meant::DocItemKind::Declaration
+pub meant::DocItemKind::Field
+pub meant::DocItemKind::Method
+impl core::clone::Clone for meant::DocItemKind
+pub fn meant::DocItemKind::clone(&self) -> meant::DocItemKind
+impl core::cmp::Eq for meant::DocItemKind
+impl core::cmp::Ord for meant::DocItemKind
+pub fn meant::DocItemKind::cmp(&self, &meant::DocItemKind) -> core::cmp::Ordering
+impl core::cmp::PartialEq for meant::DocItemKind
+pub fn meant::DocItemKind::eq(&self, &meant::DocItemKind) -> bool
+impl core::cmp::PartialOrd for meant::DocItemKind
+pub fn meant::DocItemKind::partial_cmp(&self, &meant::DocItemKind) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for meant::DocItemKind
+pub fn meant::DocItemKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for meant::DocItemKind
+impl core::marker::StructuralPartialEq for meant::DocItemKind
+impl serde_core::ser::Serialize for meant::DocItemKind
+pub fn meant::DocItemKind::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for meant::DocItemKind
+pub fn meant::DocItemKind::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for meant::DocItemKind
+impl core::marker::Send for meant::DocItemKind
+impl core::marker::Sync for meant::DocItemKind
+impl core::marker::Unpin for meant::DocItemKind
+impl core::marker::UnsafeUnpin for meant::DocItemKind
+impl core::panic::unwind_safe::RefUnwindSafe for meant::DocItemKind
+impl core::panic::unwind_safe::UnwindSafe for meant::DocItemKind
+pub enum meant::DocValue
+pub meant::DocValue::Bool
+pub meant::DocValue::Bool::value: bool
+pub meant::DocValue::Call
+pub meant::DocValue::Call::args: alloc::vec::Vec<meant::DocValue>
+pub meant::DocValue::Call::name: alloc::string::String
+pub meant::DocValue::Ident
+pub meant::DocValue::Ident::value: alloc::string::String
+pub meant::DocValue::List
+pub meant::DocValue::List::items: alloc::vec::Vec<meant::DocValue>
+pub meant::DocValue::Number
+pub meant::DocValue::Number::value: alloc::string::String
+pub meant::DocValue::Record
+pub meant::DocValue::Record::fields: alloc::vec::Vec<meant::DocArgument>
+pub meant::DocValue::Text
+pub meant::DocValue::Text::value: alloc::string::String
+impl core::clone::Clone for meant::DocValue
+pub fn meant::DocValue::clone(&self) -> meant::DocValue
+impl core::cmp::Eq for meant::DocValue
+impl core::cmp::PartialEq for meant::DocValue
+pub fn meant::DocValue::eq(&self, &meant::DocValue) -> bool
+impl core::fmt::Debug for meant::DocValue
+pub fn meant::DocValue::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for meant::DocValue
+impl serde_core::ser::Serialize for meant::DocValue
+pub fn meant::DocValue::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for meant::DocValue
+pub fn meant::DocValue::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for meant::DocValue
+impl core::marker::Send for meant::DocValue
+impl core::marker::Sync for meant::DocValue
+impl core::marker::Unpin for meant::DocValue
+impl core::marker::UnsafeUnpin for meant::DocValue
+impl core::panic::unwind_safe::RefUnwindSafe for meant::DocValue
+impl core::panic::unwind_safe::UnwindSafe for meant::DocValue
 pub enum meant::HostValueJsonError
 pub meant::HostValueJsonError::Cancelled
 pub meant::HostValueJsonError::Cancelled::path: alloc::string::String
@@ -735,6 +799,100 @@ impl core::marker::Unpin for meant::Diagnostic
 impl core::marker::UnsafeUnpin for meant::Diagnostic
 impl core::panic::unwind_safe::RefUnwindSafe for meant::Diagnostic
 impl core::panic::unwind_safe::UnwindSafe for meant::Diagnostic
+pub struct meant::DocArgument
+pub meant::DocArgument::key: alloc::string::String
+pub meant::DocArgument::value: meant::DocValue
+impl core::clone::Clone for meant::DocArgument
+pub fn meant::DocArgument::clone(&self) -> meant::DocArgument
+impl core::cmp::Eq for meant::DocArgument
+impl core::cmp::PartialEq for meant::DocArgument
+pub fn meant::DocArgument::eq(&self, &meant::DocArgument) -> bool
+impl core::fmt::Debug for meant::DocArgument
+pub fn meant::DocArgument::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for meant::DocArgument
+impl serde_core::ser::Serialize for meant::DocArgument
+pub fn meant::DocArgument::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for meant::DocArgument
+pub fn meant::DocArgument::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for meant::DocArgument
+impl core::marker::Send for meant::DocArgument
+impl core::marker::Sync for meant::DocArgument
+impl core::marker::Unpin for meant::DocArgument
+impl core::marker::UnsafeUnpin for meant::DocArgument
+impl core::panic::unwind_safe::RefUnwindSafe for meant::DocArgument
+impl core::panic::unwind_safe::UnwindSafe for meant::DocArgument
+pub struct meant::DocAttribute
+pub meant::DocAttribute::args: alloc::vec::Vec<meant::DocArgument>
+pub meant::DocAttribute::doc_line: u32
+pub meant::DocAttribute::name: alloc::string::String
+impl core::clone::Clone for meant::DocAttribute
+pub fn meant::DocAttribute::clone(&self) -> meant::DocAttribute
+impl core::cmp::Eq for meant::DocAttribute
+impl core::cmp::PartialEq for meant::DocAttribute
+pub fn meant::DocAttribute::eq(&self, &meant::DocAttribute) -> bool
+impl core::fmt::Debug for meant::DocAttribute
+pub fn meant::DocAttribute::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for meant::DocAttribute
+impl serde_core::ser::Serialize for meant::DocAttribute
+pub fn meant::DocAttribute::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for meant::DocAttribute
+pub fn meant::DocAttribute::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for meant::DocAttribute
+impl core::marker::Send for meant::DocAttribute
+impl core::marker::Sync for meant::DocAttribute
+impl core::marker::Unpin for meant::DocAttribute
+impl core::marker::UnsafeUnpin for meant::DocAttribute
+impl core::panic::unwind_safe::RefUnwindSafe for meant::DocAttribute
+impl core::panic::unwind_safe::UnwindSafe for meant::DocAttribute
+pub struct meant::DocAttributes
+impl meant::DocAttributes
+pub fn meant::DocAttributes::doc_attributes_version(&self) -> u32
+pub fn meant::DocAttributes::from_source_info(&meant::SourceInfo) -> core::result::Result<Self, meant::CompileError>
+pub fn meant::DocAttributes::from_source_info_with_context(&meant::SourceInfo, &meant::RuntimeContext) -> core::result::Result<Self, meant::CompileError>
+pub fn meant::DocAttributes::items(&self) -> &[meant::DocItem]
+impl core::clone::Clone for meant::DocAttributes
+pub fn meant::DocAttributes::clone(&self) -> meant::DocAttributes
+impl core::cmp::Eq for meant::DocAttributes
+impl core::cmp::PartialEq for meant::DocAttributes
+pub fn meant::DocAttributes::eq(&self, &meant::DocAttributes) -> bool
+impl core::fmt::Debug for meant::DocAttributes
+pub fn meant::DocAttributes::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for meant::DocAttributes
+impl serde_core::ser::Serialize for meant::DocAttributes
+pub fn meant::DocAttributes::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for meant::DocAttributes
+impl core::marker::Send for meant::DocAttributes
+impl core::marker::Sync for meant::DocAttributes
+impl core::marker::Unpin for meant::DocAttributes
+impl core::marker::UnsafeUnpin for meant::DocAttributes
+impl core::panic::unwind_safe::RefUnwindSafe for meant::DocAttributes
+impl core::panic::unwind_safe::UnwindSafe for meant::DocAttributes
+pub struct meant::DocItem
+pub meant::DocItem::attributes: alloc::vec::Vec<meant::DocAttribute>
+pub meant::DocItem::kind: meant::DocItemKind
+pub meant::DocItem::name: core::option::Option<alloc::string::String>
+pub meant::DocItem::origin: meant::SourceOrigin
+pub meant::DocItem::path: alloc::string::String
+pub meant::DocItem::prose: alloc::vec::Vec<alloc::string::String>
+impl core::clone::Clone for meant::DocItem
+pub fn meant::DocItem::clone(&self) -> meant::DocItem
+impl core::cmp::Eq for meant::DocItem
+impl core::cmp::PartialEq for meant::DocItem
+pub fn meant::DocItem::eq(&self, &meant::DocItem) -> bool
+impl core::fmt::Debug for meant::DocItem
+pub fn meant::DocItem::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for meant::DocItem
+impl serde_core::ser::Serialize for meant::DocItem
+pub fn meant::DocItem::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for meant::DocItem
+pub fn meant::DocItem::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for meant::DocItem
+impl core::marker::Send for meant::DocItem
+impl core::marker::Sync for meant::DocItem
+impl core::marker::Unpin for meant::DocItem
+impl core::marker::UnsafeUnpin for meant::DocItem
+impl core::panic::unwind_safe::RefUnwindSafe for meant::DocItem
+impl core::panic::unwind_safe::UnwindSafe for meant::DocItem
 pub struct meant::Field
 pub meant::Field::id: u32
 pub meant::Field::ty: meant::TypeRef
@@ -1519,6 +1677,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for meant::WorkspaceResolver
 impl core::panic::unwind_safe::UnwindSafe for meant::WorkspaceResolver
 pub const meant::CANONICALIZATION_PROFILE: &str
 pub const meant::CONTRACT_FORMAT: &str
+pub const meant::DOC_ATTRIBUTES_VERSION: u32
 pub const meant::FORMAT_VERSION: u32
 pub const meant::LIMITS_CONFIG_VERSION: u64
 pub const meant::SEMANTICS_PROFILE: &str

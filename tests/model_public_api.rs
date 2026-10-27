@@ -139,11 +139,12 @@ fn producer_metadata_is_feature_independent() {
 mod compiler_surface {
     use super::assert_public_type;
     use meant::{
-        Compilation, CompileError, CompileOptions, FieldLabelProvenance, MemoryResolver,
-        RawSourceInfo, ResolveError, ResolvedSource, RuntimeContext, SourceActorInfo,
-        SourceDeclaration, SourceFileInfo, SourceFunctionArgumentDirection,
-        SourceFunctionArgumentInfo, SourceId, SourceImportInfo, SourceImportKind, SourceInfo,
-        SourceLabel, SourceMethodInfo, SourceOrigin, SourceResolver, SOURCE_INFO_VERSION,
+        Compilation, CompileError, CompileOptions, DocArgument, DocAttribute, DocAttributes,
+        DocItem, DocItemKind, DocValue, FieldLabelProvenance, MemoryResolver, RawSourceInfo,
+        ResolveError, ResolvedSource, RuntimeContext, SourceActorInfo, SourceDeclaration,
+        SourceFileInfo, SourceFunctionArgumentDirection, SourceFunctionArgumentInfo, SourceId,
+        SourceImportInfo, SourceImportKind, SourceInfo, SourceLabel, SourceMethodInfo,
+        SourceOrigin, SourceResolver, DOC_ATTRIBUTES_VERSION, SOURCE_INFO_VERSION,
     };
 
     #[test]
@@ -169,8 +170,15 @@ mod compiler_surface {
         assert_public_type::<SourceMethodInfo>();
         assert_public_type::<SourceOrigin>();
         assert_public_type::<Box<dyn SourceResolver>>();
+        assert_public_type::<DocArgument>();
+        assert_public_type::<DocAttribute>();
+        assert_public_type::<DocAttributes>();
+        assert_public_type::<DocItem>();
+        assert_public_type::<DocItemKind>();
+        assert_public_type::<DocValue>();
 
         assert_eq!(SOURCE_INFO_VERSION, 1);
+        assert_eq!(DOC_ATTRIBUTES_VERSION, 1);
     }
 
     /// Signatures, not just names: coercing each entry point to a function
@@ -190,6 +198,10 @@ mod compiler_surface {
             CompileOptions,
             &RuntimeContext,
         ) -> Result<Compilation, CompileError> = meant::compile_with_resolver;
+        let _: fn(&SourceInfo) -> Result<DocAttributes, CompileError> =
+            DocAttributes::from_source_info;
+        let _: fn(&SourceInfo, &RuntimeContext) -> Result<DocAttributes, CompileError> =
+            DocAttributes::from_source_info_with_context;
     }
 }
 

@@ -182,6 +182,93 @@ export function didToContract(sources: Sources): Promise<ContractEnvelope | Fail
  */
 export function didToModule(sources: Sources): Promise<ModuleSuccess | Failure>;
 
+/** Where a SourceInfo entry came from: a declaration, or the actor. */
+export type SourceOrigin =
+  { kind: "declaration"; source: string; name: string } | { kind: "actor"; source: string };
+
+/**
+ * One argument value of a doc attribute. A number keeps the text written
+ * (`"8"`, `"-1"`, `"0.25"`), never a binary float.
+ */
+export type DocValue =
+  | { kind: "text"; value: string }
+  | { kind: "number"; value: string }
+  | { kind: "bool"; value: boolean }
+  | { kind: "ident"; value: string }
+  | { kind: "call"; name: string; args: DocValue[] }
+  | { kind: "list"; items: DocValue[] }
+  | { kind: "record"; fields: DocArgument[] };
+
+/** `key = value`. Keys are unique within one argument list or record. */
+export interface DocArgument {
+  key: string;
+  value: DocValue;
+}
+
+/** One `@name(…)` doc line, or one that continues over several lines. */
+export interface DocAttribute {
+  /** Lowercase segments joined by `.`: `amount`, `ui.hidden`. */
+  name: string;
+  /** Index of the attribute's first line in the item's docs, from 0. */
+  doc_line: number;
+  /** In the order written; empty for `@name` and `@name()`. */
+  args: DocArgument[];
+}
+
+/** A documented item: its prose lines and its attributes. */
+export interface DocItem {
+  kind: "actor" | "declaration" | "field" | "method";
+  origin: SourceOrigin;
+  /**
+   * `actor`, `type:<Name>`, or the occurrence path SourceInfo records for a
+   * method or field (`actor.methods[2]`, `type:Tokens.fields[0]`,
+   * `actor.methods[1].function.args[0].type.fields[0]`).
+   */
+  path: string;
+  /** The declaration or method name, or a field's named label. */
+  name?: string;
+  /** The doc lines that are not attributes, normalized, in order. */
+  prose: string[];
+  attributes: DocAttribute[];
+}
+
+/** Doc attributes v1 of one compilation: every item with a doc line. */
+export interface DocAttributes {
+  doc_attributes_version: 1;
+  /** The actor, then declarations, methods and fields, in SourceInfo order. */
+  items: DocItem[];
+}
+
+/** A successful `didToDocAttributes`. */
+export interface DocAttributesSuccess {
+  ok: true;
+  /** The canonical Contract, as in `didToContract`'s envelope. */
+  contract: unknown;
+  /**
+   * The SourceInfo sidecar as `candid-core compile <path>` prints it, typed
+   * `unknown` for the same reason as `contract`: it versions independently.
+   */
+  source_info: unknown;
+  doc_attributes: DocAttributes;
+}
+
+/**
+ * Compile Candid sources and read the `@name(key = value, …)` attributes in
+ * their doc comments. candid-core gives no attribute a meaning; the reading
+ * tool decides which names it knows. A malformed attribute fails the call
+ * with `doc_attribute_malformed` or `doc_attribute_duplicate_key`, whose
+ * `path` names the item. Comments never change `contract_id` or
+ * `interface_id`.
+ *
+ * @example
+ * const result = await didToDocAttributes(serviceDid);
+ * if (result.ok) {
+ *   for (const item of result.doc_attributes.items)
+ *     for (const attribute of item.attributes) console.log(item.path, attribute.name);
+ * }
+ */
+export function didToDocAttributes(sources: Sources): Promise<DocAttributesSuccess | Failure>;
+
 /** The identities of one compiled interface. */
 export interface Identities {
   /** The Contract identity: the whole canonical graph, declarations included. */
