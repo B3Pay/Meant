@@ -201,7 +201,7 @@ struct Built {
     env: types::Env,
     types: TypeEnv,
     envelope: Value,
-    contract: candid_core::Contract,
+    contract: meant::Contract,
     /// candid-core's compiler refusal of the source, for a regression vector
     /// that supplies its Contract instead (`build_with_contract`); `None`
     /// when the envelope was compiled.
@@ -227,8 +227,8 @@ fn reference_env(source: &str) -> Result<TypeEnv, &'static str> {
 /// loader reads, normalized as `wire_vectors.rs` normalizes the coercion
 /// golden's (a fixed producer block, a canonical reparse, field names in the
 /// `org.candid-core.field-names/v1` extension).
-fn envelope_of(source: &str) -> Result<(Value, candid_core::Contract), &'static str> {
-    let compilation = candid_core::compile_did(source).map_err(|_| "error")?;
+fn envelope_of(source: &str) -> Result<(Value, meant::Contract), &'static str> {
+    let compilation = meant::compile_did(source).map_err(|_| "error")?;
     let mut document = serde_json::to_value(compilation.contract()).map_err(|_| "serialize")?;
     document["producer"] = json!({
         "name": "candid-core",
@@ -236,12 +236,11 @@ fn envelope_of(source: &str) -> Result<(Value, candid_core::Contract), &'static 
         "candid_version": "0.0.0-golden",
         "candid_parser_version": "0.0.0-golden",
     });
-    let contract =
-        candid_core::Contract::from_json(&document.to_string()).map_err(|_| "contract")?;
+    let contract = meant::Contract::from_json(&document.to_string()).map_err(|_| "contract")?;
     let mut names = BTreeMap::new();
     let info = compilation.source_info().ok_or("source_info")?;
     for provenance in info.field_labels() {
-        if let candid_core::SourceLabel::Named { name } = &provenance.label {
+        if let meant::SourceLabel::Named { name } = &provenance.label {
             names.insert((provenance.container, provenance.id), name.clone());
         }
     }
@@ -254,15 +253,15 @@ fn envelope_of(source: &str) -> Result<(Value, candid_core::Contract), &'static 
 
 /// The envelope of a normalized Contract and its field-name triples.
 fn envelope_with_names(
-    contract: candid_core::Contract,
+    contract: meant::Contract,
     triples: Vec<Value>,
-) -> Result<(Value, candid_core::Contract), &'static str> {
-    let mut envelope = candid_core::ContractEnvelope::new(contract.clone());
+) -> Result<(Value, meant::Contract), &'static str> {
+    let mut envelope = meant::ContractEnvelope::new(contract.clone());
     envelope
         .insert_extension(
             "org.candid-core.field-names/v1",
             Value::Array(triples),
-            &candid_core::Limits::default(),
+            &meant::Limits::default(),
         )
         .map_err(|_| "extension")?;
     let envelope = serde_json::to_value(&envelope).map_err(|_| "serialize")?;
@@ -302,19 +301,19 @@ fn build_from_source(env: types::Env) -> Result<Built, String> {
 /// refusal.
 fn build_with_contract(source: &str, document: &Value, issue: u64) -> Result<Built, String> {
     let types = reference_env(source).map_err(|reason| format!("reference={reason}"))?;
-    let code = match candid_core::compile_did(source) {
+    let code = match meant::compile_did(source) {
         Ok(_) => return Err("the compiler accepts the source; drop its contract".to_string()),
         Err(error) => error.diagnostics[0].code.clone(),
     };
-    let nodes: Vec<candid_core::TypeNode> =
+    let nodes: Vec<meant::TypeNode> =
         serde_json::from_value(document["types"].clone()).map_err(|e| e.to_string())?;
-    let declarations: Vec<candid_core::Declaration> =
+    let declarations: Vec<meant::Declaration> =
         serde_json::from_value(document["declarations"].clone()).map_err(|e| e.to_string())?;
-    let actor: Option<candid_core::Actor> = match document.get("actor") {
+    let actor: Option<meant::Actor> = match document.get("actor") {
         None => None,
         Some(actor) => Some(serde_json::from_value(actor.clone()).map_err(|e| e.to_string())?),
     };
-    let draft = candid_core::ContractDraft::new(nodes, declarations, actor);
+    let draft = meant::ContractDraft::new(nodes, declarations, actor);
     let built = draft.build().map_err(|error| format!("{error:?}"))?;
     let mut normalized = serde_json::to_value(&built).map_err(|e| e.to_string())?;
     normalized["producer"] = json!({
@@ -324,7 +323,7 @@ fn build_with_contract(source: &str, document: &Value, issue: u64) -> Result<Bui
         "candid_parser_version": "0.0.0-golden",
     });
     let contract =
-        candid_core::Contract::from_json(&normalized.to_string()).map_err(|e| e.to_string())?;
+        meant::Contract::from_json(&normalized.to_string()).map_err(|e| e.to_string())?;
     let (envelope, contract) = envelope_with_names(contract, Vec::new())?;
     Ok(Built {
         env: types::Env {
@@ -574,11 +573,11 @@ fn host_levels(host: &Value) -> usize {
 /// `validate_elements_*`). A refusal on any other budget of the
 /// reference (or of the HostValue constructors) is `inconclusive`.
 fn host_verdict(built: &Built, name: &str, host: &Value) -> Value {
-    let limits = candid_core::Limits::default();
+    let limits = meant::Limits::default();
     let mut built_by = None;
-    let value = match candid_core::HostValue::from_json_with_limits(&host.to_string(), &limits) {
+    let value = match meant::HostValue::from_json_with_limits(&host.to_string(), &limits) {
         Ok(value) => value,
-        Err(candid_core::HostValueJsonError::Malformed(_)) => {
+        Err(meant::HostValueJsonError::Malformed(_)) => {
             return json!({ "verdict": "reject", "class": "host_value_json" });
         }
         // A budget of the HostValue JSON decoder (above all its 64-container
@@ -593,7 +592,7 @@ fn host_verdict(built: &Built, name: &str, host: &Value) -> Value {
                 built_by = Some("constructors");
                 value
             }
-            Err(candid_core::HostValueJsonError::Malformed(_)) => {
+            Err(meant::HostValueJsonError::Malformed(_)) => {
                 return json!({ "verdict": "reject", "class": "host_value_json" });
             }
             Err(_) => return json!({ "verdict": "inconclusive", "budget": "host_value_limit" }),
@@ -607,30 +606,30 @@ fn host_verdict(built: &Built, name: &str, host: &Value) -> Value {
     else {
         return json!({ "verdict": "reject", "class": "no_declaration" });
     };
-    let selector = candid_core::ContractTypeRef {
+    let selector = meant::ContractTypeRef {
         contract_id: built.contract.contract_id().to_string(),
         type_ref: declaration.ty,
     };
     let aligned = limits.with_max_value_depth(VALIDATE_DEPTH);
-    let mut verdict =
-        match candid_core::validate_host_value(&built.contract, &selector, &value, &aligned) {
-            Ok(()) => json!({ "verdict": "accept" }),
-            Err(error) => match error.violations.first() {
-                None => json!({ "verdict": "reject", "class": "unknown" }),
-                Some(violation) => match &violation.resource_limit {
-                    Some(info)
-                        if info.resource == "value_depth" || info.resource == "value_elements" =>
-                    {
-                        json!({
-                            "verdict": "reject",
-                            "class": format!("{}/{}", violation.code, info.resource),
-                        })
-                    }
-                    Some(info) => json!({ "verdict": "inconclusive", "budget": info.resource }),
-                    None => json!({ "verdict": "reject", "class": violation.code }),
-                },
+    let mut verdict = match meant::validate_host_value(&built.contract, &selector, &value, &aligned)
+    {
+        Ok(()) => json!({ "verdict": "accept" }),
+        Err(error) => match error.violations.first() {
+            None => json!({ "verdict": "reject", "class": "unknown" }),
+            Some(violation) => match &violation.resource_limit {
+                Some(info)
+                    if info.resource == "value_depth" || info.resource == "value_elements" =>
+                {
+                    json!({
+                        "verdict": "reject",
+                        "class": format!("{}/{}", violation.code, info.resource),
+                    })
+                }
+                Some(info) => json!({ "verdict": "inconclusive", "budget": info.resource }),
+                None => json!({ "verdict": "reject", "class": violation.code }),
             },
-        };
+        },
+    };
     if let Some(by) = built_by {
         verdict["built"] = json!(by);
     }
@@ -640,8 +639,8 @@ fn host_verdict(built: &Built, name: &str, host: &Value) -> Value {
 /// The limits the HostValue constructors build a value under in
 /// `host_verdict`: the defaults with the value depth and element budgets out
 /// of the way, so `validate_host_value` alone applies them.
-fn construction_limits() -> candid_core::Limits {
-    candid_core::Limits::default()
+fn construction_limits() -> meant::Limits {
+    meant::Limits::default()
         .with_max_value_depth(usize::MAX / 2)
         .with_max_value_elements(usize::MAX / 2)
 }
@@ -652,9 +651,9 @@ fn construction_limits() -> candid_core::Limits {
 /// value past `limits.max_value_depth` or `limits.max_value_elements`.
 fn host_from_constructors(
     json: &Value,
-    limits: &candid_core::Limits,
-) -> Result<candid_core::HostValue, candid_core::HostValueJsonError> {
-    use candid_core::{HostFieldValue, HostValue, HostValueJsonError};
+    limits: &meant::Limits,
+) -> Result<meant::HostValue, meant::HostValueJsonError> {
+    use meant::{HostFieldValue, HostValue, HostValueJsonError};
     let malformed = |what: &str| HostValueJsonError::Malformed(format!("$: {what}"));
     match json["kind"].as_str() {
         Some("opt") => {

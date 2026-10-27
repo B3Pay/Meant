@@ -50,7 +50,7 @@
 
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
-use candid_core::{Actor, Contract, PrimitiveType, TypeNode, TypeRef};
+use meant::{Actor, Contract, PrimitiveType, TypeNode, TypeRef};
 
 use crate::{
     is_reserved_numeric_name, is_ts_property_identifier, is_tuple_shaped, Omission, OmissionKind,

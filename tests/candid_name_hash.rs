@@ -14,10 +14,10 @@
 //! every feature configuration, `--no-default-features` included, where the
 //! library itself never links it.
 
-use candid_core::{
+use candid_parser::candid::idl_hash;
+use meant::{
     Actor, ContractDraft, Declaration, Field, MethodMode, PrimitiveType, ServiceMethod, TypeNode,
 };
-use candid_parser::candid::idl_hash;
 
 /// A single-method service whose method ID is supplied by the caller, so a
 /// deliberately wrong ID can be pushed through validation.

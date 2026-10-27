@@ -1,7 +1,7 @@
-use candid_core::{
+use meant::{
     compile_did_with_context, CompileOptions, HostValue, HostValueJsonError, Limits, RuntimeContext,
 };
-use candid_core::{compile_with_resolver, MemoryResolver};
+use meant::{compile_with_resolver, MemoryResolver};
 use std::process::Command;
 
 #[cfg(not(windows))]
@@ -24,7 +24,7 @@ fn alias_chain(depth: usize) -> String {
     source
 }
 
-fn compile_with_limits(source: &str, limits: Limits) -> Result<(), candid_core::CompileError> {
+fn compile_with_limits(source: &str, limits: Limits) -> Result<(), meant::CompileError> {
     compile_did_with_context(
         source,
         CompileOptions {
@@ -48,7 +48,7 @@ fn nested_opt_json(depth: usize) -> String {
     json
 }
 
-fn compile_imported_alias_chain() -> Result<(), candid_core::CompileError> {
+fn compile_imported_alias_chain() -> Result<(), meant::CompileError> {
     const FILES: usize = 40;
     const OPTS_PER_FILE: usize = 8;
     let mut resolver = MemoryResolver::new();
@@ -343,7 +343,7 @@ fn comment_run(lines: usize, tail: &str) -> String {
 }
 
 /// The one refusal every entry point must produce for an over-long run.
-fn assert_comment_run_refused(entry: &str, error: &candid_core::CompileError, limit: usize) {
+fn assert_comment_run_refused(entry: &str, error: &meant::CompileError, limit: usize) {
     assert_eq!(error.diagnostics.len(), 1, "{entry}: {error:#?}");
     let diagnostic = &error.diagnostics[0];
     assert_eq!(diagnostic.code, "resource_limit_exceeded", "{entry}");
@@ -398,7 +398,7 @@ impl Drop for DidFile {
     }
 }
 
-type EntryOutcome = (&'static str, Result<(), candid_core::CompileError>);
+type EntryOutcome = (&'static str, Result<(), meant::CompileError>);
 
 /// Compile `source` through every `.did` entry point under `limits`.
 fn every_entry_point(source: &str, limits: &Limits, label: &str) -> Vec<EntryOutcome> {
@@ -417,10 +417,10 @@ fn every_entry_point(source: &str, limits: &Limits, label: &str) -> Vec<EntryOut
         }),
     ];
     if default_limits {
-        outcomes.push(("compile_did", candid_core::compile_did(source).map(drop)));
+        outcomes.push(("compile_did", meant::compile_did(source).map(drop)));
         outcomes.push((
             "compile_did_with_options",
-            candid_core::compile_did_with_options(source, CompileOptions::default()).map(drop),
+            meant::compile_did_with_options(source, CompileOptions::default()).map(drop),
         ));
     }
     #[cfg(feature = "filesystem-compiler")]
@@ -428,22 +428,17 @@ fn every_entry_point(source: &str, limits: &Limits, label: &str) -> Vec<EntryOut
         let file = DidFile::new(label, source);
         outcomes.push((
             "compile_did_file_with_context",
-            candid_core::compile_did_file_with_context(
-                &file.0,
-                CompileOptions::default(),
-                &context,
-            )
-            .map(drop),
+            meant::compile_did_file_with_context(&file.0, CompileOptions::default(), &context)
+                .map(drop),
         ));
         if default_limits {
             outcomes.push((
                 "compile_did_file",
-                candid_core::compile_did_file(&file.0).map(drop),
+                meant::compile_did_file(&file.0).map(drop),
             ));
             outcomes.push((
                 "compile_did_file_with_options",
-                candid_core::compile_did_file_with_options(&file.0, CompileOptions::default())
-                    .map(drop),
+                meant::compile_did_file_with_options(&file.0, CompileOptions::default()).map(drop),
             ));
         }
     }
@@ -510,7 +505,7 @@ fn small_stack_sidecar_rederivation_refuses_an_over_long_comment_run() {
             .unwrap()
             .join()
             .unwrap();
-        let raw: candid_core::RawSourceInfo = serde_json::from_value(
+        let raw: meant::RawSourceInfo = serde_json::from_value(
             serde_json::to_value(compilation.source_info().unwrap()).unwrap(),
         )
         .unwrap();
@@ -518,7 +513,7 @@ fn small_stack_sidecar_rederivation_refuses_an_over_long_comment_run() {
         let error = std::thread::Builder::new()
             .stack_size(SMALL_STACK_BYTES)
             .spawn(move || {
-                candid_core::SourceInfo::try_from_raw_with_context(
+                meant::SourceInfo::try_from_raw_with_context(
                     raw,
                     &contract,
                     &RuntimeContext::default(),
@@ -598,7 +593,7 @@ fn comment_run_accepts_a_configured_limit_and_refuses_one_over() {
     }
 }
 
-fn compile_under(limit: usize, source: &str) -> Result<(), candid_core::CompileError> {
+fn compile_under(limit: usize, source: &str) -> Result<(), meant::CompileError> {
     compile_with_limits(source, Limits::default().with_max_source_nesting(limit))
 }
 
@@ -664,7 +659,7 @@ fn a_comment_header_at_the_limit_keeps_its_identities_and_documentation() {
         "{header}type Item = record {{ id: nat64 }};\n\
          service : {{\n  // Reads one item.\n  get: (nat64) -> (opt Item) query;\n}};\n"
     );
-    let compilation = candid_core::compile_did(&source).unwrap();
+    let compilation = meant::compile_did(&source).unwrap();
     let info = compilation.source_info().unwrap();
     assert_eq!(
         compilation.contract().contract_id(),

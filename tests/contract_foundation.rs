@@ -3,15 +3,15 @@
 //! which is pure model behaviour and stays runnable with defaults disabled.
 
 #[cfg(feature = "filesystem-compiler")]
-use candid_core::compile_did_file;
+use meant::compile_did_file;
 #[cfg(feature = "compiler")]
-use candid_core::{
+use meant::{
     compile_did, compile_did_with_options, Actor, CompileOptions, MethodMode, ServiceMethod,
     SourceLabel, SourceOrigin,
 };
 #[cfg(feature = "compiler")]
-use candid_core::{compile_with_resolver, MemoryResolver, RuntimeContext};
-use candid_core::{
+use meant::{compile_with_resolver, MemoryResolver, RuntimeContext};
+use meant::{
     Contract, ContractDraft, Declaration, Field, PrimitiveType, RawContract, TypeNode,
     CANONICALIZATION_PROFILE, CONTRACT_FORMAT, FORMAT_VERSION, SEMANTICS_PROFILE,
 };
@@ -19,7 +19,7 @@ use candid_core::{
 use std::collections::{BTreeMap, BTreeSet};
 
 #[cfg(feature = "compiler")]
-fn compile(source: &str) -> candid_core::Compilation {
+fn compile(source: &str) -> meant::Compilation {
     compile_did(source).unwrap_or_else(|error| panic!("compilation failed: {error:#?}"))
 }
 
@@ -44,7 +44,7 @@ fn raw_declaration(contract: &RawContract, name: &str) -> u32 {
 }
 
 #[cfg(feature = "compiler")]
-fn service_methods(contract: &Contract) -> &Vec<candid_core::ServiceMethod> {
+fn service_methods(contract: &Contract) -> &Vec<meant::ServiceMethod> {
     let Actor::Service { service } = contract.actor().as_ref().expect("expected actor") else {
         panic!("expected service actor")
     };
@@ -557,7 +557,7 @@ fn byte_escapes_that_break_utf8_are_reported_not_panicked() {
     let error = compile_did("\"\\B8\"").expect_err("a bare text literal is not a program");
     let diagnostic = &error.diagnostics[0];
     assert_eq!(diagnostic.code, "did_parse_error");
-    assert_eq!(diagnostic.phase, Some(candid_core::DiagnosticPhase::Parse));
+    assert_eq!(diagnostic.phase, Some(meant::DiagnosticPhase::Parse));
     assert!(!diagnostic.message.is_empty());
     assert!(
         diagnostic.span.is_some(),
@@ -631,10 +631,7 @@ fn well_formed_sources_are_unaffected_by_the_parse_error_rendering() {
     // unchanged and still name the offending symbol.
     let type_error = compile_did("service : { broken: (Missing) -> () };").unwrap_err();
     let diagnostic = &type_error.diagnostics[0];
-    assert_eq!(
-        diagnostic.phase,
-        Some(candid_core::DiagnosticPhase::TypeCheck)
-    );
+    assert_eq!(diagnostic.phase, Some(meant::DiagnosticPhase::TypeCheck));
     assert!(diagnostic.message.contains("Missing") || diagnostic.message.contains("Unbound"));
 
     // A parse error still carries a usable span and the expected-token notes.
@@ -653,24 +650,21 @@ fn well_formed_sources_are_unaffected_by_the_parse_error_rendering() {
 fn invalid_did_returns_actionable_structured_diagnostics() {
     let syntax = compile_did("service : { broken: (nat) -> ( };").unwrap_err();
     let diagnostic = &syntax.diagnostics[0];
-    assert_eq!(diagnostic.phase, Some(candid_core::DiagnosticPhase::Parse));
+    assert_eq!(diagnostic.phase, Some(meant::DiagnosticPhase::Parse));
     assert_eq!(diagnostic.code, "did_parse_error");
     assert!(diagnostic.span.is_some());
     assert!(!diagnostic.message.is_empty());
 
     let type_error = compile_did("service : { broken: (Missing) -> () };").unwrap_err();
     let diagnostic = &type_error.diagnostics[0];
-    assert_eq!(
-        diagnostic.phase,
-        Some(candid_core::DiagnosticPhase::TypeCheck)
-    );
+    assert_eq!(diagnostic.phase, Some(meant::DiagnosticPhase::TypeCheck));
     assert_eq!(diagnostic.code, "did_type_check_error");
     assert!(diagnostic.message.contains("Missing") || diagnostic.message.contains("Unbound"));
 
     let oneway = compile_did("service : { broken: () -> (nat) oneway };").unwrap_err();
     assert_eq!(
         oneway.diagnostics[0].phase,
-        Some(candid_core::DiagnosticPhase::TypeCheck)
+        Some(meant::DiagnosticPhase::TypeCheck)
     );
 }
 
@@ -712,7 +706,7 @@ fn file_compilation_uses_the_authoritative_import_resolver() {
     let error = compile_did_file(invalid).unwrap_err();
     assert_eq!(
         error.diagnostics[0].phase,
-        Some(candid_core::DiagnosticPhase::TypeCheck)
+        Some(meant::DiagnosticPhase::TypeCheck)
     );
 
     let invalid_syntax = format!(
@@ -722,7 +716,7 @@ fn file_compilation_uses_the_authoritative_import_resolver() {
     let error = compile_did_file(invalid_syntax).unwrap_err();
     assert_eq!(
         error.diagnostics[0].phase,
-        Some(candid_core::DiagnosticPhase::Parse)
+        Some(meant::DiagnosticPhase::Parse)
     );
     assert!(error.diagnostics[0]
         .span

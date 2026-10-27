@@ -2,7 +2,7 @@
 //! wraps, compared with the crate's own `DocAttributes` and with the envelope
 //! path for the same sources.
 
-use candid_core::{compile_did, DocAttributes};
+use meant::{compile_did, DocAttributes};
 use candid_core_wasm::{did_to_contract, did_to_doc_attributes};
 use serde_json::{json, Value};
 

@@ -8,14 +8,14 @@
 //! (`tests/fixtures/conformance/verify_vectors.py`), so a divergence between
 //! the two implementations fails one side or the other.
 
-use candid_core::{
+use meant::{
     Actor, Contract, ContractDraft, Declaration, TypeNode, TypeRef, CANONICALIZATION_PROFILE,
     CONTRACT_FORMAT, FORMAT_VERSION, SEMANTICS_PROFILE,
 };
 // Only the `.did`-reproducibility anchor needs the file compiler. Every vector
 // assertion below is pure model behaviour and runs with defaults disabled.
 #[cfg(feature = "filesystem-compiler")]
-use candid_core::{compile_did_file, RawContract};
+use meant::{compile_did_file, RawContract};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;

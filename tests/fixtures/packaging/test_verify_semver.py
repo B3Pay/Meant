@@ -43,7 +43,7 @@ PUBLISHED = """## 0.1.0-beta.3 — published 2026-08-24
 
 ACKNOWLEDGED = """### Changed
 
-- **BREAKING**: `ContractEnvelope` moved; import it from `candid_core::envelope`.
+- **BREAKING**: `ContractEnvelope` moved; import it from `meant::envelope`.
 """
 
 UNACKNOWLEDGED = """### Changed
@@ -106,7 +106,7 @@ class GateTests(unittest.TestCase):
             root = Path(directory)
             (root / "CHANGELOG.md").write_text(text)
             (root / "Cargo.toml").write_text(
-                f'[package]\nname = "candid-core"\nversion = "{version}"\n'
+                f'[package]\nname = "meant"\nversion = "{version}"\n'
             )
             stdout, stderr = io.StringIO(), io.StringIO()
             saved = gate.REPO_ROOT, gate.run_surface, sys.argv

@@ -6,7 +6,7 @@
 //! be able to carry an arbitrarily large derived sidecar, and the limit has to
 //! fire before rederivation or remapping walks the inflated collection.
 
-use candid_core::{
+use meant::{
     compile_did, compile_with_resolver, CancellationToken, Compilation, CompileOptions, Limits,
     MemoryResolver, RawContract, RawSourceInfo, RuntimeContext, SourceInfo,
 };

@@ -3,7 +3,7 @@
 //! in the serialized shape `@candid-core/cli` hands out.
 #![cfg(feature = "compiler")]
 
-use candid_core::{
+use meant::{
     compile_did, compile_did_with_context, CompileOptions, DocAttributes, DocItemKind, Limits,
     RuntimeContext,
 };
@@ -28,7 +28,7 @@ service : {
 }
 "#;
 
-fn attributes_of(source: &str) -> Result<DocAttributes, candid_core::CompileError> {
+fn attributes_of(source: &str) -> Result<DocAttributes, meant::CompileError> {
     let compilation = compile_did(source).expect("the source compiles");
     DocAttributes::from_source_info(
         compilation

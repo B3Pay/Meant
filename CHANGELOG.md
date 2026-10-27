@@ -1,13 +1,26 @@
 # Changelog
 
-This file records what changed between released versions of `candid-core`. The
+This file records what changed between released versions of `meant` (formerly `candid-core`). The
 release procedure that produces an entry here is [docs/releasing.md](docs/releasing.md).
 
-`candid-core` is pre-1.0. Until 1.0, **any** release may change the public Rust
+`meant` is pre-1.0. Until 1.0, **any** release may change the public Rust
 API, the serialized Contract/Compilation/envelope shapes, the canonical bytes,
 and therefore the identities computed over them. Pin an exact version.
 
 ## Unreleased
+
+### Renamed
+
+- **The crate is now `meant`.** It was published as `candid-core`; `meant`
+  `0.1.0` is that crate's `0.1.0` code under the new name. Depend on
+  `meant = "=0.1.0"` and write `use meant::…` where you wrote
+  `use candid_core::…`. The binary is `meant` (`meant compile <path>`,
+  `meant validate <path>`), and `producer.name` in a Contract it writes is
+  `"meant"`. The `producer` is outside `contract_id` and `interface_id`, so
+  those identities do not move; `artifact_id` over a newly written document
+  does, because it hashes the exact bytes. The Contract `format`, the
+  `candid-core:` identity prefixes, the `org.candid-core.field-names/v1`
+  extension and the `@candid-core/*` npm packages are unchanged by this rename.
 
 ### Added
 
@@ -21,8 +34,8 @@ and therefore the identities computed over them. Pin an exact version.
   are text, numbers kept as written, bools, identifiers, calls, lists and
   records. A malformed attribute fails closed (`doc_attribute_malformed`,
   `doc_attribute_duplicate_key`), nesting is bounded by `max_source_nesting`
-  with an explicit stack, and errors by `max_diagnostics`. candid-core gives
-  no name a meaning; the reading tool decides. Comments live in the sidecar,
+  with an explicit stack, and errors by `max_diagnostics`. meant gives no
+  name a meaning; the reading tool decides. Comments live in the sidecar,
   so they never move `contract_id` or `interface_id`. New public items, all
   `compiler` surface: `DocAttributes`, `DocItem`, `DocItemKind`,
   `DocAttribute`, `DocArgument`, `DocValue`, `DOC_ATTRIBUTES_VERSION`. Nothing

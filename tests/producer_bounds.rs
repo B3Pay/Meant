@@ -14,7 +14,7 @@
 //! `artifact_id` over the complete artifact octets; `tests/artifact_identity.rs`
 //! pins both halves of that boundary.
 
-use candid_core::{
+use meant::{
     compile_did, Contract, ContractDraft, Limits, ProducerInfo, RawContract, RuntimeContext,
 };
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify what each `candid-core` feature set puts in a consumer's dependency graph.
+"""Verify what each `meant` feature set puts in a consumer's dependency graph.
 
 Issue #24 split one published package into a base Contract model plus the
 `host-value`, `compiler`, and `filesystem-compiler` features. The claim that
@@ -19,9 +19,9 @@ Three deliberate scoping decisions:
   not merely from a walk over a resolved graph. Dev-dependencies exist to test
   this repository and never appear in a downstream consumer's graph — and that
   now includes *sibling workspace members'* dev-dependencies: the generator
-  crate's golden tests dev-depend on `candid-core` with `compiler` on, and a
+  crate's golden tests dev-depend on `meant` with `compiler` on, and a
   whole-workspace resolve (what `cargo metadata` computes) unifies that feature
-  into `candid-core` before any edge filtering can help. This script previously
+  into `meant` before any edge filtering can help. This script previously
   used `cargo metadata` with a normal/build edge walk, which was sound while
   the package was alone in its workspace and silently stopped being sound when
   it gained a sibling.
@@ -71,7 +71,7 @@ def host_triple() -> str:
 
 
 def graph(features: str, target: str) -> set:
-    """Package names in candid-core's consumer graph for one feature set.
+    """Package names in meant's consumer graph for one feature set.
 
     `features` is a comma-separated feature list applied on top of
     `--no-default-features`, or the sentinel `"default"` / `"all"`.
@@ -90,7 +90,7 @@ def graph(features: str, target: str) -> set:
         "--manifest-path",
         str(MANIFEST),
         "--package",
-        "candid-core",
+        "meant",
         "--edges",
         "no-dev",
         "--target",
@@ -119,9 +119,9 @@ def graph(features: str, target: str) -> set:
         line = line.strip()
         if line:
             packages.add(line.split(" ", 1)[0])
-    if "candid-core" not in packages:
+    if "meant" not in packages:
         raise SystemExit(
-            "cargo tree output does not contain candid-core itself; "
+            "cargo tree output does not contain meant itself; "
             "refusing to treat an empty or mis-scoped graph as evidence"
         )
     return packages

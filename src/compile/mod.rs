@@ -227,7 +227,7 @@ fn compile_materialized_bundle(
 /// anything itself.
 ///
 /// ```
-/// use candid_core::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+/// use meant::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 ///
 /// let resolver = MemoryResolver::new()
 ///     .with_source("memory:/entry.did", "import \"types.did\";\nservice : { get: () -> (Item) query };")?

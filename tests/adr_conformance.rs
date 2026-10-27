@@ -4,21 +4,19 @@
 //! behaviour and stay runnable with defaults disabled.
 
 #[cfg(feature = "compiler")]
-use candid_core::CancellationToken;
+use meant::CancellationToken;
 #[cfg(feature = "compiler")]
-use candid_core::{
+use meant::{
     compile_did, compile_did_with_context, compile_with_resolver, Actor, Compilation, CompileError,
     CompileOptions, Contract, MemoryResolver, RawContract, RawSourceInfo, ResolveError,
     ResolvedSource, RuntimeContext, SourceId, SourceInfo, SourceLabel, SourceOrigin,
     SourceResolver, CANONICALIZATION_PROFILE, CONTRACT_FORMAT, FORMAT_VERSION, SEMANTICS_PROFILE,
 };
 #[cfg(feature = "filesystem-compiler")]
-use candid_core::{compile_did_file, compile_did_file_with_context};
+use meant::{compile_did_file, compile_did_file_with_context};
 #[cfg(all(feature = "compiler", feature = "host-value"))]
-use candid_core::{
-    validate_host_value, ContractEnvelope, ContractMethodRef, ContractTypeRef, HostValue,
-};
-use candid_core::{ContractDraft, Declaration, Field, Limits, PrimitiveType, TypeNode};
+use meant::{validate_host_value, ContractEnvelope, ContractMethodRef, ContractTypeRef, HostValue};
+use meant::{ContractDraft, Declaration, Field, Limits, PrimitiveType, TypeNode};
 #[cfg(feature = "compiler")]
 use sha2::{Digest, Sha256};
 #[cfg(feature = "compiler")]
@@ -29,7 +27,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
 #[cfg(feature = "compiler")]
-fn compile(source: &str) -> candid_core::Compilation {
+fn compile(source: &str) -> meant::Compilation {
     compile_did(source).unwrap_or_else(|error| panic!("compilation failed: {error:#?}"))
 }
 
@@ -963,7 +961,7 @@ fn runtime_context_cancellation_is_cooperative_and_not_serialized() {
     let json_error = HostValue::from_json_with_context(r#"{"kind":"null"}"#, &context).unwrap_err();
     assert!(matches!(
         json_error,
-        candid_core::HostValueJsonError::Cancelled { ref path } if path == "$"
+        meant::HostValueJsonError::Cancelled { ref path } if path == "$"
     ));
 }
 
@@ -1378,7 +1376,7 @@ fn actorless_contracts_omit_actor_on_the_wire_and_reject_explicit_null() {
     with_null["actor"] = serde_json::Value::Null;
     let error = Contract::from_json(&with_null.to_string()).unwrap_err();
     assert!(
-        matches!(error, candid_core::ContractJsonError::MalformedJson(_)),
+        matches!(error, meant::ContractJsonError::MalformedJson(_)),
         "an explicit actor null must fail JSON decoding, found {error:?}"
     );
     assert!(
