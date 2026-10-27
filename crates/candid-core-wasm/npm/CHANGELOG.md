@@ -3,9 +3,10 @@
 What changed between released versions of `@candid-core/cli`. This file
 ships inside the published tarball, so the record travels with the artifact.
 
-**Every entry names the exact revisions it embeds** — the `candid-core`
-compiler crate and the `candid-core-ts` generator are compiled into the wasm
-artifact from one repository commit, and the pairing is the artifact's
+**Every entry names the exact revisions it embeds** — the compiler crate
+(`meant` from 0.4.0's entry on, published as `candid-core` before) and the
+`candid-core-ts` generator are compiled into the wasm artifact from one
+repository commit, and the pairing is the artifact's
 provenance: the parity gates prove the emitted module and contract are
 byte-identical to that commit's Rust-native outputs over the golden
 fixtures.
@@ -14,24 +15,45 @@ fixtures.
 grammar, the library API, and the request/response shapes. Pin an exact
 version.
 
-## Unreleased
+## 0.4.0 — 2026-10-27
 
-Embeds `candid-core` 0.1.0, the crate's first version without a prerelease
-suffix, from the repository commit the next release is dispatched from. Against
-the compiler 0.3.0 embeds, two things change. A record field whose id is
-4294967295, written as that number or as a name that hashes to it, is refused
-with `did_parse_error`; 0.3.0's compiler numbered the field after it 0.
-Collecting the provenance sidecar no longer grows with the square of the
-declarations, so a large `.did` file compiles in time proportional to its size.
-Every other input compiles to the same Contract and identities; envelopes `gen`
-writes will name 0.1.0 as their producer.
+Embeds `meant` 0.1.0 and the `candid-core-ts` generator from the repository
+commit the release is dispatched from; the release record names the exact
+SHA. `meant` is the compiler crate formerly published as `candid-core`, and
+`meant` 0.1.0 is `candid-core` 0.1.0's code under the new name: the crate's
+first version without a prerelease suffix. The dispatched commit's `meant`
+source is ahead of the crates.io 0.1.0 archive by one change, the reader of
+doc attributes behind `didToDocAttributes` (below), which moves no Contract
+and no identity, so no crate release comes first.
+
+A stable release, published under the npm `latest` dist-tag, so a plain
+`npx @candid-core/cli` runs it; keep it pinned,
+`npm install --save-dev --save-exact @candid-core/cli`. A `^0.3.0` range does
+not admit it. The `beta` dist-tag stays on 0.2.0-beta.1. The optional peer is
+`@candid-core/schema` at exactly `0.5.0` (exactly `0.4.0` in 0.3.0), and npm
+refuses a mismatched pair (`ERESOLVE could not resolve`), so move the two
+packages together.
+
+Against the compiler 0.3.0 embeds (`candid-core` 0.1.0-beta.3 and five later
+changes), three things change. A record field whose id is 4294967295, written
+as that number or as a name that hashes to it, is refused with
+`did_parse_error`; 0.3.0's compiler numbered the field after it 0. Collecting
+the provenance sidecar no longer grows with the square of the declarations,
+so a large `.did` file compiles in time proportional to its size. And every
+envelope `gen` writes names `meant` 0.1.0 as its producer, where 0.3.0's
+named `candid-core` 0.1.0-beta.3, so `gen --check` reports each envelope
+0.3.0 wrote as drifted, exit 1, until `gen` runs again. Every other input
+compiles to the same Contract and identities: of the repository's 44 tracked
+`.did` files, the 40 that both releases compile give envelopes that differ in
+the `producer` alone, and the 4 that 0.3.0 refuses this release refuses with
+the same diagnostics.
 
 ### Added
 
 - **`didToDocAttributes` reads `@name(…)` attributes in doc comments.** It
   compiles the sources and returns `{ ok: true, contract, source_info,
   doc_attributes }`: the Contract and the SourceInfo sidecar
-  `candid-core compile <path>` prints, which no function of this package
+  `meant compile <path>` prints, which no function of this package
   exposed before, and every documented item's prose and attributes keyed by
   its SourceInfo path, as `docs/doc-attributes.md` specifies (doc attributes
   v1). A malformed attribute fails the call with `doc_attribute_malformed`
@@ -63,15 +85,16 @@ writes will name 0.1.0 as their producer.
   with `$.c.opt($.c.blob())`, and `type Subaccount = blob` is emitted as
   `export type Subaccount = Uint8Array`, so a field written
   `subaccount : opt Subaccount` reads `Uint8Array | null` too. Value types,
-  wire bytes and envelopes do not change, and every declaration is still
+  wire bytes and envelopes do not change for it, and every declaration is still
   exported under its name. A module with two aliases of one of these shapes,
   or one alias and a plain use, changes text, so `gen --check` reports it as
-  drifted until `gen` runs again. Measured on the repository's 41 tracked
-  `.did` files: of the 34 that generate, one module changes. A declaration
-  of one of these shapes named after an export of the module (`actor`) is
-  omitted on its own and no longer takes the other uses of the shape with
-  it; `@candid-core/schema`'s `schemaFromContract` applies the same rule
-  from its next release.
+  drifted until `gen` runs again. Measured on the repository's 44 tracked
+  `.did` files against 0.3.0: of the 40 that generate, three modules change,
+  `shadowing.did`'s and the two fixtures added for this change. A
+  declaration of one of these shapes named after an export of the module
+  (`actor`) is omitted on its own and no longer takes the other uses of the
+  shape with it; `@candid-core/schema` 0.5.0's `schemaFromContract` applies
+  the same rule.
 
 ## 0.3.0 — 2026-10-10
 

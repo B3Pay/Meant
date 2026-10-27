@@ -4,16 +4,58 @@ What changed between released versions of `@candid-core/schema`. This file
 ships inside the published tarball, so the record travels with the artifact and
 survives registry mirrors and offline installs.
 
-The package versions independently of the [candid-core] crate whose Contract
-model and generator produce its bindings, so **every entry names the
-`candid-core` version it pairs with**. The release procedure that produces an
-entry here is [docs/releasing.md] in that repository.
+The package versions independently of the compiler crate whose Contract
+model and generator produce its bindings, so **every entry names the crate
+version it pairs with**. The crate is `meant` from 0.5.0's entry on; it was
+published as `candid-core` before, under which the earlier entries name it.
+The release procedure that produces an entry here is [docs/releasing.md] in
+the [candid-core] repository.
 
 `@candid-core/schema` is pre-1.0. Until 1.0 any release may change the builder
 API, the inferred domain types, the codec's wire behaviour, and the codes and
 `$`-rooted paths validation reports. Pin an exact version.
 
-## Unreleased
+## 0.5.0 — 2026-10-27
+
+Pairs with `meant` 0.1.0.
+
+A stable release, published under the npm `latest` dist-tag, so a plain
+`npm install @candid-core/schema` selects it; keep it pinned,
+`npm install --save-exact @candid-core/schema`. A `^0.4.0` range does not
+admit it: under npm's pre-1.0 caret rules a minor is a release line of its
+own. The `beta` dist-tag stays on 0.3.0-beta.1.
+
+**Upgrading from 0.4.0 changes nothing at run time but one omission rule,
+and breaks code only at the type level.** `decode` and `decodeArgs` now type
+their values by their schemas, which is **BREAKING** for code that cast or
+annotated a decoded value to a type its schema does not describe (below).
+`schemaFromContract` omits less in one case: a declaration of a `blob`,
+`record {}` or `variant {}` under a reserved name no longer takes the other
+uses of that shape with it (below). Every other name the four entry points
+export keeps its declaration text, every shipped `.js` file but `codec.js`
+(two documentation comments) and `contract.js` (the omission rule) is
+byte-identical to 0.4.0's, and no verdict, byte, issue code or path changes.
+
+**The CLI pairs with this exact version.** `@candid-core/cli` 0.4.0 declares
+this package as a peer at exactly `0.5.0`, and npm refuses to install a
+mismatched pair (`ERESOLVE could not resolve`: CLI 0.3.0 peers exactly
+`0.4.0`). The modules either CLI writes compile against either schema
+release, so the pin is the lockstep, not a type dependency. Upgrade the two
+together, at exact versions, and regenerate committed modules: every
+envelope CLI 0.4.0 writes names `meant` 0.1.0 as its producer, so
+`candid-core-cli gen --check` reports each envelope 0.3.0 wrote as drifted
+until you do.
+
+**The compiler crate is now `meant`.** The Rust crate published as
+`candid-core` is `meant` on crates.io, and `meant` 0.1.0 is `candid-core`
+0.1.0's code under the new name. The README's on-ramp is
+`cargo install meant --version 0.1.0 --locked`, then
+`meant compile ./service.did --envelope`. Every envelope it writes for the
+40 tracked `.did` files of the repository that compile loads in this
+release, with the same omissions as under 0.4.0 but for the one case below.
+Its Contracts and identities are those the compiler `@candid-core/cli` 0.3.0
+embeds writes for the same files; only the `producer` differs, which no
+identity covers and this package does not read.
 
 ### Changed
 
