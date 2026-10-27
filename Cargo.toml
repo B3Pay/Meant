@@ -71,7 +71,10 @@ include = [
 # records that here so a future member glob cannot swallow it.
 [workspace]
 resolver = "2"
-members = [".", "crates/candid-core-ts"]
+# `crates/meant` is the first crate of the Meant brand: exact amount
+# conversion for profiles. It depends on nothing, candid-core included, and
+# versions and publishes on its own.
+members = [".", "crates/candid-core-ts", "crates/meant"]
 # `crates/candid-core-wasm` is excluded for the same reason `fuzz` is: each is
 # its own workspace root with its own lockfile, so wasm-bindgen and the fuzz
 # harness never enter this workspace's resolved graph or feature unification.

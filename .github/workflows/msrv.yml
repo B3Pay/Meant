@@ -21,6 +21,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.78.0
       - name: Test the locked dependency graph
         run: cargo test --all-targets --locked
+      # `cargo test` at the root tests the root package only, so the meant
+      # crate's own 1.78 floor is checked by name.
+      - name: Test the meant crate
+        run: cargo test -p meant --all-targets --locked
   stable:
     name: Stable (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -299,6 +303,64 @@ jobs:
       # under the pinned tsc, and executing a real round-trip.
       - name: Verify the npm package artifact
         run: python3 tests/fixtures/packaging/verify_npm_package.py
+
+  meant:
+    name: Meant crate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: thumbv7em-none-eabihf
+      # Formatting is the Stable job's `cargo fmt --check`, which covers every
+      # workspace member.
+      - name: Lint both feature configurations
+        run: |
+          set -euxo pipefail
+          cargo clippy -p meant --all-targets --locked -- -D warnings
+          cargo clippy -p meant --all-targets --no-default-features --locked -- -D warnings
+      # Includes tests/parity.rs: every case generated from the JavaScript
+      # reference (@candid-core/profile-format) must get the same value, or the
+      # same error code and message. The doctests include the README's example.
+      - name: Test both feature configurations
+        run: |
+          set -euxo pipefail
+          cargo test -p meant --locked
+          cargo test -p meant --no-default-features --locked
+      # The no_std claim, on a target with no standard library at all: the
+      # same command with the default `std` feature fails there with E0463.
+      - name: Build without std
+        run: cargo check -p meant --lib --no-default-features --target thumbv7em-none-eabihf --locked
+      - name: Documentation with warnings denied
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: |
+          set -euxo pipefail
+          cargo doc -p meant --no-deps --locked
+          cargo doc -p meant --no-deps --no-default-features --locked
+      # The published file set, exactly, by the same positive-allowlist rule as
+      # the root package: tests and the parity vectors never ship. Then the
+      # archive is built and compiled on its own, as `cargo publish` would.
+      - name: Verify the package
+        run: |
+          set -euxo pipefail
+          cargo package -p meant --locked --list > "$RUNNER_TEMP/meant-files.txt"
+          diff -u - "$RUNNER_TEMP/meant-files.txt" <<'EOF'
+          .cargo_vcs_info.json
+          CHANGELOG.md
+          Cargo.lock
+          Cargo.toml
+          Cargo.toml.orig
+          LICENSE
+          README.md
+          src/amount.rs
+          src/error.rs
+          src/int_type.rs
+          src/lib.rs
+          src/text.rs
+          EOF
+          cargo package -p meant --locked
 
   benchmark-smoke:
     name: Benchmark smoke test
