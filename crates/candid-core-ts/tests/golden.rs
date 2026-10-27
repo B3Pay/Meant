@@ -11,10 +11,10 @@
 
 use std::path::PathBuf;
 
-use candid_core::compile_did;
 use candid_core_ts::{
     generate_module, GeneratedModule, Omission, OmissionKind, OmissionReason, TsNames, TsOptions,
 };
+use meant::compile_did;
 
 fn generate_fixture(name: &str) -> String {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
@@ -62,10 +62,10 @@ fn assert_golden(name: &str) {
 /// node — and emitting both would let the loader's last-entry-wins table
 /// render a different key than the generated builder. The native binary's
 /// `field_name_triples` mirrors this derivation exactly.
-fn name_triples(source_info: &candid_core::SourceInfo) -> Vec<(u32, u32, String)> {
+fn name_triples(source_info: &meant::SourceInfo) -> Vec<(u32, u32, String)> {
     let mut names: std::collections::BTreeMap<(u32, u32), &str> = std::collections::BTreeMap::new();
     for provenance in source_info.field_labels() {
-        if let candid_core::SourceLabel::Named { name } = &provenance.label {
+        if let meant::SourceLabel::Named { name } = &provenance.label {
             names.insert((provenance.container, provenance.id), name.as_str());
         }
     }
@@ -330,7 +330,7 @@ fn golden_runtime_contract_documents() {
             "candid_parser_version": "0.0.0-golden",
         });
         let normalized = serde_json::to_string(&document).expect("document must serialize");
-        let reparsed = candid_core::Contract::from_json(&normalized)
+        let reparsed = meant::Contract::from_json(&normalized)
             .expect("the normalized document must still be a valid canonical Contract");
         let pretty = serde_json::to_value(&reparsed).expect("contract must serialize");
         let mut text = serde_json::to_string_pretty(&pretty).expect("document must pretty-print");
@@ -361,12 +361,12 @@ fn golden_runtime_contract_documents() {
         // own validation, exactly as the `candid-core compile --envelope`
         // path builds it. `ts/tests/crosscheck.test.ts` proves this document
         // yields verdict-for-verdict the same schemas as the two files above.
-        let mut envelope = candid_core::ContractEnvelope::new(reparsed);
+        let mut envelope = meant::ContractEnvelope::new(reparsed);
         envelope
             .insert_extension(
                 "org.candid-core.field-names/v1",
                 serde_json::Value::Array(entries),
-                &candid_core::Limits::default(),
+                &meant::Limits::default(),
             )
             .expect("the field-names extension must validate");
         let envelope_value = serde_json::to_value(&envelope).expect("envelope must serialize");
@@ -399,7 +399,7 @@ fn generation_is_deterministic_across_serde_round_trips() {
         assert_eq!(first, second, "{fixture}");
 
         let json = serde_json::to_string(compilation.contract()).expect("serialize");
-        let reparsed = candid_core::Contract::from_json(&json).expect("reparse");
+        let reparsed = meant::Contract::from_json(&json).expect("reparse");
         let third = generate_module(&reparsed, &names, &options).expect("generate");
         assert_eq!(first, third, "{fixture}");
         assert_eq!(fixture == "omissions", !first.omitted.is_empty());
@@ -490,9 +490,9 @@ fn collapsing_options_box() {
     // `type L = opt L;` since issue #234 (a cycle through opt alone), but a
     // Contract document holding that graph still loads, so the generator
     // still meets it: the same graph, built through the model.
-    let contract = candid_core::ContractDraft::new(
-        vec![candid_core::TypeNode::Opt { inner: 0 }],
-        vec![candid_core::Declaration {
+    let contract = meant::ContractDraft::new(
+        vec![meant::TypeNode::Opt { inner: 0 }],
+        vec![meant::Declaration {
             name: "L".to_string(),
             ty: 0,
         }],
@@ -763,24 +763,24 @@ fn names_only_a_document_declares_fall_back() {
         ("x$", "x$"),
         ("type", "type"),
     ] {
-        let contract = candid_core::ContractDraft::new(
+        let contract = meant::ContractDraft::new(
             vec![
-                candid_core::TypeNode::Record {
-                    fields: vec![candid_core::Field { id: 5, ty: 2 }],
+                meant::TypeNode::Record {
+                    fields: vec![meant::Field { id: 5, ty: 2 }],
                 },
-                candid_core::TypeNode::Record {
-                    fields: vec![candid_core::Field { id: 7, ty: 0 }],
+                meant::TypeNode::Record {
+                    fields: vec![meant::Field { id: 7, ty: 0 }],
                 },
-                candid_core::TypeNode::Primitive {
-                    primitive: candid_core::PrimitiveType::Nat8,
+                meant::TypeNode::Primitive {
+                    primitive: meant::PrimitiveType::Nat8,
                 },
             ],
             vec![
-                candid_core::Declaration {
+                meant::Declaration {
                     name: name.to_string(),
                     ty: 0,
                 },
-                candid_core::Declaration {
+                meant::Declaration {
                     name: "Holder".to_string(),
                     ty: 1,
                 },
@@ -937,11 +937,11 @@ fn export_name_declarations_are_omitted() {
 #[test]
 fn non_identifier_declaration_names_are_omitted() {
     let contract_named = |name: &str| {
-        candid_core::ContractDraft::new(
-            vec![candid_core::TypeNode::Primitive {
-                primitive: candid_core::PrimitiveType::Nat,
+        meant::ContractDraft::new(
+            vec![meant::TypeNode::Primitive {
+                primitive: meant::PrimitiveType::Nat,
             }],
-            vec![candid_core::Declaration {
+            vec![meant::Declaration {
                 name: name.to_string(),
                 ty: 0,
             }],
@@ -983,24 +983,24 @@ fn non_identifier_declaration_names_are_omitted() {
 
     // A declaration that renders the omitted one's name goes with it, and
     // the header quotes the `via` name the same way.
-    let contract = candid_core::ContractDraft::new(
+    let contract = meant::ContractDraft::new(
         vec![
-            candid_core::TypeNode::Record {
-                fields: vec![candid_core::Field { id: 1, ty: 1 }],
+            meant::TypeNode::Record {
+                fields: vec![meant::Field { id: 1, ty: 1 }],
             },
-            candid_core::TypeNode::Record {
-                fields: vec![candid_core::Field { id: 2, ty: 2 }],
+            meant::TypeNode::Record {
+                fields: vec![meant::Field { id: 2, ty: 2 }],
             },
-            candid_core::TypeNode::Primitive {
-                primitive: candid_core::PrimitiveType::Nat,
+            meant::TypeNode::Primitive {
+                primitive: meant::PrimitiveType::Nat,
             },
         ],
         vec![
-            candid_core::Declaration {
+            meant::Declaration {
                 name: "a-b".to_string(),
                 ty: 1,
             },
-            candid_core::Declaration {
+            meant::Declaration {
                 name: "Uses".to_string(),
                 ty: 0,
             },
@@ -1457,16 +1457,16 @@ fn the_last_name_for_a_key_wins_before_it_is_classified() {
     let id = candid_parser_id(reserved);
     assert_eq!(id, candid_parser_id(collision), "the two spellings collide");
     assert_eq!(id, 4_735_054);
-    let contract = candid_core::ContractDraft::new(
+    let contract = meant::ContractDraft::new(
         vec![
-            candid_core::TypeNode::Record {
-                fields: vec![candid_core::Field { id, ty: 1 }],
+            meant::TypeNode::Record {
+                fields: vec![meant::Field { id, ty: 1 }],
             },
-            candid_core::TypeNode::Primitive {
-                primitive: candid_core::PrimitiveType::Nat,
+            meant::TypeNode::Primitive {
+                primitive: meant::PrimitiveType::Nat,
             },
         ],
-        vec![candid_core::Declaration {
+        vec![meant::Declaration {
             name: "A".to_string(),
             ty: 0,
         }],
@@ -1477,7 +1477,7 @@ fn the_last_name_for_a_key_wins_before_it_is_classified() {
     let record = contract
         .types()
         .iter()
-        .position(|node| matches!(node, candid_core::TypeNode::Record { .. }))
+        .position(|node| matches!(node, meant::TypeNode::Record { .. }))
         .expect("the record node") as u32;
 
     // Reserved first, ordinary last: the ordinary spelling wins and renders.
@@ -1998,7 +1998,7 @@ fn documented_generation_is_deterministic() {
     let compilation = compile_did(&source).expect("compile");
     let names = TsNames::from_source_info(compilation.source_info().expect("provenance"));
     let json = serde_json::to_string(compilation.contract()).expect("serialize");
-    let reparsed = candid_core::Contract::from_json(&json).expect("reparse");
+    let reparsed = meant::Contract::from_json(&json).expect("reparse");
     let again = generate_module(&reparsed, &names, &TsOptions::default())
         .expect("generate")
         .module;

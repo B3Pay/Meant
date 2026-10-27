@@ -23,7 +23,7 @@
 //! the one asserted in `tests/deep_nesting.rs`: input nested *past* the limit is
 //! rejected without recursing at all.
 
-use candid_core::{HostFieldValue, HostValue, HostValueJsonError, Limits};
+use meant::{HostFieldValue, HostValue, HostValueJsonError, Limits};
 
 /// `depth` nested `opt` wrappers around a `null`.
 ///

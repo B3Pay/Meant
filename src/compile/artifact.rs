@@ -199,7 +199,7 @@ impl Serialize for Compilation {
 /// accept a resource policy:
 ///
 /// ```compile_fail
-/// let _: candid_core::Compilation = serde_json::from_str("{}").unwrap();
+/// let _: meant::Compilation = serde_json::from_str("{}").unwrap();
 /// ```
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

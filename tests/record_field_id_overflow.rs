@@ -12,7 +12,7 @@
 //! owner's decision, its rejected alternatives and the triage are recorded on
 //! the issue.
 
-use candid_core::{
+use meant::{
     compile_did, compile_did_with_context, compile_did_with_options, compile_with_resolver,
     CompileError, CompileOptions, DiagnosticPhase, MemoryResolver, RawSourceInfo, RuntimeContext,
     SourceInfo, SourceSpan,
@@ -252,7 +252,7 @@ fn native_file_compilation_refuses_too() {
         "import \"types.did\";\nservice : { m : (T) -> () };",
     )
     .unwrap();
-    let outcome = candid_core::compile_did_file(&entry);
+    let outcome = meant::compile_did_file(&entry);
     let _ = std::fs::remove_dir_all(&directory);
     let error = outcome.expect_err("an imported record field at u32::MAX");
     let span = error.diagnostics[0].span.clone().expect("a source span");

@@ -106,7 +106,7 @@
 use std::borrow::Borrow;
 use std::collections::BTreeSet;
 
-use candid_core::{Limits, SourceImportKind, SourceInfo};
+use meant::{Limits, SourceImportKind, SourceInfo};
 use candid_parser::candid::types::{FuncMode, Label};
 use candid_parser::syntax::{
     Binding, FuncType, IDLActorType, IDLArgType, IDLType, PrimType, TypeField,

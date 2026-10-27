@@ -8,7 +8,7 @@
     "interface": "candid-core:interface:v1:sha256:99f400820c0ca2fb7c32cc3ab1df6d6c000bc614cffe0e350b6a9a576da18d48"
   },
   "producer": {
-    "name": "candid-core",
+    "name": "meant",
     "version": "0.1.0",
     "candid_version": "0.10.30",
     "candid_parser_version": "0.4.0"

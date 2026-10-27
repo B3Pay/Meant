@@ -8,8 +8,8 @@
 //! zero limits and elapsed deadlines.
 
 #[cfg(feature = "compiler")]
-use candid_core::compile_did;
-use candid_core::{
+use meant::compile_did;
+use meant::{
     Contract, ContractDraft, Declaration, Diagnostic, Field, Limits, LimitsConfig, LimitsProfile,
     PrimitiveType, ProducerInfo, RawContract, RuntimeContext, SourceSpan, TypeNode,
     LIMITS_CONFIG_VERSION,
@@ -482,7 +482,7 @@ fn all_zero_limits_deserialize_round_trip_and_fail_closed() {
 
     // And it fails closed: any input at all exceeds the zero input gate.
     let error = Contract::from_json_with_limits("{}", &all_zero).unwrap_err();
-    let candid_core::ContractJsonError::InvalidContract(error) = error else {
+    let meant::ContractJsonError::InvalidContract(error) = error else {
         panic!("the byte gate must fire before JSON decoding: {error:?}");
     };
     let info = error.violations[0].resource_limit.as_ref().unwrap();

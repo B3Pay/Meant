@@ -94,7 +94,7 @@
 
 use std::collections::BTreeSet;
 
-use candid_core::{
+use meant::{
     compile_did_with_options, compile_with_resolver, Compilation, CompileError, CompileOptions,
     ContractEnvelope, Limits, MemoryResolver, RuntimeContext, SourceInfo, SourceLabel,
 };
@@ -458,7 +458,7 @@ fn check_request(request: &str, options: CheckOptions) -> Result<String, String>
     })))
 }
 
-fn identities(contract: &candid_core::Contract) -> Value {
+fn identities(contract: &meant::Contract) -> Value {
     json!({
         "contract_id": contract.contract_id(),
         "interface_id": contract.interface_id(),

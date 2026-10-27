@@ -1,9 +1,9 @@
 #[allow(dead_code)]
 mod support;
 
-use candid_core::{compile_did_with_options, CompileOptions, Contract};
 use candid_parser::candid::TypeEnv;
 use candid_parser::{check_prog, IDLProg};
+use meant::{compile_did_with_options, CompileOptions, Contract};
 use serde::Serialize;
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};

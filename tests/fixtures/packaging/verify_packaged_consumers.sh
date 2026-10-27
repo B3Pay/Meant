@@ -10,7 +10,7 @@
 # likewise compiles a `.did` file this script writes itself, because every
 # fixture under `tests/` is deliberately outside the archive.
 #
-# Usage: verify_packaged_consumers.sh [path/to/candid-core-<version>.crate]
+# Usage: verify_packaged_consumers.sh [path/to/meant-<version>.crate]
 #
 # With no argument the sole archive in `target/package/` is used. Only cargo,
 # tar, mktemp, python3, and a SHA-256 utility are invoked; nothing is downloaded
@@ -24,10 +24,10 @@ if [[ $# -ge 1 ]]; then
     crate_archive="$1"
 else
     shopt -s nullglob
-    candidates=("${repo_root}/target/package"/candid-core-*.crate)
+    candidates=("${repo_root}/target/package"/meant-*.crate)
     shopt -u nullglob
     if [[ ${#candidates[@]} -ne 1 ]]; then
-        echo "expected exactly one candid-core-*.crate in target/package, found ${#candidates[@]}" >&2
+        echo "expected exactly one meant-*.crate in target/package, found ${#candidates[@]}" >&2
         echo "run 'cargo package --locked' first, or pass the archive path explicitly" >&2
         exit 1
     fi
@@ -60,8 +60,8 @@ echo "bytes:    ${archive_bytes}"
 echo "sha256:   ${archive_sha256}"
 
 tar -xzf "${crate_archive}" -C "${workdir}"
-package_dir="$(find "${workdir}" -maxdepth 1 -type d -name 'candid-core-*' -print -quit)"
-[[ -n "${package_dir}" ]] || { echo "archive did not unpack to a candid-core-* directory" >&2; exit 1; }
+package_dir="$(find "${workdir}" -maxdepth 1 -type d -name 'meant-*' -print -quit)"
+[[ -n "${package_dir}" ]] || { echo "archive did not unpack to a meant-* directory" >&2; exit 1; }
 echo "unpacked: ${package_dir}"
 
 # A consumer that resolved back to the repository would silently defeat this
@@ -91,7 +91,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-candid-core = { path = "${package_dir}", ${feature_spec} }
+meant = { path = "${package_dir}", ${feature_spec} }
 
 [workspace]
 EOF
@@ -104,7 +104,7 @@ EOF
 
 # --- 1. base: `default-features = false`, no Candid engine at all -----------
 build_consumer base 'default-features = false' '
-use candid_core::{
+use meant::{
     artifact_id_with_limits, ArtifactKind, ContractDraft, Declaration, Limits, PrimitiveType,
     ProducerInfo, TypeNode,
 };
@@ -132,7 +132,7 @@ fn main() {
     // time. If `include` dropped it, or Cargo normalized it into a shape the
     // reader does not understand, this build panics or these are empty.
     let producer = ProducerInfo::current();
-    assert_eq!(producer.name, "candid-core");
+    assert_eq!(producer.name, "meant");
     assert!(!producer.version.is_empty());
     assert!(!producer.candid_version.is_empty());
     assert!(!producer.candid_parser_version.is_empty());
@@ -154,7 +154,7 @@ echo "base consumer graph excludes candid, candid_parser, cap-std, ic_principal"
 
 # --- 2. compiler only: source compilation with no filesystem ----------------
 build_consumer compiler 'default-features = false, features = ["compiler"]' '
-use candid_core::{compile_did, compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+use meant::{compile_did, compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 
 fn main() {
     let compiled = compile_did("service : { ping : () -> (text) query };")
@@ -182,7 +182,7 @@ fn main() {
 
 # --- 3. the full native library, every feature on ---------------------------
 build_consumer all-features 'features = ["compiler", "filesystem-compiler", "host-value"]' '
-use candid_core::{compile_did, validate_host_value, HostValue, Limits};
+use meant::{compile_did, validate_host_value, HostValue, Limits};
 
 fn main() {
     let compilation = compile_did("type Greeting = text; service : { echo : (Greeting) -> (Greeting) query };")
@@ -205,8 +205,8 @@ echo "--- CLI install and smoke ---"
 cli_root="${workdir}/cli"
 cargo install --locked --path "${package_dir}" --root "${cli_root}" \
     --no-default-features --features filesystem-compiler
-cli="${cli_root}/bin/candid-core"
-[[ -x "${cli}" ]] || { echo "cargo install produced no candid-core binary" >&2; exit 1; }
+cli="${cli_root}/bin/meant"
+[[ -x "${cli}" ]] || { echo "cargo install produced no meant binary" >&2; exit 1; }
 
 smoke="${workdir}/smoke"
 mkdir -p "${smoke}"
@@ -242,7 +242,7 @@ if ! rustup target list --installed | grep -qx wasm32-unknown-unknown; then
 fi
 
 build_consumer wasm-base 'default-features = false' '
-use candid_core::{ContractDraft, Declaration, Limits, PrimitiveType, TypeNode};
+use meant::{ContractDraft, Declaration, Limits, PrimitiveType, TypeNode};
 
 fn main() {
     let contract = ContractDraft::new(
@@ -257,7 +257,7 @@ fn main() {
 ' check --quiet --target wasm32-unknown-unknown
 
 build_consumer wasm-compiler 'default-features = false, features = ["compiler"]' '
-use candid_core::compile_did;
+use meant::compile_did;
 
 fn main() {
     let compiled = compile_did("service : { ping : () -> () };").expect("the compiler surface on wasm");

@@ -23,7 +23,7 @@
 //! other: `many` is `N` one-record declarations used by `N` service methods,
 //! and `wide` is one record of `N` fields beside one variant of `N` arms.
 
-use candid_core::{
+use meant::{
     compile_did, compile_did_with_options, Compilation, CompileOptions, Contract, ContractEnvelope,
     Limits, RawSourceInfo, RuntimeContext, SourceInfo,
 };

@@ -199,7 +199,7 @@ jobs:
           EXPECTED: ${{ inputs.expected_sha256 }}
         run: |
           set -euo pipefail
-          archive="$(echo target/package/candid-core-*.crate)"
+          archive="$(echo target/package/meant-*.crate)"
           actual="$(sha256sum "${archive}" | cut -d' ' -f1)"
           printf 'archive:  %s\nexpected: %s\nactual:   %s\n' "${archive}" "${EXPECTED}" "${actual}"
           if [ "${actual}" != "${EXPECTED}" ]; then
@@ -233,7 +233,7 @@ jobs:
           set -euo pipefail
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -a "v${VERSION}" -m "candid-core ${VERSION}" "${COMMIT}"
+          git tag -a "v${VERSION}" -m "meant ${VERSION}" "${COMMIT}"
           git push origin "refs/tags/v${VERSION}"
 
       - name: Verify the pushed tag
@@ -320,8 +320,8 @@ jobs:
           PY
           actual=""
           for attempt in 1 2 3 4 5 6 7 8 9 10; do
-            body="$(curl -sS -H 'User-Agent: candid-core release workflow' \
-              "https://crates.io/api/v1/crates/candid-core/${VERSION}" || true)"
+            body="$(curl -sS -H 'User-Agent: meant release workflow' \
+              "https://crates.io/api/v1/crates/meant/${VERSION}" || true)"
             actual="$(printf '%s' "${body}" | python3 "${reader}")"
             [ -n "${actual}" ] && break
             printf 'attempt %s: version not visible yet, retrying\n' "${attempt}"
@@ -375,7 +375,7 @@ jobs:
             printf '| Release commit | `%s` |\n' "${COMMIT}"
             printf '| Cargo | `%s` |\n' "${RELEASE_TOOLCHAIN}"
             printf '| `.crate` SHA-256 | `%s` |\n' "${EXPECTED}"
-            printf '| crates.io | https://crates.io/crates/candid-core/%s |\n' "${VERSION}"
+            printf '| crates.io | https://crates.io/crates/meant/%s |\n' "${VERSION}"
             printf '\nThe digest above was recorded by the `Release candidate` run for this'
             printf ' commit, re-verified by repackaging with the pinned Cargo before the tag'
             printf ' was created, and matched against the checksum crates.io itself recorded'
@@ -403,7 +403,7 @@ jobs:
           gh release create "v${VERSION}" \
             --verify-tag \
             ${flag} \
-            --title "candid-core ${VERSION}" \
+            --title "meant ${VERSION}" \
             --notes-file "${RELEASE_BODY}"
 
       - name: Verify the published release
@@ -422,7 +422,7 @@ jobs:
           version, prerelease = sys.argv[1], sys.argv[2] == "true"
           r = json.load(open("release.json"))
           assert r["tagName"] == f"v{version}", r["tagName"]
-          assert r["name"] == f"candid-core {version}", r["name"]
+          assert r["name"] == f"meant {version}", r["name"]
           assert r["isPrerelease"] is prerelease, r["isPrerelease"]
           assert r["isDraft"] is False, r["isDraft"]
           print("release verified:", r["url"])

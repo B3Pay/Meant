@@ -28,7 +28,7 @@ use std::path::PathBuf;
 use candid::types::internal::{Field, Function, Type, TypeInner};
 use candid::types::subtype::{subtype_with_config, OptReport};
 use candid::TypeEnv;
-use candid_core::{compile_did, Limits};
+use meant::{compile_did, Limits};
 use candid_core_ts::{generate_module, TsNames, TsOptions};
 use candid_core_wasm::{
     check_compatible, check_compatible_with, CheckOptions, MAX_CHECK_OUTPUT_BYTES, MAX_CHECK_STEPS,

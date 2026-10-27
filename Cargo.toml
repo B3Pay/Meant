@@ -1,5 +1,5 @@
 [package]
-name = "candid-core"
+name = "meant"
 # Pre-1.0. The first version without a prerelease suffix, but any 0.x release
 # may still break, so README.md and CHANGELOG.md ask consumers to pin
 # `=0.1.0` exactly rather than take a caret requirement. The same string
@@ -13,7 +13,7 @@ description = "Canonical runtime Contract graph projection for Candid DID interf
 license = "Apache-2.0"
 repository = "https://github.com/b3hr4d/candid-core"
 homepage = "https://github.com/b3hr4d/candid-core"
-documentation = "https://docs.rs/candid-core"
+documentation = "https://docs.rs/meant"
 readme = "README.md"
 # Deliberately narrow, and deliberately *not* `parser-implementations`: this
 # crate delegates Candid parsing and type checking to `candid_parser` rather than
@@ -84,7 +84,7 @@ exclude = ["fuzz", "crates/candid-core-wasm"]
 # It depends on no Candid engine and no filesystem capability crate.
 #
 # Cargo unifies features across a build graph, so a workspace that also depends
-# on `candid-core` with defaults compiles the whole surface once for everyone.
+# on `meant` with defaults compiles the whole surface once for everyone.
 # Feature splitting bounds what a *dependency graph* must contain, not what a
 # single unified build produces; see docs/architecture.md.
 [features]
@@ -98,7 +98,7 @@ default = ["compiler", "filesystem-compiler", "host-value"]
 compiler = ["dep:candid", "dep:candid_parser"]
 # Native filesystem access on top of `compiler`: `WorkspaceResolver`,
 # `compile_did_file` and its variants, source materialization for
-# `candid_parser::check_file`, and the `candid-core` binary.
+# `candid_parser::check_file`, and the `meant` binary.
 filesystem-compiler = ["compiler", "dep:cap-std"]
 # The lossless host value ABI and graph-directed value validation.
 host-value = ["dep:ic_principal"]
@@ -155,8 +155,8 @@ proptest = "=1.6.0"
 wasm-bindgen-test = "=0.3.58"
 
 [[bin]]
-name = "candid-core"
-path = "src/bin/candid-core.rs"
+name = "meant"
+path = "src/bin/meant.rs"
 required-features = ["filesystem-compiler"]
 
 [[bench]]

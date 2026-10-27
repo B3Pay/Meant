@@ -1,4 +1,4 @@
-use candid_core::{ContractDraft, Declaration, Field, Limits, PrimitiveType, TypeNode};
+use meant::{ContractDraft, Declaration, Field, Limits, PrimitiveType, TypeNode};
 
 fn deep_record(depth: u32) -> ContractDraft {
     let mut types = (0..depth)

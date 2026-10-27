@@ -12,7 +12,7 @@
 //! Only one mark, only at byte 0: a second mark, a mark after any other byte,
 //! and the UTF-16 marks stay rejected exactly as before.
 
-use candid_core::{
+use meant::{
     compile_did, compile_did_with_context, compile_with_resolver, Compilation, CompileError,
     CompileOptions, Limits, MemoryResolver, RuntimeContext,
 };
@@ -40,7 +40,7 @@ fn bundle_id(compilation: &Compilation) -> &str {
         .source_bundle_id()
 }
 
-fn first_diagnostic(error: CompileError) -> candid_core::Diagnostic {
+fn first_diagnostic(error: CompileError) -> meant::Diagnostic {
     error
         .diagnostics
         .into_iter()
@@ -48,7 +48,7 @@ fn first_diagnostic(error: CompileError) -> candid_core::Diagnostic {
         .expect("one diagnostic")
 }
 
-fn span_bytes(diagnostic: &candid_core::Diagnostic) -> (Option<u64>, Option<u64>) {
+fn span_bytes(diagnostic: &meant::Diagnostic) -> (Option<u64>, Option<u64>) {
     let span = diagnostic.span.as_ref().expect("parse errors carry a span");
     (span.start_byte, span.end_byte)
 }
@@ -289,7 +289,7 @@ fn the_bom_counts_against_the_source_byte_limit() {
 #[cfg(feature = "filesystem-compiler")]
 mod files {
     use super::*;
-    use candid_core::{compile_did_file, WorkspaceResolver};
+    use meant::{compile_did_file, WorkspaceResolver};
     use std::fs;
     use std::path::PathBuf;
     use std::sync::atomic::{AtomicU64, Ordering};
