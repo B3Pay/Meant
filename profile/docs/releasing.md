@@ -6,14 +6,16 @@ The procedure of record for publishing `@meantjs/profile`, `@meantjs/format`,
 version can never be replaced, and an unpublished name or version cannot be reused. So the irreversible step needs the
 owner's approval in GitHub, and everything before it is checked.
 
-**Status (2026-10-28): 0.1.0, the first release, is prepared; nothing is published yet.** The release PR for 0.1.0
-removed `"private": true` from the five packages and dated their changelogs. The names are decided: the `@meantjs`
-scope (D-051). The packages publish from the public repository `B3Pay/Meant`, where the spec and the packages sit
-under `profile/` as a reviewed copy of this one that `scripts/public-copy/` builds (D-052), never from this private
-repository. The owner moved `b3hr4d/candid-core` to B3Pay on 2026-10-28, and GitHub names it `B3Pay/Meant`, capital
-M; the first sync merged there the same day (B3Pay/Meant#291). What still stands before the first publish, all the
-owner's: checking its `npm-publish` environment for the owner as required reviewer, the bootstrap below, the
-trusted publishers, and the approval of the publish job.
+**Status (2026-10-28): 0.1.0 is published.** `@meantjs/profile`, `@meantjs/format`, `@meantjs/consent`,
+`@meantjs/tools` and `@meantjs/reconcile` 0.1.0 are on npm under `latest`, each with signed provenance (fact: the
+registry's `dist.attestations`, read 2026-10-28). They were published from the public repository `B3Pay/Meant`, where
+the spec and the packages sit under `profile/` as a reviewed copy of this one that `scripts/public-copy/` builds
+(D-051, D-052), never from this private repository: its merge commit 57afdae (the 0.1.0 sync, B3Pay/Meant#292),
+`npm release (profile)` run 40692299884, approved by the owner. An empty project that installs the five from the
+registry passes `scripts/package-check/smoke.mjs`, and `npm audit signatures` verifies their signatures and
+attestations. The one-time prerequisites below are done: the `npm-publish` environment, the bootstrap of the five
+names, their trusted publishers and, after the publish, the hardening (two-factor authentication, tokens
+disallowed). The next release starts at step 1 of "Releasing a version".
 
 ## What is released
 
@@ -134,9 +136,13 @@ All of these come before the first dispatch, and only the owner can do them.
    npm publish --access public --tag bootstrap
    npm logout                                          # invalidates the token npm login wrote
    ```
-   The placeholder is `0.0.0-bootstrap` with no code and no dependency, under the `bootstrap` dist-tag, so a plain
-   `npm i` never resolves to it and `latest` moves to the first real version. Publish all five in one sitting, so the
-   `npm login` token lives only for those commands.
+   The placeholder is `0.0.0-bootstrap` with no code and no dependency, under the `bootstrap` dist-tag. A prerelease,
+   it never satisfies a version range such as `^0.1.0`. npm still points `latest` at it until the first real version
+   moves `latest` (observed 2026-10-28), so until then `npm i <name>` with no version installs the empty placeholder:
+   dispatch the first release soon after. Publish all five in one sitting, so the `npm login` token lives only for
+   those commands. Observed on 2026-10-28, with the cause open: each name also holds a `0.0.0-stage` version, "Temporary
+   package placeholder for staged publishing", two files and no code, published by the owner a minute before the
+   bootstrap.
 5. **Configure the trusted publisher** for each package (npmjs.com, the package, Settings, Trusted publishing, GitHub
    Actions). npm does not check these values when they are saved; a typo shows only as a failed publish.
 
@@ -165,5 +171,7 @@ assignment), the LICENSE hash (one byte changed), the changelog entry (removed),
 `release-check.mjs` (`scripts/release.test.mjs`; the version's dots unescaped). The same test file runs the
 workflow's own input step under bash with 3 accepted and 12 refused inputs; it caught that `grep -qE`, as first
 copied from candid-core's workflows, matches line by line and passed a two-line version, so the step now matches with
-`[[ =~ ]]`. The environment check and the publish loop run only in the workflow, and stay untested until the first
-dispatch (open).
+`[[ =~ ]]`. The environment check and the publish loop run only in the workflow. Both ran for the first time in the
+0.1.0 release (run 40692299884, 2026-10-28): the check found a required reviewer, and the loop published the five in
+dependency order. Its skip of a version already published with the same bytes, and its refusal when the bytes
+differ, have not run yet (open).
