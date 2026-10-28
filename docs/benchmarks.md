@@ -173,14 +173,17 @@ The comparison workflow lives in its own file because commenting needs `pull-req
 A pull request's comparison leads with a verdict, and the workflow comments only when the verdict names something ([issue #289], which refines the plan on [issue #256]):
 
 - **An allocation metric that differs at all.** Counts and bytes are fixed for given code and dependencies, so a difference is the pull request's own. The verdict lists each changed case and metric with both values.
-- **A timing case past the run's own noise:** its two 95% intervals apart, *and* its delta, net of the controls' median shift, beyond `TIMING_MOVED_PCT` (5%) in either direction. Neither alone is enough: Criterion's intervals are narrow enough that two runs of one binary minutes apart often fail to overlap, and a delta without its intervals is one noisy sample. The controls are never counted, since no change here alters what they run, unless the pull request changes the bench binary's dependency graph. Then they may run different upstream code, so no shift is taken out and they are judged like every other case.
+- **A timing case past the noise of two runs:** its two 95% intervals apart, *and* its delta, net of the controls' median shift, beyond `TIMING_MOVED_PCT` (15%) in either direction. Neither alone is enough: each process settles on its own timing for a case, so two runs of one binary minutes apart often fail to overlap, and a delta without its intervals is one noisy sample. The controls are never counted, since no change here alters what they run, unless the pull request changes the bench binary's dependency graph. Then they may run different upstream code, so no shift is taken out and they are judged like every other case.
 - **A case added or removed.**
+
+The threshold is measured, not chosen. On 2026-10-28, [pull request #290], which changes nothing the benchmarks build, was compared twice as it stands and once with two planted faults. Across the cases no fault touched, net timing deltas reached 7.9%: `artifact/ledger/serialize_compact`, about 6 µs, came out 7.7% faster on the head although each side's interval was about 0.1% wide, and `host_value/validate/vec_variant/256`, about 450 µs, 6.5% faster net. Every other case stayed within 2.8%. The runs were on two runner types, an AMD EPYC 9V74 and an Intel Xeon Platinum 8573C. At the first value tried, 5%, two of the three runs reported an untouched case as moved. 15% is about twice the largest delta seen, and the planted slowdown of `artifact/ledger/validate` (about 50 µs added to 194 µs) read +25.9% net and moved. If a pull request that changes nothing measured reports timing as moved, raise the threshold, with that run as the evidence.
 
 Timing stays advisory either way: the verdict reports it, and nothing fails ([issue #39]). With nothing moved the verdict is one line, the workflow posts no comment, and a comment left by an earlier push is updated to say so; the job summary carries the report on every run. `compare.py compare --moved-pct` sets another threshold for a local run.
 
 A pull request that changes nothing the benchmarks build or read gets no run at all. The workflow's `paths:` list names the crate, its manifest and lockfile, the benches and their corpus, the two conformance fixtures the corpus includes, and the comparison's own tooling. `tests/fixtures/benchmarks/test_compare.py` pins these rules on synthetic runs, and fails when a bench or the crate includes a file that list misses or the list names a file that does not exist.
 
 [issue #289]: https://github.com/B3Pay/Meant/issues/289
+[pull request #290]: https://github.com/B3Pay/Meant/pull/290
 
 ## Initial baseline
 

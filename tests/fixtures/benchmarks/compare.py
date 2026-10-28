@@ -28,7 +28,7 @@ included deliberately, benches compile against them — excluding the root
 package itself.
 
 A comparison also says whether anything *moved* (issue #289): an allocation
-metric that differs at all, a timing case past the run's own noise (both 95%
+metric that differs at all, a timing case past the noise of two runs (both 95%
 intervals apart, and the delta net of the controls' median shift beyond
 `TIMING_MOVED_PCT`), or a case added or removed. The `Benchmark comparison`
 workflow comments on a pull request only when something did.
@@ -131,14 +131,16 @@ SOFT_KEYS = (
 # the common case and flagging it as drift would mark essentially every
 # comparison while changing nothing (decision recorded on issue #132).
 
-# A timing case counts as moved only past the run's own noise: its two 95%
+# A timing case counts as moved only past the noise of two runs: its two 95%
 # intervals apart, and its delta, net of the controls' median shift, beyond
 # this many percent in either direction (issue #289). The intervals alone are
-# not enough: Criterion's are tight enough that two runs of one binary minutes
-# apart often do not overlap. Allocation metrics need no threshold, because
-# on one toolchain the same code and dependencies allocate exactly the same:
-# any difference has moved.
-TIMING_MOVED_PCT = 5.0
+# not enough, because each process settles on its own timing for a case: two
+# runs of unchanged code on one runner differed by 7.9% on a case whose
+# intervals were each about 0.1% wide. The value is measured, and
+# docs/benchmarks.md ("What counts as moved") records the runs. Allocation
+# metrics need no threshold, because on one toolchain the same code and
+# dependencies allocate exactly the same: any difference has moved.
+TIMING_MOVED_PCT = 15.0
 
 
 def die(message: str) -> "None":
@@ -647,7 +649,7 @@ def render_changes(report: dict) -> list:
         return [
             f"**Nothing moved.** No allocation change in {len(cases)} "
             f"case{'' if len(cases) == 1 else 's'}, no "
-            f"case added or removed, and no timing case past this run's noise "
+            f"case added or removed, and no timing case past the noise threshold "
             f"({noise}).",
             "",
         ]
@@ -665,7 +667,7 @@ def render_changes(report: dict) -> list:
             )
         out.append("")
     if changes["timing"]:
-        out += [f"Timing, advisory, past this run's noise ({noise}):", ""]
+        out += [f"Timing, advisory, past the noise threshold ({noise}):", ""]
         for entry in changes["timing"]:
             out.append(
                 f"- `{entry['name']}`: {entry['change_pct']:+.1f}%"
@@ -783,10 +785,10 @@ def render_markdown(report: dict) -> str:
         "## Timing (Criterion median)",
         "",
         "Advisory. A delta here is a signal to investigate, not proof: two runs "
-        "of one binary minutes apart on one machine still differ by a few "
-        "percent, so the verdict counts a case as moved only past this run's "
-        "noise, and no timing delta fails a check (#39). Read absolute values "
-        "and intervals, not only percentages.",
+        "of one binary minutes apart on one runner can differ by several percent "
+        "on a case whose intervals are narrow, so the verdict counts a case as "
+        "moved only past the noise threshold, and no timing delta fails a check "
+        "(#39). Read absolute values and intervals, not only percentages.",
         "",
     ]
     # The controls are the reader's yardstick: they execute no code this
