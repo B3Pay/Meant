@@ -15,7 +15,8 @@ reviewed change rather than a quieter or noisier comment nobody traced:
 
 The report's shape is pinned too, as issue #256 set it out: with nothing
 moved, one line above the collapsed tables; otherwise the changed allocation
-rows first, with both values, then timing.
+rows first, with both values, then timing. So is the threshold
+`docs/benchmarks.md` states.
 
 They also pin the workflow's trigger against what the benchmarks actually
 read: every file a bench or the crate includes at compile time must be named
@@ -404,6 +405,13 @@ class TriggerTests(unittest.TestCase):
             if not any(glob_regex(path).match(file) for file in self.tracked)
         ]
         self.assertEqual(dead, [], f"paths that match no tracked file: {dead}")
+
+
+class DocsTests(unittest.TestCase):
+    def test_the_docs_state_the_threshold_the_tool_applies(self):
+        docs = (REPO / "docs" / "benchmarks.md").read_text(encoding="utf-8")
+        stated = re.findall(r"`TIMING_MOVED_PCT` \((\d+(?:\.\d+)?)%\)", docs)
+        self.assertEqual(stated, [f"{PCT:g}"], "docs/benchmarks.md must state the threshold once")
 
 
 if __name__ == "__main__":

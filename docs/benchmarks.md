@@ -84,36 +84,44 @@ cargo bench --bench compilation --locked -- --noplot --baseline main
 
 Treat one result as evidence to investigate, not proof of a regression. Hardware, thermals, OS scheduling, filesystem caches, compiler version, target features, and allocator all affect results. Repeat suspected changes and inspect absolute time, throughput, confidence intervals, and the allocation probe—not only a percentage.
 
-### Durable baselines and a checked comparison
+### A checked comparison
 
 Criterion's named baselines above are convenient but say nothing about *what* was measured: they will happily compare two runs over different corpora, feature sets, or toolchains and report a confident percentage. `tests/fixtures/benchmarks/compare.py` exists to make that precondition checkable, and it is built to refuse rather than guess — a missing or incompatible baseline reports that no comparison was made and exits non-zero, never a delta it cannot stand behind.
 
 A run's identity has two halves. `cargo bench --bench manifest` emits what only the Rust side knows: the corpus fingerprints, generator sizes, feature set, and metric units. The script records what only it can observe: toolchain, target, host, and the resolved dependency graph of the bench binary.
 
-That last item is a projection, deliberately not a hash of the whole `Cargo.lock`: the root package's own version stanza and sibling workspace members' dev-dependency lists change the lockfile's bytes without changing the program `cargo bench` builds, so a whole-file digest would let a release version bump permanently invalidate every baseline ([issue #132]). The identity is instead the closure of packages reachable from the root package's lockfile stanza (normal, build, and dev dependencies — dev included because benches compile against them), excluding the root package itself. The graph is stored in the baseline alongside its digest, so when it *does* drift the report names the packages that moved rather than showing two opaque digests.
+That last item is a projection, deliberately not a hash of the whole `Cargo.lock`: the root package's own version stanza and sibling workspace members' dev-dependency lists change the lockfile's bytes without changing the program `cargo bench` builds, so a whole-file digest would report every release version bump as a change to the program measured ([issue #132]). The identity is instead the closure of packages reachable from the root package's lockfile stanza (normal, build, and dev dependencies — dev included because benches compile against them), excluding the root package itself. The graph is stored in the baseline alongside its digest, so when it *does* drift the report names the packages that moved rather than showing two opaque digests.
 
 The script also records advisory machine identity — CPU model, core count, and runner image — and renders both sides in the report. It is deliberately not a drift key: hosted-runner machinery varies run to run as the common case, so flagging it would mark essentially every comparison while changing nothing. It exists so a reader can *see* that a uniform shift came with a machine change instead of inferring it.
 
-Capture a baseline on `main`:
+Compare two revisions on one machine, as the `Benchmark comparison` workflow does for a pull request ([issue #289]). Copy the head's `compare.py` aside first, so one version of the rules judges both sides. Then, in one checkout, run the suite at the base with Criterion's results in a directory of their own, and capture it, naming the checkout so the recorded dependency graph is the base's own:
 
 ```sh
-cargo bench --bench manifest --locked > /tmp/manifest.json
-cargo bench --bench compilation --locked -- --noplot
-cargo bench --bench allocation --locked > /tmp/allocations.json
-python3 tests/fixtures/benchmarks/compare.py capture \
-  --manifest /tmp/manifest.json --criterion target/criterion \
-  --allocations /tmp/allocations.json \
-  --out benches/baselines/main.json --note "why this baseline was taken"
+cp tests/fixtures/benchmarks/compare.py /tmp/compare.py
+git checkout --detach "$BASE"
+mkdir -p /tmp/base /tmp/head
+cargo bench --bench manifest --locked > /tmp/base/manifest.json
+CRITERION_HOME=/tmp/base/criterion cargo bench --bench compilation --locked -- --noplot
+cargo bench --bench allocation --locked > /tmp/base/allocations.json
+python3 /tmp/compare.py capture --repo-root . \
+  --manifest /tmp/base/manifest.json --criterion /tmp/base/criterion \
+  --allocations /tmp/base/allocations.json --out /tmp/base.json
 ```
 
-Run the same three commands on the candidate branch, then compare:
+Then the same three commands at the head, into `/tmp/head/`, and compare:
 
 ```sh
-python3 tests/fixtures/benchmarks/compare.py compare \
-  --baseline benches/baselines/main.json --manifest /tmp/manifest.json \
-  --criterion target/criterion --allocations /tmp/allocations.json \
+git checkout --detach "$HEAD"
+cargo bench --bench manifest --locked > /tmp/head/manifest.json
+CRITERION_HOME=/tmp/head/criterion cargo bench --bench compilation --locked -- --noplot
+cargo bench --bench allocation --locked > /tmp/head/allocations.json
+python3 /tmp/compare.py compare --repo-root . \
+  --baseline /tmp/base.json --manifest /tmp/head/manifest.json \
+  --criterion /tmp/head/criterion --allocations /tmp/head/allocations.json \
   --markdown /tmp/report.md
 ```
+
+One checkout rather than two: both binaries are built from the same path into the same target directory and run with the same arguments and environment, so the code is the only thing that differs between them.
 
 **Emit the manifest before running the suite.** That ordering is load-bearing, not stylistic: Criterion never deletes a `new/` directory, so a benchmark you renamed or removed keeps its result from whatever ran last in the same `target/criterion`. The manifest file's timestamp is the run's epoch, and any estimate older than it is treated as left over from a previous run — excluded from the comparison and reported, rather than imported as if this run had produced it.
 
@@ -122,7 +130,7 @@ What it refuses, and why:
 | Situation | Behaviour |
 | --- | --- |
 | Baseline missing or unreadable | No comparison; exit 2 |
-| Corpus (including the imported bundle), generator sizes, feature set, or metric units differ | No comparison; exit 2. The two runs did not measure the same thing, so no delta between them is interpretable — recapture the baseline |
+| Corpus (including the imported bundle), generator sizes, feature set, or metric units differ | No comparison; exit 2. The two runs did not measure the same thing, so no delta between them is interpretable. A pull request that changes the corpus gets this report instead of a delta |
 | Toolchain, effective target, `RUSTFLAGS`, host, or the bench binary's resolved dependency graph differ | No comparison unless `--allow-environment-drift`, which renders the report marked **informational only** and refuses to gate on it. A graph drift is attributed by name — `serde: 1.0.150 → 1.0.152` — from the graphs stored on both sides |
 | Stored baseline's `baseline_schema_version` differs from the one this tool writes | No comparison; exit 2 — recapture the baseline with the current tool |
 | `--fail-on-regression` requested and a control benchmark moved more than `PCT` in either direction, or no control is comparable on both sides | No gate verdict; exit 2 before any report is printed ([issue #135]) |
@@ -133,11 +141,11 @@ Codegen flags are part of the identity because they change the binary without ch
 
 All three allocation metrics are compared — `allocations`, `allocated_bytes`, and `peak_live_bytes`. A change that holds the allocation count constant while growing cumulative or peak bytes is a real memory regression, and comparing only the count would render it as a reassuring 0%.
 
-The report leads with the **controls**: the `official_*` cases execute only upstream `candid_parser` code, which no change in this repository can alter. Their median shift is printed above the timing table and the control rows are marked in it, because a shift the controls share with the rest of the table measures the machinery, not the candidate — exactly the signature that once made drifted comparisons read as uniform +8–35% regressions ([issue #132]).
+The report leads with its verdict, what moved ([below](#what-counts-as-moved)), and keeps every case in a collapsed section under it. There the timing table is headed by the **controls**: the `official_*` cases execute only upstream `candid_parser` code, which no change in this repository can alter. Their median shift is printed above the timing table and the control rows are marked in it, because a shift the controls share with the rest of the table measures the machinery, not the candidate — exactly the signature that once made drifted comparisons read as uniform +8–35% regressions ([issue #132]).
 
 `--fail-on-regression PCT` exits 1 when any non-control median regresses by more than `PCT`. It is opt-in with no default threshold, because a calibrated threshold needs repeated controlled-runner data that does not exist yet ([issue #39]); and it produces no verdict at all — exit 2, before any report is printed — when the comparison is environment-drifted, when a control benchmark moved by more than `PCT` in either direction, or when no control is comparable on both sides ([issue #135]). A control past the threshold means the machinery shifted more than the gate tolerates: a slower machine fabricates regressions and a faster one masks them; and with no comparable control at all, nothing vouches for the machinery — in every case neither exit 0 nor exit 1 would be evidence.
 
-Baselines live in `benches/baselines/`, outside the `include` allowlist in `Cargo.toml`, so a baseline never ships to a consumer. Committing one is deliberate: updating a baseline should be a reviewed change that records why it moved.
+No baseline is stored in the repository ([issue #289]). One captured once on one runner compared every later pull request with that runner's machine and toolchain as much as with its code, and went stale with each toolchain release; a pull request now measures its own base. A baseline captured for local work is a JSON file, which nothing in the `include` allowlist in `Cargo.toml` matches, so it never ships to a consumer wherever it is kept.
 
 [issue #39]: https://github.com/b3hr4d/candid-core/issues/39
 [issue #256]: https://github.com/b3hr4d/candid-core/issues/256
@@ -155,20 +163,24 @@ Three tiers:
 | Tier | When | What |
 | --- | --- | --- |
 | Smoke | Every pull request (`Verify`) | Compiles and exercises every benchmark once, including the allocation probe's measurement path. Correctness of the harness, no timing claims |
-| Comparison | Every pull request (`Benchmark comparison`) | Runs the full statistical suite and compares against the reviewed baseline with `compare.py`, publishing a job summary and one bot-managed comment updated in place. Always `--allow-environment-drift`, always informational; a missing or incompatible baseline is reported as "no comparison was made" |
-| Capture | Weekly schedule or manual dispatch (`Verify`) | Runs the full suite, uploads Criterion's raw estimates, allocation JSON, environment metadata, and a captured `baseline.json`, retained 90 days |
+| Comparison | A pull request that changes what the benchmarks build or read (`Benchmark comparison`) | Runs the full suite on the pull request's base and then on its test merge, in one job on one runner, and compares the two with `compare.py`. A job summary on every run; a comment only when something moved, which every later run then updates in place. Informational, never a gate; two runs that did not measure the same thing are reported as "no comparison was made" |
+| Capture | Weekly schedule or manual dispatch (`Verify`) | Runs the full suite and uploads Criterion's raw estimates, allocation JSON, environment metadata, and `compare.py`'s record of the run as `capture.json`, retained 90 days: `main` on the hosted runner, kept for investigation and compared with nothing |
 
 The comparison workflow lives in its own file because commenting needs `pull-requests: write`, and `Verify` and `Release candidate` deliberately hold nothing beyond `contents: read`.
 
-### Updating the reviewed baseline
+### What counts as moved
 
-The baseline pull requests compare against is `benches/baselines/main.json`, and only a baseline captured on the same runner class as the comparison can ever be environment-compatible — one captured on a maintainer's machine is refused by construction. To update it:
+A pull request's comparison leads with a verdict, and the workflow comments only when the verdict names something ([issue #289], which refines the plan on [issue #256]):
 
-1. Dispatch the `Verify` workflow on `main` and wait for `Scheduled benchmarks`.
-2. Download the `benchmarks-<sha>` artifact and review `baseline.json`: the commit it names, the corpus identity, and the estimates themselves.
-3. Commit it to `benches/baselines/main.json` with a message recording *why* the baseline moved (new accepted performance level, corpus change, toolchain rollover).
+- **An allocation metric that differs at all.** Counts and bytes are fixed for given code and dependencies, so a difference is the pull request's own. The verdict lists each changed case and metric with both values.
+- **A timing case past the run's own noise:** its two 95% intervals apart, *and* its delta, net of the controls' median shift, beyond `TIMING_MOVED_PCT` (5%) in either direction. Neither alone is enough: Criterion's intervals are narrow enough that two runs of one binary minutes apart often fail to overlap, and a delta without its intervals is one noisy sample. The controls are never counted, since no change here alters what they run, unless the pull request changes the bench binary's dependency graph. Then they may run different upstream code, so no shift is taken out and they are judged like every other case.
+- **A case added or removed.**
 
-A failing candidate never replaces the reference, and nothing automates this: a baseline update is a reviewed change, deliberately.
+Timing stays advisory either way: the verdict reports it, and nothing fails ([issue #39]). With nothing moved the verdict is one line, the workflow posts no comment, and a comment left by an earlier push is updated to say so; the job summary carries the report on every run. `compare.py compare --moved-pct` sets another threshold for a local run.
+
+A pull request that changes nothing the benchmarks build or read gets no run at all. The workflow's `paths:` list names the crate, its manifest and lockfile, the benches and their corpus, the two conformance fixtures the corpus includes, and the comparison's own tooling. `tests/fixtures/benchmarks/test_compare.py` pins these rules on synthetic runs, and fails when a bench or the crate includes a file that list misses or the list names a file that does not exist.
+
+[issue #289]: https://github.com/B3Pay/Meant/issues/289
 
 ## Initial baseline
 
