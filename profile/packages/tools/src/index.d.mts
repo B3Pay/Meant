@@ -26,13 +26,50 @@ export interface JsonSchemaString {
   pattern?: string;
 }
 
+/** The schema of one input: text read by its own rules, or the JSON shape of a record, variant or vec (D-050). */
+export type JsonSchemaInput = JsonSchemaString | JsonSchemaObject | JsonSchemaVariant | JsonSchemaArray;
+
+/** A record: one property per field that is an input. */
+export interface JsonSchemaObject {
+  type: "object";
+  description: string;
+  properties: Record<string, JsonSchemaInput>;
+  required: string[];
+  additionalProperties: false;
+}
+
+/** A variant: one `{ tag, value }` object per case; a case without a value has `tag` alone. */
+export interface JsonSchemaVariant {
+  oneOf: JsonSchemaCase[];
+  description: string;
+}
+
+export interface JsonSchemaCase {
+  type: "object";
+  properties: { tag: { const: string }; value?: JsonSchemaInput };
+  required: ["tag"] | ["tag", "value"];
+  additionalProperties: false;
+}
+
+export interface JsonSchemaNull {
+  type: "null";
+}
+
+/** A vec: an element that is none is a JSON null, so an opt element is its schema or null. */
+export interface JsonSchemaArray {
+  type: "array";
+  description: string;
+  items: JsonSchemaInput | JsonSchemaNull | { anyOf: [JsonSchemaInput, JsonSchemaNull] };
+  maxItems: number;
+}
+
 export interface ToolDefinition {
   name: string;
   description: string;
   inputSchema: {
     $schema: string;
     type: "object";
-    properties: Record<string, JsonSchemaString>;
+    properties: Record<string, JsonSchemaInput>;
     required: string[];
     additionalProperties: false;
   };

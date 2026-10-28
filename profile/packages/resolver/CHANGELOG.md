@@ -2,7 +2,7 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
-## 0.2.0 (unreleased)
+## 0.2.0 — 2026-10-28
 
 - `intent` and `effect` may sit on a case of a variant in a method's arguments, such as `propose(0).Transfer`
   (spec §5.2, D-053). The resolved form carries them on the case node. New errors: `E_CASE_OVERLAP` (two tagged cases
