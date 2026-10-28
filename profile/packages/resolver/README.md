@@ -10,7 +10,8 @@ npm install @meantjs/profile
 
 - **Runs on:** Node 22 or later for the main entry and the `candid-profile` CLI. `@meantjs/profile/browser` is for
   browser bundles (checked with esbuild, and in Chromium under a CSP without `'unsafe-eval'`; the cli's wasm needs
-  `'wasm-unsafe-eval'`, below). `@meantjs/profile/address` has no dependency and runs anywhere.
+  `'wasm-unsafe-eval'`, below). `@meantjs/profile/address` and `@meantjs/profile/evm` have no dependency and run
+  anywhere.
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
 - **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
 - **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
@@ -21,7 +22,7 @@ npm install @meantjs/profile
 import { createSchemaValidator, resolveService, loadPacks, validateProfile } from "@meantjs/profile";
 
 const validateSchema = await createSchemaValidator();                 // the schema this package ships
-const packs = await loadPacks();                                      // the standard packs it ships (ICRC-1, ICRC-2)
+const packs = await loadPacks();                                      // the standard packs it ships (ERC-20, ICRC-1, ICRC-2)
 const r = await resolveService({
   did: await readFile("ledger.did", "utf8"),
   validateSchema,
@@ -163,10 +164,38 @@ const r = await resolveService({ did: serviceText, profiles: served.ok ? [{ doc:
   serves, so a profile for another interface is `rebound` or `stale` as any other.
 - Tests: `test/served.test.mjs`; end to end on PocketIC in `packages/kit/pocketic/`.
 
+## EVM contracts (experimental, spec section 15, D-054)
+
+A third input, `abi`: an EVM contract's ABI as human-readable fragments or JSON ABI entries. The resolver reads it as
+the graph a `.did` compiles to (a function is a method, its parameters one record at argument 0, a tuple a record in
+ABI order), so addresses, tags, layers and the resolved form work unchanged; the resolved form says `"chain": "evm"`,
+its nodes carry `abi` instead of `candid`, and each method has `selector`, `signature` and `state_mutability`.
+
+```js
+const r = await resolveService({ abi: ["function transfer(address dst, uint256 wad) returns (bool)", …], validateSchema, packs: (await loadPacks()).map(({ doc }) => ({ doc })) });
+r.resolved.methods.transfer.tags.intent.args.template; // "Send {wad} to {dst}": the erc20 pack's, in this contract's names
+```
+
+- **Contract profiles** (`kind: "contract"`) carry their ABI in `binds.abi` and the contracts they describe in
+  `binds.deployments` (EIP-55 checked: `E_ADDRESS_CHECKSUM`). **EVM packs** carry `binds.abi` and apply to a contract
+  that has every one of their functions, by selector, output types and kind of call (no subtyping); their addresses
+  and placeholders are rewritten to the contract's parameter names by position. A pack or profile for the other kind
+  of interface is `E_CHAIN` when given, and skipped in a pack search, so `loadPacks()` serves both kinds.
+- **Refused for now:** overloaded function names and unreadable fragments (`E_ABI`); `idempotency`, `outcome`, `list`,
+  `names` and `named` on a contract (`E_TAG_TARGET`); `account` and `subaccount` (`E_TAG_NOT_APPLICABLE`); `[ ]`
+  template segments (`E_TEMPLATE`).
+- **`@meantjs/profile/evm`** is the toolkit underneath, browser-safe and without dependencies: `keccak256`, `parseAbi`,
+  `parseSignature`, `canonicalFragment`, `selectorOf`, `abiInterfaceId`, a strict codec (`encodeParams`, `encodeCall`,
+  `decodeParams`: a value read from anything but its canonical encoding is refused), `toChecksumAddress`,
+  `readAddress` and `typedDataDigest` (EIP-712). `test/evm.test.mjs` checks Keccak against an independent
+  implementation (and the block boundary), the ERC-20 selectors, the ERC-8176 schema UID, EIP-55's examples and
+  EIP-712's Mail example.
+
 ## CLI
 
 ```sh
 node packages/resolver/bin/candid-profile.mjs resolve <service.did> [--profile p.json ...] [--packs] [--packs-dir dir] [--verbose] [--quiet] > resolved.json
+node packages/resolver/bin/candid-profile.mjs resolve --abi contract.abi.json [--profile p.json ...] [--packs]   # an EVM contract (section 15)
 # after `npm ci` the bin is also linked: npx candid-profile resolve ...
 ```
 

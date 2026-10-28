@@ -55,7 +55,8 @@ test("release-check names every reason a tree is not ready, at once", (t) => {
     const r = released("0.1.0")(dir, state);
     if (dir === "format") r.pkg.version = "0.1.1";
     if (dir === "consent") r.pkg.private = true;
-    if (dir === "tools") r.changelog = r.changelog.replace(/^## 0\.1\.0 — \d{4}-\d{2}-\d{2}$/m, "## 0.1.0 (unreleased)"); // no date
+    // every dated 0.1.0 entry: the work in progress (`## <next> (unreleased)`, docs/releasing.md) was dated as 0.1.0 too
+    if (dir === "tools") r.changelog = r.changelog.replace(/^## 0\.1\.0 — \d{4}-\d{2}-\d{2}$/gm, "## 0.1.0 (unreleased)"); // no date
     if (dir === "reconcile") r.changelog += "\n## Unreleased\n";
     if (dir === "resolver") r.readme += `\n${NOT_ON_NPM}: the first release waits on the owner's go.\n`;
     return r;
@@ -73,7 +74,7 @@ test("release-check names every reason a tree is not ready, at once", (t) => {
 test("release-check reads the version literally: 0.1.0 is not dated by an entry for 0x1x0", (t) => {
   const root = scratchRoot(t, (dir, state) => {
     const r = released("0.1.0")(dir, state);
-    r.changelog = r.changelog.replace("## 0.1.0 — ", "## 0x1x0 — ");
+    r.changelog = r.changelog.replaceAll("## 0.1.0 — ", "## 0x1x0 — ");
     return r;
   });
   assert.equal(releaseProblems("0.1.0", { root }).length, LIBRARY_DIRS.length);

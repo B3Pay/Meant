@@ -7,8 +7,8 @@ import { parseAddress } from "./address.mjs";
 import { jcs } from "./util.mjs";
 import { TagIndex, LayeredTags, positions } from "./tags.mjs";
 import {
-  NUMERIC, METHOD_TAGS, STALE_CODES, VALUE_CONVERSION_TAGS,
-  checkApplicability, checkDynamic, parseTemplate, outcomeCoverage,
+  NUMERIC, METHOD_TAGS, CASE_TAGS, CONFIRM_KINDS, STALE_CODES, VALUE_CONVERSION_TAGS, EVM_LATER_TAGS,
+  checkApplicability, checkDynamic, parseTemplate, outcomeCoverage, caseTargetError, otherCase, overlap, defaultEffect,
 } from "./checks.mjs";
 
 /** Spec section 8, highest precedence first. */
@@ -107,6 +107,40 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
   // A pack applied to a service is allowed to differ from its fragment in the ways Candid subtyping allows, so an
   // annotation that no longer holds on this service is dropped with an info, not reported as an error in the pack.
   const dropped = new Set();
+  const caseEntries = []; // case intents and effects, checked against each other and their method after the loop
+
+  /** An effect against the method's mode (spec 5.3); for a case effect, the mode of the method it sits in. */
+  const checkEffectMode = (m, { kind, irreversible, replicated }, diag, at) => {
+    if (m.mode !== "update" && m.mode !== "oneway" && kind !== "read") diag("error", "E_EFFECT_MODE", at, `${m.mode} method cannot have effect kind "${kind}"`);
+    // A read-only update (D-038): a read sent as an update so that its answer goes through consensus.
+    if (replicated === true) {
+      if (m.mode !== "update") diag("error", "E_EFFECT_MODE", at, `replicated: true applies to update methods, not to a ${m.mode} method`);
+      if (kind !== "read" || irreversible !== false) diag("error", "E_EFFECT_MODE", at, `replicated: true needs kind "read" and irreversible: false, found kind "${kind}" and irreversible: ${irreversible}`);
+    }
+    const replicatedRead = replicated === true && m.mode === "update" && kind === "read" && irreversible === false;
+    if ((m.mode === "update" || m.mode === "oneway") && kind === "read" && !replicatedRead) {
+      diag("warning", "W_EFFECT_MODE", at, `${m.mode} method declared as read${m.mode === "update" && replicated !== true ? "; a read sent as an update says irreversible: false, replicated: true" : ""}`);
+    }
+  };
+
+  /** An intent template's placeholders (spec section 6); `caseAddr` is the case a case intent sits on. */
+  const checkTemplate = (item, methodName, template, diag, at, caseAddr) => {
+    const t = parseTemplate(template);
+    if (t.error) return diag("error", "E_TEMPLATE", at, t.error);
+    if (iface.chain === "evm" && t.segments) return diag("error", "E_TEMPLATE", at, "an EVM contract's template has no [ ] segments: an ABI value is never absent (spec section 15)");
+    for (const p of t.placeholders) {
+      const r = iface.resolveRel(methodName, "args", p.path);
+      if (r.error && item.apply && p.inOptional) { // absent in this service: the optional segment renders empty (spec section 6)
+        item.diag("info", "I_PACK_ANNOTATION_SKIPPED", at, `intent: {${p.path}} is absent in this service (${r.error}); its optional segment renders empty`);
+        continue;
+      }
+      if (r.error) { diag("error", "E_TEMPLATE_PATH", at, `{${p.path}}: ${r.error}`); continue; }
+      const other = caseAddr && otherCase(iface, caseAddr, p.path);
+      if (other) { diag("error", "E_TEMPLATE_PATH", at, `{${p.path}}: ${other}`); continue; }
+      if (!p.inOptional && iface.node(r.ref).kind === "opt") diag("warning", "W_TEMPLATE_OPTIONAL", at, `{${p.path}} is optional but sits outside a [ ] segment`);
+    }
+  };
+
   const sets = new Map(); // names set -> { at, method, fields: { name, value, show?, kind? } } (spec 5.3, D-045)
   const named = []; // named positions, checked once every set is known
   for (const e of entries) {
@@ -118,22 +152,24 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
       item.diag("info", "I_PACK_ANNOTATION_SKIPPED", at, `${a.tag} dropped: ${code}: ${message}`);
     };
     const at = a.at;
+    if (iface.chain === "evm" && EVM_LATER_TAGS.has(a.tag)) {
+      diag("error", "E_TAG_TARGET", at, `${a.tag} is not defined for EVM contracts yet: it needs receipts, nonces or reads that a later phase adds (spec section 15)`);
+      continue;
+    }
+    // intent and effect on a case of a variant in the arguments (spec 5.2, D-053)
+    if (CASE_TAGS.has(a.tag) && !res.method) {
+      const why = caseTargetError(iface, addr, res, a.tag);
+      if (why) { diag("error", "E_TAG_TARGET", at, why); continue; }
+      const m = iface.methods.get(addr.method);
+      if (a.tag === "effect") checkEffectMode(m, a.args, diag, at);
+      else checkTemplate(item, addr.method, a.args.template, diag, at, addr);
+      caseEntries.push({ e, diag });
+      continue;
+    }
     if (METHOD_TAGS.has(a.tag)) {
       const m = res.method;
       const methodName = addr.method;
-      if (a.tag === "effect") {
-        const { kind, irreversible, replicated } = a.args;
-        if (m.mode !== "update" && m.mode !== "oneway" && kind !== "read") diag("error", "E_EFFECT_MODE", at, `${m.mode} method cannot have effect kind "${kind}"`);
-        // A read-only update (D-038): a read sent as an update so that its answer goes through consensus.
-        if (replicated === true) {
-          if (m.mode !== "update") diag("error", "E_EFFECT_MODE", at, `replicated: true applies to update methods, not to a ${m.mode} method`);
-          if (kind !== "read" || irreversible !== false) diag("error", "E_EFFECT_MODE", at, `replicated: true needs kind "read" and irreversible: false, found kind "${kind}" and irreversible: ${irreversible}`);
-        }
-        const replicatedRead = replicated === true && m.mode === "update" && kind === "read" && irreversible === false;
-        if ((m.mode === "update" || m.mode === "oneway") && kind === "read" && !replicatedRead) {
-          diag("warning", "W_EFFECT_MODE", at, `${m.mode} method declared as read${m.mode === "update" && replicated !== true ? "; a read sent as an update says irreversible: false, replicated: true" : ""}`);
-        }
-      }
+      if (a.tag === "effect") checkEffectMode(m, a.args, diag, at);
       if (a.tag === "idempotency") {
         if (m.mode !== "update") diag("error", "E_IDEMPOTENCY_MODE", at, "idempotency applies to update methods");
         const r = iface.resolveRel(methodName, "args", a.args.stamp);
@@ -153,19 +189,7 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
         outcomeCoverage(iface, methodName, classes, diag, at, Boolean(a.args.default));
         if (doc.kind === "pack" && !a.args.default) diag("warning", "W_PACK_NO_DEFAULT", at, "pack outcome without default: result cases a matching canister adds (spec §7) would be unclassified");
       }
-      if (a.tag === "intent") {
-        const t = parseTemplate(a.args.template);
-        if (t.error) diag("error", "E_TEMPLATE", at, t.error);
-        else for (const p of t.placeholders) {
-          const r = iface.resolveRel(methodName, "args", p.path);
-          if (r.error && item.apply && p.inOptional) { // absent in this service: the optional segment renders empty (spec section 6)
-            item.diag("info", "I_PACK_ANNOTATION_SKIPPED", at, `intent: {${p.path}} is absent in this service (${r.error}); its optional segment renders empty`);
-            continue;
-          }
-          if (r.error) { diag("error", "E_TEMPLATE_PATH", at, `{${p.path}}: ${r.error}`); continue; }
-          if (!p.inOptional && iface.node(r.ref).kind === "opt") diag("warning", "W_TEMPLATE_OPTIONAL", at, `{${p.path}} is optional but sits outside a [ ] segment`);
-        }
-      }
+      if (a.tag === "intent") checkTemplate(item, methodName, a.args.template, diag, at);
       if (a.tag === "names") {
         const effect = tags.methodTags(methodName).effect?.args;
         const replicatedRead = m.mode === "update" && effect?.kind === "read" && effect.irreversible === false && effect.replicated === true;
@@ -231,6 +255,28 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
       diag("error", "E_NAMED_TYPE", at, `named: the position is ${iface.describeType(res.ref)}, but the ${by} of set "${a.args.set}" is ${iface.describeType(field)}`);
     } else if (iface.prim(iface.unwrapOpt(res.ref).ref) === "text" && tags.at(res, iface)?.text?.args?.pattern === undefined) {
       diag("warning", "W_NAMED_UNPATTERNED", at, `named text without a text.pattern: every input is looked up as a name first, so a name could stand in for a value (spec 5.3)`);
+    }
+  }
+
+  // Tagged cases of one method must not overlap, and a case effect needs a method effect at least as strong
+  // (spec 5.2 and 5.3, D-053).
+  for (let j = 0; j < caseEntries.length; j++) {
+    const { e, diag } = caseEntries[j];
+    const { addr, ann: a } = e;
+    for (const { e: prev } of caseEntries.slice(0, j)) {
+      if (prev.ann.tag !== a.tag || prev.addr.method !== addr.method || prev.res.key === e.res.key) continue;
+      const why = overlap(iface, prev.addr, addr);
+      if (why) diag("error", "E_CASE_OVERLAP", a.at, `${a.tag} on "${prev.ann.at}" and on "${a.at}": one call can take both cases (${why})`);
+    }
+    if (a.tag !== "effect") continue;
+    const m = iface.methods.get(addr.method);
+    const declared = tags.methodTags(addr.method).effect?.args;
+    const method = declared ?? defaultEffect(m.mode);
+    const whose = `the method's effect is ${method.kind}${method.irreversible ? ", irreversible" : ""}${declared ? "" : " (the default)"}`;
+    if (CONFIRM_KINDS.has(a.args.kind) && !CONFIRM_KINDS.has(method.kind)) {
+      diag("error", "E_CASE_EFFECT", a.at, `case effect ${a.args.kind} needs a person's confirmation, but ${whose}; declare the method's effect as transfer, approve, admin or destroy, so that a consumer that reads only method tags confirms it too`);
+    } else if (a.args.irreversible === true && method.irreversible !== true) {
+      diag("error", "E_CASE_EFFECT", a.at, `case effect is irreversible, but ${whose}; a method with an irreversible case is irreversible`);
     }
   }
 

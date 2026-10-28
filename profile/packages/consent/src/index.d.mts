@@ -206,6 +206,7 @@ export const CODES: Readonly<{
   TOO_LARGE: "E_TOO_LARGE";
   LANGUAGE: "E_LANGUAGE";
   REQUEST: "E_REQUEST";
+  DEPLOYMENT: "E_DEPLOYMENT";
   UNSUPPORTED_TYPE: "E_UNSUPPORTED_TYPE";
   RESOLVED_FORM: "E_RESOLVED_FORM";
   TEMPLATE: "E_TEMPLATE";
@@ -214,6 +215,7 @@ export const CODES: Readonly<{
   ARG: "E_ARG";
   TAG_TYPE: "E_TAG_TYPE";
   TAG_CONFLICT: "E_TAG_CONFLICT";
+  EXPORT: "E_EXPORT";
 }>;
 export type ConsentErrorCode = (typeof CODES)[keyof typeof CODES];
 /** ICRC-21 `GenericError.error_code` values this package uses. */

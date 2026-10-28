@@ -2,8 +2,9 @@
 //! `src/template.mjs` and `src/paths.mjs`.
 //!
 //! Which fields appear:
-//!   - a method with an `intent` template: its placeholders that are present, in template order, once per path;
-//!   - a method without one: one field per leaf of the decoded arguments (records flattened, tagged positions are
+//!   - a call with an intent template, its case's (spec section 5.2, D-053) or else its method's: its placeholders
+//!     that are present, in template order, once per path;
+//!   - a call without one: one field per leaf of the decoded arguments (records flattened, tagged positions are
 //!     leaves, absent optionals left out). More than [`MAX_FIELDS`] fields or [`MAX_ELEMENTS`] list elements is
 //!     refused (`E_TOO_LARGE`), never truncated.
 
@@ -47,7 +48,7 @@ pub(crate) enum SentencePart {
 pub(crate) struct Model<'a> {
     pub method: &'a str,
     pub title: String,
-    /// `None` for a method without an intent template.
+    /// `None` for a call without an intent template.
     pub sentence: Option<Vec<SentencePart>>,
     pub fields: Vec<Field<'a>>,
     pub arg_nodes: &'a [Value],
@@ -57,7 +58,8 @@ pub(crate) struct Model<'a> {
 
 pub(crate) fn build_model<'a>(method: &'a Value, name: &'a str, values: &'a [Tree]) -> Result<Model<'a>> {
     let args = args_of(method);
-    let intent = path(method, &["tags", "intent", "args"]);
+    // the call's intent: its case's, else its method's (D-053)
+    let intent = prop(call_tag(method, values, "intent"), "args");
     let title = match prop(intent, "title") {
         Some(Value::String(t)) if !js_trim(t).is_empty() => t.clone(),
         _ => label_of(method).map_or_else(|| format!("Call {name}"), str::to_string),
@@ -83,6 +85,56 @@ pub(crate) fn build_model<'a>(method: &'a Value, name: &'a str, values: &'a [Tre
     }
     model.fields = flatten(args, values)?;
     Ok(model)
+}
+
+/// The `intent` or `effect` entry (`{ args, origin, profile }`) a call takes: that of the deepest tagged variant case
+/// its decoded arguments hold (spec section 5.2, D-053), else the method's. The port of `callTag` in
+/// `src/resolved.mjs`: the cases one call holds are a chain in any resolved form a resolver writes, and a form with
+/// tagged cases that one call holds side by side gets the method's entry.
+pub(crate) fn call_tag<'a>(method: &'a Value, values: &[Tree], tag: &str) -> Option<&'a Value> {
+    struct Walk<'a, 't> {
+        tag: &'t str,
+        /// The hit with the most hits above and at it, and that count.
+        best: Option<(&'a Value, usize)>,
+        hits: usize,
+    }
+    fn visit<'a>(w: &mut Walk<'a, '_>, node: &'a Value, value: &Tree, chain: usize) {
+        if !node.is_object() || is_true(prop(Some(node), "recursive")) {
+            return;
+        }
+        match (candid_of(node), value) {
+            ("record", Tree::Record(_)) => {
+                for (key, child) in entries_of(prop(Some(node), "fields")) {
+                    if let Some(v) = value.get(key) {
+                        visit(w, child, v, chain);
+                    }
+                }
+            }
+            ("variant", Tree::Variant(key, inner)) => {
+                let Some((_, child)) = entries_of(prop(Some(node), "cases")).into_iter().find(|(k, _)| k == key) else {
+                    return;
+                };
+                let mut chain = chain;
+                if let Some(entry @ Value::Object(_)) = prop(prop(Some(child), "tags"), w.tag) {
+                    chain += 1;
+                    w.hits += 1;
+                    if w.best.is_none_or(|(_, c)| chain > c) {
+                        w.best = Some((entry, chain));
+                    }
+                }
+                visit(w, child, inner, chain);
+            }
+            _ => {}
+        }
+    }
+    let mut w = Walk { tag, best: None, hits: 0 };
+    for (node, value) in args_of(method).iter().zip(values) {
+        visit(&mut w, node, value, 0);
+    }
+    match w.best {
+        Some((entry, chain)) if chain == w.hits => Some(entry),
+        _ => prop(prop(Some(method), "tags"), tag),
+    }
 }
 
 // ------------------------------------------------------------------------------------------------ template

@@ -5,7 +5,7 @@
 //! `variant { Ok : text; Err : text }`. `Err` rejects the proposal; `Ok` is what voters read, under governance's own
 //! `## Payload:` heading. The text is:
 //!   1. the generic message of spec section 12, title at heading level 3, times in UTC;
-//!   2. the method and its effect (a default effect is said to be one);
+//!   2. the method and the call's effect, its case's or else its method's (a default effect is said to be one);
 //!   3. the arguments as Candid text with no formatter applied;
 //!   4. the profiles, the interface id and these rules.
 //!
@@ -15,7 +15,7 @@ use serde_json::{Map, Value};
 
 use crate::decode::{decode_arguments, Limits};
 use crate::error::{codes, Error, Result};
-use crate::model::{build_model, Diagnostic};
+use crate::model::{build_model, call_tag, Diagnostic};
 use crate::render::{plain_arguments_block, render_generic, Renderer, MAX_MESSAGE_CHARS};
 use crate::resolved::{js_string, js_truthy, method_of, prop};
 use crate::text::{code_span, escape_markdown, one_line, utf16_len};
@@ -47,7 +47,7 @@ pub fn render_sns_payload(
     let mut renderer = Renderer::new(refs, 0);
     let blocks = [
         render_generic(&model, &mut renderer, 3, false)?,
-        format!("**Method:** {}. **Effect:** {}.", code_span(method), effect_text(m)?),
+        format!("**Method:** {}. **Effect:** {}.", code_span(method), effect_text(m, call_tag(m, &values, "effect"))?),
         format!("**Arguments (Candid, as sent, no units applied):**\n\n{}", plain_arguments_block(&model, &mut renderer)?),
         source_text(resolved),
     ];
@@ -89,9 +89,9 @@ fn is_query(method: &Value) -> bool {
     matches!(prop(Some(method), "mode").and_then(Value::as_str), Some("query" | "composite_query"))
 }
 
-/// The effect kind and reversibility (spec section 5.3), and whether a profile stated them.
-fn effect_text(method: &Value) -> Result<String> {
-    let tag = prop(prop(Some(method), "tags"), "effect");
+/// The effect kind and reversibility of the call (spec section 5.3; `tag` is its effect entry, [`call_tag`]), and
+/// whether a profile stated them.
+fn effect_text(method: &Value, tag: Option<&Value>) -> Result<String> {
     let query = is_query(method);
     let args = prop(tag, "args");
     let kind = match prop(args, "kind") {

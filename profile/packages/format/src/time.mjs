@@ -10,9 +10,9 @@
 // millisecond precision.
 
 import { CODES, fail } from "./errors.mjs";
-import { checkRange, intType, requireString, toBigInt } from "./util.mjs";
+import { ABI_INT_TYPES, checkRange, intType, requireString, toBigInt, typeWord } from "./util.mjs";
 
-export const TIME_TYPES = ["nat", "int", "nat32", "nat64", "int64"];
+export const TIME_TYPES = ["nat", "int", "nat32", "nat64", "int64", ...ABI_INT_TYPES.filter((t) => (t.startsWith("u") ? Number(t.slice(4)) >= 32 : Number(t.slice(3)) > 64))];
 
 const NS_PER = Object.freeze({ ns: 1n, us: 1_000n, ms: 1_000_000n, s: 1_000_000_000n });
 const NS_PER_S = 1_000_000_000n;
@@ -227,7 +227,7 @@ export function parseDuration(input, { unit, candid = "nat64" } = {}) {
   const type = intType(candid, TIME_TYPES, "duration");
   const text = requireString(input, "duration").trim();
   const { negative, ns } = parseDurationNs(text, "a duration");
-  if (negative && ns !== 0n && !type.signed) fail(CODES.NEGATIVE, `negative durations are not allowed here (the Candid type ${candid} is unsigned)`);
+  if (negative && ns !== 0n && !type.signed) fail(CODES.NEGATIVE, `negative durations are not allowed here (the ${typeWord(candid)} ${candid} is unsigned)`);
   const v = nsToUnit(negative ? -ns : ns, unit);
   checkRange(v, type, "duration");
   return v.toString();

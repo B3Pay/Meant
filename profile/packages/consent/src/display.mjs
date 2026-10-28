@@ -77,6 +77,7 @@ export class Renderer {
 
   /** Candid text of a whole argument tuple (the "raw arguments" of spec section 11 item 1), tagged children formatted. */
   tupleText(nodes, values) {
+    if (isAbiParams(nodes)) return this.charge(this.#child(nodes[0], values[0], "arguments"));
     return this.charge(`(${nodes.map((n, i) => this.#child(n, values[i], `argument ${i}`)).join(", ")})`);
   }
 
@@ -87,6 +88,7 @@ export class Renderer {
   plainTupleText(nodes, values) {
     this.#plain = true;
     try {
+      if (isAbiParams(nodes)) return this.charge(this.#child(nodes[0], values[0], "arguments"));
       return this.charge(`(${nodes.map((n, i) => this.#child(n, values[i], `argument ${i}`)).join(", ")})`);
     } finally {
       this.#plain = false;
@@ -126,6 +128,7 @@ export class Renderer {
   }
 
   #raw(node, value, where) {
+    if (typeof node.abi === "string") return this.#abi(node, value, where);
     switch (node.candid) {
       case "null":
       case "reserved":
@@ -154,6 +157,30 @@ export class Renderer {
         return `variant { ${candidLabel(key)} = ${this.#child(arm[1], value.value, `${where}.${key}`)} }`;
       }
       default:
+        return String(value); // integers (decimal strings)
+    }
+  }
+
+  /**
+   * ABI text of an EVM value (spec section 15), as evm.mjs decodes it: an address in its EIP-55 form, bytes as 0x hex,
+   * a string quoted, an array in [ ], a tuple in ( ) with its component names.
+   */
+  #abi(node, value, where) {
+    switch (node.abi) {
+      case "address":
+        return value;
+      case "bool":
+        return value ? "true" : "false";
+      case "string":
+        return candidString(value);
+      case "array":
+        return `[${value.map((e, i) => this.#child(node.element, e, `${where}[${i}]`)).join(", ")}]`;
+      case "tuple":
+        return `(${entriesOf(node.fields)
+          .map(([key, child]) => `${key.startsWith("#") ? "" : `${key}: `}${this.#child(child, value[key], `${where}.${key}`)}`)
+          .join(", ")})`;
+      default:
+        if (value instanceof Uint8Array) return `0x${[...value].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
         return String(value); // integers (decimal strings)
     }
   }
@@ -196,6 +223,9 @@ export class Renderer {
     return null;
   }
 }
+
+/** An EVM function's arguments: its parameters as one tuple (spec section 15), written as the ABI writes them. */
+const isAbiParams = (nodes) => nodes.length === 1 && nodes[0]?.abi === "tuple";
 
 /** `UTC`, `UTC+02:00`, `UTC-05:30`. */
 export function zoneName(offsetMinutes) {

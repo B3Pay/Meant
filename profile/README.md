@@ -12,7 +12,7 @@ and UIs each guess. A profile writes that meaning down once, bound to the interf
 - **ICRC-21 consent messages** for any method, not just `icrc1_transfer`.
 - **Display and input formatting** for web UIs.
 
-This folder holds the spec, Candid Profile v0, with its JSON Schema, the standard packs for ICRC-1 and ICRC-2, and the
+This folder holds the spec, Candid Profile v0, with its JSON Schema, the standard packs for ICRC-1, ICRC-2 and ERC-20, and the
 `@meantjs` packages that read them. Profiles bind to the interface ids of [`meant`](../README.md), the compiler from
 `.did` to a canonical Contract graph at the root of this repository (`@candid-core/schema` and `@candid-core/cli` on
 npm). Meant is a B3Pay project.
@@ -22,7 +22,9 @@ npm). Meant is a B3Pay project.
 - The spec is **Draft 0.2**. Breaking changes are expected until the preregistered eval reports; its tasks stay
   private so that no model trains on them.
 - **0.1.0 is on npm** (2026-10-28), published from this repository with provenance (`docs/releasing.md`).
-- **Internet Computer only.** Ethereum, through ERC-7730 clear-signing files, and Solana are planned, not supported.
+- **Internet Computer first; EVM contracts experimental** (spec §15, not yet on npm). A profile can describe an EVM
+  contract's functions, and from it come consent text for a call and an ERC-7730 clear-signing file with its ERC-8176
+  `descriptorHash`. Agent tools for EVM calls, and Solana, are planned, not supported.
 - **Try it** in B3Forge: open the [playground](https://forge.b3pay.net/playground), fetch any ICRC ledger by its
   canister id and switch to Profile.
 
@@ -32,7 +34,7 @@ npm). Meant is a B3Pay project.
 |---|---|
 | [`@meantjs/profile`](packages/resolver) | Validates profiles, matches packs to a service, merges layers and emits the resolved form that consumers read; the `candid-profile` CLI |
 | [`@meantjs/format`](packages/format) | Exact parse and display for the six value tags: `amount`, `timestamp`, `duration`, `account`, `subaccount` and `bytes` |
-| [`@meantjs/consent`](packages/consent) | ICRC-21 consent messages for any method, from a resolved form and the Candid-encoded arguments |
+| [`@meantjs/consent`](packages/consent) | ICRC-21 consent messages for any method, from a resolved form and the Candid-encoded arguments; for an EVM contract, consent text for calldata and the ERC-7730 file (experimental) |
 | [`@meantjs/tools`](packages/tools) | MCP tool definitions, input in human units, a preview a person confirms before every send, and the retry and reconcile rules |
 | [`@meantjs/reconcile`](packages/reconcile) | After an unknown outcome, before any new attempt: is the original already in the ledger's ICRC-3 history? |
 

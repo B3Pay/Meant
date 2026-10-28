@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { CUTS, buildCorpus, corpusJson } from "./differential/build.mjs";
+import { CASE_CALLS, CUTS, buildCorpus, corpusJson } from "./differential/build.mjs";
 
 const stored = readFileSync(new URL("./differential/corpus.json", import.meta.url), "utf8");
 const corpus = buildCorpus();
@@ -62,4 +62,17 @@ test("differential corpus: a cut refuses the call only when its value reaches th
     assert.equal(got, want, `CUTS[${i}]`);
     assert.equal("Ok" in v.sns ? "Ok" : v.sns.Err.split(":")[0], want, `CUTS[${i}] sns`);
   });
+});
+
+test("differential corpus: a call takes the intent and effect of the deepest tagged case it holds (spec section 5.2, D-053)", () => {
+  for (const source of ["wide", "mangled"]) {
+    const calls = corpus.vectors.filter((v) => v.source === source && v.method === "vote").slice(-CASE_CALLS.length);
+    CASE_CALLS.forEach(([, wideTitle, effect, mangledTitle], i) => {
+      const v = calls[i];
+      const title = source === "wide" ? wideTitle : mangledTitle;
+      assert.ok(v.generic.Ok.startsWith(`# ${title}\n`), `${source} CASE_CALLS[${i}]: ${v.generic.Ok.split("\n")[0]}`);
+      assert.match(v.sns.Ok, new RegExp(`^### ${title}\n`), `${source} CASE_CALLS[${i}] sns`);
+      assert.ok(v.sns.Ok.includes(`**Effect:** ${effect}.`), `${source} CASE_CALLS[${i}] effect`);
+    });
+  }
 });

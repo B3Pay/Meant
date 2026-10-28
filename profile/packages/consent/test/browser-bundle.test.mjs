@@ -41,6 +41,11 @@ test("consent's main entry bundles for the browser with no node:* import and no 
   assert.deepEqual(await nodeOnly(entry("../src/index.mjs")), []);
 });
 
+test("the EVM subpaths (./evm, ./erc7730) bundle for the browser too", async () => {
+  assert.deepEqual(await nodeOnly(entry("../src/evm.mjs")), []);
+  assert.deepEqual(await nodeOnly(entry("../src/erc7730.mjs")), []);
+});
+
 test("the check sees a Node built-in: the ./sns subpath imports node:crypto", async () => {
   const found = await nodeOnly(entry("../src/sns.mjs"));
   assert.ok(found.some((f) => f.includes("node:crypto")), found.join("\n"));

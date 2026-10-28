@@ -60,6 +60,10 @@ function mangle(form) {
   m.tune.args[3].tags = { describe: describe("\u2028") }; // one line, then blank: the field path instead
   m.tune.args[4].tags = { describe: describe("\u0085") }; // not blank to JavaScript's trim, blank once on one line
   m.stamp.tags.intent.args.title = "\ufeff"; // blank to JavaScript's trim: the generic title instead
+  // a tagged case beside the tagged cases of choice, which one call can hold both of (E_CASE_OVERLAP): the method's
+  // intent then, and this one's when the call holds no other
+  m.vote.args[0].fields.scope.cases.All.tags = { intent: { args: { title: "Side by side" }, origin: "author", profile: "wide-example" } };
+  m.vote.args[0].fields.choice.cases.Other.tags = { intent: null, effect: [] }; // not an entry: no case tag
   r.profiles = [{ name: 42, origin: "pack\n## evil", profile_id: 7 }, null, "x", { name: null, origin: ["a", null, 1.5] }];
   delete r.interface_id;
   return r;
@@ -265,6 +269,18 @@ export const CUTS = [
   ["numbered", `(record { 0 = "a"; 1 = 2; 7 = null })`, "Ok"],
 ];
 
+/**
+ * The intent and effect a call takes from the cases its value holds (spec sections 5.2 and 12, D-053): each payload of
+ * `vote`, with the title and effect the wide form gives it and the title the mangled form gives it.
+ */
+export const CASE_CALLS = [
+  [`(record { id = 1; choice = variant { Transfer = record { to = principal "${ALICE}"; amount = 150 } }; scope = null; note = opt "n" })`, "Vote to send", "transfer, irreversible", "Vote to send"],
+  [`(record { id = 2; choice = variant { Pause }; scope = opt variant { All }; note = null })`, "Vote to pause", "admin, reversible", "Vote"], // two tagged cases side by side: the method's
+  [`(record { id = 3; choice = variant { Nested = variant { Up = 7 } }; scope = null; note = null })`, "Vote up", "write, reversible", "Vote up"], // the deepest intent, the effect above it
+  [`(record { id = 4; choice = variant { Nested = variant { Down = 7 } }; scope = null; note = null })`, "Vote either way", "write, reversible", "Vote either way"],
+  [`(record { id = 5; choice = variant { Other = "x" }; scope = opt variant { All }; note = opt "n" })`, "Vote", "transfer, irreversible", "Side by side"], // an untagged case: the method's
+];
+
 /** Each way a caller can get the refs of `pay`'s dynamic amount wrong (or right in an unusual form). */
 const ODD_REFS = [
   {},
@@ -332,6 +348,7 @@ export function buildCorpus() {
   });
   UNTYPED.forEach(([method, text], i) => vectors.push(vector("wide", method, encodeUntyped(text), refsFor(new Gen(i)), new Gen(100 + i))));
   LIMITS.forEach(([method, text], i) => vectors.push(vector("wide", method, encodeTyped(method, text), {}, new Gen(200 + i))));
+  for (const source of ["wide", "mangled"]) CASE_CALLS.forEach(([text], i) => vectors.push(vector(source, "vote", encodeTyped("vote", text), {}, new Gen(400 + i))));
   CUTS.forEach(([method, text], i) => vectors.push(vector("mangled", method, encodeTyped(method, text), {}, new Gen(300 + i))));
   const g = new Gen(7);
   const payment = encodeTyped("pay", `(${wide.methods.pay.args.map((a) => g.value(a)).join(", ")})`);

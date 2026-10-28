@@ -468,7 +468,7 @@ function readInput(node, input, path, param, ctx) {
  *   input may use (spec 5.3, D-045), read when the call is prepared
  * @returns {{ value: unknown, identity: [string, unknown][] } | { issues: { param: string, path: string, code: string, message: string }[] }}
  *   `value` is the method's single argument (undefined for a method without one; the argument tuple, an array, for a
- *   method with more than one), with the stamp left null; `identity` is what the inputs add to the intent's
+ *   method with more than one; for a tool per case, the case `{ tag, value }` around its payload), with the stamp left null; `identity` is what the inputs add to the intent's
  *   identity. Issue codes are the format library's, plus E_INPUT (not an object), E_UNKNOWN_PARAM, E_MISSING and
  *   E_TYPE (an input that is not text, or JSON of the wrong shape for a record, variant or vec input), and for a
  *   `named` input E_NAMES_UNREAD (its set's names were not read), E_NAME_NOT_FOUND and E_NAME_AMBIGUOUS (several
@@ -510,10 +510,16 @@ export function readToolInput(plan, input, { refs = {}, now, names = {} } = {}) 
   if (issues.length > 0) return { issues };
   if (plan.argNodes?.length > 1) return { value: plan.fields.map((field) => (field.role === "param" ? values.get(field.name) : null)), identity };
   if (plan.argNode === undefined) return { value: undefined, identity };
-  if (plan.rootParam) return { value: values.get(plan.params[0].name), identity };
-  if (plan.rootNull) return { value: null, identity };
-  const value = Object.fromEntries(plan.fields.map((field) => [field.name, field.role === "param" ? values.get(field.name) : null]));
-  return { value, identity };
+  const value = plan.rootParam
+    ? values.get(plan.params[0].name)
+    : plan.rootNull
+      ? null
+      : Object.fromEntries(plan.fields.map((field) => [field.name, field.role === "param" ? values.get(field.name) : null]));
+  if (plan.case === undefined) return { value, identity };
+  // a tool per case (D-053): the payload goes into its case, a null payload as candid-core's bare { tag }; the case is
+  // part of the intent, so two cases with the same inputs are two intents
+  const bare = plan.caseNode.candid === "null" && plan.caseNode.optional !== true;
+  return { value: bare ? { tag: plan.case } : { tag: plan.case, value }, identity: [[plan.case, identity]] };
 }
 
 /**

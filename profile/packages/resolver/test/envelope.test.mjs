@@ -145,7 +145,7 @@ test("the CLI takes --envelope, and refuses it beside a .did", async () => {
   assert.equal(a.out.stdout, b.out.stdout);
   const c = io();
   assert.equal(await runCli(["resolve", path.join(HERE, "fixtures/ledger.did"), "--envelope", envFile], c.io), 2);
-  assert.match(c.out.stderr, /not both/);
+  assert.match(c.out.stderr, /give only one of <service.did>, --envelope and --abi/);
 });
 
 test("the CLI refuses a missing or unreadable envelope file with exit 2", async () => {

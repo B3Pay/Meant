@@ -14,6 +14,14 @@ type Kind = variant { Small; Large : nat64; Named : record { label : text; weigh
 type Schedule = record { at : nat64; every : nat64; drift : opt int; label : text };
 type Numbered = record { 0 : text; 1 : nat; 7 : opt principal };
 type Ordered = record { zeta : nat; alpha : int; mid : text; tail : opt Leaf };
+// Intents and effects on variant cases (spec 5.2, D-053): a case in a record, a nested case, an untagged case.
+type Motion = variant {
+  Transfer : record { to : principal; amount : nat };
+  Pause;
+  Nested : variant { Up : nat8; Down : nat8 };
+  Other : text;
+};
+type Ballot = record { id : nat64; choice : Motion; scope : opt variant { All; Some : vec nat64 }; note : opt text };
 service : {
   pay : (Payment) -> ();
   schedule : (Schedule) -> ();
@@ -29,4 +37,5 @@ service : {
   sub : (blob) -> ();
   decimals : () -> (nat8) query;
   symbol : () -> (text) query;
+  vote : (Ballot) -> ();
 }

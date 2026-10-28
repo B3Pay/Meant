@@ -1,0 +1,423 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "chain": "evm",
+  "interface_id": "candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b",
+  "profiles": [
+    {
+      "name": "erc20",
+      "origin": "pack",
+      "profile_id": "candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186"
+    }
+  ],
+  "methods": {
+    "allowance": {
+      "mode": "query",
+      "selector": "0xdd62ed3e",
+      "signature": "allowance(address owner,address spender)",
+      "state_mutability": "view",
+      "tags": {
+        "describe": {
+          "args": {
+            "label": "Allowance of a spender"
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        },
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "owner": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Owner"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            },
+            "spender": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Spender"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "abi": "uint256",
+          "tags": {
+            "amount": {
+              "args": {
+                "decimals": {
+                  "from": "query:decimals"
+                },
+                "symbol": {
+                  "from": "query:symbol"
+                },
+                "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                "message": "Unlimited"
+              },
+              "origin": "pack",
+              "profile": "erc20"
+            }
+          }
+        }
+      ]
+    },
+    "approve": {
+      "mode": "update",
+      "selector": "0x095ea7b3",
+      "signature": "approve(address spender,uint256 value)",
+      "state_mutability": "nonpayable",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Approve spending",
+            "template": "Set {spender}'s allowance to {value}, replacing any existing allowance"
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        },
+        "effect": {
+          "args": {
+            "kind": "approve",
+            "irreversible": false
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "spender": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Spender"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            },
+            "value": {
+              "abi": "uint256",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:decimals"
+                    },
+                    "symbol": {
+                      "from": "query:symbol"
+                    },
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                    "message": "Unlimited"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Allowance",
+                    "help": "Maximum the spender may transfer. An approval replaces the previous allowance; it does not add to it."
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "abi": "bool"
+        }
+      ]
+    },
+    "balanceOf": {
+      "mode": "query",
+      "selector": "0x70a08231",
+      "signature": "balanceOf(address owner)",
+      "state_mutability": "view",
+      "tags": {
+        "describe": {
+          "args": {
+            "label": "Balance of an address"
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        },
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "owner": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Owner"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "abi": "uint256",
+          "tags": {
+            "amount": {
+              "args": {
+                "decimals": {
+                  "from": "query:decimals"
+                },
+                "symbol": {
+                  "from": "query:symbol"
+                }
+              },
+              "origin": "pack",
+              "profile": "erc20"
+            }
+          }
+        }
+      ]
+    },
+    "decimals": {
+      "mode": "query",
+      "selector": "0x313ce567",
+      "signature": "decimals()",
+      "state_mutability": "view",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "abi": "uint8"
+        }
+      ]
+    },
+    "symbol": {
+      "mode": "query",
+      "selector": "0x95d89b41",
+      "signature": "symbol()",
+      "state_mutability": "view",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "abi": "string"
+        }
+      ]
+    },
+    "transfer": {
+      "mode": "update",
+      "selector": "0xa9059cbb",
+      "signature": "transfer(address to,uint256 value)",
+      "state_mutability": "nonpayable",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Send tokens",
+            "template": "Send {value} to {to}"
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "to": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Recipient"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            },
+            "value": {
+              "abi": "uint256",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:decimals"
+                    },
+                    "symbol": {
+                      "from": "query:symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "abi": "bool"
+        }
+      ]
+    },
+    "transferFrom": {
+      "mode": "update",
+      "selector": "0x23b872dd",
+      "signature": "transferFrom(address from,address to,uint256 value)",
+      "state_mutability": "nonpayable",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Transfer using allowance",
+            "template": "Move {value} from {from} to {to} using an allowance"
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true
+          },
+          "origin": "pack",
+          "profile": "erc20"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "from": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "From"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            },
+            "to": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Recipient"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            },
+            "value": {
+              "abi": "uint256",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:decimals"
+                    },
+                    "symbol": {
+                      "from": "query:symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "pack",
+                  "profile": "erc20"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "abi": "bool"
+        }
+      ]
+    }
+  },
+  "diagnostics": []
+}

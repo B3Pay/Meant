@@ -40,8 +40,11 @@ const DIRS = LIBRARY_DIRS;
 const BROWSER = [
   ["@meantjs/profile/browser", ["@candid-core/cli"]],
   ["@meantjs/profile/address", []],
+  ["@meantjs/profile/evm", []],
   ["@meantjs/format", []],
   ["@meantjs/consent", []],
+  ["@meantjs/consent/evm", []],
+  ["@meantjs/consent/erc7730", []],
   ["@meantjs/tools", []],
   ["@meantjs/reconcile", []],
 ];

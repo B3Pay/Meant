@@ -67,6 +67,7 @@ U32          = decimal integer, 0 … 4294967295
 | `icrc1_transfer(0).to` | The whole `Account` record (for the `account` tag) |
 | `icrc1_balance_of->(0)` | The `nat` result |
 | `icrc1_transfer->(0).Err.InsufficientFunds.balance` | A field inside an error case |
+| `propose(0).Transfer` | The `Transfer` case of `propose`'s argument (for a case `intent` or `effect`, §5.2) |
 | `get_blocks->(0).blocks[].#0` | Field id 0 of each vector element |
 | `type:Tokens.e8s` | Declaration-based (canister profiles only) |
 
@@ -112,6 +113,16 @@ There are 18 tags. Twelve are **core**: the eval depends on them, so they are st
 | `list` | `cursor` (args relpath); `next`, `items` (results relpaths) | exp. |
 | `names` | `set` (required); `items` (results relpath to a `vec` of records, required); `name`, `value` (required), `show`, `kind`: paths inside one item (D-045) | exp. |
 
+**On a variant case (D-053).** `intent` and `effect` MAY also sit at a **case address**: an argument address
+`METHOD(i)path` whose last step selects a case of a variant (§3.2 rule 4), such as `propose(0).Transfer`. Its path MUST
+NOT step into a vector element (`[]`), and neither a result address nor a `type:` address may be used: one call holds
+many elements, and a `type:` address can reach several methods (`E_TAG_TARGET`, as for any other value address). For
+each of the two tags, the tagged cases of one method MUST NOT overlap (`E_CASE_OVERLAP`): two case addresses overlap
+when one value can take both, that is when they sit in different arguments or their paths part at a record field. They
+do not overlap when one lies inside the other's case or when they part at a variant, since a value takes one case of a
+variant. The **cases a call takes** are the tagged cases on the path its argument value takes; the deepest of them is
+the call's case for that tag. The other method tags (`idempotency`, `outcome`, `list`, `names`) stay on the method.
+
 ### 5.3 Normative behavior
 
 **`amount`**
@@ -153,7 +164,15 @@ There are 18 tags. Twelve are **core**: the eval depends on them, so they are st
 - **Defaults when the tag is absent:** query methods → `read`; update methods → `write` with `irreversible: true` (conservative).
 - **Effect and mode:** a query or composite query declared as anything but `read` is `E_EFFECT_MODE`. A `read` on an update or a oneway method is `W_EFFECT_MODE`, except in the read-only update form below.
 - **A read-only update (D-038):** `{ "kind": "read", "irreversible": false, "replicated": true }` declares an update method that changes no canister state the profile describes and is called as an update so that its answer is certified by the subnet rather than given by one replica. **Fact** ([IC interface specification, HTTPS interface](https://docs.internetcomputer.org/references/ic-interface-spec/https-interface/)): the reply to an update call comes with a certificate of the subnet's state (through `read_state`, or in the synchronous call response), while a query's reply comes from a single replica and is signed only by that node. Consumers MUST send it as an update call, never through the query endpoint, or the certification it declares is lost. The form is valid only on an `update` method, with `kind: "read"` and `irreversible: false`; `replicated: true` with another `kind`, with `irreversible: true`, or on a `query`, `composite_query` or `oneway` method is `E_EFFECT_MODE` (a oneway call has no answer to certify; a query is a `read` already). The valid form gets no `W_EFFECT_MODE`. `replicated: false` is the same as leaving it out. The form changes no other rule: the method is a `read` for consumers, and it is still an update for retries (see `idempotency` below). `replicated` is the author's claim, like any effect: the resolver cannot check that the method changes nothing, so without `W_EFFECT_MODE` the claim rests on the profile's provenance (§11.1).
-- **Confirmation:** consumers MUST require explicit human confirmation before executing `transfer`, `approve`, `admin` or `destroy`, unless a separately configured policy, such as a spending budget, pre-authorizes it. Policies are outside v0.
+- **A case's effect (D-053).** A call's effect is the effect of its case (§5.2), else the method's, else the default
+  above. The checks of this section (`E_EFFECT_MODE`, `W_EFFECT_MODE`, the read-only update form) apply to a case
+  effect against the mode of its method. **The method's effect bounds its cases'**: when any case effect of a method
+  is `transfer`, `approve`, `admin` or `destroy`, the method's effect MUST be one of these four, and when any case
+  effect is `irreversible: true`, the method's MUST be (`E_CASE_EFFECT`; the default of an update, `write`, is not one
+  of the four, so such a method declares its effect). A consumer that does not read case effects therefore confirms
+  every call that one that reads them would; reading them can only lift a confirmation from a call whose case is
+  weaker, and that is the author's claim, like any effect (§11.1).
+- **Confirmation:** consumers MUST require explicit human confirmation before executing a call whose effect is `transfer`, `approve`, `admin` or `destroy`, unless a separately configured policy, such as a spending budget, pre-authorizes it. Policies are outside v0.
 
 **`idempotency` (`replay_same_payload`)**
 - **The stamp field** MUST carry a `timestamp` tag (`E_STAMP_UNTAGGED`).
@@ -240,6 +259,12 @@ Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}]
 ```
 
 - **Placeholders:** `{relpath}` is rendered with the formatter of the tag at that position (`amount` → `1.5 ICP`, `account` → textual encoding, `timestamp` → date). Positions without a formatting tag render as Candid text.
+- **Case templates (D-053):** a case intent's template (§5.2) names values as a method's template does, by relpaths
+  from the method's argument tuple (§3.2 rule 9), so it can show values outside its case: `propose(0).Transfer` says
+  `Send {Transfer.amount} to {Transfer.to}`, and a case inside a record, such as `manage(0).command.Disburse`, can
+  name the record's other fields (`{id}`) beside its own (`{command.Disburse.amount}`). A placeholder
+  whose path selects another case of a variant that the case address passes through can never be present, and is
+  `E_TEMPLATE_PATH`.
 - **Optional segments:** `[ … ]` is dropped when any placeholder inside it is absent (`null`). Nesting is not allowed in v0.
 - **Optional placeholders:** a placeholder that resolves to an `opt` position outside `[ … ]` triggers `W_TEMPLATE_OPTIONAL`.
 - **Escapes:** `{{`, `}}`, `[[`, `]]`.
@@ -362,6 +387,8 @@ service : {
   - Docs on declarations become `type:<Decl>` addresses.
   - Docs on fields become `type:<Decl>.<field>` when the field is declared in a named type. Docs on fields inside inline actor types use the SourceInfo occurrence path; mapping that to a method address needs confirming against real SourceInfo output (OQ-4).
   - Method docs become method addresses.
+  - A case `intent` or `effect` (§5.2, D-053) has no doc form in v0: `@intent` and `@effect` on a method take no
+    `at`, and on a field or a declaration they are not allowed. Write a case tag in a profile.
 - **Plain prose** (non-`@` lines) becomes `describe.help`.
 - **Identity:** annotations change `source_bundle_id` but never `interface_id` or `contract_id`, because docs live in SourceInfo, outside the Contract.
 
@@ -406,6 +433,8 @@ node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.r
 **Where tags come from:**
 - Tags from `type:` addresses appear at every position reached through that edge.
 - A method-address tag at the same position wins (§8).
+- A case node's `tags` MAY hold `intent` and `effect` (§5.2, D-053). A consumer that does not read them uses the
+  method's, which §5.3 bounds.
 
 **Reference implementation:** `@meantjs/profile` (`packages/resolver`). `candid-profile resolve <service.did> [--profile p.json ...] [--packs]` merges any number of profiles (§8), matches packs by subtyping (§7) and prints the resolved form. `profiles` lists every applied profile, highest layer first. `scripts/validate.mjs` remains the single-profile validator and generates the fixtures. Diagnostics from a multi-profile resolve carry an optional `profile` field naming the profile they are about.
 
@@ -431,6 +460,12 @@ node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.r
 8. **A served profile is certified, not vouched for** (§8.1). The certificate proves that the canister serves these
    bytes, so no replica or boundary node can change them, but the words are still the author's claim (item 1). A
    canister can serve a profile that calls a drain "claim reward"; the controller that installs the module chooses it.
+9. **An EVM pack applies to any contract whose functions match** (§15.3), so a hostile contract can match ERC-20, call
+   its drain "Send tokens" and answer "USDT" to `symbol()`. A consumer MUST show the contract's address, with its EIP-55
+   checksum, whenever it asks a person to confirm a call matched by a pack; the consent text of §15.6 ends with it.
+   **Fact** ([ERC-7730](https://eips.ethereum.org/EIPS/eip-7730), Security Considerations): the same risk is named
+   there as "parameter injection using legitimate, high-profile contract formats". `query:` refs on an EVM contract
+   are `eth_call`s answered by one RPC node, as item 2's are by one replica.
 
 ## 12. Mapping to ICRC-21 (informative)
 
@@ -448,14 +483,14 @@ For `device_spec = FieldsDisplay`:
 For `GenericDisplay`, the output is the rendered template as Markdown, followed by the same fields as a list.
 
 **Rendering rules (D-028, reference implementation `packages/consent`):**
-1. The fields-form `intent` is the title, a colon and a space, and the rendered template; the title alone when the method has no template.
-2. Rows are in the order of first appearance in the template, one per distinct path. A placeholder in a dropped `[ ]` segment contributes none; an absent placeholder outside a segment renders as `(none)`.
+1. The fields-form `intent` is the title of the **call's intent**, a colon and a space, and the rendered template; the title alone when that intent has no template. The call's intent is the intent of the case the call takes (§5.2, D-053), else the method's.
+2. Rows are in the order of first appearance in the call's template, one per distinct path. A placeholder in a dropped `[ ]` segment contributes none; an absent placeholder outside a segment renders as `(none)`.
 3. A placeholder whose path crosses a variant case is absent unless the value holds that case. A placeholder over `[]` renders its elements joined with `, `; more than 256 elements is refused.
 4. Untagged values render in Candid text syntax, except that a principal on its own renders as its textual form.
 5. `TokenAmount` only when the amount is non-negative, fits `nat64` and the tag has a symbol; otherwise `Text`. `TimestampSeconds` and `DurationSeconds` only when the converted value is exact and fits `nat64`; otherwise `Text`.
 6. Generic form times are `YYYY-MM-DD HH:MM:SS[.f] UTC+HH:MM` from the exact instant; the response carries the applied `utc_offset_minutes` exactly when a time is shown in the generic form. The fields form is UTC seconds and never zone-sensitive. An offset outside ±24 h is ignored with a diagnostic.
 7. Generic layout: `# title`, the paragraph, then `- **label:** value` lines. Values from the call are Markdown code spans (fence longer than any backtick run inside); an empty value is `*(empty)*`; text that comes from the profile is backslash-escaped. Bare URLs in a profile's own template text are the author's responsibility.
-8. A method without `intent` gets the title from `describe.label`, else `Call <method>`, and one row per leaf of the decoded arguments (records flattened, value-tagged positions as leaves, absent optionals left out, `ui.order` first). More than 64 rows is refused, never truncated.
+8. A call without an intent (neither its case's nor its method's) gets the title from `describe.label`, else `Call <method>`, and one row per leaf of the decoded arguments (records flattened, value-tagged positions as leaves, absent optionals left out, `ui.order` first). More than 64 rows is refused, never truncated.
 9. A request for a language the profile does not have is answered in the profile's language, and the metadata says which (ICRC-21 prefers a message over an error). An absent `device_spec` means `GenericDisplay`.
 10. A value a formatter refuses is shown as raw Candid text with a diagnostic; a formatter that cannot be built (unresolved dynamic ref, bad tag argument) produces no message, so a number is never shown without its decimals.
 11. The consent message carries the decoded raw arguments only on request. The signer that displays the message is the consumer that SHOULD show them (§11 item 1).
@@ -472,16 +507,21 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 | `E_ADDR_SYNTAX` / `E_ADDR_UNRESOLVED` | error | Address does not parse / resolve |
 | `E_PACK_TYPE_REF` | error | `type:` address in a pack |
 | `E_TYPE_NODE` | error | Pathless `type:` address on a declaration that is not a record or a variant |
-| `E_TAG_TARGET` / `E_TAG_NOT_APPLICABLE` | error | Wrong kind of target / wrong Candid type |
+| `E_TAG_TARGET` / `E_TAG_NOT_APPLICABLE` | error | Wrong kind of target / wrong Candid type. Includes an `intent` or `effect` at a value address that is not a case of a variant in the arguments, or that steps into `[]` (§5.2), and on an EVM contract `idempotency`, `outcome`, `list`, `names` and `named` (not yet) and `account` and `subaccount` (no ABI type) (§15.4) |
 | `E_REF_UNRESOLVED` / `E_REF_NOT_QUERY` / `E_REF_SHAPE` / `E_REF_TYPE` / `E_DYNAMIC_KIND` | error | Bad dynamic value |
 | `E_DEFAULT_NULL` | error | `null` default on a non-optional position |
 | `E_EFFECT_MODE` | error | An effect that does not fit the method: a query or composite query declared as something other than `read`, or `replicated: true` anywhere but on an update method with `kind: "read"` and `irreversible: false` (§5.3) |
 | `E_IDEMPOTENCY_MODE` / `E_STAMP_UNTAGGED` | error | Idempotency on a query / stamp without a `timestamp` tag |
 | `E_OUTCOME_NOT_CASE` | error | Outcome key is not a variant case |
-| `E_TEMPLATE` / `E_TEMPLATE_PATH` | error | Template syntax / unknown placeholder |
+| `E_TEMPLATE` / `E_TEMPLATE_PATH` | error | Template syntax, or a `[ ]` segment on an EVM contract (§15.4) / unknown placeholder, or one through another case of a variant on a case intent's path (§6) |
+| `E_CASE_OVERLAP` | error | Two tagged cases of one method, for the same tag, that one value can take both (§5.2) |
+| `E_CASE_EFFECT` | error | A case effect that needs confirmation, or is irreversible, under a method effect that does not or is not (§5.3) |
 | `E_CONFLICT` | error | Two different values for one tag at one position |
 | `E_STALE` | error | Bound interface changed and some address or tag no longer holds |
 | `E_PACK_NOT_MATCHED` | error | A pack the caller asked for explicitly does not apply to the service |
+| `E_ABI` | error | An EVM ABI (`binds.abi`, or the contract's given as the interface) that cannot be read: a fragment that does not parse, a type that does not exist, an overloaded function name (O1), two components with one field id, or no function at all (§15.1) |
+| `E_CHAIN` | error | A profile or pack for an EVM contract given for a Candid service, or the other way round (§15.3) |
+| `E_ADDRESS_CHECKSUM` | error | A deployment address in mixed case that does not match its EIP-55 checksum (§15.3) |
 | `E_NAMES_MODE` / `E_NAMES_SHAPE` / `E_NAMES_FIELD` / `E_NAMES_SET_DUPLICATE` | error | A `names` set on a method that is not a query or a read-only update / that takes arguments, or whose `items` is not a `vec` of records / whose `name` is not `text` / declared twice (§5.3) |
 | `E_NAMED_SET` / `E_NAMED_TYPE` | error | A `named` position whose set is not declared (or has no `show` for `by: "show"`) / whose type differs from the set's field (§5.3) |
 | `W_NAMED_UNPATTERNED` | warning | A `named` `text` position without a `text.pattern`: names are looked up before values (§5.3) |
@@ -510,3 +550,150 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 - Candid subtyping, relaxed for result variants (§7), is the right pack-match rule.
 
 **Open questions:** see [`open-questions.md`](./open-questions.md).
+
+## 15. EVM contracts (experimental, D-054)
+
+**Status:** experimental, phase 1. A profile can describe an EVM contract's functions; from it come consent text for a
+call's calldata and an ERC-7730 clear-signing file with its ERC-8176 `descriptorHash`. Agent tools, `outcome` classes
+over reverts, `idempotency` by nonce, EIP-712 messages and ERC-7730 import are later phases, each its own decision. The
+eval does not use any of it.
+
+### 15.1 The interface: an ABI
+
+- **Fact** ([ERC-7730](https://eips.ethereum.org/EIPS/eip-7730)): a function is matched by its selector, the first
+  4 bytes of Keccak-256 (Ethereum's, not NIST SHA3-256) of its type-only signature (`transfer(address,uint256)` →
+  `0xa9059cbb`). Parameter names are not part of it; ERC-7730 files carry them in their keys
+  (`transfer(address to,uint256 value)`), and so does a profile, in `binds.abi`.
+- `binds.abi` is an array of human-readable fragments (`function transfer(address to, uint256 value) returns (bool)`)
+  or JSON ABI entries. Only functions are read: events, errors, the constructor, `fallback` and `receive` are skipped.
+  Aliases read as their canonical types (`uint` is `uint256`, `constant` is `view`), and the canonical fragment of a
+  function is `function NAME(type name,…) [view|pure|payable] returns (…)`.
+- **Overloaded names are refused** (`E_ABI`; O1): an address names a function by its name alone.
+- **Identity:** `candid-profile:evm-abi:v0:sha256:<hex>`, SHA-256 over the RFC 8785 (JCS) form of the sorted canonical
+  fragments. It is the resolved form's `interface_id`, and what a contract profile binds to.
+
+The resolver reads an ABI as the graph a Candid interface compiles to, so addresses, tags, merging and the resolved
+form work as for a canister:
+
+| ABI | As a profile sees it |
+|---|---|
+| a function | a method: `view` and `pure` are queries, `nonpayable` and `payable` updates |
+| its parameters | one record at argument index 0: `transfer(0).to`; a function without parameters has no argument |
+| its outputs | the result tuple: `balanceOf->(0)` |
+| a tuple | a record, its components in ABI order. A named component's id is the Candid hash of its name (§3.2 rule 1); an unnamed one's is its position, addressed `#i` |
+| `T[]`, `T[k]` | a vector, `[]`; `T[k]` keeps its length |
+| anything else | a primitive named by its canonical type: `uint256`, `int64`, `address`, `bool`, `string`, `bytes`, `bytes32` |
+
+Template placeholders read `{to}` and `{value}`, as ERC-7730's do.
+
+### 15.2 Values
+
+- **Integers** are `uintN` and `intN` for N = 8, 16, …, 256, with the bounds of their N bits. `amount` input and
+  display are §5.3's, with no rounding.
+- **Addresses** have one text form, `0x` and 40 hex digits. They are shown with their EIP-55 checksum. On input, an
+  address in mixed case MUST match its checksum; an address in one case carries no checksum and is accepted (O3).
+- **Calldata** MUST be decoded strictly: a decoder that reads values from bytes other than their canonical ABI
+  encoding (dirty padding, an offset that does not point where the encoder would write, bytes left over) MUST refuse
+  them. The consent text of §15.6 re-encodes the values it read and compares the bytes.
+
+### 15.3 Profiles and packs
+
+- **A contract profile** has `kind: "contract"`, an `origin` of `author`, `third_party` or `inferred`, and
+  `binds: { "abi": […], "deployments": [ { "chain_id": 1, "address": "0x…" } ] }`. `deployments` is optional; it says
+  which contracts the profile describes, as ERC-7730's `context.contract.deployments` does. An address in mixed case
+  that does not match its EIP-55 checksum is `E_ADDRESS_CHECKSUM`; a deployment listed twice is `W_DUPLICATE`.
+- A contract profile is checked against its own `binds.abi`. Resolved against another ABI (`candid-profile resolve
+  --abi`), it is rebound or stale by the rules of §7 for a canister profile, with the identity of §15.1.
+- **An EVM pack** has `kind: "pack"` and `binds.abi` instead of `binds.requires`. It applies to a contract that has
+  every function of the pack with the same selector (so the same name and parameter types), the same output types and
+  the same kind of call (a query; or an update that is payable exactly when the pack's is). There is no subtyping. A
+  pack's addresses and placeholders use the pack's parameter names; when it applies, they are rewritten to the
+  contract's, component by component, by position (EIP-20 names them `_to` and `_value`, WETH `dst` and `wad`).
+- A profile or pack for the other kind of interface is `E_CHAIN` when given explicitly, and skipped in a pack search.
+- **Standard pack:** [`packs/erc20.profile.json`](../packs/erc20.profile.json), the ERC-20 `transfer`, `approve`,
+  `transferFrom`, `balanceOf`, `allowance`, `decimals` and `symbol`. **Fact**
+  ([EIP-20](https://eips.ethereum.org/EIPS/eip-20)): `decimals()` and `symbol()` are optional, so a token without them
+  matches no pack and needs a contract profile with literal values.
+
+### 15.4 Tags
+
+| Tag | On an EVM contract |
+|---|---|
+| `amount` | `uint8`…`uint256`, `int8`…`int256`. `query:` refs are `eth_call`s of a `view` or `pure` function of the same contract with no argument and one result |
+| `timestamp`, `duration` | `uint32`…`uint256`, `int64`…`int256` |
+| `bytes` | `bytes`, `bytes1`…`bytes32` |
+| `text` | `string` |
+| `range` | an integer type, `string`, an array |
+| `describe`, `default`, `ui`, `intent`, `effect` | as §5 says |
+| `account`, `subaccount` | none (`E_TAG_NOT_APPLICABLE`): an address needs no tag (§15.2) |
+| `idempotency`, `outcome`, `list`, `names`, `named` | not yet (`E_TAG_TARGET`): they need nonces, receipts and reads that a later phase adds |
+
+An ABI value is never absent, so an EVM template MUST NOT use `[ ]` segments (`E_TEMPLATE`); the escapes of §6 are
+unchanged. `effect` defaults as in §5.3. The native value a `payable` function receives has no position yet (O2).
+
+### 15.5 Resolved form
+
+The resolved form of an EVM contract has the top-level field `"chain": "evm"`. Its nodes carry `abi` where a Candid
+form's carry `candid`: the canonical type of a primitive, `"tuple"` with `fields`, or `"array"` with `element` and, for
+`T[k]`, `length`. Each method also has `selector` (`0xa9059cbb`), `signature` (the ERC-7730 key form, with names:
+`transfer(address to,uint256 value)`) and `state_mutability`; each entry of `profiles` that binds deployments lists
+them as `deployments`. A consumer MUST refuse a resolved form whose `chain` it does not know rather than read it as
+Candid (the reference consent and tool packages do).
+
+### 15.6 Consent text for a call
+
+ICRC-21 is the Internet Computer's, so an EVM call gets the same model and the same two layouts as §12 without the
+ICRC-21 envelope (`@meantjs/consent/evm`, `evmConsent`): the generic form as Markdown, and the fields form as an intent
+line and `(label, text)` rows. The selector picks the function, calldata is decoded strictly (§15.2), and the text ends
+with the contract's address and chain (§11 item 9). When a profile lists deployments, the call's contract and chain
+MUST be one of them (`E_DEPLOYMENT`). A `payable` function is refused until its value has a position (O2).
+
+### 15.7 ERC-7730 files and ERC-8176 attestations
+
+**Fact** ([ERC-8176](https://eips.ethereum.org/EIPS/eip-8176), Draft): an ERC-8176 attestation is an EAS attestation,
+under the schema `bytes32 descriptorHash` (UID `0xe023eef1…b5c2`), that a party reviewed the ERC-7730 file whose
+RFC 8785 serialization has that Keccak-256. It describes no call; it vouches for a file.
+
+From an EVM contract's resolved form, `@meantjs/consent/erc7730` writes that file (`erc7730Descriptor`): the same
+resolved form always gives the same bytes, so the same `descriptorHash`. `$schema` names the exact version
+`erc7730-v2.1.0.schema.json`, so that a new release of the `v2` alias cannot move the hash. One entry per function a
+transaction calls (an update), keyed by its `signature`:
+
+| Profile | ERC-7730 |
+|---|---|
+| `intent.title` (else `describe.label` of the method, else `Call <name>`) | `intent` |
+| `intent.template` | `interpolatedIntent`: `{(0).to}` reads `{to}`, `[[` and `]]` are plain brackets, `{{` and `}}` stay |
+| each leaf of the parameters, in ABI order | one entry of `fields`; `path` in the parameter names, `name.[]` through an array; `label` is `describe.label`, else the name |
+| `amount` with `query:decimals` and `query:symbol` (the ERC-20 functions) | `tokenAmount`, `tokenPath: "@.to"` |
+| `amount` with literal `decimals` and `symbol` | the same, with `metadata.token` (only when the caller says the contract is that token) |
+| `threshold`, `message` | `threshold` (`0x` hex), `message` |
+| `timestamp` in `s` | `date`, `encoding: "timestamp"` |
+| `duration` in `s` | `duration` |
+| `bytes` in `hex`, untagged `bytes` | `raw` |
+| an untagged `address` | `addressName` |
+| anything else | `raw` |
+| a `payable` function | one more field, `@.value` as `amount` (the native value, which an ERC-7730 wallet knows) |
+| `binds.deployments` | `context.contract.deployments` (the caller may pick a subset; a file needs at least one) |
+
+What a profile says that an ERC-7730 file cannot say is refused (`E_EXPORT`), never written as something near it: a
+time in another unit, `utf8` or `base64` bytes, an amount whose decimals and symbol are not the contract's own, an
+unnamed parameter, a placeholder over an array or a whole tuple. `effect` and the agent tags have no ERC-7730 form;
+the file carries what a call says, not what it does.
+
+`erc8176Attestation` gives the unsigned offchain attestation (EAS offchain v2 typed data: domain `EAS Attestation`,
+version `0.26`, chain 1, the canonical EAS contract; `data` is the hash) and its EIP-712 digest. A reviewer signs it
+with their own key. This repository never signs or posts one: it holds no reviewer's key, and an onchain attestation
+spends mainnet ETH (AGENTS.md rule 4). Checking attestations is a later phase.
+
+### 15.8 Open items
+
+- **O1.** Overloaded function names (ERC-721 `safeTransferFrom`). Candidate: `name@0x<selector>`.
+- **O2.** The native value of a `payable` call as a position, with the chain's native decimals and symbol.
+- **O3.** Whether a transfer recipient typed in one case (no checksum) is accepted everywhere.
+- **O4.** Whether EVM packs should apply only to deployments a consumer lists (§11 item 9 shows the address meanwhile).
+- **O5** and **O6** of the proposal are settled here: `abi` beside `candid` with a top-level `chain` (§15.5), and an
+  export that refuses what it cannot express (§15.7).
+- **O7.** **Fact** (ERC-7730): a wallet that finds no ticker "SHOULD display the raw value instead with an 'Unknown
+  token' warning", where §12 rule 10 produces no message. An exported file cannot make a wallet refuse.
+- **O8.** **Assumption:** a wallet reads `metadata.token` as the token at `@.to`. ERC-7730 calls it the token "exported
+  by this format"; the export writes it only when the caller says the contract is that token.

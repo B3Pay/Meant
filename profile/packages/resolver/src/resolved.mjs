@@ -10,7 +10,8 @@ export function buildTree(iface, methodName, side, tags) {
   for (const pos of positions(iface, methodName, side)) {
     const { ref: r, optional } = iface.unwrapOpt(pos.ref);
     const n = iface.node(r);
-    const node = { candid: n.kind === "primitive" ? n.primitive : iface.isBlob(r) ? "blob" : n.kind };
+    const node = iface.chain === "evm" ? { abi: iface.abiType(r) } : { candid: n.kind === "primitive" ? n.primitive : iface.isBlob(r) ? "blob" : n.kind };
+    if (n.kind === "vec" && typeof n.length === "number") node.length = n.length; // an EVM fixed-size array, T[k]
     if (optional) node.optional = true;
     const t = tags.at(pos, iface);
     if (t) node.tags = t;
@@ -47,13 +48,16 @@ export function resolvedForm(iface, profiles, tags, diagnostics) {
         ? { args: { kind: "write", irreversible: true }, origin: "default" }
         : { args: { kind: "read", irreversible: false }, origin: "default" };
     }
-    methods[name] = { mode: m.mode, tags: mt, args: buildTree(iface, name, "args", tags), results: buildTree(iface, name, "results", tags) };
+    const f = iface.functions?.get(name); // an EVM function: what a consumer needs to match and decode calldata
+    const abi = f ? { selector: f.selector, signature: f.signature, state_mutability: f.stateMutability } : {};
+    methods[name] = { mode: m.mode, ...abi, tags: mt, args: buildTree(iface, name, "args", tags), results: buildTree(iface, name, "results", tags) };
   }
   return {
     format: "candid-profile-resolved",
     format_version: 0,
+    ...(iface.chain === "evm" ? { chain: "evm" } : {}),
     interface_id: iface.contract.identities.interface ?? null,
-    profiles: profiles.map(({ doc, pid }) => ({ name: doc.name, origin: doc.origin, profile_id: pid })),
+    profiles: profiles.map(({ doc, pid }) => ({ name: doc.name, origin: doc.origin, profile_id: pid, ...(doc.binds?.deployments ? { deployments: doc.binds.deployments } : {}) })),
     methods,
     diagnostics,
   };

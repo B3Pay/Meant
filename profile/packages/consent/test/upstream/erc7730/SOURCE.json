@@ -1,0 +1,26 @@
+{
+  "format": "candid-profile-w4-upstream-source",
+  "notes": [
+    "Untrusted third-party data (CC0 1.0, see LICENSE.md). test/erc7730.test.mjs reads the schema as JSON and validates the exported descriptors against it; nothing in this directory is imported or executed.",
+    "erc7730-v2.1.0.schema.json is the exact-version ERC-7730 schema the exporter names in `$schema` (src/erc7730.mjs ERC7730_SCHEMA_URL). That URL served the same bytes on 2026-10-28.",
+    "To re-check: download the two files at the commit below into an empty directory outside the repository and compare sha256."
+  ],
+  "repository": "https://github.com/ethereum/ERCs",
+  "commit": "79416c55801a65f95a7e1405ca93d33ccb04cba9",
+  "commit_note": "head of master on 2026-10-28 (git ls-remote)",
+  "downloaded": "2026-10-28",
+  "downloaded_with": "curl into an empty directory outside the repository, then copied here",
+  "files": {
+    "erc7730-v2.1.0.schema.json": {
+      "sha256": "3561dde8368e765951b797f8cccf23da27eb6987d3db8a194fd2b9a018169efc",
+      "bytes": 51111,
+      "url": "https://raw.githubusercontent.com/ethereum/ERCs/79416c55801a65f95a7e1405ca93d33ccb04cba9/assets/erc-7730/erc7730-v2.1.0.schema.json",
+      "published_at": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.1.0.schema.json"
+    },
+    "LICENSE.md": {
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+      "bytes": 7048,
+      "url": "https://raw.githubusercontent.com/ethereum/ERCs/79416c55801a65f95a7e1405ca93d33ccb04cba9/LICENSE.md"
+    }
+  }
+}

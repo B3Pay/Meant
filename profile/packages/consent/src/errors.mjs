@@ -21,6 +21,7 @@ export const CODES = Object.freeze({
   TOO_LARGE: "E_TOO_LARGE", // the arguments exceed the bounds of a consent message (never truncated)
   LANGUAGE: "E_LANGUAGE", // only with languagePolicy "error": the requested language is not supported
   REQUEST: "E_REQUEST", // the ICRC-21 request itself is malformed
+  DEPLOYMENT: "E_DEPLOYMENT", // an EVM call's target is not a deployment its profile lists (spec section 15)
   // this generator cannot describe the call (ICRC-21 ConsentMessageUnavailable)
   UNSUPPORTED_TYPE: "E_UNSUPPORTED_TYPE", // a position the resolved form cannot type (recursive cut, func, service)
   // the profile or the caller's context is wrong (ICRC-21 GenericError)
@@ -32,6 +33,8 @@ export const CODES = Object.freeze({
   ARG: "E_ARG",
   TAG_TYPE: "E_TAG_TYPE",
   TAG_CONFLICT: "E_TAG_CONFLICT",
+  // the ERC-7730 export (erc7730.mjs): the resolved form says something an ERC-7730 file cannot say (spec section 15)
+  EXPORT: "E_EXPORT",
 });
 
 /** ICRC-21 GenericError.error_code values this package uses (a nat chosen by the canister; see the README). */

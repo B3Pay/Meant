@@ -50,6 +50,24 @@ export function renderFields(model, renderer, { rawArguments = false } = {}) {
   return { intent, fields };
 }
 
+/**
+ * The fields form as plain text, for a message that is not ICRC-21's (an EVM call, spec section 15): the same intent
+ * line as renderFields, and each row's values joined by ", ".
+ *
+ * @returns {{ intent: string, fields: Array<[string, string]> }}
+ */
+export function renderPlain(model, renderer, { rawArguments = false } = {}) {
+  const title = plainLabel(model.title, model.method);
+  let intent = title;
+  if (model.sentence !== null) {
+    const sentence = model.sentence.map((p) => ("lit" in p ? oneLine(p.lit) : fieldPlain(p.field, renderer))).join("");
+    if (sentence.trim() !== "") intent = `${title}: ${sentence.trim()}`;
+  }
+  const fields = model.fields.map((f) => [plainLabel(f.label, f.path), fieldPlain(f, renderer)]);
+  if (rawArguments) fields.push(["Raw arguments", visible(renderer.tupleText(model.argNodes, model.argValues))]);
+  return { intent, fields };
+}
+
 /** One row's ICRC-21 Value: typed when the field is a single value the typed form carries exactly, else Text. */
 function fieldValue(field, renderer) {
   if (field.values.length === 1) {

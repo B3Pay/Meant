@@ -59,6 +59,8 @@ export interface ToolPlan {
   replicated: boolean;
   title: string;
   effect: { kind: string; irreversible: boolean; replicated?: boolean };
+  /** For a tool per case of the method's variant argument (D-053): the case it sends. */
+  case?: string;
   /** The method's arguments, in order. */
   argNodes: unknown[];
   params: ToolParam[];
@@ -79,6 +81,8 @@ export interface InputIssue {
 
 export const COMMIT_TOOL: "commit";
 export function prepareToolName(method: string): string;
+/** The tool of one case of a method's variant argument (D-053): `<method>_<Case>` for a read, else `prepare_<method>_<Case>`. */
+export function caseToolName(method: string, label: string, read: boolean): string;
 export function resolvedMethods(resolved: ResolvedForm | ResolvedForm[]): [string, unknown][];
 export function buildToolPlans(resolved: ResolvedForm | ResolvedForm[]): { plans: Map<string, ToolPlan>; skipped: { method: string; reason: string }[] };
 export function toolDefinitions(resolved: ResolvedForm | ResolvedForm[], options?: { canisters?: Canister[] }): ToolDefinition[];

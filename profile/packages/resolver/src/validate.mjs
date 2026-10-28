@@ -4,6 +4,7 @@
  */
 import { profileId } from "./util.mjs";
 import { compileInterface } from "./compile.mjs";
+import { abiInterface, checkDeployments } from "./abi-iface.mjs";
 import { analyzeProfiles } from "./analyze.mjs";
 import { resolvedForm } from "./resolved.mjs";
 import { schemaDiagnostics } from "./schema-core.mjs";
@@ -26,6 +27,17 @@ export async function validateProfile(doc, opts) {
   }
   const pid = profileId(doc);
 
+  // An EVM contract profile or pack carries its own ABI (spec section 15): it is checked against that.
+  if (doc.kind === "contract" || (doc.kind === "pack" && doc.binds.abi !== undefined)) {
+    const compiled = abiInterface(doc.binds.abi, "binds.abi");
+    if (compiled.failure) {
+      for (const d of compiled.failure) diag("error", "E_ABI", d.at, d.message);
+      return { ok: false, profile_id: pid, diagnostics };
+    }
+    if (doc.kind === "contract") checkDeployments(doc, diag);
+    return finish(doc, pid, compiled.iface, false, diagnostics, opts);
+  }
+
   let didSource;
   if (doc.kind === "pack") didSource = doc.binds.requires;
   else if (opts.did !== undefined && opts.did !== null) didSource = opts.did;
@@ -40,10 +52,14 @@ export async function validateProfile(doc, opts) {
   }
   const { iface } = compiled;
   const rebinding = doc.kind === "canister" && doc.binds.interface_id !== iface.interfaceId;
-  const analysis = analyzeProfiles(iface, [{ doc, pid, rebinding, apply: false }], { attribute: false });
+  return finish(doc, pid, iface, rebinding, diagnostics, opts);
+}
 
-  const ok = !analysis.diagnostics.some((d) => d.severity === "error");
-  const result = { ok, profile_id: pid, interface_id: iface.interfaceId, methods: iface.methods.size, annotations: doc.annotations.length, diagnostics: analysis.diagnostics };
-  if (opts.resolved) result.resolved = resolvedForm(iface, [{ doc, pid }], analysis.layered, analysis.diagnostics);
+function finish(doc, pid, iface, rebinding, earlier, opts) {
+  const analysis = analyzeProfiles(iface, [{ doc, pid, rebinding, apply: false }], { attribute: false });
+  const diagnostics = [...earlier, ...analysis.diagnostics];
+  const ok = !diagnostics.some((d) => d.severity === "error");
+  const result = { ok, profile_id: pid, interface_id: iface.interfaceId, methods: iface.methods.size, annotations: doc.annotations.length, diagnostics };
+  if (opts.resolved) result.resolved = resolvedForm(iface, [{ doc, pid }], analysis.layered, diagnostics);
   return result;
 }
