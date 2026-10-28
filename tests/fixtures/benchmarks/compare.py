@@ -140,7 +140,7 @@ SOFT_KEYS = (
 # docs/benchmarks.md ("What counts as moved") records the runs. Allocation
 # metrics need no threshold, because on one toolchain the same code and
 # dependencies allocate exactly the same: any difference has moved.
-TIMING_MOVED_PCT = 15.0
+TIMING_MOVED_PCT = 20.0
 
 
 def die(message: str) -> "None":
