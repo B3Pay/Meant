@@ -14,10 +14,10 @@
 # repository's own Pages site while the repository was `b3hr4d`'s
 # `candid-core`. Since its move to B3Pay (2026-10-28) GitHub serves this
 # repository's Pages site at https://b3pay.github.io/Meant/, where nothing
-# links, so the links published to the first address work only from a copy
-# of the redirect pages this workflow writes (website/redirects.mjs) in the
-# owner's user site; website/README.md, Publishing, says how to make it. The
-# deploy here still publishes the redirects, after checking that the site's
+# links, and the first address answers 404: nothing had been announced
+# there, so no copy of the redirects keeps it (the owner's call,
+# 2026-10-28). The deploy here still publishes the redirect pages this
+# workflow writes (website/redirects.mjs), after checking that the site's
 # address serves the site. A dispatch with `publish: site` publishes the site
 # itself here instead, should that address stop serving it.
 #

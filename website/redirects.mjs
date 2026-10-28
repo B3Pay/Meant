@@ -3,16 +3,16 @@
  *
  * The site is published at the address content/_site.json names as "url"
  * (ic-reactor.b3pay.net/candid-core/): B3Pay/ic-reactor's docs deploy builds
- * this repository's main with build.mjs and serves website/dist there. The
- * site's first address, b3hr4d.github.io/candid-core/, keeps the links already
- * published to it working with these pages instead: for each page build.mjs
- * wrote, a page of the same name that sends the reader to that page at the
- * new address, its query and #fragment kept, and a 404 page that sends any
- * other path there too, where a miss lands on the site's home. That address
- * was this repository's Pages site until the repository moved to B3Pay; since
- * then the pages reach it only as a copy in the owner's user site
- * (website/README.md, Publishing), and this repository's Pages site,
- * b3pay.github.io/Meant/, serves them where nothing links.
+ * this repository's main with build.mjs and serves website/dist there. These
+ * pages were made for the site's first address, b3hr4d.github.io/candid-core/:
+ * for each page build.mjs wrote, a page of the same name that sends the
+ * reader to that page at the new address, its query and #fragment kept, and a
+ * 404 page that sends any other path there too, where a miss lands on the
+ * site's home. That address was this repository's Pages site until the
+ * repository moved to B3Pay on 2026-10-28, and it answers 404 since: nothing
+ * had been announced there, so no copy of these pages keeps it. This
+ * repository's Pages site, b3pay.github.io/Meant/, still serves them, where
+ * nothing links.
  *
  * The new address must keep the site's path (/candid-core/) and must not be
  * the old host, whose pages would then send readers to themselves.

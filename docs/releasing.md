@@ -1037,5 +1037,7 @@ can renew those:
   ([§7](#7-authorized-mutation)), and the npm verify jobs refuse to go on
   without one.
 - **The site's first address**, `b3hr4d.github.io/candid-core/`, was this
-  repository's Pages site; `website/README.md`, Publishing, says how its
-  links keep working.
+  repository's Pages site and answers 404 after the move. Nothing had been
+  announced there, so nothing keeps it (`website/README.md`, Publishing).
+  Never create a repository named `candid-core` under `b3hr4d`: GitHub would
+  then stop redirecting the old repository address here.

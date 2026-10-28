@@ -229,22 +229,12 @@ its query and `#fragment` kept, and its 404 page sends any other path there
 too, where a miss lands on the home page. The deploy publishes them only once
 the new address serves this site's home page.
 
-The links already published to the first address, in READMEs on crates.io
-and npm and in release notes, work only from a copy of those redirects in the
-owner's user site, the `b3hr4d.github.io` repository, in a `candid-core/`
-folder: a user site serves a folder at the path a project site of that name
-had. Make the copy from this repository's `main`:
-
-```sh
-node website/build.mjs && node website/redirects.mjs
-# then copy website/redirects/*.html, all but 404.html, to candid-core/ there
-```
-
-A user site answers a missing path with its own root 404 page, so there only
-the pages of the same name redirect, and `404.html` would do nothing in the
-folder. Do not create a repository named `candid-core` under `b3hr4d` to
-serve them instead: GitHub would then stop redirecting the old repository
-address to this one.
+The first address answers 404 since the move, and so do the links already
+published to it, in READMEs on crates.io and npm and in release notes.
+Nothing had been announced there, so no copy of the redirects keeps them
+working (the owner's call, 2026-10-28). Do not create a repository named
+`candid-core` under `b3hr4d`: GitHub would then stop redirecting the old
+repository address to this one.
 
 - A **pull request** touching `website/**`, or anything a snippet is compiled
   against or excerpted from (the runtime package's sources and tests, the
