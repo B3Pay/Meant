@@ -17,6 +17,10 @@ npm install @meantjs/format
 - **No dependencies** at run time or for tests. Node >= 22.
 - **No I/O.** Dynamic tag arguments (`{ "from": "query:icrc1_decimals" }`) are resolved by the caller and passed in.
 - The choices it made where §5.3 was open were accepted as D-024 and are now in spec §5.3.
+- **EVM types** (spec §15, experimental): a position of an EVM contract's resolved form (`{ abi: "uint256", tags }`)
+  works like a Candid one. `amount` takes `uint8`…`uint256` and `int8`…`int256`, `timestamp` and `duration`
+  `uint32`…`uint256` and `int64`…`int256`, each with the bounds of its bits; `bytes` takes `bytes` and `bytesN`
+  (exactly N bytes). `amount`'s `threshold` and `message` show a value at or above the threshold as `Unlimited USDC`.
 
 ```sh
 npm test -w packages/format          # or: npm test at the repo root

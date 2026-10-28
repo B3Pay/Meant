@@ -5,7 +5,11 @@ export const MAX_INPUT_CHARS = 1024;
 
 const DEC_INT = /^-?(?:0|[1-9][0-9]*)$/;
 
-/** The Candid integer types the value tags apply to, with their inclusive bounds (null = unbounded). */
+/**
+ * The integer types the value tags apply to, with their inclusive bounds (null = unbounded): Candid's, then the EVM ABI's
+ * uint8 to uint256 and int8 to int256 (spec section 15). int8 to int64 are both Candid and ABI types, with the same
+ * bounds; the others carry `abi: true`, which only changes the wording of messages.
+ */
 export const INT_TYPES = Object.freeze({
   nat: { signed: false, min: 0n, max: null },
   nat8: { signed: false, min: 0n, max: 2n ** 8n - 1n },
@@ -17,12 +21,34 @@ export const INT_TYPES = Object.freeze({
   int16: { signed: true, min: -(2n ** 15n), max: 2n ** 15n - 1n },
   int32: { signed: true, min: -(2n ** 31n), max: 2n ** 31n - 1n },
   int64: { signed: true, min: -(2n ** 63n), max: 2n ** 63n - 1n },
+  ...Object.fromEntries(
+    Array.from({ length: 32 }, (_, i) => BigInt(8 * (i + 1))).flatMap((b) => [
+      [`uint${b}`, { signed: false, min: 0n, max: 2n ** b - 1n, abi: true }],
+      ...(b <= 64n && (b & (b - 1n)) === 0n ? [] : [[`int${b}`, { signed: true, min: -(2n ** (b - 1n)), max: 2n ** (b - 1n) - 1n, abi: true }]]),
+    ]),
+  ),
 });
+
+/** The EVM ABI integer types (uint8 to uint256, int8 to int256), in that order. */
+export const ABI_INT_TYPES = Object.freeze(Array.from({ length: 32 }, (_, i) => 8 * (i + 1)).flatMap((b) => [`uint${b}`, `int${b}`]));
+
+/** How a message names the type: "ABI type" for the EVM-only integer types, "Candid type" otherwise. */
+export const typeWord = (name) => (INT_TYPES[name]?.abi ? "ABI type" : "Candid type");
+
+/** A list of types for a message: the Candid types by name, the ABI's integer and byte families by range. */
+export function listTypes(types) {
+  const candid = types.filter((t) => !INT_TYPES[t]?.abi && !/^bytes\d*$/.test(t));
+  const abi = [];
+  if (types.includes("uint8")) abi.push("uint8 to uint256", "int8 to int256");
+  else if (types.includes("uint32")) abi.push("uint32 to uint256", "int72 to int256");
+  if (types.includes("bytes")) abi.push("bytes", "bytes1 to bytes32");
+  return [...candid, ...abi].join(", ");
+}
 
 /** @param {string} candid @param {string[]} allowed */
 export function intType(candid, allowed, tag) {
   if (!allowed.includes(candid)) {
-    fail(CODES.TAG_TYPE, `the ${tag} tag applies to ${allowed.join(", ")}, not ${candid}`);
+    fail(CODES.TAG_TYPE, `the ${tag} tag applies to ${listTypes(allowed)}, not ${candid}`);
   }
   return INT_TYPES[candid];
 }
@@ -53,9 +79,10 @@ export function toBigInt(value, what = "value") {
 }
 
 export function checkRange(v, type, what) {
-  if (!type.signed && v < 0n) fail(CODES.RANGE, `${what} ${v} is negative but the Candid type is unsigned`);
-  if (type.min !== null && v < type.min) fail(CODES.RANGE, `${what} ${v} is below the minimum ${type.min} of the Candid type`);
-  if (type.max !== null && v > type.max) fail(CODES.RANGE, `${what} ${v} is above the maximum ${type.max} of the Candid type`);
+  const word = type.abi ? "ABI type" : "Candid type";
+  if (!type.signed && v < 0n) fail(CODES.RANGE, `${what} ${v} is negative but the ${word} is unsigned`);
+  if (type.min !== null && v < type.min) fail(CODES.RANGE, `${what} ${v} is below the minimum ${type.min} of the ${word}`);
+  if (type.max !== null && v > type.max) fail(CODES.RANGE, `${what} ${v} is above the maximum ${type.max} of the ${word}`);
 }
 
 // ---------------------------------------------------------------- bytes helpers

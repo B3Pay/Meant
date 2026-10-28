@@ -15,6 +15,9 @@ import { profileId } from "./util.mjs";
 import { compileInterface, interfaceFromEnvelope } from "./compile.mjs";
 import { analyzeProfiles } from "./analyze.mjs";
 import { matchPack } from "./pack-match.mjs";
+import { abiInterface, checkDeployments } from "./abi-iface.mjs";
+import { matchAbiPack, translatePack } from "./abi-pack.mjs";
+import { abiInterfaceId, parseAbi } from "./abi.mjs";
 import { resolvedForm } from "./resolved.mjs";
 import { schemaDiagnostics } from "./schema-core.mjs";
 
@@ -25,8 +28,9 @@ const describeReasons = (reasons) => {
 
 /**
  * @param opts.did           Candid source of the service, compiled here; or
- * @param opts.envelope      the service's candid-core ContractEnvelope, already compiled (exactly one of the two)
- * @param opts.didLabel      how E_CANDID (or E_ENVELOPE) names the input
+ * @param opts.envelope      the service's candid-core ContractEnvelope, already compiled; or
+ * @param opts.abi           an EVM contract's ABI: fragments or JSON ABI entries (spec section 15; exactly one of the three)
+ * @param opts.didLabel      how E_CANDID (or E_ENVELOPE, E_ABI) names the input
  * @param opts.profiles      [{ doc, label? }] explicit profiles, applied or rejected
  * @param opts.packs         [{ doc, label? }] candidate packs, applied only if they match
  * @param opts.validateSchema from createSchemaValidator()
@@ -37,7 +41,8 @@ const describeReasons = (reasons) => {
  */
 export async function resolveService(opts) {
   const fromEnvelope = opts.envelope !== undefined;
-  if (fromEnvelope === (opts.did !== undefined)) throw new TypeError("resolveService: give exactly one of `did` and `envelope`");
+  if ([opts.did, opts.envelope, opts.abi].filter((x) => x !== undefined).length !== 1) throw new TypeError("resolveService: give exactly one of `did`, `envelope` and `abi`");
+  if (opts.abi !== undefined) return resolveCompiled(opts, false);
   if (!fromEnvelope) return resolveCompiled(opts, false);
   // interfaceFromEnvelope checks the graph before anything walks it; anything it still misses in someone else's
   // document is reported against the envelope rather than thrown.
@@ -52,13 +57,29 @@ export async function resolveService(opts) {
 async function resolveCompiled(opts, fromEnvelope) {
   const diagnostics = [];
   const statuses = [];
+  if (opts.abi !== undefined) {
+    const label = opts.didLabel ?? "abi";
+    const compiled = abiInterface(opts.abi, label);
+    if (compiled.failure) {
+      for (const d of compiled.failure) diagnostics.push({ severity: "error", code: "E_ABI", at: d.at, message: d.message });
+      return { ok: false, resolved: null, diagnostics, profiles: statuses };
+    }
+    return resolveWith(compiled.iface, opts, diagnostics, statuses);
+  }
   const compiled = fromEnvelope ? interfaceFromEnvelope(opts.envelope, "canister") : await compileInterface(opts.did, "canister");
   if (compiled.failure) {
     const [code, at] = fromEnvelope ? ["E_ENVELOPE", opts.didLabel ?? "envelope"] : ["E_CANDID", opts.didLabel ?? "service.did"];
     for (const d of compiled.failure) diagnostics.push({ severity: "error", code, at, message: `${d.code}: ${d.message}` });
     return { ok: false, resolved: null, diagnostics, profiles: statuses };
   }
-  const { iface } = compiled;
+  return resolveWith(compiled.iface, opts, diagnostics, statuses);
+}
+
+/** A profile or pack for an EVM contract (spec section 15) rather than a Candid service. */
+const isEvmDoc = (doc) => doc.kind === "contract" || (doc.kind === "pack" && doc.binds.abi !== undefined);
+
+async function resolveWith(iface, opts, diagnostics, statuses) {
+  const evm = iface.chain === "evm";
 
   const candidates = [
     ...(opts.profiles ?? []).map((p, i) => ({ ...p, explicit: true, label: p.label ?? `profile #${i + 1}` })),
@@ -78,7 +99,39 @@ async function resolveCompiled(opts, fromEnvelope) {
     const pid = profileId(doc);
     if (taken.has(pid)) continue; // the same document given twice (for example explicitly and through the pack search)
     const status = { name: doc.name, origin: doc.origin, kind: doc.kind, profile_id: pid, status: "applied", explicit: c.explicit };
-    if (doc.kind === "pack") {
+    if (isEvmDoc(doc) !== evm) {
+      if (!c.explicit) continue; // a pack for the other kind of interface can never apply
+      const what = doc.kind === "pack" ? "this pack" : `a ${doc.kind} profile`;
+      note("error", "E_CHAIN", "kind", `${what} describes ${isEvmDoc(doc) ? "an EVM contract" : "a Candid service"}, but the interface is ${evm ? "an EVM contract's ABI" : "a Candid service"}`);
+      statuses.push({ ...status, status: "invalid" });
+      continue;
+    }
+    if (evm && doc.kind === "pack") {
+      const m = matchAbiPack(iface, doc);
+      if (m.error) {
+        for (const d of m.error) note("error", "E_ABI", d.at, d.message);
+        statuses.push({ ...status, status: "invalid" });
+        continue;
+      }
+      if (!m.matched) {
+        const why = describeReasons(m.reasons);
+        if (c.explicit) note("error", "E_PACK_NOT_MATCHED", doc.name, `the contract lacks functions of the pack's binds.abi: ${why}`);
+        else note("info", "I_PACK_NOT_MATCHED", doc.name, `pack does not apply: ${why}`);
+        statuses.push({ ...status, status: "not_matched" });
+        continue;
+      }
+      note("info", "I_PACK_MATCHED", doc.name, "the contract has every function of the pack's binds.abi (same selectors, outputs and kind of call)");
+      items.push({ doc: translatePack(doc, m.functions, iface), pid, rebinding: false, apply: true, status });
+    } else if (evm) {
+      const own = parseAbi(doc.binds.abi, "binds.abi");
+      if (own.errors.length) {
+        for (const d of own.errors) note("error", "E_ABI", d.at, d.message);
+        statuses.push({ ...status, status: "invalid" });
+        continue;
+      }
+      checkDeployments(doc, note);
+      items.push({ doc, pid, rebinding: abiInterfaceId(own.functions) !== iface.interfaceId, apply: false, status });
+    } else if (doc.kind === "pack") {
       const m = await matchPack(iface, doc);
       if (m.error) {
         for (const d of m.error) note("error", "E_CANDID", "binds.requires", `${d.code}: ${d.message}`);

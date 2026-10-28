@@ -19,6 +19,9 @@
     "icrc-1",
     "icrc-2",
     "profile",
+    "evm",
+    "erc-20",
+    "erc-7730",
     "resolver",
     "json-schema"
   ],
@@ -38,6 +41,10 @@
     "./browser": {
       "types": "./src/browser.d.mts",
       "default": "./src/browser.mjs"
+    },
+    "./evm": {
+      "types": "./src/evm.d.mts",
+      "default": "./src/evm.mjs"
     },
     "./schema.json": "./data/profile-v0.schema.json",
     "./packs/*": "./data/packs/*",

@@ -2,6 +2,14 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.2.0 (unreleased)
+
+- One tool per case (D-053): a method whose single argument is a variant with an `intent` or an `effect` on any case
+  gets `<method>_<Case>` (a read) or `prepare_<method>_<Case>` for each case, instead of one tool for the method. The
+  plan carries `case`; `caseToolName` is exported. Resolved forms without case tags give the same tools as before.
+- An EVM contract's resolved form (`"chain": "evm"`, spec §15) is refused with a `TypeError`: its tools need nonces
+  and receipts, a later phase.
+
 ## 0.1.0 — 2026-10-28
 
 First published version.

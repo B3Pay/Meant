@@ -1,11 +1,11 @@
 // Types for @meantjs/profile/browser. Hand-written; the source is plain ES modules (src/*.mjs). The internal
 // graph classes (Iface, TagIndex, LayeredTags, SubtypeChecker) are declared opaquely.
 
-/** A Candid Profile document (docs/profile-v0.md): a canister profile or a pack. */
+/** A Candid Profile document (docs/profile-v0.md): a canister profile, a pack, or an EVM contract profile (section 15). */
 export interface ProfileDocument {
   format: "candid-profile";
   format_version: 0;
-  kind: "canister" | "pack";
+  kind: "canister" | "pack" | "contract";
   name: string;
   origin: "author" | "third_party" | "pack" | "inferred";
   annotations: { at: string; tag: string; args?: Record<string, unknown> }[];
@@ -17,6 +17,8 @@ export interface ResolvedForm {
   format: "candid-profile-resolved";
   format_version: 0;
   interface_id: string;
+  /** "evm" for an EVM contract's form (section 15.5); absent for a Candid service's. */
+  chain?: "evm";
   profiles: unknown[];
   methods: Record<string, unknown>;
   diagnostics: Diagnostic[];
@@ -54,14 +56,16 @@ export interface SchemaValidator {
 }
 
 export interface ResolveOptions {
-  /** Candid source of the service (exactly one of `did` and `envelope`). */
+  /** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */
   did?: string;
   /** The service's candid-core ContractEnvelope. */
   envelope?: unknown;
+  /** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */
+  abi?: readonly (string | Record<string, unknown>)[];
   didLabel?: string;
   /** Applied as given; a pack here must match. */
   profiles?: { doc: unknown; label?: string }[];
-  /** Tried by Candid subtyping; applied only if they match. */
+  /** Tried by Candid subtyping (an EVM pack by selector); applied only if they match. */
   packs?: { doc: unknown; label?: string }[];
   validateSchema: SchemaValidator;
 }

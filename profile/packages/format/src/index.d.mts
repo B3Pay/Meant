@@ -52,8 +52,12 @@ export declare class FormatError extends Error {
 export interface AmountOptions {
   decimals: number | bigint | string;
   symbol?: string;
-  /** The Candid type, for the sign and range (default `nat`). */
+  /** The Candid type, or an EVM ABI integer type (`uint256`), for the sign and range (default `nat`). */
   candid?: string;
+  /** Display only: a value at or above it (base units) displays as `message` and the symbol, "Unlimited USDC". */
+  threshold?: string | bigint;
+  /** What a value at or above `threshold` displays as (default "Unlimited"); needs `threshold`. */
+  message?: string;
 }
 /** "1.5" or "1.5 ICP" to base units as a decimal string. Excess precision throws; nothing is rounded. */
 export function parseAmount(input: string, options: AmountOptions): string;
@@ -111,6 +115,7 @@ export type ParsedValue = string | Account | Uint8Array;
 /** One position's formatter: `formatterFor` returns it with the tag's arguments resolved. */
 export interface Formatter {
   readonly tag: ValueTag;
+  /** The position's Candid type, or its EVM ABI type (`uint256`, `bytes32`) for an EVM position. */
   readonly candid: string;
   readonly args: Readonly<Record<string, unknown>>;
   /** Throws FormatError. */
@@ -122,9 +127,9 @@ export interface Formatter {
   describe(): Description;
 }
 
-/** A position of a resolved form, as far as formatting reads it. */
-export interface FormatNode {
-  candid: string;
+/** A position of a resolved form, as far as formatting reads it: `candid`, or `abi` for an EVM contract's (spec section 15). */
+export type FormatNode = FormatNodeFields & ({ candid: string } | { abi: string; candid?: undefined });
+interface FormatNodeFields {
   tags?: Record<string, { args?: Record<string, unknown> } | undefined>;
   [key: string]: unknown;
 }

@@ -19,7 +19,11 @@
     "icrc-21",
     "consent-message",
     "sns",
-    "wallet"
+    "wallet",
+    "evm",
+    "erc-7730",
+    "erc-8176",
+    "clear-signing"
   ],
   "type": "module",
   "sideEffects": false,
@@ -33,6 +37,14 @@
     "./sns": {
       "types": "./src/sns.d.mts",
       "default": "./src/sns.mjs"
+    },
+    "./evm": {
+      "types": "./src/evm.d.mts",
+      "default": "./src/evm.mjs"
+    },
+    "./erc7730": {
+      "types": "./src/erc7730.d.mts",
+      "default": "./src/erc7730.mjs"
     },
     "./package.json": "./package.json"
   },
@@ -51,12 +63,13 @@
     "sns": "node scripts/sns-render.mjs"
   },
   "dependencies": {
-    "@meantjs/profile": "0.1.0",
+    "@candid-core/schema": "0.5.0",
     "@meantjs/format": "0.1.0",
-    "@candid-core/schema": "0.5.0"
+    "@meantjs/profile": "0.1.0"
   },
   "devDependencies": {
     "@dfinity/didc": "0.0.4",
+    "ajv": "8.18.0",
     "commonmark": "0.31.2",
     "esbuild": "0.28.2"
   }

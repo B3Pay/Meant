@@ -3,9 +3,10 @@
 // disagree about which values the call carries.
 //
 // Which fields appear:
-//   - a method with an `intent` tag: the placeholders of its template that are present (spec section 6; section 12:
-//     "one (label, Value) row per placeholder"), in template order, once per distinct path;
-//   - a method without one: the generic intent. Title from `describe.label` of the method, else `Call <method>`;
+//   - a call with an intent, its case's (spec section 5.2, D-053) or else its method's: the placeholders of its template
+//     that are present (spec section 6; section 12: "one (label, Value) row per placeholder"), in template order,
+//     once per distinct path;
+//   - a call without one: the generic intent. Title from `describe.label` of the method, else `Call <method>`;
 //     one field per leaf of the decoded arguments (records are flattened, tagged positions such as accounts are
 //     leaves, absent optionals are left out). More than MAX_FIELDS fields or MAX_ELEMENTS list elements is
 //     refused (E_TOO_LARGE), never truncated.
@@ -13,7 +14,7 @@
 import { VALUE_TAGS } from "@meantjs/format";
 import { decodeArguments } from "./decode.mjs";
 import { CODES, ConsentError, fail } from "./errors.mjs";
-import { effectKind, entriesOf, labelOf, methodOf } from "./resolved.mjs";
+import { callTag, effectKind, entriesOf, labelOf, methodOf } from "./resolved.mjs";
 import { parseTemplate } from "./template.mjs";
 import { resolvePath, valuesAt } from "./paths.mjs";
 
@@ -31,9 +32,9 @@ export const MAX_ELEMENTS = 256;
  *
  * @typedef {object} Model
  * @property {string} method
- * @property {string} effect  the effect kind of the method (spec section 5.3)
+ * @property {string} effect  the effect kind of the call: its case's, else its method's (spec section 5.3, D-053)
  * @property {string} title
- * @property {SentencePart[] | null} sentence  null for a method without an intent template
+ * @property {SentencePart[] | null} sentence  null for a call without an intent template
  * @property {Field[]} fields
  * @property {object[]} argNodes
  * @property {unknown[]} argValues
@@ -48,13 +49,18 @@ export const MAX_ELEMENTS = 256;
  */
 export function buildModel({ resolved, method: name, arg, limits }) {
   const method = methodOf(resolved, name);
-  const argValues = decodeArguments(method, arg, limits);
+  return modelOf(resolved, name, method, decodeArguments(method, arg, limits));
+}
+
+/** The model of a call whose arguments are decoded already (evm.mjs decodes calldata, then comes here). */
+export function modelOf(resolved, name, method, argValues) {
   const diagnostics = [];
-  const intent = method.tags?.intent?.args;
+  const intentTag = callTag(method, argValues, "intent"); // the call's intent: its case's, else its method's (D-053)
+  const intent = intentTag?.args;
   const title = typeof intent?.title === "string" && intent.title.trim() !== "" ? intent.title : (labelOf(method) ?? `Call ${name}`);
-  const tagOrigin = intent ? { origin: method.tags.intent.origin, ...(method.tags.intent.profile === undefined ? {} : { profile: method.tags.intent.profile }) } : null;
+  const tagOrigin = intent ? { origin: intentTag.origin, ...(intentTag.profile === undefined ? {} : { profile: intentTag.profile }) } : null;
   const provenance = { intent: tagOrigin, profiles: Array.isArray(resolved.profiles) ? resolved.profiles : [] };
-  const base = { method: name, effect: effectKind(method), title, argNodes: method.args, argValues, diagnostics, provenance };
+  const base = { method: name, effect: effectKind(method, callTag(method, argValues, "effect")), title, argNodes: method.args, argValues, diagnostics, provenance };
 
   if (intent && typeof intent.template === "string") {
     try {

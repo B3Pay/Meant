@@ -7,9 +7,9 @@ Each question has an owner workstream (see `workstreams.md`). Only W0 edits this
 | OQ-3 | **Quoted Candid method names** (`"foo-bar"`) in addresses. Proposed: `"foo-bar"(0).x`. | W1 | Rare interfaces |
 | OQ-5 | **Doc-annotation namespace.** Bare `@amount(...)` (readable) or a prefix such as `@ca.amount(...)` (no collisions with other conventions)? | W0 | Doc-annotation compiler |
 | OQ-6 | **Cross-canister refs**, for example a DEX record holding `amount` plus the token's ledger principal in a sibling field. Planned for v1. | W0 | DeFi coverage |
-| OQ-7 | **Third-party attestations** for profiles (ERC-8176-like) and where a registry lives. Planned for v1. | W0/W6 | Trust beyond the author's claim |
+| OQ-7 | **Third-party attestations** for profiles (ERC-8176-like) and where a registry lives. Planned for v1. ERC-8176 itself attests ERC-7730 files, and its schema UID is reserved for them; the export of D-054 gives a reviewer the hash and the unsigned attestation of such a file. A profile attestation needs its own schema (phase 3 of `proposals/w0-evm-erc7730-erc8176.md`). | W0/W6 | Trust beyond the author's claim |
 | OQ-8 | **Spending policies and budgets** that let agents commit without per-call confirmation. Product layer (B3Pay?). | W6 | Unattended agents |
-| OQ-9 | **ERC-7730 import/export** for EVM ABIs. | W6 | Cross-chain story |
+| OQ-9 | **ERC-7730 import** for EVM ABIs. The export half is answered (spec §15.7, D-054): a profile of an EVM contract gives its ERC-7730 file and ERC-8176 `descriptorHash`. Import, as display-only profiles checked against ERC-8176 attestations, is phase 2. | W6 | Cross-chain story |
 | OQ-10 | Should the resolved form carry **resolved dynamic values** with provenance (certified or not)? | W1/W3 | Consent and tool rendering |
 | OQ-11 | **Upstream:** would imcp2 allow transfers through profile-typed, previewed calls? | W6 | Distribution |
 | OQ-12 | **ICRC-21 for 18-decimal tokens:** `TokenAmount.amount` is `nat64`. Propose a `nat` variant upstream, or always fall back to `Text`? | W4/W6 | ckETH-class tokens |

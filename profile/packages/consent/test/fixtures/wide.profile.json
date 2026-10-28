@@ -7,7 +7,7 @@
   "language": "en",
   "description": "Author profile of the hypothetical interface in wide.did, for the differential test of the Rust port.",
   "binds": {
-    "interface_id": "candid-core:interface:v1:sha256:cdd582ce548b1c61a6f9f37851a16bd44f38e79825984c92d21ac638abffaabc"
+    "interface_id": "candid-core:interface:v1:sha256:efb26a4ffbcb7f25e7cac5c7618a9843de0d75c59141d7eedeb650a136751606"
   },
   "annotations": [
     { "at": "pay", "tag": "intent", "args": { "title": "Send tokens", "template": "Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}][ paying fee {fee}][ created at {created_at_time}]" } },
@@ -45,6 +45,16 @@
     { "at": "stamp(1)", "tag": "timestamp", "args": { "unit": "s" } },
     { "at": "stamp(2)", "tag": "timestamp", "args": { "unit": "us" } },
     { "at": "sub(0)", "tag": "subaccount", "args": {} },
-    { "at": "sub", "tag": "describe", "args": { "label": "Use a subaccount" } }
+    { "at": "sub", "tag": "describe", "args": { "label": "Use a subaccount" } },
+    { "at": "vote", "tag": "intent", "args": { "title": "Vote", "template": "Vote on {id}[ ({note})]" } },
+    { "at": "vote", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+    { "at": "vote(0).choice.Transfer", "tag": "intent", "args": { "title": "Vote to send", "template": "Vote on {id} to send {choice.Transfer.amount} to {choice.Transfer.to}[ ({note})]" } },
+    { "at": "vote(0).choice.Transfer", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+    { "at": "vote(0).choice.Transfer.amount", "tag": "amount", "args": { "decimals": 2, "symbol": "V" } },
+    { "at": "vote(0).choice.Pause", "tag": "intent", "args": { "title": "Vote to pause", "template": "Vote on {id} to pause" } },
+    { "at": "vote(0).choice.Pause", "tag": "effect", "args": { "kind": "admin", "irreversible": false } },
+    { "at": "vote(0).choice.Nested", "tag": "intent", "args": { "title": "Vote either way", "template": "Vote on {id} either way" } },
+    { "at": "vote(0).choice.Nested", "tag": "effect", "args": { "kind": "write", "irreversible": false } },
+    { "at": "vote(0).choice.Nested.Up", "tag": "intent", "args": { "title": "Vote up", "template": "Vote {choice.Nested.Up} up on {id}" } }
   ]
 }

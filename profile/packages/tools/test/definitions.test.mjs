@@ -19,6 +19,12 @@ test("toolDefinitions on the pack fixtures: the same tools, inputs and required 
   assert.ok(ours.some((d) => d.name === COMMIT_TOOL));
 });
 
+test("an EVM contract's resolved form (chain evm) has no tools yet, alone or beside a ledger's", () => {
+  const evm = { format: "candid-profile-resolved", format_version: 0, chain: "evm", interface_id: null, profiles: [], methods: {}, diagnostics: [] };
+  assert.throws(() => buildToolPlans(evm), /resolved: a resolved form of chain "evm" has no tools yet/);
+  assert.throws(() => toolDefinitions([ICRC1, evm]), /chain "evm"/);
+});
+
 test("toolDefinitions: canister_id is one of the canisters, and absent without them", () => {
   const withCanisters = toolDefinitions(PACKS, { canisters: LEDGERS }).find((d) => d.name === "prepare_icrc1_transfer");
   assert.deepEqual(withCanisters.inputSchema.properties.canister_id.enum, LEDGERS.map((l) => l.id));

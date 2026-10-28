@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { staleData, writeData } from "../scripts/data.mjs";
 import schema from "@meantjs/profile/schema.json" with { type: "json" };
+import erc20 from "@meantjs/profile/packs/erc20.profile.json" with { type: "json" };
 import icrc1 from "@meantjs/profile/packs/icrc1.profile.json" with { type: "json" };
 import icrc2 from "@meantjs/profile/packs/icrc2.profile.json" with { type: "json" };
 import { LEDGER_DID, readJson } from "./helpers.mjs";
@@ -35,7 +36,7 @@ test("createSchemaValidator takes the schema document as well as a path", async 
 test("the default schema and packs are the package's own data/, so they work where the package is installed", async () => {
   const pkg = fileURLToPath(new URL("..", import.meta.url));
   for (const p of [DEFAULT_SCHEMA_PATH, DEFAULT_PACKS_DIR]) assert.ok(p.startsWith(path.join(pkg, "data")), p);
-  assert.deepEqual((await loadPacks()).map(({ doc }) => doc), [icrc1, icrc2]);
+  assert.deepEqual((await loadPacks()).map(({ doc }) => doc), [erc20, icrc1, icrc2]);
 });
 
 test("resolveService runs on the shipped data alone", async () => {

@@ -5,9 +5,12 @@
 // extra digits are zeros (the literal reading of "more than d fractional digits MUST be rejected").
 
 import { CODES, fail } from "./errors.mjs";
-import { UNSAFE_DISPLAY_CHAR, checkRange, intType, requireString, toBigInt } from "./util.mjs";
+import { ABI_INT_TYPES, UNSAFE_DISPLAY_CHAR, checkRange, intType, requireString, toBigInt, typeWord } from "./util.mjs";
 
-export const AMOUNT_TYPES = ["nat", "int", "nat8", "nat16", "nat32", "nat64", "int8", "int16", "int32", "int64"];
+export const AMOUNT_TYPES = ["nat", "int", "nat8", "nat16", "nat32", "nat64", "int8", "int16", "int32", "int64", ...ABI_INT_TYPES.filter((t) => !/^int(?:8|16|32|64)$/.test(t))];
+
+/** The default `message` of an amount at or above its `threshold` (spec section 5.3; ERC-7730's tokenAmount default). */
+export const DEFAULT_THRESHOLD_MESSAGE = "Unlimited";
 
 // number, then (after whitespace) an optional symbol. "1.", ".5", "1,5", "1e3" and "+1" do not match.
 const AMOUNT_RE = /^(-?)([0-9]+)(?:\.([0-9]+))?(?:\s+(\S(?:.*\S)?))?$/s;
@@ -25,6 +28,27 @@ export function checkSymbol(symbol) {
     fail(CODES.ARG, `amount symbol ${JSON.stringify(symbol)} has surrounding whitespace, control or invisible characters`);
   }
   return symbol;
+}
+
+/** @returns {bigint | undefined} a validated threshold: a canonical decimal integer string or a bigint, not negative */
+export function checkThreshold(threshold) {
+  if (threshold === undefined || threshold === null) return undefined;
+  if (typeof threshold === "bigint" ? threshold < 0n : typeof threshold !== "string" || !/^(?:0|[1-9][0-9]{0,77})$/.test(threshold)) {
+    fail(CODES.ARG, `amount threshold must be a decimal string of base units (0 or more, at most 78 digits) or a bigint, got ${typeof threshold === "string" ? JSON.stringify(threshold) : String(threshold)}`);
+  }
+  return BigInt(threshold);
+}
+
+/** @returns {string | undefined} a validated threshold message: 1 to 32 characters, nothing invisible */
+export function checkMessage(message) {
+  if (message === undefined || message === null) return undefined;
+  if (typeof message !== "string") fail(CODES.ARG, `amount message must be a string, got ${typeof message}`);
+  const n = [...message].length;
+  if (n < 1 || n > 32) fail(CODES.ARG, `amount message must be 1 to 32 characters, got ${n}`);
+  if (message !== message.trim() || UNSAFE_DISPLAY_CHAR.test(message) || !message.isWellFormed()) {
+    fail(CODES.ARG, `amount message ${JSON.stringify(message)} has surrounding whitespace, control or invisible characters`);
+  }
+  return message;
 }
 
 export function checkDecimals(decimals) {
@@ -55,7 +79,7 @@ export function parseAmount(input, { decimals, symbol, candid = "nat" }) {
     );
   }
   const [, sign, whole, frac = "", given] = m;
-  if (sign && !type.signed) fail(CODES.NEGATIVE, `negative amounts are not allowed here (the Candid type ${candid} is unsigned)`);
+  if (sign && !type.signed) fail(CODES.NEGATIVE, `negative amounts are not allowed here (the ${typeWord(candid)} ${candid} is unsigned)`);
   if (given !== undefined) {
     if (expected === undefined) fail(CODES.SYMBOL_MISMATCH, `this amount has no symbol; remove "${given}" and give the number only`);
     if (asciiLower(given) !== asciiLower(expected)) fail(CODES.SYMBOL_MISMATCH, `the symbol "${given}" is not this token's symbol "${expected}"`);
@@ -73,18 +97,23 @@ export function parseAmount(input, { decimals, symbol, candid = "nat" }) {
 }
 
 /**
- * Display a base-unit integer as "1.5 ICP": trailing fractional zeros removed, symbol appended.
+ * Display a base-unit integer as "1.5 ICP": trailing fractional zeros removed, symbol appended. A value at or above
+ * `threshold` displays as `message` (default "Unlimited") and the symbol: "Unlimited USDC" (spec section 5.3).
  *
  * @param {string | bigint} value
- * @param {{ decimals: number | bigint | string, symbol?: string, candid?: string }} opts
+ * @param {{ decimals: number | bigint | string, symbol?: string, candid?: string, threshold?: string | bigint, message?: string }} opts
  * @returns {string}
  */
-export function displayAmount(value, { decimals, symbol, candid = "nat" }) {
+export function displayAmount(value, { decimals, symbol, candid = "nat", threshold, message }) {
   const d = checkDecimals(decimals);
   const sym = checkSymbol(symbol);
+  const limit = checkThreshold(threshold);
+  const text = checkMessage(message);
+  if (text !== undefined && limit === undefined) fail(CODES.ARG, "amount message needs a threshold");
   const type = intType(candid, AMOUNT_TYPES, "amount");
   const v = toBigInt(value, "amount");
   checkRange(v, type, "amount");
+  if (limit !== undefined && v >= limit) return `${text ?? DEFAULT_THRESHOLD_MESSAGE}${sym ? ` ${sym}` : ""}`;
   const digits = (v < 0n ? -v : v).toString().padStart(d + 1, "0");
   const whole = digits.slice(0, digits.length - d);
   const frac = digits.slice(digits.length - d).replace(/0+$/, "");

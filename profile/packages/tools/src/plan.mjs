@@ -26,6 +26,12 @@
 //     rules (input.mjs, `inputWithoutRule`); a single argument that is a variant or a vec is the input `arg0`;
 //   - outcome keys may start with a record field (`result.Ok` over `record { result : opt variant { Ok; Err } }`);
 //   - an outcome with `default` alone classes every reply of a method whose result has no variant to select.
+// And one tool per case (B2 rule 3 of proposal w9-b3wallet-gaps.md, D-053): a method whose single argument is a
+// variant with an `intent` or `effect` on any of its cases gets a tool for each case, `<method>_<Case>` for a read and
+// `prepare_<method>_<Case>` otherwise. Its inputs are the case's payload, read as a single argument is; its title is
+// the case's intent, else its `describe`, else `<method> <Case>`; its effect is the case's, else the method's; and the
+// method's `idempotency` and `outcome` apply. A method with an idempotency stamp has no case tools yet (the stamp would
+// sit inside a case), and a tagged variant deeper in the argument stays one JSON input.
 //
 // The input words come from the format library (`Formatter.describe()`), so a form hint and a tool schema read
 // one grammar. Arm C keeps its own frozen words (D-015, D-030, D-031).
@@ -34,6 +40,8 @@ import { MAX_VEC_ITEMS, inputReader, inputWithoutRule, nestedRole, readAs } from
 
 export const COMMIT_TOOL = "commit";
 export const prepareToolName = (method) => `prepare_${method}`;
+/** The tool of one case of a method's variant argument (D-053): `<method>_<Case>` for a read, else `prepare_<method>_<Case>`. */
+export const caseToolName = (method, label, read) => (read ? `${method}_${label}` : prepareToolName(`${method}_${label}`));
 const byName = ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0);
 
 /** The Candid id of a label: `#n` is n, a name is its idl hash (profile spec 3.2). */
@@ -68,6 +76,8 @@ export function resolvedMethods(resolved) {
     if (doc === null || typeof doc !== "object" || doc.format !== "candid-profile-resolved" || doc.format_version !== 0) {
       throw new TypeError("resolved: not a candid-profile-resolved v0 document");
     }
+    // An EVM contract's form (profile spec section 15) has ABI positions, nonces and receipts: its tools are phase 2.
+    if (doc.chain !== undefined) throw new TypeError(`resolved: a resolved form of chain ${JSON.stringify(doc.chain)} has no tools yet; this layer calls Internet Computer canisters`);
     for (const [name, method] of Object.entries(doc.methods ?? {})) {
       const seen = methods.get(name);
       if (seen === undefined) methods.set(name, method);
@@ -128,25 +138,69 @@ function outcomeKeyWithoutRule(classes, result) {
   return undefined;
 }
 
-/** @returns {object | { skip: string }} */
-function planMethod(name, m) {
+const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+const hasCaseTag = (node) => isObject(node?.tags) && (isObject(node.tags.intent) || isObject(node.tags.effect));
+
+/**
+ * The cases of a method's single variant argument when any of them has an `intent` or an `effect` (D-053), else
+ * undefined: such a method gets one tool per case.
+ */
+function taggedCases(m) {
+  const root = Array.isArray(m.args) && m.args.length === 1 ? m.args[0] : undefined;
+  if (root?.candid !== "variant" || readAs(root)) return undefined;
+  const cases = Object.entries(root.cases ?? {});
+  return cases.some(([, node]) => hasCaseTag(node)) ? cases : undefined;
+}
+
+/**
+ * A method's tools: one, or one per case of its variant argument (D-053).
+ * @returns {{ plans: object[], skipped: string[] }}  the plans, and why each tool it would have is not made
+ */
+function planTools(name, m) {
+  const cases = taggedCases(m);
+  if (cases === undefined) {
+    const p = planMethod(name, m);
+    return p.skip ? { plans: [], skipped: [p.skip] } : { plans: [p], skipped: [] };
+  }
+  if (m.tags?.idempotency) return { plans: [], skipped: ["tools per case of a method with an idempotency stamp have no rule yet (the stamp would sit inside a case)"] };
+  const plans = [];
+  const skipped = [];
+  for (const kase of cases) {
+    const p = /^[A-Za-z_][A-Za-z0-9_]*$/.test(kase[0]) ? planMethod(name, m, kase) : { skip: "a case without a name has no tool name" };
+    if (p.skip) skipped.push(`case ${kase[0]}: ${p.skip}`);
+    else plans.push(p);
+  }
+  return { plans, skipped };
+}
+
+/**
+ * @param {[string, object]} [kase]  for a tool per case (D-053): the case's label and node in the variant argument
+ * @returns {object | { skip: string }}
+ */
+function planMethod(name, m, kase) {
   const tags = m.tags ?? {};
-  const effect = tags.effect?.args;
+  const own = kase === undefined ? tags : isObject(kase[1].tags) ? kase[1].tags : {}; // the case's tags, for a case tool
+  // the call's effect and intent: the case's, else the method's (spec 5.2 and 5.3)
+  const effect = own.effect?.args ?? tags.effect?.args;
+  const intent = own.intent?.args ?? tags.intent?.args;
   // a read-only update (D-038) is a read for consumers, and must be sent as an update so that its answer is certified
   const replicated = m.mode === "update" && effect?.kind === "read" && effect.irreversible === false && effect.replicated === true;
   // a composite query is a read too (arm C has none to meet: the ICRC-1/2 packs declare only queries and updates)
   const read = m.mode === "query" || m.mode === "composite_query" || replicated;
   const args = Array.isArray(m.args) ? m.args : [];
   const plan = {
-    name: read ? name : prepareToolName(name),
+    name: kase !== undefined ? caseToolName(name, kase[0], read) : read ? name : prepareToolName(name),
     kind: read ? "read" : "prepare",
     method: name,
+    /** for a tool per case (D-053): the case of the variant argument it sends, and that case's node */
+    case: kase?.[0],
+    caseNode: kase?.[1],
     mode: m.mode,
     /** a read sent as an update call */
     replicated,
     effect: effect ?? (read ? { kind: "read", irreversible: false } : { kind: "write", irreversible: true }),
-    describe: tags.describe?.args,
-    intent: tags.intent?.args,
+    describe: own.describe?.args,
+    intent,
     idempotency: tags.idempotency?.args,
     outcome: tags.outcome?.args,
     /** the method's single argument, or undefined (none, or more than one) */
@@ -164,12 +218,13 @@ function planMethod(name, m) {
     rootNull: false,
     results: m.results ?? [],
   };
-  plan.title = plan.intent?.title ?? plan.describe?.label ?? name;
+  plan.title = kase !== undefined ? (own.intent?.args?.title ?? plan.describe?.label ?? `${name} ${kase[0]}`) : (plan.intent?.title ?? plan.describe?.label ?? name);
   if (read && plan.results.length > 1) return { skip: "a query with more than one result has no rule (only the first would be shown)" };
   // the stamp would be an input, or left unset: the stamp rules are for writes
   if (replicated && plan.idempotency) return { skip: "a read-only update with an idempotency stamp has no rule" };
   if (!read) {
-    for (const need of ["intent", "outcome"]) if (!tags[need]) return { skip: `an update method needs the ${need} tag` };
+    if (!intent) return { skip: "an update method needs the intent tag" };
+    if (!tags.outcome) return { skip: "an update method needs the outcome tag" };
     if (plan.idempotency && plan.idempotency.mode !== "replay_same_payload") return { skip: `idempotency mode ${plan.idempotency.mode} has no rule` };
     if (!plan.idempotency && [...Object.values(plan.outcome.classes ?? {}), plan.outcome.default].includes("retry_new")) {
       return { skip: "the outcome class retry_new renews an idempotency stamp, and this method has none" };
@@ -192,48 +247,63 @@ function planMethod(name, m) {
       if (c.role === "param") plan.params.push({ name: `arg${i}`, node, optional, path: `$args[${i}]` });
     }
   } else if (args.length === 1) {
-    const root = args[0];
-    const tag = readAs(root);
-    if (tag) {
-      const why = inputWithoutRule(root, "(0)"); // a text pattern the layer does not run
-      if (why) return { skip: why };
-      // the stamp is filled by the tool layer, so it must be a field beside the inputs, never the whole argument
-      if (plan.idempotency) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
-      plan.rootParam = true;
-      plan.params.push({ name: tag, node: root, optional: root.optional === true, path: "$args[0]" });
-    } else if (root.candid === "record") {
-      let stampId;
-      if (plan.idempotency) {
-        const ids = relpathIds(plan.idempotency.stamp);
-        if (ids === null || ids.length !== 1) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
-        stampId = ids[0];
-      }
-      for (const [fname, fnode] of Object.entries(root.fields ?? {})) {
-        // the canister selector of every tool (toolDefinitions, the tool layer) owns this input name
-        if (fname === "canister_id") return { skip: "an argument field named canister_id would collide with the canister selector input" };
-        const c = classifyField(fname, fnode, stampId);
-        if (c.skip) return c;
-        if (c.role === "stamp") plan.stampField = fname;
-        const optional = fnode.optional === true;
-        plan.fields.push({ name: fname, node: fnode, role: c.role, optional });
-        if (c.role === "param") plan.params.push({ name: fname, node: fnode, optional, path: `$args[0].${fname}` });
-      }
-      if (plan.idempotency && !plan.fields.some((f) => f.role === "stamp")) return { skip: `the stamp field ${plan.idempotency.stamp} is not an argument field` };
-    } else if (root.candid === "null" || root.candid === "reserved") {
-      // one value only, so nothing to ask for: the tool takes no input and sends null
-      if (plan.idempotency) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
-      plan.rootNull = true;
-    } else {
-      // a variant or a vec (or a record a value tag does not cover) is one JSON input
-      const why = inputWithoutRule(root, "(0)");
-      if (why) return { skip: why };
-      if (plan.idempotency) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
-      plan.rootParam = true;
-      plan.params.push({ name: "arg0", node: root, optional: root.optional === true, path: "$args[0]" });
-    }
+    // a case tool reads its case's payload as a single argument is read (D-053)
+    const why = kase !== undefined ? planArgument(plan, kase[1], `(0).${kase[0]}`, `$args[0].${kase[0]}`) : planArgument(plan, args[0], "(0)", "$args[0]");
+    if (why) return why;
   }
   return plan;
 }
+
+/**
+ * The inputs of a single argument, or of a case's payload: a position `readAs` names is one input named by its tag, a
+ * record's fields are inputs of their own (the stamp and filled ones aside), null takes none, and any other position
+ * is one JSON input. `at` names the position in skip reasons, `path` in input issues.
+ * @returns {{ skip: string } | undefined}
+ */
+function planArgument(plan, root, at, path) {
+  const tag = readAs(root);
+  if (tag) {
+    const why = inputWithoutRule(root, at); // a text pattern the layer does not run
+    if (why) return { skip: why };
+    // the stamp is filled by the tool layer, so it must be a field beside the inputs, never the whole argument
+    if (plan.idempotency) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
+    plan.rootParam = true;
+    plan.params.push({ name: tag, node: root, optional: root.optional === true, path });
+  } else if (root.candid === "record") {
+    let stampId;
+    if (plan.idempotency) {
+      const ids = relpathIds(plan.idempotency.stamp);
+      if (ids === null || ids.length !== 1) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
+      stampId = ids[0];
+    }
+    for (const [fname, fnode] of Object.entries(root.fields ?? {})) {
+      // the canister selector of every tool (toolDefinitions, the tool layer) owns this input name
+      if (fname === "canister_id") return { skip: "an argument field named canister_id would collide with the canister selector input" };
+      const c = classifyField(fname, fnode, stampId);
+      if (c.skip) return c;
+      if (c.role === "stamp") plan.stampField = fname;
+      const optional = fnode.optional === true;
+      plan.fields.push({ name: fname, node: fnode, role: c.role, optional });
+      if (c.role === "param") plan.params.push({ name: fname, node: fnode, optional, path: `${path}.${fname}` });
+    }
+    if (plan.idempotency && !plan.fields.some((f) => f.role === "stamp")) return { skip: `the stamp field ${plan.idempotency.stamp} is not an argument field` };
+  } else if (root.candid === "null" || root.candid === "reserved") {
+    // one value only, so nothing to ask for: the tool takes no input and sends null
+    if (plan.idempotency) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
+    plan.rootNull = true;
+  } else {
+    // a variant or a vec (or a record a value tag does not cover) is one JSON input
+    const why = inputWithoutRule(root, at);
+    if (why) return { skip: why };
+    if (plan.idempotency) return { skip: `the stamp ${plan.idempotency.stamp} must name one field of the argument record` };
+    plan.rootParam = true;
+    plan.params.push({ name: "arg0", node: root, optional: root.optional === true, path });
+  }
+  return undefined;
+}
+
+/** What a tool calls, for messages: the method, or the method and the case it sends. */
+const toolOf = (p) => (p.case === undefined ? p.method : `${p.method}'s case ${p.case}`);
 
 /**
  * @param {object | object[]} resolved
@@ -244,15 +314,15 @@ export function buildToolPlans(resolved) {
   const skipped = [];
   const byTool = new Map();
   for (const [name, m] of resolvedMethods(resolved)) {
-    const p = planMethod(name, m);
-    if (p.skip) skipped.push({ method: name, reason: p.skip });
-    else byTool.set(p.name, [...(byTool.get(p.name) ?? []), p]);
+    const tools = planTools(name, m);
+    for (const reason of tools.skipped) skipped.push({ method: name, reason });
+    for (const p of tools.plans) byTool.set(p.name, [...(byTool.get(p.name) ?? []), p]);
   }
   // Two methods whose tools share a name (a query named prepare_x beside an update x), or one named like the commit
   // tool: neither is dropped silently, and neither is preferred, so all of them are skipped.
   for (const [tool, ps] of byTool) {
     if (tool === COMMIT_TOOL) for (const p of ps) skipped.push({ method: p.method, reason: `its tool name ${tool} is the commit tool's` });
-    else if (ps.length > 1) for (const p of ps) skipped.push({ method: p.method, reason: `its tool name ${tool} is also ${ps.filter((q) => q !== p).map((q) => q.method).join(", ")}'s` });
+    else if (ps.length > 1) for (const p of ps) skipped.push({ method: p.method, reason: `its tool name ${tool} is also ${ps.filter((q) => q !== p).map(toolOf).join(", ")}'s` });
     else plans.set(tool, ps[0]);
   }
   return { plans: new Map([...plans.entries()].sort(byName)), skipped };
@@ -397,12 +467,13 @@ function definitionOf(plan, canisters, refsList, sets) {
   const schema = inputSchema(plan, canisters, refsList, sets);
   if (plan.kind === "read") {
     const label = plan.describe?.label;
-    const what = plan.replicated ? `Read-only call of \`${plan.method}\`, sent as an update call so that the answer is certified; it changes nothing.` : `Read-only query of \`${plan.method}\`.`;
+    const call = `\`${plan.method}\`${plan.case === undefined ? "" : ` with the case \`${plan.case}\``}`;
+    const what = plan.replicated ? `Read-only call of ${call}, sent as an update call so that the answer is certified; it changes nothing.` : `Read-only query of ${call}.`;
     return {
       name: plan.name,
       description: `${label ? `${label}. ` : ""}${what} The answer gives each value formatted for people and raw (base units for amounts, the tagged unit for times).`,
       inputSchema: schema,
-      annotations: { destructiveHint: false, openWorldHint: true, readOnlyHint: true, title: label ?? plan.method },
+      annotations: { destructiveHint: false, openWorldHint: true, readOnlyHint: true, title: label ?? (plan.case === undefined ? plan.method : plan.title) },
     };
   }
   const e = plan.effect;
@@ -410,7 +481,7 @@ function definitionOf(plan, canisters, refsList, sets) {
   return {
     name: plan.name,
     description:
-      `Prepare the call "${plan.title}" (\`${plan.method}\`, effect: ${e.kind}${e.irreversible ? ", irreversible" : ""}). Nothing is sent yet. ` +
+      `Prepare the call "${plan.title}" (\`${plan.method}\`${plan.case === undefined ? "" : ` with the case \`${plan.case}\``}, effect: ${e.kind}${e.irreversible ? ", irreversible" : ""}). Nothing is sent yet. ` +
       "Inputs are in human units and are checked exactly (nothing is rounded). " +
       (plan.idempotency ? "" : "This call has no idempotency stamp, so the canister cannot tell a repeat from a new call: once an attempt's outcome is unknown, it is never sent again (commit answers reconcile). ") +
       (filled ? `The tool layer fills in: ${filled}. ` : "") +

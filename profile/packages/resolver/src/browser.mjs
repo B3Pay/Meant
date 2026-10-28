@@ -10,6 +10,7 @@
 import schema from "../data/profile-v0.schema.json" with { type: "json" };
 import icrc1 from "../data/packs/icrc1.profile.json" with { type: "json" };
 import icrc2 from "../data/packs/icrc2.profile.json" with { type: "json" };
+import erc20 from "../data/packs/erc20.profile.json" with { type: "json" };
 import { compileSchema } from "./schema-core.mjs";
 
 export { init as initCompiler } from "@candid-core/cli";
@@ -33,6 +34,7 @@ export const PROFILE_SCHEMA = schema;
 
 /** The standard packs (copies of packs/*.profile.json), sorted by file name, in the shape `loadPacks` returns. */
 export const STANDARD_PACKS = Object.freeze([
+  { file: "erc20.profile.json", doc: erc20 },
   { file: "icrc1.profile.json", doc: icrc1 },
   { file: "icrc2.profile.json", doc: icrc2 },
 ]);

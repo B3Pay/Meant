@@ -45,7 +45,7 @@ const resolver = await import("@meantjs/profile");
 const did = readFileSync("ledger.did", "utf8");
 const validateSchema = await resolver.createSchemaValidator();
 const packs = (await resolver.loadPacks()).map(({ doc }) => ({ doc }));
-assert.deepEqual(packs.map(({ doc }) => doc.name), ["icrc1", "icrc2"]);
+assert.deepEqual(packs.map(({ doc }) => doc.name), ["erc20", "icrc1", "icrc2"]); // erc20 is for EVM contracts: a Candid service skips it
 const r = await resolver.resolveService({ did, validateSchema, packs });
 assert.equal(r.ok, true, JSON.stringify(r.diagnostics.filter((d) => d.severity === "error")));
 assert.deepEqual(r.profiles.map((p) => [p.name, p.status]), [["icrc1", "applied"], ["icrc2", "applied"]]);

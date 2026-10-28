@@ -6,8 +6,8 @@ ICRC-21 consent messages, and the text an SNS proposal's validator returns, from
 npm install @meantjs/consent
 ```
 
-- **Runs on:** Node 22 or later and browsers for the main entry (no Node built-in, no `Buffer`; checked with esbuild).
-  `@meantjs/consent/sns` hashes with `node:crypto` and is Node only.
+- **Runs on:** Node 22 or later and browsers for the main entry and the EVM subpaths (no Node built-in, no `Buffer`;
+  checked with esbuild). `@meantjs/consent/sns` hashes with `node:crypto` and is Node only.
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
 - **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
 - **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
@@ -56,10 +56,40 @@ bundles it with esbuild for the browser platform). The three SNS rows below are 
 ## What happens, in order
 
 1. **Decode** (`src/decode.mjs`). The argument bytes are decoded against the method's resolved-form tree into a value tree aligned with its positions: integers as decimal strings, floats as numbers, `blob` as `Uint8Array`, absent `opt` as `null`, records as objects keyed like `fields`, variants as `{ tag, value }`, vectors as arrays. Nothing is rounded or truncated.
-2. **Intent** (`src/template.mjs`, `src/model.mjs`). The method's `intent.template`: placeholders rendered through `formatterFor` of `@meantjs/format` (so `amount`, `timestamp`, `duration`, `account`, `subaccount`, `bytes` mean exactly what arm C means), `[ ... ]` dropped when a placeholder inside is absent, escapes `{{ }} [[ ]]`. Untagged positions render as Candid text. A method without `intent` gets a generic intent (title from `describe.label` of the method or `Call <method>`, one row per argument leaf). The renderer has no network access and never states anything about ledger state; dynamic refs come in through `refs`. A ref you did not supply stops the message (`E_REF_UNRESOLVED`), a number is never shown without its decimals.
+2. **Intent** (`src/template.mjs`, `src/model.mjs`). The call's `intent.template`: that of the deepest variant case with an `intent` that the decoded arguments hold, else the method's (spec §5.2, D-053; the call's effect, shown in the SNS rendering, is chosen the same way). A resolved form whose tagged cases one call holds side by side is not one a resolver writes; the method's tag is used for it. placeholders rendered through `formatterFor` of `@meantjs/format` (so `amount`, `timestamp`, `duration`, `account`, `subaccount`, `bytes` mean exactly what arm C means), `[ ... ]` dropped when a placeholder inside is absent, escapes `{{ }} [[ ]]`. Untagged positions render as Candid text. A method without `intent` gets a generic intent (title from `describe.label` of the method or `Call <method>`, one row per argument leaf). The renderer has no network access and never states anything about ledger state; dynamic refs come in through `refs`. A ref you did not supply stops the message (`E_REF_UNRESOLVED`), a number is never shown without its decimals.
 3. **Forms** (`src/render.mjs`, `src/icrc21.mjs`), section 12:
    - `FieldsDisplayMessage`: `intent` = title, `": "`, rendered template; one `(label, Value)` row per placeholder, label from `describe.label` else the field name; `amount` is a `TokenAmount` when it fits `nat64` and has a symbol, else `Text`; `timestamp` is `TimestampSeconds` after an exact ns-to-s conversion (the library throws `E_INEXACT` otherwise and the row is `Text` in RFC 3339 UTC); `duration` is `DurationSeconds`; everything else is `Text`. UTC only, never zone-sensitive.
    - `GenericDisplayMessage`: `# title`, the rendered template as a paragraph, then `- **label:** value` for the same fields. Times are shown in `utc_offset_minutes` (`2026-10-09 14:00:00 UTC+02:00`), UTC when absent, and the response metadata says which offset was applied.
+
+## EVM contracts (experimental: `src/evm.mjs`, `src/erc7730.mjs`)
+
+Spec section 15, D-054. An EVM contract's resolved form (`"chain": "evm"`, from `resolveService({ abi })` of
+`@meantjs/profile`) is read by two subpaths; the main entry refuses it with `E_RESOLVED_FORM`, and `evmConsent` refuses
+a Candid one.
+
+| Function | Does |
+|---|---|
+| `decodeCalldata(resolved, calldata, limits)` (`/evm`) | The function a selector names and its arguments, keyed by parameter name. Strict: values read from anything but their canonical ABI encoding are `E_DECODE`. |
+| `evmConsent({ resolved, calldata, to, chainId, refs, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of a call: the same model and the same two forms as ICRC-21, without its envelope (`"generic"` Markdown, or `"fields"` as an intent line and `[label, text]` rows), ending with the contract's address and chain, which a person must see because a pack matches any contract with the right functions. A call to a contract its profiles do not list is `E_DEPLOYMENT`; a payable function is `E_UNSUPPORTED_TYPE` (its native value has no position yet). |
+| `erc7730Descriptor(resolved, { deployments, owner, contractName, info, token })` (`/erc7730`) | The contract's ERC-7730 clear-signing file and its ERC-8176 `descriptorHash`: deterministic, `$schema` pinned to the exact 2.1.0 file, one entry per function a transaction calls. What an ERC-7730 file cannot say (a time in ms, `utf8` bytes, an amount in another token, an unnamed parameter, a placeholder over an array) is `E_EXPORT`, never written as something near it; no deployment is `E_DEPLOYMENT`. The mapping is the table in spec §15.7. |
+| `descriptorHash(descriptor)` (`/erc7730`) | Keccak-256 of the RFC 8785 form: the hash of a file someone edited. |
+| `erc8176Attestation({ descriptorHash, time, expirationTime, salt, refUID })` (`/erc7730`) | The unsigned ERC-8176 attestation (EAS offchain v2 typed data) and its EIP-712 digest, for a reviewer to sign with their own key. Nothing is signed or sent. |
+
+```js
+import { evmConsent } from "@meantjs/consent/evm";
+import { erc7730Descriptor, erc8176Attestation } from "@meantjs/consent/erc7730";
+
+evmConsent({ resolved, calldata, to: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", refs: { "query:decimals": 18, "query:symbol": "WETH" } }).message;
+// # Send tokens\n\nSend `1.5 WETH` to `0xfB69…d359`\n\n- **Amount:** `1.5 WETH`\n- **Recipient:** `0xfB69…d359`\n\n**Contract:** `0xC02a…6Cc2`
+const { descriptor, descriptorHash } = erc7730Descriptor(resolved, { deployments: [{ chainId: 1, address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" }] });
+const { typedData, digest } = erc8176Attestation({ descriptorHash, time: 1777630591, expirationTime: 1785406591, salt });
+```
+
+Every exported file in the tests is checked against the ERC-7730 2.1.0 JSON Schema (vendored in
+`test/upstream/erc7730/`, CC0, sha256 in its `SOURCE.json`), and the hashes and digests they pin were computed by an
+independent implementation. **Fact** (ERC-7730): a wallet that finds no ticker for a `tokenAmount` "SHOULD display the
+raw value instead with an 'Unknown token' warning"; this package would produce no message there, and a file cannot make
+a wallet refuse. The Rust version does not cover EVM.
 
 ## SNS proposal validators (`src/sns.mjs`)
 
@@ -125,7 +155,7 @@ The relying party is not trusted, so every value that comes from the call is sho
 |---|---|
 | Unknown method, argument bytes that do not decode, arguments too large, malformed request, unsupported language with `languagePolicy: "error"` | `UnsupportedCanisterCall` (`description` starts with the code: `E_METHOD_UNKNOWN`, `E_DECODE`, `E_TOO_LARGE`, `E_REQUEST`, `E_LANGUAGE`) |
 | A value that reaches a position the resolved form cuts (`recursive: true`; a call whose value avoids every cut gets its message, D-042), or a method with a `func` or `service` position | `ConsentMessageUnavailable` (`E_UNSUPPORTED_TYPE`) |
-| Missing dynamic ref, invalid tag argument, malformed resolved form | `GenericError` with `error_code` 1100 (ref), 1101 (arg), 1102 (tag type), 1103 (tag conflict), 1000 (resolved form), 1999 (internal) |
+| Missing dynamic ref, invalid tag argument, malformed resolved form (an EVM one among them) | `GenericError` with `error_code` 1100 (ref), 1101 (arg), 1102 (tag type), 1103 (tag conflict), 1000 (resolved form), 1999 (internal) |
 
 A language other than English is **not** an error: ICRC-21 says a message "should be preferred over sending an icrc21_error" and "the metadata must match the consent_message provided", so the answer is English with `metadata.language: "en"` (`I_LANGUAGE_FALLBACK` in `diagnostics`). Limits are explicit and never truncate: 2 MiB of argument bytes, 64 fields, 256 list elements, 32 KiB of message text.
 
@@ -213,3 +243,5 @@ Untrusted third-party data lives in `test/upstream/icrc21/` (the standard, commi
 - The caller's account (`From`) and a fee line: see `docs/oisy-comparison.md` for why they are absent.
 - Other languages; `device_spec` hints beyond the two forms.
 - Recursive and `func`/`service` positions (need a richer resolved form, or the Contract).
+- EVM: payable functions in the consent text, EIP-712 messages, ERC-7730 import, checking attestations, and the Rust
+  version.

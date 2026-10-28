@@ -6,11 +6,15 @@
 // resolved by the caller (the library does no I/O) and passed in `refs`, keyed by the `from` string.
 
 import { CODES, FormatError, fail } from "./errors.mjs";
-import { AMOUNT_TYPES, checkDecimals, checkSymbol, displayAmount, parseAmount } from "./amount.mjs";
+import { AMOUNT_TYPES, DEFAULT_THRESHOLD_MESSAGE, checkDecimals, checkMessage, checkSymbol, checkThreshold, displayAmount, parseAmount } from "./amount.mjs";
 import { TIME_TYPES, displayDuration, displayTimestamp, parseDuration, parseTimestamp, unitFactor } from "./time.mjs";
 import { displayAccount, parseAccount } from "./account.mjs";
 import { displaySubaccount, parseSubaccount } from "./subaccount.mjs";
 import { BYTES_ENCODINGS, checkMaxLen, displayBytes, parseBytes } from "./bytes.mjs";
+import { INT_TYPES, listTypes } from "./util.mjs";
+
+/** The byte types: Candid's blob, the EVM ABI's bytes and bytes1 to bytes32 (spec section 15). */
+const BYTE_TYPES = ["blob", "bytes", ...Array.from({ length: 32 }, (_, i) => `bytes${i + 1}`)];
 
 /** The tags that give a position a text form, in spec §5.1. */
 export const VALUE_TAGS = Object.freeze(["amount", "timestamp", "duration", "account", "subaccount", "bytes"]);
@@ -28,7 +32,7 @@ function resolveArg(arg, refs, where) {
 }
 
 function requireCandid(node, allowed, tag) {
-  if (!allowed.includes(node.candid)) fail(CODES.TAG_TYPE, `the ${tag} tag applies to ${allowed.join(", ")}, not ${node.candid}`);
+  if (!allowed.includes(node.candid)) fail(CODES.TAG_TYPE, `the ${tag} tag applies to ${listTypes(allowed)}, not ${node.candid}`);
 }
 
 function requireUnit(unit, tag) {
@@ -68,7 +72,8 @@ function requireUnit(unit, tag) {
  * @returns {Formatter | null}  null when the position has no value tag (render it as Candid text, spec §6)
  */
 export function formatterFor(node, { refs = {}, now: defaultNow } = {}) {
-  if (node === null || typeof node !== "object" || typeof node.candid !== "string") fail(CODES.TYPE, "node must be a resolved-form position with a `candid` type");
+  if (node !== null && typeof node === "object" && node.candid === undefined && typeof node.abi === "string") node = { ...node, candid: node.abi }; // an EVM position (spec section 15)
+  if (node === null || typeof node !== "object" || typeof node.candid !== "string") fail(CODES.TYPE, "node must be a resolved-form position with a `candid` type (or an EVM position's `abi` type)");
   const tags = node.tags ?? {};
   const present = VALUE_TAGS.filter((t) => Object.hasOwn(tags, t));
   if (present.length === 0) return null;
@@ -86,8 +91,11 @@ export function formatterFor(node, { refs = {}, now: defaultNow } = {}) {
       if (raw.decimals === undefined) fail(CODES.ARG, "the amount tag needs decimals");
       const decimals = checkDecimals(arg("decimals"));
       const symbol = checkSymbol(arg("symbol"));
-      const o = { decimals, symbol, candid: node.candid };
-      args = { decimals, symbol };
+      const threshold = checkThreshold(raw.threshold);
+      const message = checkMessage(raw.message);
+      if (message !== undefined && threshold === undefined) fail(CODES.ARG, "amount message needs a threshold");
+      const o = { decimals, symbol, candid: node.candid, threshold, message };
+      args = { decimals, symbol, ...(threshold === undefined ? {} : { threshold: threshold.toString(), message: message ?? DEFAULT_THRESHOLD_MESSAGE }) };
       parse = (input) => parseAmount(input, o);
       display = (value) => displayAmount(value, o);
       break;
@@ -127,12 +135,17 @@ export function formatterFor(node, { refs = {}, now: defaultNow } = {}) {
       break;
     }
     case "bytes": {
-      requireCandid(node, ["blob"], tag);
+      requireCandid(node, BYTE_TYPES, tag);
       const encoding = arg("encoding");
       if (!BYTES_ENCODINGS.includes(encoding)) fail(CODES.ARG, `the bytes tag needs encoding utf8, hex or base64, got ${JSON.stringify(encoding)}`);
       const maxLen = raw.max_len;
       args = { encoding, ...(maxLen === undefined ? {} : { max_len: maxLen }) };
-      parse = (input) => parseBytes(input, { encoding, maxLen });
+      const size = /^bytes(\d+)$/.exec(node.candid)?.[1]; // bytesN holds exactly N bytes
+      parse = (input) => {
+        const b = parseBytes(input, { encoding, maxLen });
+        if (size !== undefined && b.length !== Number(size)) fail(CODES.LENGTH, `${node.candid} holds exactly ${size} bytes, got ${b.length}`);
+        return b;
+      };
       display = (value) => displayBytes(value, { encoding });
       break;
     }
@@ -165,10 +178,10 @@ export function formatterFor(node, { refs = {}, now: defaultNow } = {}) {
 // ---------------------------------------------------------------- describe
 
 /** The Candid types each value tag applies to (the `requireCandid` calls in `formatterFor`). */
-const CANDID_OF = { amount: AMOUNT_TYPES, timestamp: TIME_TYPES, duration: TIME_TYPES, account: ["record"], subaccount: ["blob"], bytes: ["blob"] };
+const CANDID_OF = { amount: AMOUNT_TYPES, timestamp: TIME_TYPES, duration: TIME_TYPES, account: ["record"], subaccount: ["blob"], bytes: BYTE_TYPES };
 /** 2026-01-01T00:00:00Z in ns: the reference instant relative examples are checked against. */
 const DESCRIBE_NOW = 1_767_225_600_000_000_000n;
-const SIGNED = new Set(["int", "int8", "int16", "int32", "int64"]);
+
 // ECMAScript syntax characters only: escaping anything else (such as "-") is an error under the `u` flag, which JSON
 // Schema validators such as Ajv use.
 const reEscape = (s) => s.replace(/[\\^$.*+?()[\]{}|/]/g, "\\$&");
@@ -178,7 +191,7 @@ const quoted = (xs) => xs.map((x) => JSON.stringify(x)).join(", ");
 
 /** The grammar in words (no examples), candidate examples, and a pattern where the grammar is regular. */
 function grammar(tag, args, candid) {
-  const signed = SIGNED.has(candid);
+  const signed = INT_TYPES[candid]?.signed === true;
   const finer = (what) => (args.unit === "ns" ? "" : ` Stored in ${args.unit}: a ${what} finer than that is an error, not rounded.`);
   switch (tag) {
     case "amount": {

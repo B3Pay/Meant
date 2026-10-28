@@ -26,8 +26,8 @@
 //   1. The body is the generic consent message of spec section 12 with the title at heading level 3, so it nests
 //      under governance's `## Payload:`. Times are shown in UTC (`2026-10-09 12:00:00 UTC`, rule 6 of section 12):
 //      a proposal has many readers and no user preferences.
-//   2. Then the method the rendering describes and its effect (spec section 5.3; the default for an update without
-//      an `effect` tag is said to be a default).
+//   2. Then the method the rendering describes and the call's effect (spec section 5.3: its case's, else its
+//      method's, D-053; the default for an update without an `effect` tag is said to be a default).
 //   3. Then the arguments as Candid text with no formatter applied (base units, nanoseconds, bytes), always: there is
 //      no signer between the text and the voter to show them (spec section 11 item 1).
 //   4. Then where the words come from: every profile with its profile_id, the interface_id, and these rules.
@@ -43,7 +43,7 @@ import { bytesOf } from "./bytes.mjs";
 import { ConsentError, CODES, fail } from "./errors.mjs";
 import { buildModel } from "./model.mjs";
 import { renderGeneric } from "./render.mjs";
-import { methodOf } from "./resolved.mjs";
+import { callTag, methodOf } from "./resolved.mjs";
 import { codeBlock, codeSpan, escapeMarkdown, oneLine } from "./text.mjs";
 
 /** The name and version of the rules this module renders by. Part of every rendering, so a re-render knows what to compare. */
@@ -114,7 +114,7 @@ function renderSnsPayload({ payload, resolved, method: name, refs, limits }) {
   const model = buildModel({ resolved, method: name, arg: payload, limits });
   const renderer = new Renderer({ refs, utcOffsetMinutes: 0, diagnostics: model.diagnostics });
   const blocks = [renderGeneric(model, renderer, { headingLevel: 3 })];
-  blocks.push(`**Method:** ${codeSpan(name)}. **Effect:** ${effectText(method)}.`);
+  blocks.push(`**Method:** ${codeSpan(name)}. **Effect:** ${effectText(method, callTag(method, model.argValues, "effect"))}.`);
   blocks.push(`**Arguments (Candid, as sent, no units applied):**\n\n${codeBlock(renderer.plainTupleText(model.argNodes, model.argValues))}`);
   blocks.push(sourceText(resolved));
   const text = blocks.join("\n\n");
@@ -125,12 +125,12 @@ function renderSnsPayload({ payload, resolved, method: name, refs, limits }) {
 const isQuery = (method) => method.mode === "query" || method.mode === "composite_query";
 
 /**
- * The effect kind and reversibility (spec section 5.3), and whether a profile stated them. The resolver writes the
+ * The effect kind and reversibility of the call (spec section 5.3; `tag` is its effect entry, `callTag`), and whether
+ * a profile stated them. The resolver writes the
  * section 5.3 default with origin "default" when no profile has an `effect` tag; this says so instead of passing a
  * default off as the author's word.
  */
-function effectText(method) {
-  const tag = method.tags?.effect;
+function effectText(method, tag) {
   const query = isQuery(method);
   const kind = typeof tag?.args?.kind === "string" ? tag.args.kind : query ? "read" : "write";
   const irreversible = typeof tag?.args?.irreversible === "boolean" ? tag.args.irreversible : tag ? null : !query;

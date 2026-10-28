@@ -25,9 +25,9 @@ test("on Node with eval and new Function disabled, the shipped schema validates 
   const applied = [true, [["icrc1", "applied"], ["icrc2", "applied"]]];
   assert.deepEqual(out, {
     control: "EvalError", // the flag is live
-    browserPacks: [true, true],
+    browserPacks: [true, true, true],
     browserBad: false,
-    nodePacks: [true, true],
+    nodePacks: [true, true, true],
     resolved: applied,
     nodeResolved: applied,
     schemaCodes: ["E_SCHEMA"],
@@ -104,7 +104,7 @@ test("in Chromium, under a CSP with no 'unsafe-eval', the browser entry resolves
   };
 
   assert.deepEqual(await run("ok"), {
-    result: { packs: [true, true], bad: false, ok: true, profiles: [["icrc1", "applied"], ["icrc2", "applied"]] },
+    result: { packs: [true, true, true], bad: false, ok: true, profiles: [["icrc1", "applied"], ["icrc2", "applied"]] },
     violations: [],
   });
   // The control: the same policy refuses ajv's run-time compile of another schema, so the policy is enforced.
