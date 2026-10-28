@@ -13,19 +13,20 @@ pub enum Code {
     /// `"1e3"`, `"+1"` or a base-unit value that is not a canonical decimal
     /// integer.
     Syntax,
-    /// `E_RANGE`: the value is outside the range of its Candid integer type.
+    /// `E_RANGE`: the value is outside the range of its integer type.
     Range,
     /// `E_TOO_LONG`: the text is longer than
     /// [`MAX_INPUT_UTF16_LEN`](crate::MAX_INPUT_UTF16_LEN).
     TooLong,
-    /// `E_ARG`: a tag argument is invalid, for example an empty symbol.
+    /// `E_ARG`: a tag argument is invalid, for example an empty symbol or a
+    /// negative threshold.
     Arg,
-    /// `E_TAG_TYPE`: the tag does not apply to this Candid type.
+    /// `E_TAG_TYPE`: the tag does not apply to this type.
     TagType,
     /// `E_EXCESS_PRECISION`: more fractional digits than the token's decimals.
     /// Amounts are never rounded.
     ExcessPrecision,
-    /// `E_NEGATIVE`: a negative amount for an unsigned Candid type.
+    /// `E_NEGATIVE`: a negative amount for an unsigned type.
     Negative,
     /// `E_SYMBOL_MISMATCH`: the symbol in the input is not the token's symbol,
     /// or the token has no symbol.

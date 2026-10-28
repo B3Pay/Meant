@@ -2,8 +2,8 @@
 name = "meant-format"
 # Pre-1.0, like everything in this repository: any 0.x release may change the
 # public API and the text `display` produces. Consumers should pin an exact
-# version (`meant-format = "=0.1.0"`), as they do for `meant`.
-version = "0.1.0"
+# version (`meant-format = "=0.2.0"`), as they do for `meant`.
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.78"
 description = "Exact conversion between the amounts people write and the base units a contract call carries. Never rounds."

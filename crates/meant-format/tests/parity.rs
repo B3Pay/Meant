@@ -1,6 +1,6 @@
 //! The crate gives the JavaScript reference's answer for every case in
 //! `vectors/amount.json`: the same value, or the same error code and message.
-//! The vectors are generated from `@candid-core/profile-format` by
+//! The vectors are generated from `@meantjs/format` by
 //! `vectors/generate-amount.mjs`, which records the commit it ran against.
 
 use std::collections::BTreeSet;
@@ -12,7 +12,7 @@ const VECTORS: &str = include_str!("vectors/amount.json");
 
 /// README.md states this count. Regenerating the vectors with another count
 /// fails here until the README says the new number.
-const DOCUMENTED_CASES: usize = 2155;
+const DOCUMENTED_CASES: usize = 3412;
 
 fn vectors() -> Value {
     serde_json::from_str(VECTORS).expect("vectors/amount.json is JSON")
@@ -26,9 +26,23 @@ fn format_for(case: &Value) -> AmountFormat {
             .with_symbol(symbol)
             .expect("symbols in parse and display cases are valid");
     }
-    format
+    format = format
         .with_candid_name(case["candid"].as_str().expect("candid"))
-        .expect("types in parse and display cases are valid")
+        .expect("types in parse and display cases are valid");
+    with_threshold(format, case).expect("thresholds in parse and display cases are valid")
+}
+
+/// Applies the case's `threshold` and `message`, if it has them. The vectors
+/// never hold a message without a threshold, which the crate cannot express.
+fn with_threshold(format: AmountFormat, case: &Value) -> Result<AmountFormat, FormatError> {
+    let message = case.get("message").map(|m| m.as_str().expect("message"));
+    match case.get("threshold") {
+        Some(threshold) => format.with_threshold(threshold.as_str().expect("threshold"), message),
+        None => {
+            assert!(message.is_none(), "a message without a threshold: {case}");
+            Ok(format)
+        }
+    }
 }
 
 /// `None` when `got` is the answer the case records, else what differs.
@@ -80,7 +94,7 @@ fn records_where_it_came_from() {
     // an engine on another version could disagree for reasons that are not a
     // bug in either implementation.
     assert_eq!(source["unicode"], "16.0");
-    let total: usize = ["parse", "display", "symbol", "candid"]
+    let total: usize = ["parse", "display", "symbol", "candid", "threshold"]
         .iter()
         .map(|k| v[*k].as_array().expect(k).len())
         .sum();
@@ -126,6 +140,21 @@ fn display_matches_the_reference() {
     for code in ["ok", "E_SYNTAX", "E_RANGE", "E_TOO_LONG"] {
         assert!(codes.contains(code), "no display case expects {code}");
     }
+    // Some cases are at EVM positions and some have a threshold, and some of
+    // those show its message: a regenerated file that lost either fails here.
+    let abi = |c: &&Value| c["candid"].as_str().is_some_and(|t| t.starts_with("uint"));
+    assert!(cases.iter().filter(abi).count() >= 100, "too few EVM cases");
+    let shown = cases
+        .iter()
+        .filter(|c| c.get("threshold").is_some() && c.get("ok").is_some())
+        .filter(|c| {
+            !c["ok"]
+                .as_str()
+                .expect("ok")
+                .starts_with(|d: char| d.is_ascii_digit() || d == '-')
+        })
+        .count();
+    assert!(shown >= 20, "only {shown} cases show a threshold message");
     let failures: Vec<String> = cases
         .iter()
         .filter_map(|case| {
@@ -174,4 +203,26 @@ fn candid_names_match_the_reference() {
         })
         .collect();
     assert_all("candid", &failures, cases.len());
+}
+
+#[test]
+fn threshold_rules_match_the_reference() {
+    let v = vectors();
+    let cases = v["threshold"].as_array().expect("threshold cases");
+    let codes = expected_codes(cases);
+    for code in ["ok", "E_ARG"] {
+        assert!(codes.contains(code), "no threshold case expects {code}");
+    }
+    let failures: Vec<String> = cases
+        .iter()
+        .filter_map(|case| {
+            let mut format = AmountFormat::new(0);
+            if case.get("message").is_some() {
+                format = format.with_symbol("S").expect("S");
+            }
+            let got = with_threshold(format, case).and_then(|f| f.display("0"));
+            mismatch(case, &got)
+        })
+        .collect();
+    assert_all("threshold", &failures, cases.len());
 }

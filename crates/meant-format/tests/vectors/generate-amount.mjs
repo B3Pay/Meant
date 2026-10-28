@@ -1,6 +1,6 @@
 // Generates amount.json: the answers of the JavaScript reference implementation
-// (@candid-core/profile-format, in the candid-profile repository) for a fixed,
-// seeded set of inputs. tests/parity.rs requires the meant-format crate to give the
+// (@meantjs/format, packages/format in the candid-profile repository) for a
+// fixed, seeded set of inputs. tests/parity.rs requires the meant-format crate to give the
 // same answer for every case: the same value, or the same error code and
 // message.
 //
@@ -10,6 +10,12 @@
 // and records the candid-profile commit, the package version, and the Node and
 // Unicode versions it ran on. The cases are a pure function of SEED, so the
 // output changes only when the reference's answers (or this script) change.
+// Sections that draw from the generator are only ever appended after the
+// earlier ones, so adding cases leaves every earlier case as it was.
+//
+// A threshold message without a threshold is an error in the reference and
+// cannot be written in the crate (`with_threshold` takes both), so no case
+// has one.
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -69,12 +75,17 @@ function answer(fn) {
     return { err: e.code, msg: e.message };
   }
 }
-const opts = (d, sym, candid) => ({ decimals: d, symbol: sym ?? undefined, candid });
-const parseCase = (input, d, sym, candid) => ({
-  in: input, d, sym, candid, ...answer(() => parseAmount(input, opts(d, sym, candid))),
+// A threshold and its message are keys only on the cases that have them.
+const limit = (threshold, message) => ({
+  ...(threshold === undefined ? {} : { threshold }),
+  ...(message === undefined ? {} : { message }),
 });
-const displayCase = (value, d, sym, candid) => ({
-  in: value, d, sym, candid, ...answer(() => displayAmount(value, opts(d, sym, candid))),
+const opts = (d, sym, candid, threshold, message) => ({ decimals: d, symbol: sym ?? undefined, candid, ...limit(threshold, message) });
+const parseCase = (input, d, sym, candid, threshold, message) => ({
+  in: input, d, sym, candid, ...limit(threshold, message), ...answer(() => parseAmount(input, opts(d, sym, candid, threshold, message))),
+});
+const displayCase = (value, d, sym, candid, threshold, message) => ({
+  in: value, d, sym, candid, ...limit(threshold, message), ...answer(() => displayAmount(value, opts(d, sym, candid, threshold, message))),
 });
 
 const parse = [];
@@ -154,6 +165,60 @@ for (const bad of ["", "01", "-01", "+1", "1.5", " 1", "1 ", "1_000", "１", "-"
   display.push(displayCase(bad, 8, "ICP", "int"));
 }
 
+// The EVM ABI's integer types (spec section 15): uint8 to uint256 and int8 to
+// int256, less int8 to int64, which are Candid's and covered above. Each at
+// its bounds and one step past them.
+const ABI_TYPES = Array.from({ length: 32 }, (_, i) => 8 * (i + 1)).flatMap((b) => [`uint${b}`, ...([8, 16, 32, 64].includes(b) ? [] : [`int${b}`])]);
+for (const candid of ABI_TYPES) {
+  const b = BigInt(candid.replace(/^u?int/, ""));
+  const values = candid.startsWith("u")
+    ? [0n, -1n, 2n ** b - 1n, 2n ** b]
+    : [-1n, -(2n ** (b - 1n)), -(2n ** (b - 1n)) - 1n, 2n ** (b - 1n) - 1n, 2n ** (b - 1n)];
+  for (const v of values) {
+    parse.push(parseCase(String(v), 0, null, candid));
+    display.push(displayCase(String(v), 0, null, candid));
+  }
+}
+// Seeded amounts at EVM positions, as for the Candid ones.
+for (let i = 0; i < 200; i++) {
+  const d = pick([0, 6, 8, 18, 30]);
+  const sym = pick(SYMBOLS);
+  const candid = pick(ABI_TYPES);
+  const sign = pick(["", "", "", "-"]);
+  const whole = digits(1 + int(next() < 0.7 ? 6 : 80));
+  const frac = next() < 0.4 ? "" : "." + digits(int(d + 3));
+  const typed = next() < 0.5 || !sym ? "" : " " + sym;
+  parse.push(parseCase(sign + whole + frac + typed, d, sym, candid));
+  const mag = String(1 + int(9)) + digits(int(next() < 0.6 ? 20 : 80));
+  display.push(displayCase((next() < 0.3 ? "-" : "") + mag, d, sym, candid));
+}
+
+// The threshold (spec section 5.3, D-054): a value at or above it displays as
+// the message and the symbol. ERC-20's unlimited approval is 2^256 - 1.
+const MAX256 = String(2n ** 256n - 1n);
+const THRESHOLDS = ["0", "1", "1000000", "999999999999999999", String(2n ** 255n), MAX256];
+const MESSAGES = [undefined, "Unlimited", "All", "\u221e", "Max \ua74f", "x".repeat(32), "\u039e"];
+const VALUES = ["0", "1", "999999", "1000000", "1000001", "999999999999999999", "1000000000000000000", MAX256, "-1", "-1000000"];
+let m = 0;
+for (const threshold of THRESHOLDS) {
+  for (const value of VALUES) {
+    const candid = value.startsWith("-") ? "int256" : "uint256";
+    display.push(displayCase(value, 6, "USDC", candid, threshold, MESSAGES[m++ % MESSAGES.length]));
+    display.push(displayCase(value, 0, null, value.startsWith("-") ? "int" : "nat", threshold, MESSAGES[m++ % MESSAGES.length]));
+  }
+}
+for (let i = 0; i < 150; i++) {
+  const threshold = next() < 0.1 ? "0" : String(1 + int(9)) + digits(int(next() < 0.7 ? 12 : 77));
+  const near = [threshold, String(BigInt(threshold) + 1n), String(BigInt(threshold) - 1n)];
+  const value = next() < 0.6 ? pick(near) : String(1 + int(9)) + digits(int(78));
+  const candid = pick(["nat", "int", "nat64", "uint64", "uint128", "uint256", "int256"]);
+  display.push(displayCase(value, pick(DECIMALS), pick(SYMBOLS), candid, threshold, pick(MESSAGES)));
+}
+// Parsing ignores the threshold.
+for (const input of ["1.5", "1.5 USDC", "-1", "115792089237316195423570985008687907853269984665640564039457584007913.129639935", "115792089237316195423570985008687907853269984665640564039457584007913.129639936"]) {
+  parse.push(parseCase(input, 9, "USDC", "uint256", MAX256, "All"));
+}
+
 const symbol = [];
 for (const sym of [
   "", "ICP", " ICP", "ICP ", " ICP", "ICP　", "I\nCP", "ICP‮", "­ICP", "IC​P",
@@ -164,9 +229,22 @@ for (const sym of [
   symbol.push(r.err ? { sym, err: r.err, msg: r.msg } : { sym, ok: true });
 }
 const candid = [];
-for (const name of [...TYPES, "text", "float64", "Nat", "nat128", "", " nat", "reserved"]) {
+for (const name of [...TYPES, "text", "float64", "Nat", "nat128", "", " nat", "reserved", "uint8", "int24", "uint256", "int256", "uint", "int0", "uint7", "uint264", "Uint256", "uint08"]) {
   const r = answer(() => parseAmount("1", { decimals: 0, candid: name }));
   candid.push(r.err ? { name, err: r.err, msg: r.msg } : { name, ok: r.ok });
+}
+
+// The threshold and its message alone, checked before any value is read: the
+// reference's display of 0, or its error.
+const threshold = [];
+for (const t of ["0", "1", "01", "-1", "-0", "1.5", " 1", "1 ", "", "+1", "1e3", "1_000", "\uff10", "0x10", "1".repeat(78), "9".repeat(78), "1".repeat(79), MAX256]) {
+  threshold.push({ threshold: t, ...answer(() => displayAmount("0", { decimals: 0, threshold: t })) });
+}
+for (const message of [
+  "Unlimited", "", " x", "x ", "x".repeat(32), "x".repeat(33), emoji.repeat(32), emoji.repeat(33), "a\u202eb", "x\u200by",
+  "\u00adx", "a\nb", "\u0085x", "x\ufeff", "\u221e", "\u039e ETH", "a b", "x\u3000",
+]) {
+  threshold.push({ threshold: "0", message, ...answer(() => displayAmount("0", { decimals: 0, symbol: "S", threshold: "0", message })) });
 }
 
 const lines = (cases) => cases.map((c) => "    " + JSON.stringify(c)).join(",\n");
@@ -184,6 +262,7 @@ writeFileSync(
     `  "parse": [\n${lines(parse)}\n  ],\n` +
     `  "display": [\n${lines(display)}\n  ],\n` +
     `  "symbol": [\n${lines(symbol)}\n  ],\n` +
-    `  "candid": [\n${lines(candid)}\n  ]\n}\n`,
+    `  "candid": [\n${lines(candid)}\n  ],\n` +
+    `  "threshold": [\n${lines(threshold)}\n  ]\n}\n`,
 );
-console.log(`${OUT}: ${parse.length} parse, ${display.length} display, ${symbol.length} symbol, ${candid.length} candid cases from ${source.package} at ${commit.slice(0, 12)}`);
+console.log(`${OUT}: ${parse.length} parse, ${display.length} display, ${symbol.length} symbol, ${candid.length} candid, ${threshold.length} threshold cases from ${source.package} at ${commit.slice(0, 12)}`);
