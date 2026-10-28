@@ -46,7 +46,7 @@ npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
   It is not a reimplementation, and that is the point of its test suites: the same crates are compiled
   into one wasm artifact, and CI compares the artifact's output byte-for-byte against the reviewed
   goldens and against a document the native binary actually produced. The
-  <a href="https://github.com/b3hr4d/candid-core/tree/main/crates/candid-core-wasm">crate that produces
+  <a href="https://github.com/B3Pay/Meant/tree/main/crates/candid-core-wasm">crate that produces
   it</a> sets <code>publish = false</code> and is its own workspace root, so it never appears in the
   published Rust crate's dependency graph; the npm package is the deliverable.
 </p>
@@ -508,7 +508,7 @@ warning: omitted method bad (references_omitted via Bad)
 <p>
   A doc comment line that starts with <code>@</code>, a lowercase name, then <code>(</code> or nothing
   is an attribute, and the rest of the comment stays prose. The syntax is specified in
-  <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/doc-attributes.md"><code>docs/doc-attributes.md</code></a>
+  <a href="https://github.com/B3Pay/Meant/blob/main/docs/doc-attributes.md"><code>docs/doc-attributes.md</code></a>
   (doc attributes v1):
 </p>
 

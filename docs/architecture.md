@@ -58,8 +58,8 @@ Three consequences are load-bearing:
 * **Provenance is `compiler` surface.** `SourceInfo`/`RawSourceInfo` and the `Source*` types live behind `compiler` because authenticating a presented sidecar means recompiling its embedded bundle — that is compiler logic, not model logic. The rederivation path reconstructs one virtual merged program in memory and never touches a filesystem, which is why `SourceInfo::try_from_raw` works under `compiler` alone.
 * **Imported-bundle compilation is `compiler` surface too** ([issue #21]). `compile_with_resolver` loads the bundle once through the resolver, merges it into one virtual program with the public `candid_parser` merged-program APIs (`IDLMergedProg::new`/`merge`/`decs`/`resolve_actor`), type-checks it with `check_prog`, and lowers it — the same backend provenance rederivation uses, so the two cannot drift. `filesystem-compiler` is what a *native file* caller needs: `compile_did_file` reads through `WorkspaceResolver` and keeps `candid_parser::check_file` over a materialized copy of the bundle as its authority. `src/compile/differential.rs` compares the two backends on the same logical bundles and requires byte-identical Contracts and provenance for valid input and identical stable codes and phases for invalid input.
 
-[issue #21]: https://github.com/b3hr4d/candid-core/issues/21
-[issue #234]: https://github.com/b3hr4d/candid-core/issues/234
+[issue #21]: https://github.com/B3Pay/Meant/issues/21
+[issue #234]: https://github.com/B3Pay/Meant/issues/234
 
 `ic_principal` is a direct dependency rather than a re-export borrowed from `candid_parser::Principal`. `candid::Principal` *is* `ic_principal::Principal` — a plain `pub use` — so accepted and rejected principal text, the error variants, and their rendered messages are unchanged; taking it directly is what keeps a host that only validates values out of the parser stack.
 

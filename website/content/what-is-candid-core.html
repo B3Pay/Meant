@@ -122,7 +122,7 @@ for each UTF-8 byte b of the name:
 
 <p>
   The compiler also adds one refusal of its own
-  (<a href="https://github.com/b3hr4d/candid-core/issues/234">issue #234</a>): a type that lies
+  (<a href="https://github.com/B3Pay/Meant/issues/234">issue #234</a>): a type that lies
   on a cycle passing only through <code>opt</code>, such as <code>type T = opt T;</code>.
   <code>candid_parser</code> accepts that type, but decoding a value that is not an
   <code>opt</code> at it would unwrap <code>opt</code> without end, so compiling it fails with

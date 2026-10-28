@@ -46,7 +46,7 @@ assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
 sibling [`meant`](https://crates.io/crates/meant) compiles Candid interfaces
 into a canonical, identity-addressed graph; this crate converts the values a
 profile describes, and depends on nothing, `meant` included. Both are developed
-in the [candid-core](https://github.com/b3hr4d/candid-core) repository for now.
+in the [B3Pay/Meant](https://github.com/B3Pay/Meant) repository.
 The rules are the `amount` tag of
 [Candid Profile v0](https://github.com/b3hr4d/candid-profile/blob/main/docs/profile-v0.md)
 (§5.3). The JavaScript package `@candid-core/profile-format` is the reference

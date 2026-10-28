@@ -108,8 +108,8 @@ EXPECTED_INCLUDE = [
 # merely for presence, so a typo in a URL is a test failure.
 EXPECTED_METADATA = {
     "license": "Apache-2.0",
-    "repository": "https://github.com/b3hr4d/candid-core",
-    "homepage": "https://github.com/b3hr4d/candid-core",
+    "repository": "https://github.com/B3Pay/Meant",
+    "homepage": "https://github.com/B3Pay/Meant",
     "documentation": "https://docs.rs/meant",
     "readme": "README.md",
 }

@@ -21,6 +21,11 @@ and therefore the identities computed over them. Pin an exact version.
   does, because it hashes the exact bytes. The Contract `format`, the
   `candid-core:` identity prefixes, the `org.candid-core.field-names/v1`
   extension and the `@candid-core/*` npm packages are unchanged by this rename.
+- **The repository is `B3Pay/Meant`** ([issue #287]). The owner moved it on
+  2026-10-28 from the `b3hr4d` account, where it was `candid-core`, to the
+  B3Pay organization. The published manifest's `repository` and `homepage`
+  name `https://github.com/B3Pay/Meant`; GitHub redirects the old address.
+  Nothing else in the crate changed.
 
 ### Added
 
@@ -765,27 +770,28 @@ have seen them:
   Criterion estimates, allocation measurements, toolchain, host, and commit as
   CI artifacts, but no wall-clock threshold is enforced.
 
-[issue #23]: https://github.com/b3hr4d/candid-core/issues/23
-[issue #38]: https://github.com/b3hr4d/candid-core/issues/38
-[issue #39]: https://github.com/b3hr4d/candid-core/issues/39
-[issue #88]: https://github.com/b3hr4d/candid-core/issues/88
-[issue #89]: https://github.com/b3hr4d/candid-core/issues/89
-[issue #92]: https://github.com/b3hr4d/candid-core/issues/92
-[issue #125]: https://github.com/b3hr4d/candid-core/issues/125
-[issue #148]: https://github.com/b3hr4d/candid-core/issues/148
-[issue #152]: https://github.com/b3hr4d/candid-core/issues/152
-[issue #153]: https://github.com/b3hr4d/candid-core/issues/153
-[issue #176]: https://github.com/b3hr4d/candid-core/issues/176
-[PR #177]: https://github.com/b3hr4d/candid-core/pull/177
-[issue #219]: https://github.com/b3hr4d/candid-core/issues/219
-[issue #222]: https://github.com/b3hr4d/candid-core/issues/222
-[issue #229]: https://github.com/b3hr4d/candid-core/issues/229
-[issue #230]: https://github.com/b3hr4d/candid-core/issues/230
-[issue #234]: https://github.com/b3hr4d/candid-core/issues/234
-[issue #235]: https://github.com/b3hr4d/candid-core/issues/235
-[issue #238]: https://github.com/b3hr4d/candid-core/issues/238
-[issue #241]: https://github.com/b3hr4d/candid-core/issues/241
-[issue #251]: https://github.com/b3hr4d/candid-core/issues/251
-[issue #252]: https://github.com/b3hr4d/candid-core/issues/252
-[issue #278]: https://github.com/b3hr4d/candid-core/issues/278
-[issue #256]: https://github.com/b3hr4d/candid-core/issues/256
+[issue #23]: https://github.com/B3Pay/Meant/issues/23
+[issue #38]: https://github.com/B3Pay/Meant/issues/38
+[issue #39]: https://github.com/B3Pay/Meant/issues/39
+[issue #88]: https://github.com/B3Pay/Meant/issues/88
+[issue #89]: https://github.com/B3Pay/Meant/issues/89
+[issue #92]: https://github.com/B3Pay/Meant/issues/92
+[issue #125]: https://github.com/B3Pay/Meant/issues/125
+[issue #148]: https://github.com/B3Pay/Meant/issues/148
+[issue #152]: https://github.com/B3Pay/Meant/issues/152
+[issue #153]: https://github.com/B3Pay/Meant/issues/153
+[issue #176]: https://github.com/B3Pay/Meant/issues/176
+[PR #177]: https://github.com/B3Pay/Meant/pull/177
+[issue #219]: https://github.com/B3Pay/Meant/issues/219
+[issue #222]: https://github.com/B3Pay/Meant/issues/222
+[issue #229]: https://github.com/B3Pay/Meant/issues/229
+[issue #230]: https://github.com/B3Pay/Meant/issues/230
+[issue #234]: https://github.com/B3Pay/Meant/issues/234
+[issue #235]: https://github.com/B3Pay/Meant/issues/235
+[issue #238]: https://github.com/B3Pay/Meant/issues/238
+[issue #241]: https://github.com/B3Pay/Meant/issues/241
+[issue #251]: https://github.com/B3Pay/Meant/issues/251
+[issue #252]: https://github.com/B3Pay/Meant/issues/252
+[issue #278]: https://github.com/B3Pay/Meant/issues/278
+[issue #256]: https://github.com/B3Pay/Meant/issues/256
+[issue #287]: https://github.com/B3Pay/Meant/issues/287

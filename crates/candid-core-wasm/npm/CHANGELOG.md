@@ -15,6 +15,18 @@ fixtures.
 grammar, the library API, and the request/response shapes. Pin an exact
 version.
 
+## Unreleased
+
+Embeds `meant` 0.1.0 and the `candid-core-ts` generator from the repository
+commit the release is dispatched from.
+
+### Changed
+
+- `repository` and `homepage` in `package.json` name
+  `https://github.com/B3Pay/Meant`, where the repository moved on
+  2026-10-28; GitHub redirects the old address. Nothing in the package's code
+  changed.
+
 ## 0.4.0 — 2026-10-27
 
 Embeds `meant` 0.1.0 and the `candid-core-ts` generator from the repository

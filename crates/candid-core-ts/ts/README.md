@@ -429,10 +429,11 @@ vectors.
 ## Provenance
 
 Generated bindings, the Contract model, and the conformance gates live in the
-[candid-core] repository; this package versions independently (pre-1.0).
+[B3Pay/Meant] repository; this package versions independently (pre-1.0).
 [CHANGELOG.md](./CHANGELOG.md) ships in the tarball and records, for every
 release, the compiler crate version it pairs with (`meant`, published as
 `candid-core` before its rename).
 
 [Candid]: https://github.com/dfinity/candid
-[candid-core]: https://github.com/b3hr4d/candid-core
+[candid-core]: https://github.com/B3Pay/Meant
+[B3Pay/Meant]: https://github.com/B3Pay/Meant

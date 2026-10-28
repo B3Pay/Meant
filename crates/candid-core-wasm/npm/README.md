@@ -401,7 +401,7 @@ later retracted), this check refuses it, as the decoder does.
 
 `didToDocAttributes(sources)` compiles the sources and reads the
 `@name(key = value, …)` lines in their doc comments, as specified in
-[`docs/doc-attributes.md`](https://github.com/b3hr4d/candid-core/blob/main/docs/doc-attributes.md):
+[`docs/doc-attributes.md`](https://github.com/B3Pay/Meant/blob/main/docs/doc-attributes.md):
 
 ```candid
 service : {
@@ -498,5 +498,5 @@ packages move in lockstep: each schema release is paired with a new release
 of this package that names it, so a generated module always meets the runtime
 it was generated for.
 
-[candid-core]: https://github.com/b3hr4d/candid-core
+[candid-core]: https://github.com/B3Pay/Meant
 [`@candid-core/schema`]: https://www.npmjs.com/package/@candid-core/schema

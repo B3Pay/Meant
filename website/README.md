@@ -220,14 +220,31 @@ asset reference it emits is relative (`check.mjs` fails a root-absolute
 leaves the site as it was until the failure is fixed.
 
 `.github/workflows/docs.yml` builds and checks the site, and publishes this
-repository's own Pages site, <https://b3hr4d.github.io/candid-core/>, the site's
-first address. That site now holds redirects (`redirects.mjs`, run after
+repository's own Pages site. That was <https://b3hr4d.github.io/candid-core/>,
+the site's first address, until the repository moved to B3Pay on 2026-10-28;
+GitHub now serves it at <https://b3pay.github.io/Meant/>, where nothing links.
+What it publishes there are redirects (`redirects.mjs`, run after
 `build.mjs`): each page sends the reader to the same page at the new address,
 its query and `#fragment` kept, and its 404 page sends any other path there
-too, where a miss lands on the home page. The links already published to the
-old address, in READMEs on crates.io and npm and in release notes, keep
-working that way. The deploy publishes them only once the new address serves
-this site's home page.
+too, where a miss lands on the home page. The deploy publishes them only once
+the new address serves this site's home page.
+
+The links already published to the first address, in READMEs on crates.io
+and npm and in release notes, work only from a copy of those redirects in the
+owner's user site, the `b3hr4d.github.io` repository, in a `candid-core/`
+folder: a user site serves a folder at the path a project site of that name
+had. Make the copy from this repository's `main`:
+
+```sh
+node website/build.mjs && node website/redirects.mjs
+# then copy website/redirects/*.html, all but 404.html, to candid-core/ there
+```
+
+A user site answers a missing path with its own root 404 page, so there only
+the pages of the same name redirect, and `404.html` would do nothing in the
+folder. Do not create a repository named `candid-core` under `b3hr4d` to
+serve them instead: GitHub would then stop redirecting the old repository
+address to this one.
 
 - A **pull request** touching `website/**`, or anything a snippet is compiled
   against or excerpted from (the runtime package's sources and tests, the

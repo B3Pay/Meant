@@ -2,7 +2,7 @@
 
 TypeScript code generation over the [`candid-core`](../../README.md) Contract
 graph. This is the separate-crate half of the
-[issue #38](https://github.com/b3hr4d/candid-core/issues/38) decision: code
+[issue #38](https://github.com/B3Pay/Meant/issues/38) decision: code
 generation consumes the published Contract model and never influences it —
 `candid-core`'s public API, packaged archive, canonical bytes, and identities
 are unaffected by anything in this directory.

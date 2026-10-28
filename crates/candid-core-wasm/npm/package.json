@@ -5,10 +5,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/b3hr4d/candid-core.git",
+    "url": "git+https://github.com/B3Pay/Meant.git",
     "directory": "crates/candid-core-wasm/npm"
   },
-  "homepage": "https://github.com/b3hr4d/candid-core/tree/main/crates/candid-core-wasm/npm#readme",
+  "homepage": "https://github.com/B3Pay/Meant/tree/main/crates/candid-core-wasm/npm#readme",
   "type": "module",
   "sideEffects": false,
   "bin": {

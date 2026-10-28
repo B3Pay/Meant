@@ -139,10 +139,10 @@ The report leads with the **controls**: the `official_*` cases execute only upst
 
 Baselines live in `benches/baselines/`, outside the `include` allowlist in `Cargo.toml`, so a baseline never ships to a consumer. Committing one is deliberate: updating a baseline should be a reviewed change that records why it moved.
 
-[issue #39]: https://github.com/b3hr4d/candid-core/issues/39
-[issue #256]: https://github.com/b3hr4d/candid-core/issues/256
-[issue #132]: https://github.com/b3hr4d/candid-core/issues/132
-[issue #135]: https://github.com/b3hr4d/candid-core/issues/135
+[issue #39]: https://github.com/B3Pay/Meant/issues/39
+[issue #256]: https://github.com/B3Pay/Meant/issues/256
+[issue #132]: https://github.com/B3Pay/Meant/issues/132
+[issue #135]: https://github.com/B3Pay/Meant/issues/135
 
 ## CI policy
 

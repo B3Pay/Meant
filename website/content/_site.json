@@ -1,7 +1,7 @@
 {
   "title": "candid-core",
   "description": "One canonical, validated, content-addressed model of a Candid interface — and the Rust and TypeScript tooling built on top of it.",
-  "repo": "https://github.com/b3hr4d/candid-core",
+  "repo": "https://github.com/B3Pay/Meant",
   "url": "https://ic-reactor.b3pay.net/candid-core/",
   "docs": { "title": "All libraries", "url": "https://ic-reactor.b3pay.net/v4/" },
   "sections": [
