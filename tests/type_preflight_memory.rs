@@ -281,7 +281,7 @@ fn state_heavy_bundle(towers: usize, fields: usize) -> String {
 /// `Limits::max_type_preflight_work` gives for `wasm32` — needs that exchange
 /// rate to be a measured, stable number rather than an implementation detail
 /// free to drift. Measured marginal cost across these four sizes, release
-/// profile: 21.0, 20.8, and 21.5 bytes per unit (19.4, 19.3 and 19.4 before
+/// profile: 21.0, 20.8, and 21.5 bytes per unit (19.3, 19.3 and 19.4 before
 /// the walks keyed their memo on dense node ids rather than addresses, whose
 /// map holds one entry per distinct node). The measured quantity is the
 /// size each allocation *requests*, not the block an allocator hands back, so
