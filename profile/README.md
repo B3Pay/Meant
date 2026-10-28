@@ -21,8 +21,8 @@ npm). Meant is a B3Pay project.
 
 - The spec is **Draft 0.2**. Breaking changes are expected until the preregistered eval reports; its tasks stay
   private so that no model trains on them.
-- **0.1.0 is on npm** (2026-10-28), published from this repository with provenance (`docs/releasing.md`).
-- **Internet Computer first; EVM contracts experimental** (spec §15, not yet on npm). A profile can describe an EVM
+- **0.2.0 is on npm** (2026-10-28), published from this repository with provenance (`docs/releasing.md`).
+- **Internet Computer first; EVM contracts experimental** (spec §15, on npm since 0.2.0). A profile can describe an EVM
   contract's functions, and from it come consent text for a call and an ERC-7730 clear-signing file with its ERC-8176
   `descriptorHash`. Agent tools for EVM calls, and Solana, are planned, not supported.
 - **Try it** in B3Forge: open the [playground](https://forge.b3pay.net/playground), fetch any ICRC ledger by its
