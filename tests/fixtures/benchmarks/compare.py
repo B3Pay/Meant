@@ -531,7 +531,9 @@ def what_moved(report: dict, moved_pct: float) -> dict:
         elif change is None or (is_control(name) and yardstick):
             continue
         elif abs(change - shift) > moved_pct and intervals_apart(before, after):
-            timing.append({"name": name, "change_pct": change, "net_pct": change - shift})
+            timing.append(
+                {"name": name, "change_pct": change, "net_pct": change - shift}
+            )
     allocations = []
     seen = set()
     for metric in ALLOCATION_METRICS:
@@ -622,7 +624,8 @@ def describe_machine(machine: "dict | None") -> str:
 
 
 def graph_differs(report: dict) -> bool:
-    return any(key == "bench_graph_digest" for key, _b, _a in report["environment_drift"])
+    drift = report["environment_drift"]
+    return any(key == "bench_graph_digest" for key, _b, _a in drift)
 
 
 def render_changes(report: dict) -> list:
@@ -684,7 +687,8 @@ def render_markdown(report: dict) -> str:
         # A dependency graph that differs and nothing else is the one drift a
         # same-runner comparison can show: the pull request changes the
         # dependencies, which is part of what it does, not a second machine.
-        if all(key == "bench_graph_digest" for key, _b, _a in report["environment_drift"]):
+        drift = report["environment_drift"]
+        if all(key == "bench_graph_digest" for key, _b, _a in drift):
             banner = (
                 "> **Informational only.** The bench binary's dependency graph "
                 "differs between the two runs, so these deltas include that "
@@ -692,9 +696,9 @@ def render_markdown(report: dict) -> str:
             )
         else:
             banner = (
-                "> **Informational only.** The environment differs from the baseline, so "
-                "these deltas describe two machines as much as two revisions. They cannot "
-                "fail a gate."
+                "> **Informational only.** The environment differs from the "
+                "baseline, so these deltas describe two machines as much as two "
+                "revisions. They cannot fail a gate."
             )
         out += [banner, ""]
         for key, before, after in report["environment_drift"]:
@@ -743,7 +747,7 @@ def render_markdown(report: dict) -> str:
     out += [
         "## Allocations",
         "",
-        "| Case | Metric | Baseline | Candidate | Change |",
+        "| Case | Metric | Base | Head | Change |",
         "| --- | --- | ---: | ---: | ---: |",
     ]
     by_metric = {
@@ -811,8 +815,7 @@ def render_markdown(report: dict) -> str:
         ]
     moved_timing = {entry["name"] for entry in report["changes"]["timing"]}
     out += [
-        "| Benchmark | Baseline | Candidate | Delta "
-        "| 95% CI (baseline) | 95% CI (candidate) |",
+        "| Benchmark | Base | Head | Delta | 95% CI (base) | 95% CI (head) |",
         "| --- | ---: | ---: | ---: | --- | --- |",
     ]
     for name, before, after, change in report["timing"]:

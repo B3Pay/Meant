@@ -167,7 +167,8 @@ class TimingTests(unittest.TestCase):
         head = scaled(BASE, {CONTROL: factor, CASE: factor})
         changes = compare.what_moved(report(BASE, head, drift=drift), PCT)
         self.assertEqual(changes["control_shift_pct"], 0.0)
-        self.assertEqual(sorted(entry["name"] for entry in changes["timing"]), [CASE, CONTROL])
+        moved = sorted(entry["name"] for entry in changes["timing"])
+        self.assertEqual(moved, [CASE, CONTROL])
 
     def test_an_added_or_removed_case_moves(self):
         head = dict(BASE)
@@ -175,7 +176,9 @@ class TimingTests(unittest.TestCase):
         head["artifact/ledger/new_case"] = timing(1_000.0)
         changes = compare.what_moved(report(BASE, head), PCT)
         self.assertTrue(changes["any"])
-        self.assertEqual(changes["added"], [{"kind": "timing", "name": "artifact/ledger/new_case"}])
+        self.assertEqual(
+            changes["added"], [{"kind": "timing", "name": "artifact/ledger/new_case"}]
+        )
         self.assertEqual(changes["removed"], [{"kind": "timing", "name": OTHER}])
 
 
@@ -184,11 +187,21 @@ class AllocationTests(unittest.TestCase):
         return compare.what_moved(report(BASE, BASE, base, head), PCT)
 
     def test_one_allocation_moves(self):
-        changes = self.changes({"ledger/core_full": allocation(5980)}, {"ledger/core_full": allocation(5981)})
+        changes = self.changes(
+            {"ledger/core_full": allocation(5980)},
+            {"ledger/core_full": allocation(5981)},
+        )
         self.assertTrue(changes["any"])
         self.assertEqual(
             changes["allocations"],
-            [{"name": "ledger/core_full", "metric": "allocations", "before": 5980, "after": 5981}],
+            [
+                {
+                    "name": "ledger/core_full",
+                    "metric": "allocations",
+                    "before": 5980,
+                    "after": 5981,
+                }
+            ],
         )
 
     def test_bytes_move_with_the_count_unchanged(self):
@@ -196,7 +209,8 @@ class AllocationTests(unittest.TestCase):
             {"ledger/core_full": allocation(10, allocated=1000, peak=500)},
             {"ledger/core_full": allocation(10, allocated=1000, peak=501)},
         )
-        self.assertEqual([entry["metric"] for entry in changes["allocations"]], ["peak_live_bytes"])
+        metrics = [entry["metric"] for entry in changes["allocations"]]
+        self.assertEqual(metrics, ["peak_live_bytes"])
 
     def test_identical_counts_move_nothing(self):
         same = {"ledger/core_full": allocation(5980, 486272, 129357)}
@@ -207,10 +221,14 @@ class AllocationTests(unittest.TestCase):
             {"ledger/core_full": allocation(10)},
             {"ledger/core_full": allocation(10), "ledger/new": allocation(3)},
         )
-        self.assertEqual(changes["added"], [{"kind": "allocations", "name": "ledger/new"}])
+        self.assertEqual(
+            changes["added"], [{"kind": "allocations", "name": "ledger/new"}]
+        )
 
 
-def write_run(root: Path, results: dict, allocations: dict) -> "tuple[Path, Path, Path]":
+def write_run(
+    root: Path, results: dict, allocations: dict
+) -> "tuple[Path, Path, Path]":
     """A manifest, a Criterion tree newer than it, and probe output."""
     root.mkdir(parents=True)
     manifest = root / "manifest.json"
@@ -288,14 +306,19 @@ class CommandTests(unittest.TestCase):
             return result
 
     def test_a_no_op_pair_reports_nothing_moved_in_one_line(self):
-        result = self.run_pair(BASE, {"ledger/core_full": allocation(5980, 486272, 129357)})
+        result = self.run_pair(
+            BASE, {"ledger/core_full": allocation(5980, 486272, 129357)}
+        )
         self.assertFalse(result["changes"]["any"])
         self.assertFalse(result["environment_drift"])
         # Issue #256: with no change, all a reader sees above the collapsed
         # tables is the title and one line.
-        visible = [line for line in result["markdown"].split("<details>")[0].splitlines() if line]
+        above = result["markdown"].split("<details>")[0]
+        visible = [line for line in above.splitlines() if line]
         self.assertEqual(len(visible), 2, visible)
-        self.assertTrue(visible[1].startswith("**Nothing moved.** No allocation change in 1 case,"))
+        self.assertTrue(
+            visible[1].startswith("**Nothing moved.** No allocation change in 1 case,")
+        )
 
     def test_a_slowdown_and_an_allocation_are_reported(self):
         result = self.run_pair(
@@ -303,7 +326,8 @@ class CommandTests(unittest.TestCase):
             {"ledger/core_full": allocation(5981, 486272, 129357)},
         )
         self.assertTrue(result["changes"]["any"])
-        self.assertEqual([entry["name"] for entry in result["changes"]["timing"]], [CASE])
+        moved = [entry["name"] for entry in result["changes"]["timing"]]
+        self.assertEqual(moved, [CASE])
         self.assertEqual(len(result["changes"]["allocations"]), 1)
         visible = result["markdown"].split("<details>")[0]
         self.assertIn("**Moved:**", visible)
@@ -378,7 +402,8 @@ def compile_time_inputs() -> list:
                 target = (source.parent / relative).resolve()
                 inputs.append(target.relative_to(REPO).as_posix())
             for relative in from_manifest:
-                inputs.append((REPO / relative.lstrip("/")).resolve().relative_to(REPO).as_posix())
+                target = (REPO / relative.lstrip("/")).resolve()
+                inputs.append(target.relative_to(REPO).as_posix())
     return inputs
 
 
@@ -411,7 +436,9 @@ class DocsTests(unittest.TestCase):
     def test_the_docs_state_the_threshold_the_tool_applies(self):
         docs = (REPO / "docs" / "benchmarks.md").read_text(encoding="utf-8")
         stated = re.findall(r"`TIMING_MOVED_PCT` \((\d+(?:\.\d+)?)%\)", docs)
-        self.assertEqual(stated, [f"{PCT:g}"], "docs/benchmarks.md must state the threshold once")
+        self.assertEqual(
+            stated, [f"{PCT:g}"], "docs/benchmarks.md must state the threshold once"
+        )
 
 
 if __name__ == "__main__":
