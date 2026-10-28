@@ -24,7 +24,14 @@
 name: wasm CLI
 
 on:
+  # Not for a pull request that changes only the profile copy and its two
+  # workflows, which build nothing here; every push to main still runs it,
+  # as in Verify.
   pull_request:
+    paths-ignore:
+      - "profile/**"
+      - ".github/workflows/profile-ci.yml"
+      - ".github/workflows/npm-release-profile.yml"
   push:
     branches:
       - main

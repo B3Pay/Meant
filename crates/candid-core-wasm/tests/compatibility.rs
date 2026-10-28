@@ -521,13 +521,13 @@ const KNOWN_DIVERGENCES: &[(&str, &str, &str, &str)] = &[
         "the_unsound_memo_case",
         "get",
         "lenient",
-        "upstream candid's coinductive memo keeps a pair proven under an assumption a failed opt probe retracted (b3hr4d/candid-core#227, item 3); this check refuses, upstream accepts",
+        "upstream candid's coinductive memo keeps a pair proven under an assumption a failed opt probe retracted (B3Pay/Meant#227, item 3); this check refuses, upstream accepts",
     ),
     (
         "the_unsound_memo_through_references",
         "m0",
         "lenient",
-        "the same memo (b3hr4d/candid-core#227, item 3), through func and service references; this check refuses, upstream accepts",
+        "the same memo (B3Pay/Meant#227, item 3), through func and service references; this check refuses, upstream accepts",
     ),
 ];
 

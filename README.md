@@ -221,7 +221,7 @@ Two target facts, stated plainly:
 
 This is a runtime claim, not a build claim: `tests/browser_wasm.rs` compiles a self-contained source and an imported multi-file bundle — both import kinds plus a diamond — inside headless Chrome, pins the resulting `contract_id`, `interface_id`, `source_bundle_id`, logical sources and import edges, and asserts that resolver, resource, cancellation, and deadline failures stay structured. CI runs it against an exactly pinned Chrome for Testing build (`150.0.7871.124`) driven by the ChromeDriver from that same build, not against a rolling channel. The same file's assertions run natively in every other job, which is what keeps the two in step. See [release verification gates](docs/verification.md).
 
-[issue #21]: https://github.com/b3hr4d/candid-core/issues/21
+[issue #21]: https://github.com/B3Pay/Meant/issues/21
 
 ## Platform APIs
 
@@ -307,7 +307,7 @@ changed from platform-width `usize` to fixed-width `u64`; the serialized JSON
 numeric text is unchanged. Serialized `Limits` documents changed from a bare
 field map to the versioned portable configuration shown above.
 
-[issue #23]: https://github.com/b3hr4d/candid-core/issues/23
+[issue #23]: https://github.com/B3Pay/Meant/issues/23
 
 ## Bounded parsing and trusted serde integration
 

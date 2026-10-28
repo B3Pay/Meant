@@ -9,11 +9,20 @@ model and generator produce its bindings, so **every entry names the crate
 version it pairs with**. The crate is `meant` from 0.5.0's entry on; it was
 published as `candid-core` before, under which the earlier entries name it.
 The release procedure that produces an entry here is [docs/releasing.md] in
-the [candid-core] repository.
+the [B3Pay/Meant] repository.
 
 `@candid-core/schema` is pre-1.0. Until 1.0 any release may change the builder
 API, the inferred domain types, the codec's wire behaviour, and the codes and
 `$`-rooted paths validation reports. Pin an exact version.
+
+## Unreleased
+
+### Changed
+
+- `repository` and `homepage` in `package.json` name
+  `https://github.com/B3Pay/Meant`, where the repository moved on
+  2026-10-28; GitHub redirects the old address. Nothing in the package's code
+  changed.
 
 ## 0.5.0 — 2026-10-27
 
@@ -1087,5 +1096,5 @@ provenance from a protected environment.
 exists only because npm cannot attach a trusted publisher to a name that does
 not yet exist on the registry. It is tagged `bootstrap`, never `latest`.
 
-[candid-core]: https://github.com/b3hr4d/candid-core
-[docs/releasing.md]: https://github.com/b3hr4d/candid-core/blob/main/docs/releasing.md
+[B3Pay/Meant]: https://github.com/B3Pay/Meant
+[docs/releasing.md]: https://github.com/B3Pay/Meant/blob/main/docs/releasing.md

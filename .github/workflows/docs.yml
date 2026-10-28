@@ -10,12 +10,16 @@
 # emits is relative for that reason (check.mjs fails a root-absolute href,
 # src or srcset, in the sources and in the built pages).
 #
-# This repository's own Pages site, https://b3hr4d.github.io/candid-core/, was
-# the site's first address. It now serves redirects there
-# (website/redirects.mjs), so the links already published to it keep working.
-# The deploy first checks that the new address serves the site. A dispatch
-# with `publish: site` publishes the site itself here again instead, should
-# the new address stop serving it.
+# The site's first address, https://b3hr4d.github.io/candid-core/, was this
+# repository's own Pages site while the repository was `b3hr4d`'s
+# `candid-core`. Since its move to B3Pay (2026-10-28) GitHub serves this
+# repository's Pages site at https://b3pay.github.io/Meant/, where nothing
+# links, and the first address answers 404: nothing had been announced
+# there, so no copy of the redirects keeps it (the owner's call,
+# 2026-10-28). The deploy here still publishes the redirect pages this
+# workflow writes (website/redirects.mjs), after checking that the site's
+# address serves the site. A dispatch with `publish: site` publishes the site
+# itself here instead, should that address stop serving it.
 #
 # Three triggers, one of which publishes:
 # - `pull_request` builds and checks only. A broken sitemap, a dead internal

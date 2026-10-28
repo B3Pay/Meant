@@ -259,8 +259,9 @@ does not approve the release.
 
 ### Prerequisites, configured once
 
-- **Trusted Publishing.** Configure this repository and `release.yml` as a
-  trusted publisher for `candid-core` in the crates.io UI. The workflow holds no
+- **Trusted Publishing.** Configure this repository (`B3Pay` / `Meant`) and
+  `release.yml`, with the `crates-io` environment, as a trusted publisher for
+  `meant` in the crates.io UI. The workflow holds no
   crates.io token: `rust-lang/crates-io-auth-action` exchanges the workflow's
   OIDC identity for a token that expires shortly and is revoked when the job
   ends. **Do not add a crates.io token to Actions secrets.** The `Release
@@ -269,7 +270,8 @@ does not approve the release.
   means no such token needs to exist anywhere — including on an operator's
   workstation, which is where the credential used to live.
   Trusted Publishing cannot be configured for a crate that does not exist, which
-  is why `0.1.0-beta.1` was published by hand.
+  is why `0.1.0-beta.1` was published by hand, and `meant` 0.1.0, the first
+  version under the crate's new name, too.
 - **Three protected environments** — `release-tag`, `crates-io`, and
   `github-release` — each with required reviewers. Without required reviewers
   the environments are not gates and the three approvals collapse into one.
@@ -433,8 +435,8 @@ repository exactly:
 
 | Field | Value |
 | --- | --- |
-| Organization or user | `b3hr4d` |
-| Repository | `candid-core` |
+| Organization or user | `B3Pay` |
+| Repository | `Meant` |
 | Workflow filename | `npm-release.yml` |
 | Environment | `npm-publish` |
 | Allowed actions | publish (at least one is required since 2026-05-20) |
@@ -1003,3 +1005,39 @@ is the CLI release whose exact peer is `<schema-version>`.
 
 No guard checks this path: `npm dist-tag add` will point `latest` at a
 prerelease, which makes a plain `npm install` resolve a beta.
+
+## Moving the repository
+
+This repository was `candid-core` under the `b3hr4d` account until
+2026-10-28, when the owner moved it to the B3Pay organization. GitHub's name
+for it is `B3Pay/Meant`, capital M included. The workflows read the
+repository from `github.repository`, so a move changes nothing in them, but
+it breaks every trust that names the old owner and name, and only the owner
+can renew those:
+
+- **Trusted publishers.** crates.io and npm accept a workflow's OIDC identity
+  only from the owner, repository, workflow file and environment a trusted
+  publisher names, so one configured under the old name refuses the next
+  publish. Configure each with the owner and name exactly as GitHub spells
+  them, `B3Pay` and `Meant`, and remove the ones that name the old
+  repository:
+  - crates.io: `meant`, with `release.yml` and the `crates-io` environment.
+    Its 0.1.0 was published by hand, as the first version of a name has to
+    be, so it may have no trusted publisher yet; `candid-core`'s named the
+    old repository.
+  - npm: `@candid-core/schema` with `npm-release.yml`, and `@candid-core/cli`
+    with `npm-release-cli.yml`, both with the `npm-publish` environment.
+- **Provenance.** npm compares the `repository.url` of a package published
+  with `--provenance` with the repository that signed the provenance, and
+  refuses a mismatch with E422. Both `package.json` files name
+  `git+https://github.com/B3Pay/Meant.git`, spelled as GitHub spells it.
+- **Environments.** `release-tag`, `crates-io`, `github-release` and
+  `npm-publish` moved with the repository. Check that each still requires the
+  owner's review: an environment without required reviewers is not a gate
+  ([§7](#7-authorized-mutation)), and the npm verify jobs refuse to go on
+  without one.
+- **The site's first address**, `b3hr4d.github.io/candid-core/`, was this
+  repository's Pages site and answers 404 after the move. Nothing had been
+  announced there, so nothing keeps it (`website/README.md`, Publishing).
+  Never create a repository named `candid-core` under `b3hr4d`: GitHub would
+  then stop redirecting the old repository address here.

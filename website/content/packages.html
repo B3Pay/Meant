@@ -188,7 +188,7 @@ candid-core validate <path>
 candid-core-ts = { path = "crates/candid-core-ts" }
 
 # Or from git, pinned to a commit:
-candid-core-ts = { git = "https://github.com/b3hr4d/candid-core", rev = "<commit sha>" }
+candid-core-ts = { git = "https://github.com/B3Pay/Meant", rev = "<commit sha>" }
 </pre>
 
 <p>That choice travels. crates.io refuses a package with a git dependency outright, and a path dependency must also carry a version requirement the registry can resolve — which <code>candid-core-ts</code>, having no published version, cannot satisfy. So depending on it this way is fine for an application or an internal tool, and means your own crate cannot go to crates.io either. If you need generated TypeScript without that constraint, run the binary or the WebAssembly CLI instead of linking the generator.</p>

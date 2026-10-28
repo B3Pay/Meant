@@ -10,7 +10,7 @@ edition = "2021"
 rust-version = "1.78"
 description = "TypeScript code generation over the candid-core Contract graph"
 license = "Apache-2.0"
-repository = "https://github.com/b3hr4d/candid-core"
+repository = "https://github.com/B3Pay/Meant"
 
 [dependencies]
 # The base surface only, and that is a design statement rather than a default:

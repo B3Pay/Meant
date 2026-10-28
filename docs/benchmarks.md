@@ -147,10 +147,10 @@ The report leads with its verdict, what moved ([below](#what-counts-as-moved)), 
 
 No baseline is stored in the repository ([issue #289]). One captured once on one runner compared every later pull request with that runner's machine and toolchain as much as with its code, and went stale with each toolchain release; a pull request now measures its own base. A baseline captured for local work is a JSON file, which nothing in the `include` allowlist in `Cargo.toml` matches, so it never ships to a consumer wherever it is kept.
 
-[issue #39]: https://github.com/b3hr4d/candid-core/issues/39
-[issue #256]: https://github.com/b3hr4d/candid-core/issues/256
-[issue #132]: https://github.com/b3hr4d/candid-core/issues/132
-[issue #135]: https://github.com/b3hr4d/candid-core/issues/135
+[issue #39]: https://github.com/B3Pay/Meant/issues/39
+[issue #256]: https://github.com/B3Pay/Meant/issues/256
+[issue #132]: https://github.com/B3Pay/Meant/issues/132
+[issue #135]: https://github.com/B3Pay/Meant/issues/135
 
 ## CI policy
 

@@ -1,11 +1,11 @@
 ---
 name: candid-core-issue-pipeline
-description: Triage, prioritize, implement, publish, review, merge, close, and release Candid Core work through a safe local workflow. Use for one issue or PR, repository-wide backlog ordering, program umbrellas and their slices, security remediation, review threads, release preparation and execution, or delegated-agent results in b3hr4d/candid-core.
+description: Triage, prioritize, implement, publish, review, merge, close, and release Candid Core work through a safe local workflow. Use for one issue or PR, repository-wide backlog ordering, program umbrellas and their slices, security remediation, review threads, release preparation and execution, or delegated-agent results in B3Pay/Meant.
 ---
 
 # Candid Core Issue Pipeline
 
-Use this workflow for `b3hr4d/candid-core`. Read the repository `CLAUDE.md` and every file it references before acting; it carries the verification battery, the merge boundary, and the recorded footguns, and it overrides this skill where they conflict.
+Use this workflow for `B3Pay/Meant`. Read the repository `CLAUDE.md` and every file it references before acting; it carries the verification battery, the merge boundary, and the recorded footguns, and it overrides this skill where they conflict.
 
 ## Select modes and authority
 

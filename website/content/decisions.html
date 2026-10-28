@@ -25,7 +25,7 @@
 
 <p><strong>What you see.</strong> <code>contract_id()</code> returns <code>&amp;str</code> and <code>interface_id()</code> returns <code>Option&lt;&amp;str&gt;</code> — an actorless Contract has no interface identity at all, and validation rejects one that claims otherwise. A persisted or cross-process type reference is <code>{ contract_id, type_ref }</code> rather than a bare index, and method selection is <code>{ contract_id, method_name }</code>, because a <code>TypeRef</code> is document-local. Adding a declaration the actor never uses moves <code>contract_id</code> and leaves <code>interface_id</code> alone; renaming a declaration does the same.</p>
 
-<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/adrs/0001-contract-identities.md">Read the record</a>.</p>
+<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/B3Pay/Meant/blob/main/docs/adrs/0001-contract-identities.md">Read the record</a>.</p>
 
 <h3>ADR 0002 — Version the schema, the semantics and the bytes separately</h3>
 
@@ -44,7 +44,7 @@
 
 <p><strong>What you see.</strong> Those four keys are at the top of every Contract document you will ever read from this project, and a document carrying an unrecognised value for any of them is rejected rather than best-guessed. A parser bug fix can be recorded in <code>producer</code> metadata, which participates in no semantic identity; a semantic change needs a new profile or an explicit compatibility ruling.</p>
 
-<p><strong>Status:</strong> <code>Verified</code> — the only one of the seven. <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/adrs/0002-versioning-and-canonical-bytes.md">Read the record</a>.</p>
+<p><strong>Status:</strong> <code>Verified</code> — the only one of the seven. <a href="https://github.com/B3Pay/Meant/blob/main/docs/adrs/0002-versioning-and-canonical-bytes.md">Read the record</a>.</p>
 
 <h3>ADR 0003 — Validated and merely decoded are different types</h3>
 
@@ -65,7 +65,7 @@ let rejected = Contract::from_json(&serde_json::to_string(&injected)?).unwrap_er
 println!("unknown core metadata rejected: {rejected}");
 </pre>
 
-<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/adrs/0003-validated-artifact-boundaries.md">Read the record</a>. More on this in <a href="trust-boundary.html">The trust boundary</a>.</p>
+<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/B3Pay/Meant/blob/main/docs/adrs/0003-validated-artifact-boundaries.md">Read the record</a>. More on this in <a href="trust-boundary.html">The trust boundary</a>.</p>
 
 <h3>ADR 0004 — Imports resolve through a capability, never ambient authority</h3>
 
@@ -84,7 +84,7 @@ pub fn compile_with_resolver(
 
 <p><strong>What you see.</strong> There is no entry point that quietly reads your working directory. <code>MemoryResolver</code> <span class="pill accent">compiler</span> serves tests, editors, agents and network-fetched bundles; <code>WorkspaceResolver</code> <span class="pill accent">filesystem-compiler</span> is rooted at a directory you explicitly authorize and rejects absolute imports, parent escapes and symlink escapes by default. The same code compiles a multi-file bundle in a browser, and a host can put a real permission prompt in front of the resolver.</p>
 
-<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/adrs/0004-hermetic-source-resolution.md">Read the record</a>. More in <a href="source-resolution.html">Sources, imports and provenance</a>.</p>
+<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/B3Pay/Meant/blob/main/docs/adrs/0004-hermetic-source-resolution.md">Read the record</a>. More in <a href="source-resolution.html">Sources, imports and provenance</a>.</p>
 
 <h3>ADR 0005 — Bound every piece of untrusted work, and never recurse on input</h3>
 
@@ -100,7 +100,7 @@ pub fn compile_with_resolver(
 
 <p>An override the platform cannot represent is rejected with a structured error, never truncated. <code>LimitsProfile::InteractiveV1</code> is the only released profile and its numbers are frozen — future tunings become new profile names.</p>
 
-<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/adrs/0005-resource-limits.md">Read the record</a>. Every value is listed in the <a href="reference-limits.html">limits reference</a>.</p>
+<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/B3Pay/Meant/blob/main/docs/adrs/0005-resource-limits.md">Read the record</a>. Every value is listed in the <a href="reference-limits.html">limits reference</a>.</p>
 
 <h3>ADR 0006 — Values get a lossless tagged ABI, not convenient JSON</h3>
 
@@ -116,7 +116,7 @@ pub fn compile_with_resolver(
 
 <p><strong>What you see.</strong> The portable ABI is verbose on purpose, and a friendlier JSON view is somebody else's layer. Validation is directed by the Contract graph through a contract-bound selector — <code>validate_host_value(&amp;contract, &amp;selector, &amp;value, &amp;limits)</code> — so a value is never checked against a type that arrived from the same untrusted document. <code>host-value</code> adds only a principal library to the base graph, so a host that validates values but never compiles DID source builds no parser.</p>
 
-<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/adrs/0006-lossless-host-value-abi.md">Read the record</a>. More in <a href="host-values.html">Host values</a>.</p>
+<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/B3Pay/Meant/blob/main/docs/adrs/0006-lossless-host-value-abi.md">Read the record</a>. More in <a href="host-values.html">Host values</a>.</p>
 
 <h3>ADR 0007 — A fourth identity, for when the claim is about a file</h3>
 
@@ -134,7 +134,7 @@ pub fn artifact_id_with_limits(
 
 <p><strong>What you see.</strong> <code>ArtifactKind</code> is <code>#[non_exhaustive]</code> with three frozen variants, so naming a further kind later is additive. There is deliberately no default-limits convenience function — you pass a policy or a context, and nothing shorter exists. Identical bytes under two kinds are two different identities, and an artifact ID exists for bytes that would fail validation, because computing one is not a validity claim.</p>
 
-<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/b3hr4d/candid-core/blob/main/docs/adrs/0007-artifact-identity.md">Read the record</a>. All four identities are compared side by side in <a href="identities.html">Content-addressed identities</a>.</p>
+<p><strong>Status:</strong> <code>Implemented, verification pending</code>. <a href="https://github.com/B3Pay/Meant/blob/main/docs/adrs/0007-artifact-identity.md">Read the record</a>. All four identities are compared side by side in <a href="identities.html">Content-addressed identities</a>.</p>
 
 <h2>Decisions that never became ADRs</h2>
 

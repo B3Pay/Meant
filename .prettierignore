@@ -36,6 +36,15 @@
 # formatted by this same Prettier and must stay that way.
 /website/content/
 
+# The profile packages' copy, synced from the candid-profile repository, which
+# owns its layout: a sync must leave it byte for byte as that repository's
+# build wrote it, and the sync's `diff -r` against the build checks exactly
+# that. This repository's .prettierrc.json would rewrite 16 of its 17 .mts
+# files (583 diff lines, Prettier 3.9.6, measured 2026-10-28), so without this
+# entry the pre-commit hook would reformat a sync commit and the agent hook
+# any edit inside it.
+/profile/
+
 # Restated from .gitignore so --ignore-path invocations stay safe.
 node_modules/
 /target/
