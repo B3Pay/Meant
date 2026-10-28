@@ -335,22 +335,6 @@ pub(super) fn charge_type_preflight(
         .map_err(|error| budget_error(error, phase, operation))
 }
 
-/// The recursive declarations active on one expansion path, as interned
-/// indices.
-///
-/// Shared rather than copied. A record or variant pushes one child state per
-/// field and every one of them inherits the parent's set unchanged, so
-/// copying would allocate `fields * set` entries in a single loop iteration —
-/// *before* any of those children is popped and charged. That burst is
-/// attacker-controlled on both factors (field count and cycle length) and the
-/// parent's own charge does not cover it, which is the whole failure mode
-/// `type_preflight_work` exists to prevent. Sharing means a child costs a
-/// reference-count bump, so the memory a state can commit before its charge
-/// is a constant.
-///
-/// The set is rebuilt only by [`ActiveNames::with`], on the one transition
-/// that changes it — entering a recursive name — and that copy is bounded by
-/// the charge already paid for the state making it.
 /// Dense ids for the nodes a depth walk reaches, handed out in visit order.
 ///
 /// The walks memoize states in a `BTreeSet`, whose node splits depend on the
@@ -375,6 +359,22 @@ impl<T> NodeIds<T> {
     }
 }
 
+/// The recursive declarations active on one expansion path, as interned
+/// indices.
+///
+/// Shared rather than copied. A record or variant pushes one child state per
+/// field and every one of them inherits the parent's set unchanged, so
+/// copying would allocate `fields * set` entries in a single loop iteration —
+/// *before* any of those children is popped and charged. That burst is
+/// attacker-controlled on both factors (field count and cycle length) and the
+/// parent's own charge does not cover it, which is the whole failure mode
+/// `type_preflight_work` exists to prevent. Sharing means a child costs a
+/// reference-count bump, so the memory a state can commit before its charge
+/// is a constant.
+///
+/// The set is rebuilt only by [`ActiveNames::with`], on the one transition
+/// that changes it — entering a recursive name — and that copy is bounded by
+/// the charge already paid for the state making it.
 #[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub(super) struct ActiveNames(std::rc::Rc<BTreeSet<usize>>);
 
