@@ -404,19 +404,18 @@ jobs:
         run: cargo bench --bench allocation --locked > benchmark-artifacts/allocations.json
       - name: Collect machine-readable Criterion results
         run: cp -R target/criterion benchmark-artifacts/criterion
-      # A candidate baseline, captured on the runner class that pull-request
-      # comparisons run on — a baseline captured on a maintainer's machine can
-      # never be environment-compatible with CI. Uploading it does not adopt it:
-      # committing `benchmark-artifacts/baseline.json` to
-      # `benches/baselines/main.json` is a reviewed change, made deliberately,
-      # with the reason recorded in the commit (docs/benchmarks.md).
-      - name: Capture a candidate baseline
+      # A record of `main` on the hosted runner, kept for investigation:
+      # `compare.py compare --baseline` reads it, so a later run on the same
+      # runner class can be set against it by hand. Nothing compares against it
+      # automatically, and nothing is committed: a pull request's comparison
+      # measures its own base in the same job (issue #289, docs/benchmarks.md).
+      - name: Capture the run
         run: |
           python3 tests/fixtures/benchmarks/compare.py capture \
             --manifest benchmark-artifacts/manifest.json \
             --criterion target/criterion \
             --allocations benchmark-artifacts/allocations.json \
-            --out benchmark-artifacts/baseline.json \
+            --out benchmark-artifacts/capture.json \
             --note "captured by Verify run ${GITHUB_RUN_ID} on ${GITHUB_SHA}"
       - uses: actions/upload-artifact@v4
         with:

@@ -145,18 +145,20 @@ the emitter; `tests/fixtures/` is ignored for the same reason, its vectors
 being digests of exact octets.
 
 Benchmarks: emit the manifest *before* the suite (its mtime is the run epoch);
-comparisons and the reviewed-baseline procedure are in `docs/benchmarks.md`.
+the comparison and what counts as moved are in `docs/benchmarks.md`.
 No timing measurement ever fails a workflow — recorded on #39, narrowed on
 2026-10-12 (#256): a deterministic allocation test that asserts a ratio or an
 invariance over counted bytes is a correctness test and may fail CI
 (`tests/stage_scaling_cost.rs`, `tests/source_info_cost.rs`,
 `tests/type_preflight_memory.rs`). The benchmark comparison's absolute deltas
 still fail nothing.
-A merged `Cargo.lock` change that alters the bench binary's resolved
-dependency graph makes comparisons drift-informational until the documented
-recapture (dispatch `Verify`, review the artifact's `baseline.json`, commit it
-to `benches/baselines/main.json`); the root package's own version bump and
-sibling members' dev-dependency changes deliberately do not (#132).
+A pull request's comparison measures its base and then its test merge in one
+job on one runner, and comments only when something moved (#289). No baseline
+is stored, so nothing needs recapturing; a pull request that changes the bench
+binary's dependency graph gets a comparison marked informational that names
+the packages that moved (#132). `tests/fixtures/benchmarks/test_compare.py`
+pins what counts as moved, and fails when the workflow's `paths:` list misses
+a file a bench or the crate includes.
 
 Releases: `docs/releasing.md` is exact. The `Release` workflow is
 dispatch-only behind three protected environments; the next version needs

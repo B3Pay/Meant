@@ -27,25 +27,35 @@ whose dependency list already merges normal, build, and dev dependencies; dev
 included deliberately, benches compile against them — excluding the root
 package itself.
 
+A comparison also says whether anything *moved* (issue #289): an allocation
+metric that differs at all, a timing case past the noise of two runs (both 95%
+intervals apart, and the delta net of the controls' median shift beyond
+`TIMING_MOVED_PCT`), or a case added or removed. The `Benchmark comparison`
+workflow comments on a pull request only when something did.
+
 Standard library only, like every other verifier in this repository.
 
 Usage
 -----
 
-Capture a baseline on `main`:
+Compare two revisions on one machine, as that workflow does. In each checkout,
+the base first, run the three commands, the manifest first:
 
-    cargo bench --bench manifest --locked > /tmp/manifest.json
+    cargo bench --bench manifest --locked > /tmp/base/manifest.json
     cargo bench --bench compilation --locked -- --noplot
-    cargo bench --bench allocation --locked > /tmp/allocations.json
+    cargo bench --bench allocation --locked > /tmp/base/allocations.json
+
+Then capture the base, naming its checkout so the recorded dependency graph is
+its own, and compare the head's run (the same three commands, into /tmp/head/)
+against it:
+
     python3 tests/fixtures/benchmarks/compare.py capture \\
-        --manifest /tmp/manifest.json --criterion target/criterion \\
-        --allocations /tmp/allocations.json --out benches/baselines/main.json
-
-Compare a candidate against it (same three commands first, then):
-
+        --repo-root ../base --manifest /tmp/base/manifest.json \\
+        --criterion ../base/target/criterion \\
+        --allocations /tmp/base/allocations.json --out /tmp/base.json
     python3 tests/fixtures/benchmarks/compare.py compare \\
-        --baseline benches/baselines/main.json --manifest /tmp/manifest.json \\
-        --criterion target/criterion --allocations /tmp/allocations.json \\
+        --baseline /tmp/base.json --manifest /tmp/head/manifest.json \\
+        --criterion target/criterion --allocations /tmp/head/allocations.json \\
         --markdown /tmp/report.md
 
 Exit codes
@@ -76,8 +86,8 @@ from pathlib import Path
 # Version 2: `lockfile_digest` (whole-file hash) replaced by
 # `bench_graph_digest` (bench dependency-graph projection), the graph itself
 # stored for drift attribution, and advisory machine identity recorded.
-# Schema-1 baselines refuse rather than half-compare; recapture per
-# docs/benchmarks.md.
+# Schema-1 baselines refuse rather than half-compare; capture them again with
+# this tool.
 BASELINE_SCHEMA_VERSION = 2
 
 # Manifest fields that must match exactly for a comparison to mean anything.
@@ -120,6 +130,17 @@ SOFT_KEYS = (
 # reader as advisory context, because on hosted runners machinery variance is
 # the common case and flagging it as drift would mark essentially every
 # comparison while changing nothing (decision recorded on issue #132).
+
+# A timing case counts as moved only past the noise of two runs: its two 95%
+# intervals apart, and its delta, net of the controls' median shift, beyond
+# this many percent in either direction (issue #289). The intervals alone are
+# not enough, because each process settles on its own timing for a case: two
+# runs of unchanged code on one runner differed by 7.9% on a case whose
+# intervals were each about 0.1% wide. The value is measured, and
+# docs/benchmarks.md ("What counts as moved") records the runs. Allocation
+# metrics need no threshold, because on one toolchain the same code and
+# dependencies allocate exactly the same: any difference has moved.
+TIMING_MOVED_PCT = 20.0
 
 
 def die(message: str) -> "None":
@@ -413,7 +434,8 @@ def check_compatibility(baseline: dict, candidate: dict, allow_drift: bool) -> l
             die(
                 f"benchmark manifests differ on {key!r}: baseline "
                 f"{base_manifest.get(key)!r} vs candidate {cand_manifest.get(key)!r}. "
-                "These runs did not measure the same thing; recapture the baseline."
+                "These runs did not measure the same thing, so no delta between "
+                "them would mean anything."
             )
 
     drift = [
@@ -468,6 +490,78 @@ def control_summary(timing_rows: list) -> "dict | None":
         "median_pct": statistics.median(changes),
         "min_pct": min(changes),
         "max_pct": max(changes),
+    }
+
+
+def intervals_apart(before: dict, after: dict) -> bool:
+    """Whether two medians' 95% intervals fail to overlap.
+
+    A side without an interval cannot show its own noise, so the delta alone
+    decides: missing bounds count as apart, which errs toward reporting.
+    """
+    bounds = (
+        before.get("lower_ns"),
+        before.get("upper_ns"),
+        after.get("lower_ns"),
+        after.get("upper_ns"),
+    )
+    if any(bound is None for bound in bounds):
+        return True
+    lower_before, upper_before, lower_after, upper_after = bounds
+    return upper_before < lower_after or upper_after < lower_before
+
+
+def what_moved(report: dict, moved_pct: float) -> dict:
+    """Everything past the run's noise: what a pull request's comment is for.
+
+    The controls' median shift is the machine's share of every delta, so it is
+    taken out before the threshold applies, and the controls themselves cannot
+    move: no change in this repository alters what they run. Both hold only
+    while the controls run the same upstream code on both sides. When the bench
+    graph differs they may not, so no shift is taken out and they are judged
+    like every other case.
+    """
+    yardstick = not graph_differs(report)
+    controls = report.get("control_shift")
+    shift = controls["median_pct"] if controls and yardstick else 0.0
+    timing, added, removed = [], [], []
+    for name, before, after, change in report["timing"]:
+        if before is None:
+            added.append({"kind": "timing", "name": name})
+        elif after is None:
+            removed.append({"kind": "timing", "name": name})
+        elif change is None or (is_control(name) and yardstick):
+            continue
+        elif abs(change - shift) > moved_pct and intervals_apart(before, after):
+            timing.append(
+                {"name": name, "change_pct": change, "net_pct": change - shift}
+            )
+    allocations = []
+    seen = set()
+    for metric in ALLOCATION_METRICS:
+        for name, before, after, _change in report["allocations"][metric]:
+            if before is None or after is None:
+                if name not in seen:
+                    seen.add(name)
+                    entry = {"kind": "allocations", "name": name}
+                    (added if before is None else removed).append(entry)
+            elif before[metric] != after[metric]:
+                allocations.append(
+                    {
+                        "name": name,
+                        "metric": metric,
+                        "before": before[metric],
+                        "after": after[metric],
+                    }
+                )
+    return {
+        "moved_pct": moved_pct,
+        "control_shift_pct": shift,
+        "timing": timing,
+        "allocations": allocations,
+        "added": added,
+        "removed": removed,
+        "any": bool(timing or allocations or added or removed),
     }
 
 
@@ -531,15 +625,84 @@ def describe_machine(machine: "dict | None") -> str:
     )
 
 
-def render_markdown(report: dict) -> str:
-    out = ["# Benchmark comparison", ""]
-    if report["informational_only"]:
-        out += [
-            "> **Informational only.** The environment differs from the baseline, so "
-            "these deltas describe two machines as much as two revisions. They cannot "
-            "fail a gate.",
+def graph_differs(report: dict) -> bool:
+    drift = report["environment_drift"]
+    return any(key == "bench_graph_digest" for key, _b, _a in drift)
+
+
+def render_changes(report: dict) -> list:
+    """The verdict first: what moved, or that nothing did (issue #289).
+
+    Allocations lead, as issue #256 set out: they are exact, so a changed row
+    is the change's own, shown with both absolute values. Timing follows,
+    advisory. With nothing moved, the verdict is one line.
+    """
+    changes = report["changes"]
+    shift = changes["control_shift_pct"]
+    if graph_differs(report):
+        net = "with no control shift taken out, since the dependency graph differs"
+    else:
+        net = f"net of the controls' {shift:+.1f}% shift"
+    noise = f"95% intervals apart and more than {changes['moved_pct']:g}% {net}"
+    if not changes["any"]:
+        cases = {name for rows in report["allocations"].values() for name, *_ in rows}
+        return [
+            f"**Nothing moved.** No allocation change in {len(cases)} "
+            f"case{'' if len(cases) == 1 else 's'}, no "
+            f"case added or removed, and no timing case past the noise threshold "
+            f"({noise}).",
             "",
         ]
+    out = ["**Moved:**", ""]
+    if changes["allocations"]:
+        out += [
+            "| Case | Metric | Base | Head | Change |",
+            "| --- | --- | ---: | ---: | ---: |",
+        ]
+        for entry in changes["allocations"]:
+            before, after = entry["before"], entry["after"]
+            out.append(
+                f"| `{entry['name']}` | {entry['metric']} | {before:,} | {after:,} "
+                f"| {after - before:+,} |"
+            )
+        out.append("")
+    if changes["timing"]:
+        out += [f"Timing, advisory, past the noise threshold ({noise}):", ""]
+        for entry in changes["timing"]:
+            out.append(
+                f"- `{entry['name']}`: {entry['change_pct']:+.1f}%"
+                + (f" ({entry['net_pct']:+.1f}% net)" if shift else "")
+            )
+        out.append("")
+    for entry in changes["added"]:
+        out.append(f"- new {entry['kind']} case `{entry['name']}`")
+    for entry in changes["removed"]:
+        out.append(f"- removed {entry['kind']} case `{entry['name']}`")
+    if changes["added"] or changes["removed"]:
+        out.append("")
+    return out
+
+
+def render_markdown(report: dict) -> str:
+    out = ["# Benchmark comparison", ""] + render_changes(report)
+    if report["informational_only"]:
+        # A dependency graph that differs and nothing else is the one drift a
+        # same-runner comparison can show: the pull request changes the
+        # dependencies, which is part of what it does, not a second machine.
+        drift = report["environment_drift"]
+        if all(key == "bench_graph_digest" for key, _b, _a in drift):
+            banner = (
+                "> **Informational only.** The bench binary's dependency graph "
+                "differs between the two runs, so these deltas include that "
+                "change. They cannot fail a gate."
+            )
+        else:
+            banner = (
+                "> **Informational only.** The environment differs from the "
+                "baseline, so these deltas describe two machines as much as two "
+                "revisions. They cannot fail a gate."
+            )
+        out += [banner, ""]
         for key, before, after in report["environment_drift"]:
             out.append(f"> - `{key}`: `{before}` → `{after}`")
             if key == "bench_graph_digest":
@@ -552,20 +715,11 @@ def render_markdown(report: dict) -> str:
                         "the change cannot be attributed; recapture it"
                     )
         out.append("")
-    # The controls are the reader's yardstick: they execute no code this
-    # repository can change, so their shared shift is the machinery's
-    # contribution and belongs above the table it explains.
-    controls = report.get("control_shift")
-    if controls:
-        out += [
-            f"> **Controls: {controls['median_pct']:+.1f}% median** across "
-            f"{controls['count']} upstream-only `official_*` benchmarks (range "
-            f"{controls['min_pct']:+.1f}% … {controls['max_pct']:+.1f}%). These "
-            "cases execute no code from this repository, so a broad shift they "
-            "share with the rest of the table measures the machinery, not the "
-            "change under test — read the code deltas against it.",
-            "",
-        ]
+    # The verdict above is what a reader needs; every case stays one click
+    # away, so a comment that names one moved case is not a wall of tables.
+    allocation_cases = sorted(
+        {name for rows in report["allocations"].values() for name, *_ in rows}
+    )
     baseline_machine = describe_machine(report["machine"].get("baseline"))
     candidate_machine = describe_machine(report["machine"].get("candidate"))
     if baseline_machine == candidate_machine:
@@ -577,47 +731,25 @@ def render_markdown(report: dict) -> str:
             "deltas partly describe the machines"
         )
     out += [
+        f"<details><summary>Every case: {len(allocation_cases)} allocation, "
+        f"{len(report['timing'])} timing</summary>",
+        "",
         f"Corpus `{report['corpus_id']}` · features "
         f"`{', '.join(report['features'])}` · {report['rustc']}",
         "",
         machinery,
         "",
-        "## Timing (Criterion median)",
-        "",
-        "| Benchmark | Baseline | Candidate | Delta "
-        "| 95% CI (baseline) | 95% CI (candidate) |",
-        "| --- | ---: | ---: | ---: | --- | --- |",
     ]
-    for name, before, after, change in report["timing"]:
-        label = f"`{name}` (control)" if is_control(name) else f"`{name}`"
-        if before is None:
-            out.append(
-                f"| {label} | — | {format_ns(after['median_ns'])} | new "
-                f"| | {format_interval(after)} |"
-            )
-            continue
-        if after is None:
-            out.append(
-                f"| {label} | {format_ns(before['median_ns'])} | — | removed "
-                f"| {format_interval(before)} | |"
-            )
-            continue
-        delta = f"{change:+.1f}%" if change is not None else "n/a"
-        out.append(
-            f"| {label} | {format_ns(before['median_ns'])} "
-            f"| {format_ns(after['median_ns'])} | {delta} "
-            f"| {format_interval(before)} | {format_interval(after)} |"
-        )
     # All three captured metrics, not only the count. A change that keeps the
     # number of allocations constant while growing cumulative or peak bytes is a
     # memory regression, and reporting only `allocations` would render it as a
     # reassuring 0%. Rows are grouped per case so one case's three metrics read
-    # together.
+    # together. The change is a count, not a percentage: one allocation in
+    # 6,000 rounds to 0.0% and is still exactly one.
     out += [
-        "",
         "## Allocations",
         "",
-        "| Case | Metric | Baseline | Candidate | Delta |",
+        "| Case | Metric | Base | Head | Change |",
         "| --- | --- | ---: | ---: | ---: |",
     ]
     by_metric = {
@@ -638,11 +770,79 @@ def render_markdown(report: dict) -> str:
                     f"{f'{after[metric]:,}' if after else '—'} | |"
                 )
                 continue
-            delta = f"{change:+.1f}%" if change is not None else "n/a"
+            difference = after[metric] - before[metric]
+            if difference == 0:
+                delta = "0"
+            else:
+                share = f" ({change:+.2f}%)" if change is not None else ""
+                delta = f"**{difference:+,}**{share}"
             out.append(
                 f"| `{name}` | {metric} | {before[metric]:,} | {after[metric]:,} "
                 f"| {delta} |"
             )
+    out += [
+        "",
+        "## Timing (Criterion median)",
+        "",
+        "Advisory. A delta here is a signal to investigate, not proof: two runs "
+        "of one binary minutes apart on one runner can differ by several percent "
+        "on a case whose intervals are narrow, so the verdict counts a case as "
+        "moved only past the noise threshold, and no timing delta fails a check "
+        "(#39). Read absolute values and intervals, not only percentages.",
+        "",
+    ]
+    # The controls are the reader's yardstick: they execute no code this
+    # repository can change, so their shared shift is the machinery's
+    # contribution and belongs above the table it explains.
+    controls = report.get("control_shift")
+    if controls:
+        if graph_differs(report):
+            reading = (
+                "They execute no code from this repository, but the dependency "
+                "graph differs, so they may run different upstream code on each "
+                "side: here they are no yardstick for the machine."
+            )
+        else:
+            reading = (
+                "These cases execute no code from this repository, so a broad "
+                "shift they share with the rest of the table measures the "
+                "machinery, not the change under test — read the code deltas "
+                "against it."
+            )
+        out += [
+            f"> **Controls: {controls['median_pct']:+.1f}% median** across "
+            f"{controls['count']} upstream-only `official_*` benchmarks (range "
+            f"{controls['min_pct']:+.1f}% … {controls['max_pct']:+.1f}%). {reading}",
+            "",
+        ]
+    moved_timing = {entry["name"] for entry in report["changes"]["timing"]}
+    out += [
+        "| Benchmark | Base | Head | Delta | 95% CI (base) | 95% CI (head) |",
+        "| --- | ---: | ---: | ---: | --- | --- |",
+    ]
+    for name, before, after, change in report["timing"]:
+        label = f"`{name}` (control)" if is_control(name) else f"`{name}`"
+        if before is None:
+            out.append(
+                f"| {label} | — | {format_ns(after['median_ns'])} | new "
+                f"| | {format_interval(after)} |"
+            )
+            continue
+        if after is None:
+            out.append(
+                f"| {label} | {format_ns(before['median_ns'])} | — | removed "
+                f"| {format_interval(before)} | |"
+            )
+            continue
+        delta = f"{change:+.1f}%" if change is not None else "n/a"
+        if name in moved_timing:
+            delta = f"**{delta}** moved"
+        out.append(
+            f"| {label} | {format_ns(before['median_ns'])} "
+            f"| {format_ns(after['median_ns'])} | {delta} "
+            f"| {format_interval(before)} | {format_interval(after)} |"
+        )
+    out += ["", "</details>"]
     excluded = [
         (case, "estimates predate this run's manifest — a renamed or removed case")
         for case in report.get("stale_cases", [])
@@ -653,13 +853,7 @@ def render_markdown(report: dict) -> str:
     if excluded:
         out += ["", "## Excluded from this comparison", ""]
         out.extend(f"- `{case}` — {reason}" for case, reason in excluded)
-    out += [
-        "",
-        "Deltas are regression *signals*, not proof. A single run on a shared machine "
-        "is diagnostic; repeat a suspected change and read absolute values and "
-        "intervals, not only percentages.",
-        "",
-    ]
+    out.append("")
     return "\n".join(out)
 
 
@@ -692,6 +886,14 @@ def main() -> int:
         p.add_argument("--manifest", required=True)
         p.add_argument("--criterion", default="target/criterion")
         p.add_argument("--allocations", required=True)
+        p.add_argument(
+            "--repo-root",
+            help=(
+                "the checkout these results were measured in, whose Cargo.lock "
+                "names the bench binary's dependency graph (default: the "
+                "checkout holding this script)"
+            ),
+        )
         if name == "capture":
             p.add_argument("--out", required=True)
             p.add_argument("--note", default="", help="why this baseline was captured")
@@ -700,6 +902,17 @@ def main() -> int:
             p.add_argument("--markdown")
             p.add_argument("--json", dest="json_out")
             p.add_argument("--allow-environment-drift", action="store_true")
+            p.add_argument(
+                "--moved-pct",
+                type=gate_threshold,
+                default=TIMING_MOVED_PCT,
+                metavar="PCT",
+                help=(
+                    "how far a timing case must move, net of the controls' "
+                    "shift and with its 95%% intervals apart, to count as moved "
+                    f"(default {TIMING_MOVED_PCT:g})"
+                ),
+            )
             p.add_argument(
                 "--fail-on-regression",
                 type=gate_threshold,
@@ -713,7 +926,11 @@ def main() -> int:
             )
 
     args = parser.parse_args()
-    repo_root = Path(__file__).resolve().parents[3]
+    repo_root = (
+        Path(args.repo_root).resolve()
+        if args.repo_root
+        else Path(__file__).resolve().parents[3]
+    )
     candidate, stale, unusable = build_record(args, repo_root)
 
     # Reported, never silently dropped. A leftover `new/` from an earlier run in
@@ -815,6 +1032,7 @@ def main() -> int:
         "stale_cases": stale,
         "unusable_cases": unusable,
     }
+    report["changes"] = what_moved(report, args.moved_pct)
 
     markdown = render_markdown(report)
     print(markdown)

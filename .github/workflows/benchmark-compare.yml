@@ -1,32 +1,51 @@
 name: Benchmark comparison
 
-# Informational, never a gate. This workflow compares a pull request's
-# benchmark run against the reviewed baseline in `benches/baselines/` and
-# publishes the result as a job summary plus one bot-managed comment. It cannot
-# fail a pull request for a timing or allocation delta — that is a recorded
-# decision on issue #39, not an unfinished feature: GitHub-hosted runners are
-# shared and thermally variable, so a threshold calibrated from their noise
-# would produce a red check maintainers learn to ignore.
+# Informational, never a gate. This workflow measures a pull request's base
+# and head one after the other, in one job on one runner, and reports what
+# moved: a job summary on every run, and one bot-managed comment only when
+# something did. It cannot fail a pull request for a timing or allocation
+# delta — that is a recorded decision on issue #39, not an unfinished
+# feature: GitHub-hosted runners are shared and thermally variable, so a
+# threshold calibrated from their noise would produce a red check maintainers
+# learn to ignore.
 #
-# What *can* fail this workflow is the tooling itself breaking. A missing
-# baseline, an incompatible manifest, or environment drift are expected
-# outcomes that the report states plainly ("no comparison was made" beats a
-# delta nobody can stand behind).
+# Why base and head on one runner (issue #289, the plan of issue #256): a
+# stored baseline is measured on another machine with another toolchain, so
+# its deltas describe two machines as much as two revisions, and it goes
+# stale with every toolchain release. Two runs minutes apart on one machine
+# differ by the change alone in what they allocate, and by the change and that
+# machine's noise in how long they take. `compare.py` counts any allocation
+# difference as moved, and a timing delta only past the noise
+# (docs/benchmarks.md, "What counts as moved").
+#
+# What *can* fail this workflow is the tooling itself breaking: the rules'
+# tests, a build, or `compare.py` exiting with something other than 0 or 2.
+# Exit 2, no comparison made, is an expected outcome the report states
+# plainly: the two runs measured different things, as when a pull request
+# changes the corpus.
 #
 # This lives in its own file, not in `Verify` or `Release candidate`, because
 # commenting needs `pull-requests: write` and those two workflows deliberately
 # hold nothing beyond `contents: read`. This one gains no ability to tag,
 # publish, or write repository contents.
 
-# A pull request that changes only the profile copy and its two workflows
-# touches nothing the benchmarks measure, so it gets no comparison and no
-# comment.
 on:
   pull_request:
-    paths-ignore:
-      - "profile/**"
-      - ".github/workflows/profile-ci.yml"
-      - ".github/workflows/npm-release-profile.yml"
+    # What the benchmarks build or read: the crate and its manifest and
+    # lockfile, the benches and their corpus, the two conformance fixtures the
+    # corpus includes, and this comparison's own tooling. A pull request that
+    # changes none of them (documentation, the TypeScript generator, the
+    # profile copy) gets no run. `test_compare.py` fails when a bench or the
+    # crate includes a file this list misses, or an entry matches nothing.
+    paths:
+      - "src/**"
+      - "benches/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "tests/fixtures/conformance/basic.did"
+      - "tests/fixtures/conformance/recursive.did"
+      - "tests/fixtures/benchmarks/**"
+      - ".github/workflows/benchmark-compare.yml"
 
 permissions:
   contents: read
@@ -40,80 +59,141 @@ concurrency:
 
 jobs:
   compare:
-    name: Compare against the reviewed baseline
+    name: Compare base and head on one runner
     runs-on: ubuntu-latest
     steps:
+      # The pull request's test merge commit, with its parents. Its first
+      # parent is the base it would merge into, so the two differ by exactly
+      # what merging changes.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          fetch-depth: 2
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           toolchain: stable
-      # Manifest first: its mtime is the run epoch that lets `compare.py`
-      # reject Criterion results left over from an earlier run.
-      - name: Emit the benchmark manifest
+      # The head's tooling measures both sides, so one version of the rules
+      # judges the comparison; a copy survives checking out the base below.
+      - name: Test the comparison rules
         run: |
-          mkdir -p comparison
-          cargo bench --bench manifest --locked > comparison/manifest.json
-      # The full statistical configuration, not a reduced one: the baseline was
-      # captured from the full suite, and comparing medians drawn from
-      # different sample counts would add a second source of noise to a signal
-      # that already carries plenty.
-      - name: Run the statistical suite
-        run: cargo bench --bench compilation --locked -- --noplot
-      - name: Run the allocation probe
-        run: cargo bench --bench allocation --locked > comparison/allocations.json
-      # `--allow-environment-drift` is deliberate and permanent here. Hosted
-      # runners change toolchains and hardware on their own schedule, so a
-      # drifted comparison is the common case; the report is marked
-      # informational-only and `compare.py` refuses to gate on it by
-      # construction. Exit 0 (compared) and exit 2 (no comparison was made —
-      # baseline missing or manifests incompatible) are both expected outcomes;
-      # anything else is the tool breaking and fails the job.
-      - name: Compare against the reviewed baseline
+          set -euo pipefail
+          python3 tests/fixtures/benchmarks/test_compare.py
+          OUT="${RUNNER_TEMP}/comparison"
+          mkdir -p "${OUT}/tools"
+          cp tests/fixtures/benchmarks/compare.py "${OUT}/tools/"
+          {
+            echo "OUT=${OUT}"
+            echo "HEAD_SHA=$(git rev-parse HEAD^2)"
+            echo "MERGE_SHA=$(git rev-parse HEAD)"
+            echo "BASE_SHA=$(git rev-parse HEAD^1)"
+          } >> "${GITHUB_ENV}"
+      # Base first, then head, in this one checkout: the same path, the same
+      # target directory and the same environment on both sides, so nothing
+      # but the code differs between the two binaries. Each side emits its
+      # manifest before its suite (the manifest's mtime is the run epoch that
+      # lets `compare.py` reject Criterion results from an earlier run) and
+      # writes Criterion's results to its own directory. The full statistical
+      # configuration, not a reduced one: comparing medians drawn from fewer
+      # samples would add noise to a signal that already carries plenty.
+      - name: Measure the base
+        env:
+          CRITERION_HOME: ${{ runner.temp }}/comparison/base/criterion
+        run: |
+          set -euo pipefail
+          git checkout --quiet --detach "${BASE_SHA}"
+          mkdir -p "${OUT}/base"
+          cargo bench --bench manifest --locked > "${OUT}/base/manifest.json"
+          cargo bench --bench compilation --locked -- --noplot
+          cargo bench --bench allocation --locked > "${OUT}/base/allocations.json"
+          python3 "${OUT}/tools/compare.py" capture --repo-root . \
+            --manifest "${OUT}/base/manifest.json" \
+            --criterion "${CRITERION_HOME}" \
+            --allocations "${OUT}/base/allocations.json" \
+            --out "${OUT}/base.json" \
+            --note "base ${BASE_SHA}, measured by run ${GITHUB_RUN_ID}"
+      - name: Measure the head
+        env:
+          CRITERION_HOME: ${{ runner.temp }}/comparison/head/criterion
+        run: |
+          set -euo pipefail
+          git checkout --quiet --detach "${MERGE_SHA}"
+          mkdir -p "${OUT}/head"
+          cargo bench --bench manifest --locked > "${OUT}/head/manifest.json"
+          cargo bench --bench compilation --locked -- --noplot
+          cargo bench --bench allocation --locked > "${OUT}/head/allocations.json"
+      # `--allow-environment-drift` because the one drift this job can see is
+      # a dependency graph the pull request changes, which is part of what it
+      # does; the report names it, and `compare.py` refuses to gate on it by
+      # construction. Exit 0 (compared) and exit 2 (no comparison was made)
+      # are both expected outcomes; anything else is the tool breaking and
+      # fails the job.
+      - name: Compare
+        id: compare
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           set -uo pipefail
-          mkdir -p comparison
           status=0
-          python3 tests/fixtures/benchmarks/compare.py compare \
-            --baseline benches/baselines/main.json \
-            --manifest comparison/manifest.json \
-            --criterion target/criterion \
-            --allocations comparison/allocations.json \
+          python3 "${OUT}/tools/compare.py" compare --repo-root . \
+            --baseline "${OUT}/base.json" \
+            --manifest "${OUT}/head/manifest.json" \
+            --criterion "${OUT}/head/criterion" \
+            --allocations "${OUT}/head/allocations.json" \
             --allow-environment-drift \
-            --markdown comparison/report.md \
-            2> comparison/refusal.txt || status=$?
+            --markdown "${OUT}/report.md" \
+            --json "${OUT}/report.json" \
+            > /dev/null 2> "${OUT}/refusal.txt" || status=$?
           if [ "${status}" -eq 2 ]; then
             {
               echo "# Benchmark comparison"
               echo
-              echo "**No comparison was made.**"
+              echo "**No comparison was made.** The base and the head did not"
+              echo "measure the same thing, so no delta between them would mean"
+              echo "anything:"
               echo
               echo '```'
-              cat comparison/refusal.txt
+              cat "${OUT}/refusal.txt"
               echo '```'
-              echo
-              echo "This is the tool refusing rather than guessing. A reviewed"
-              echo "baseline is captured by dispatching the Verify workflow and"
-              echo "committing its \`baseline.json\` artifact to"
-              echo "\`benches/baselines/main.json\`; see docs/benchmarks.md."
-            } > comparison/report.md
+            } > "${OUT}/report.md"
+            moved=true
           elif [ "${status}" -ne 0 ]; then
             echo "compare.py failed with exit ${status}:" >&2
-            cat comparison/refusal.txt >&2
+            cat "${OUT}/refusal.txt" >&2
             exit "${status}"
+          else
+            moved="$(python3 -c 'import json, sys; print(str(json.load(open(sys.argv[1]))["changes"]["any"]).lower())' "${OUT}/report.json")"
           fi
-          cat comparison/report.md >> "${GITHUB_STEP_SUMMARY}"
-      # Exactly one comment per pull request, found by its marker and updated
-      # in place. Skipped in the two cases where the token is read-only
-      # regardless of the permissions declared above — forks, and Dependabot,
-      # whose pull requests come from a branch in *this* repository and so pass
-      # the repo-name check while still carrying a read-only token. Without the
-      # actor guard every dependency update would fail this workflow at the
-      # comment step even though its comparison succeeded. The job summary
-      # still carries the report in both cases. Any other token failure stays a
-      # hard failure on purpose: a real permission misconfiguration should be
-      # seen, not swallowed.
+          # The title, then which commits these are, then the report.
+          {
+            head -n 1 "${OUT}/report.md"
+            echo
+            echo "Base \`${BASE_REF}\` at ${BASE_SHA}, head ${HEAD_SHA} (merged"
+            echo "as ${MERGE_SHA}), measured one after the other on this runner."
+            tail -n +2 "${OUT}/report.md"
+          } > "${OUT}/comment.md"
+          cat "${OUT}/comment.md" >> "${GITHUB_STEP_SUMMARY}"
+          cat "${OUT}/comment.md"
+          echo "moved=${moved}" >> "${GITHUB_OUTPUT}"
+          echo "moved: ${moved}"
+      # The raw data behind the report, for a reader who wants more than the
+      # medians: both sides' Criterion estimates, manifests and allocations.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: benchmark-comparison-${{ github.event.pull_request.number }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/comparison
+          retention-days: 30
+      # At most one comment per pull request, found by its marker. It is
+      # created only when something moved; once it exists, every later run
+      # updates it in place, so a comment about an earlier push never stands
+      # after the pull request stopped moving anything. Skipped in the two
+      # cases where the token is read-only regardless of the permissions
+      # declared above — forks, and Dependabot, whose pull requests come from a
+      # branch in *this* repository and so pass the repo-name check while
+      # still carrying a read-only token. The job summary carries the report
+      # in both cases. Any other token failure stays a hard failure on
+      # purpose: a real permission misconfiguration should be seen, not
+      # swallowed.
       - name: Update the pull-request comment
         if: >-
           github.event.pull_request.head.repo.full_name == github.repository &&
@@ -122,21 +202,24 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
+          MOVED: ${{ steps.compare.outputs.moved }}
         run: |
           set -euo pipefail
           marker='<!-- candid-core-benchmark-comparison -->'
           {
             echo "${marker}"
-            cat comparison/report.md
-          } > comparison/comment.md
+            cat "${OUT}/comment.md"
+          } > "${OUT}/comment-body.md"
           existing="$(gh api "repos/${REPO}/issues/${PR}/comments" --paginate \
             --jq "[.[] | select(.body | startswith(\"${marker}\")) | .id] | first // empty")"
           if [ -n "${existing}" ]; then
             gh api -X PATCH "repos/${REPO}/issues/comments/${existing}" \
-              -F body=@comparison/comment.md > /dev/null
+              -F body=@"${OUT}/comment-body.md" > /dev/null
             echo "updated comment ${existing}"
-          else
+          elif [ "${MOVED}" = "true" ]; then
             gh api -X POST "repos/${REPO}/issues/${PR}/comments" \
-              -F body=@comparison/comment.md > /dev/null
+              -F body=@"${OUT}/comment-body.md" > /dev/null
             echo "created comment"
+          else
+            echo "nothing moved and no earlier comment: no comment"
           fi
