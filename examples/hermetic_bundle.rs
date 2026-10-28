@@ -4,7 +4,7 @@
 //! logical bundle. Nothing is read from or written to disk, so this is
 //! `compiler` surface — the same code a browser-WASM host runs.
 
-use candid_core::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+use meant::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {

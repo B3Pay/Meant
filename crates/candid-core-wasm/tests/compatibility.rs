@@ -28,13 +28,13 @@ use std::path::PathBuf;
 use candid::types::internal::{Field, Function, Type, TypeInner};
 use candid::types::subtype::{subtype_with_config, OptReport};
 use candid::TypeEnv;
-use candid_core::{compile_did, Limits};
 use candid_core_ts::{generate_module, TsNames, TsOptions};
 use candid_core_wasm::{
     check_compatible, check_compatible_with, CheckOptions, MAX_CHECK_OUTPUT_BYTES, MAX_CHECK_STEPS,
     MAX_CHECK_TOTAL_STEPS, MAX_CHECK_TOTAL_WARNINGS, MAX_CHECK_WARNINGS,
 };
 use candid_parser::{check_prog, IDLProg};
+use meant::{compile_did, Limits};
 use serde_json::{json, Value};
 
 fn check(written: &str, live: &str) -> Value {

@@ -512,17 +512,17 @@ impl Contract {
 /// overrides that default.
 ///
 /// ```
-/// use candid_core::{ContractDraft, PrimitiveType, TypeNode};
+/// use meant::{ContractDraft, PrimitiveType, TypeNode};
 ///
 /// let contract = ContractDraft::new(
 ///     vec![TypeNode::Primitive { primitive: PrimitiveType::Nat }],
-///     vec![candid_core::Declaration { name: "Amount".to_string(), ty: 0 }],
+///     vec![meant::Declaration { name: "Amount".to_string(), ty: 0 }],
 ///     None,
 /// )
 /// .build()?;
 /// assert!(contract.contract_id().starts_with("candid-core:contract:v1:sha256:"));
-/// assert_eq!(contract.producer(), &candid_core::ProducerInfo::current());
-/// # Ok::<(), candid_core::ContractValidationError>(())
+/// assert_eq!(contract.producer(), &meant::ProducerInfo::current());
+/// # Ok::<(), meant::ContractValidationError>(())
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -650,7 +650,7 @@ impl ContractDraft {
 ///
 /// ```compile_fail
 /// // A validated Contract cannot be produced by serde alone.
-/// let _: candid_core::Contract = serde_json::from_str("{}").unwrap();
+/// let _: meant::Contract = serde_json::from_str("{}").unwrap();
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

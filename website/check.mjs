@@ -89,8 +89,8 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
  * prepared version is a 404. The same two spellings are refused, in code
  * blocks only, so a page can still say in prose what the line will be. The
  * publish-day change empties this list and turns that prose into blocks. */
-// Emptied when @candid-core/schema 0.4.0 and @candid-core/cli 0.3.0 were
-// published under `latest` on 2026-10-10, as it was for 0.3.0 / 0.2.0 before
+// Emptied when @candid-core/schema 0.5.0 and @candid-core/cli 0.4.0 were
+// published under `latest` on 2026-10-27, as it was for 0.4.0 / 0.3.0 before
 // them. The next version-bump pull request adds its prepared versions back
 // until their own publish.
 const UNPUBLISHED_NPM_SPECS = [];
@@ -170,7 +170,7 @@ const REMOVED_SURFACE_PAGES = new Set(["migrating-from-0-2", "status"]);
 const NOTE_TITLE = "Upgrading from an earlier release";
 const NOTE_RE = new RegExp(`<callout[^>]*title="${NOTE_TITLE}"`, "g");
 const NOTE_BODY_RE = new RegExp(`<callout[^>]*title="${NOTE_TITLE}"[\\s\\S]*?<\\/callout>`);
-const NOTE_LINKS = ["migrating-from-0-3.html", "migrating-from-0-2.html"];
+const NOTE_LINKS = ["migrating-from-0-4.html", "migrating-from-0-3.html", "migrating-from-0-2.html"];
 const NOTE_PAGES = new Set([
   "index",
   "quickstart-typescript",
@@ -266,7 +266,7 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
 
   /* --- root-absolute paths ---
    *
-   * The site publishes to a project subpath (…github.io/candid-core/), so a
+   * The site publishes to a subpath (ic-reactor.b3pay.net/candid-core/), so a
    * root-absolute reference resolves above the site root in production while
    * continuing to work on a local server rooted at "/". That asymmetry makes
    * it the one mistake local preview cannot catch, so it is a hard failure. */
@@ -418,6 +418,25 @@ if (existsSync(DIST)) {
       fail(
         link.page,
         `link to "${link.target}.html#${link.anchor}", but that page has no such heading`,
+      );
+    }
+  }
+
+  /* --- no root-absolute path in the built pages either ---
+   *
+   * The check above reads content/; the head, header and footer build.mjs
+   * wraps each page in exist only in dist/. That is what B3Pay/ic-reactor
+   * publishes under a subpath, as built (README, Publishing), so a
+   * root-absolute reference here breaks the published site and nothing
+   * else. */
+  for (const slug of slugs) {
+    const file = join(DIST, `${slug}.html`);
+    if (!existsSync(file)) continue;
+    const html = await readFile(file, "utf8");
+    for (const match of html.matchAll(/\b(href|src|srcset)\s*=\s*["']?(\/(?!\/)[^"'\s>]*)/gi)) {
+      fail(
+        `dist/${slug}.html`,
+        `root-absolute ${match[1]}="${match[2]}"; the site is served from a subpath, so build.mjs must emit a relative path`,
       );
     }
   }

@@ -18,7 +18,7 @@
 //! charge identical work and retain memory that differs only by what the
 //! longer source itself costs.
 
-use candid_core::{compile_did_with_context, CompileOptions, Limits, RuntimeContext};
+use meant::{compile_did_with_context, CompileOptions, Limits, RuntimeContext};
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Mutex, MutexGuard};

@@ -1,13 +1,13 @@
 <callout type="note" title="Upgrading from an earlier release">
   <p>
-    This page describes <code>@candid-core/schema</code> <code>0.4.0</code>, published on 2026-10-10
-    under the npm <code>latest</code> dist-tag. The previous stable release, <code>0.3.0</code>, differs in nothing this page describes: <code>0.4.0</code> adds the type-only <code>WithMode</code> and <code>ModeOf</code>, and <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what the upgrade means.
-    The stable release before that,
+    This page describes <code>@candid-core/schema</code> <code>0.5.0</code>, published on 2026-10-27
+    under the npm <code>latest</code> dist-tag. The previous stable release, <code>0.4.0</code>, types the value of <code>decode</code> and <code>decodeArgs</code> as <code>unknown</code> (the note on decoding below); <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means. The stable release before that, <code>0.3.0</code>, differs in nothing this page describes: <code>0.4.0</code> adds the type-only <code>WithMode</code> and <code>ModeOf</code>, and <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
+    The stable release before those,
     <code>0.2.0</code>, has the old surface: a decoded
     principal is an object with <code>toText()</code> and encoding accepts one, the encoded type table
     depends on how the schema was built, and a misspelled limit is ignored.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
-    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and <code>0.4.0</code>.
+    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since.
   </p>
 </callout>
 
@@ -72,19 +72,23 @@ export type EncodeResult =
   </div>
   <div class="api-body">
 <pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts">
-export function decodeArgs(
-  schemas: readonly AnyFieldSchema[],
+export function decodeArgs<const S extends readonly AnyFieldSchema[]>(
+  schemas: S,
   bytes: Uint8Array,
   options: CodecOptions = {},
-): DecodeResult
+): DecodeResult<DecodedValues<S>>
 </pre>
 <pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts">
-export type DecodeResult =
-  | { readonly ok: true; readonly values: readonly unknown[] }
+export type DecodeResult<V extends readonly unknown[] = readonly unknown[]> =
+  | { readonly ok: true; readonly values: V }
   | { readonly ok: false; readonly issues: readonly CodecIssue[] };
 </pre>
     <p>
-      One decoded value per <em>expected</em> argument. Extra trailing wire arguments are skipped;
+      One decoded value per <em>expected</em> argument, typed by its schema:
+      <code>decodeArgs([A, B], bytes)</code> gives <code>values</code> of type
+      <code>readonly [Infer&lt;typeof A&gt;, Infer&lt;typeof B&gt;]</code> for an array literal. An
+      erased list, such as a <code>FuncSchema</code>&rsquo;s <code>results</code>, gives
+      <code>readonly unknown[]</code>. Extra trailing wire arguments are skipped;
       a trailing argument the wire does not carry follows the record-field rule below.
     </p>
   </div>
@@ -107,22 +111,26 @@ export function decode<T>(
   schema: Schema<T>,
   bytes: Uint8Array,
   options: CodecOptions = {},
-): { ok: true; value: unknown } | { ok: false; issues: readonly CodecIssue[] }
+): { ok: true; value: Decoded<T> } | { ok: false; issues: readonly CodecIssue[] }
 </pre>
     <p>
-      The one-argument convenience wrappers.
+      The one-argument convenience wrappers. <code>Decoded&lt;T&gt;</code> is <code>T</code>, or
+      <code>unknown</code> for an erased <code>AnySchema</code>.
     </p>
   </div>
 </div>
 
-<callout type="note" title="decode gives you unknown, not T">
+<callout type="note" title="decode gives you T, checked">
   <p>
-    The type parameter on <code>decode&lt;T&gt;</code> constrains the <em>schema</em>, not the
-    payload: a successful result is <code>{ ok: true; value: unknown }</code>, and
-    <code>decodeArgs</code> returns <code>readonly unknown[]</code>. The bytes came from outside
-    your program, so the runtime does not hand you a static promise about them. Narrow the value
-    yourself, or pass it through <code>validate</code> — the reference-vector suite pins that each
-    decoded value validates <code>ok</code> against the schema it decoded under.
+    A successful <code>decode(schema, bytes)</code> has <code>value</code> of the schema&rsquo;s own
+    type, and <code>decodeArgs</code> gives the value tuple of its schemas. That is a check, not a
+    cast: the decoder reads the bytes under the schema and refuses, with issues, any that do not
+    fit, and the reference-vector suite pins that each decoded value validates <code>ok</code>
+    against the schema it decoded under. A schema whose own type was erased to
+    <code>AnySchema</code> still decodes to <code>unknown</code>, not <code>any</code>; a concrete
+    builder around an erased child, such as <code>c.vec(erased)</code>, decodes to what
+    <code>Infer</code> gives it. This is new in <code>0.5.0</code>: <code>0.4.0</code>
+    and earlier type every decoded value as <code>unknown</code>; there, narrow it yourself or cast it.
   </p>
 </callout>
 
@@ -141,7 +149,7 @@ const value: Account = { owner: principal("aaaaa-aa"), balance: 5n };
 validate(Account, value); // { ok: true } | { ok: false, issues }
 const encoded = encode(Account, value); // { ok: true, bytes } | { ok: false, issues }
 if (encoded.ok) {
-  decode(Account, encoded.bytes);
+  decode(Account, encoded.bytes); // { ok: true, value: Account } | { ok: false, issues }
 }
 </pre>
 

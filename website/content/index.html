@@ -144,16 +144,16 @@ service : {
   <svg viewBox="0 0 940 300" role="img" aria-label="Pipeline: DID source is checked by candid_parser, projected into a validated canonical Contract graph with identities, and read by the Rust API, the TypeScript generator, and the schema runtime." style="width:100%;height:auto;margin:1.5rem 0">
     <defs>
       <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--border-strong)"/>
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ink-muted)"/>
       </marker>
       <style>
-        .bx { fill: var(--bg-raised); stroke: var(--border-strong); stroke-width: 1.2; rx: 9; }
-        .bx-accent { fill: var(--accent-soft); stroke: var(--accent-border); stroke-width: 1.4; rx: 9; }
-        .ti { fill: var(--fg); font: 640 13.5px var(--font-sans); }
-        .ti-a { fill: var(--accent); font: 680 14px var(--font-sans); }
-        .sb { fill: var(--fg-muted); font: 400 11.5px var(--font-mono); }
-        .ln { stroke: var(--border-strong); stroke-width: 1.3; fill: none; marker-end: url(#arrow); }
-        .lb { fill: var(--fg-subtle); font: 400 10.5px var(--font-mono); letter-spacing: .04em; }
+        .bx { fill: var(--surface-raised); stroke: var(--ink-muted); stroke-width: 1.2; rx: 9; }
+        .bx-accent { fill: var(--brand-soft); stroke: var(--brand); stroke-width: 1.4; rx: 9; }
+        .ti { fill: var(--ink); font: 640 13.5px var(--font-sans); }
+        .ti-a { fill: var(--brand); font: 680 14px var(--font-sans); }
+        .sb { fill: var(--ink-muted); font: 400 11.5px var(--font-mono); }
+        .ln { stroke: var(--ink-muted); stroke-width: 1.3; fill: none; marker-end: url(#arrow); }
+        .lb { fill: var(--ink-muted); font: 400 10.5px var(--font-mono); letter-spacing: .04em; }
       </style>
     </defs>
 
@@ -331,9 +331,10 @@ service : {
 <section class="section" id="status">
   <callout type="note" title="Upgrading from an earlier release">
     <p>
-      The TypeScript on this site is <code>@candid-core/schema</code> <code>0.4.0</code> and
-      <code>@candid-core/cli</code> <code>0.3.0</code>, published on 2026-10-10 under the npm <code>latest</code> dist-tag, and the generated module above is that CLI's. The previous
-      stable releases, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, differ: CLI <code>0.2.0</code> declares each type as a <code>$</code>-prefixed local (<code>type $Status = …</code>) and types no method with its mode. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what the upgrade means.
+      The TypeScript on this site is <code>@candid-core/schema</code> <code>0.5.0</code> and
+      <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27 under the npm <code>latest</code> dist-tag, and the generated module above is that CLI's. The previous
+      stable releases, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, generate the same module, type a decoded value as <code>unknown</code>, and have no <code>didToDocAttributes</code>; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+      The stable releases before those, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, differ more: CLI <code>0.2.0</code> declares each type as a <code>$</code>-prefixed local (<code>type $Status = …</code>) and types no method with its mode. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
       The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface, and <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
       after code. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since.
   </p>
@@ -342,8 +343,8 @@ service : {
   <callout type="warn" title="Pre-1.0, and it says so">
     <p>
       The Rust crate is <code>0.1.0</code>, and the npm packages are
-      <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code>
-      <code>0.3.0</code> under <code>latest</code>. Any release before 1.0 may change the public API, the serialized
+      <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code>
+      <code>0.4.0</code> under <code>latest</code>. Any release before 1.0 may change the public API, the serialized
       shapes, the canonical bytes, and therefore every identity computed over them, so pin an
       exact version. A caret requirement would take the next breaking 0.x release with it, so
       the dependency line is <code>candid-core = "=0.1.0"</code>.

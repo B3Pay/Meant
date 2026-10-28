@@ -8,11 +8,12 @@
 //!
 //! # The request/response convention
 //!
-//! The wasm ABI is four functions — `didToContract`, `didToModule`,
-//! `projectDid` and `checkCompatible` (here [`did_to_contract`],
-//! [`did_to_module`], [`project_did`] and [`check_compatible`]) — and each
-//! takes one JSON document and returns one JSON document, so every one is
-//! string in, string out and every richer shape lives in reviewable JSON:
+//! The wasm ABI is five functions — `didToContract`, `didToModule`,
+//! `didToDocAttributes`, `projectDid` and `checkCompatible` (here
+//! [`did_to_contract`], [`did_to_module`], [`did_to_doc_attributes`],
+//! [`project_did`] and [`check_compatible`]) — and each takes one JSON
+//! document and returns one JSON document, so every one is string in, string
+//! out and every richer shape lives in reviewable JSON:
 //!
 //! - sources request: `{"source": "<did text>"}` for a self-contained source, or
 //!   `{"entry": "<name>", "files": {"<name>": "<did text>", …}}` for a
@@ -37,6 +38,15 @@
 //!   The array is empty, never absent, when nothing was omitted. A module
 //!   with omissions is still a success: everything it emits is exactly what
 //!   it would be without the omitted declarations.
+//! - [`did_to_doc_attributes`] success: `{"ok": true, "contract": …,
+//!   "source_info": …, "doc_attributes": …}` — the document the native
+//!   `candid-core compile <path>` prints, plus the `DocAttributes` that
+//!   `docs/doc-attributes.md` specifies: every documented item's prose and
+//!   `@name(…)` attributes, keyed by the SourceInfo path of the item. A
+//!   malformed attribute fails the call with `doc_attribute_malformed` or
+//!   `doc_attribute_duplicate_key`, each naming its item's path. The
+//!   response is linear in the sources: the Contract and SourceInfo the
+//!   compiler bounds, and attributes no larger than the comments they parse.
 //! - [`project_did`] takes a sources request plus `"methods": ["name", …]`
 //!   and returns `{"ok": true, "did": "<did text>", "methods": […],
 //!   "input": {…}, "projection": {…}}`: the projected text, the methods it
@@ -94,11 +104,12 @@
 
 use std::collections::BTreeSet;
 
-use candid_core::{
-    compile_did_with_options, compile_with_resolver, Compilation, CompileError, CompileOptions,
-    ContractEnvelope, Limits, MemoryResolver, RuntimeContext, SourceInfo, SourceLabel,
-};
 use candid_core_ts::{generate_module, Omission, TsNames, TsOptions};
+use meant::{
+    compile_did_with_options, compile_with_resolver, Compilation, CompileError, CompileOptions,
+    ContractEnvelope, DocAttributes, Limits, MemoryResolver, RuntimeContext, SourceInfo,
+    SourceLabel,
+};
 use serde_json::{json, Map, Value};
 
 mod compat;
@@ -154,6 +165,33 @@ pub fn did_to_module(request: &str) -> String {
             }
         }
         Err(failure) => failure,
+    }
+}
+
+/// Compile a request and read its doc attributes: `{"ok": true, "contract":
+/// …, "source_info": …, "doc_attributes": …}` or `{"ok": false,
+/// "diagnostics": […]}`.
+pub fn did_to_doc_attributes(request: &str) -> String {
+    let compilation = match compile_request(request) {
+        Ok(compilation) => compilation,
+        Err(failure) => return failure,
+    };
+    let attributes = DocAttributes::from_source_info(
+        compilation
+            .source_info()
+            .expect("source info was requested"),
+    );
+    match attributes {
+        Ok(attributes) => {
+            let (contract, source_info) = compilation.into_parts();
+            pretty(&json!({
+                "ok": true,
+                "contract": contract,
+                "source_info": source_info,
+                "doc_attributes": attributes,
+            }))
+        }
+        Err(error) => diagnostics_document(&error),
     }
 }
 
@@ -458,7 +496,7 @@ fn check_request(request: &str, options: CheckOptions) -> Result<String, String>
     })))
 }
 
-fn identities(contract: &candid_core::Contract) -> Value {
+fn identities(contract: &meant::Contract) -> Value {
     json!({
         "contract_id": contract.contract_id(),
         "interface_id": contract.interface_id(),
@@ -674,6 +712,12 @@ mod bindings {
     #[wasm_bindgen(js_name = didToModule)]
     pub fn did_to_module(request: &str) -> String {
         crate::did_to_module(request)
+    }
+
+    /// See [`crate::did_to_doc_attributes`].
+    #[wasm_bindgen(js_name = didToDocAttributes)]
+    pub fn did_to_doc_attributes(request: &str) -> String {
+        crate::did_to_doc_attributes(request)
     }
 
     /// See [`crate::project_did`].

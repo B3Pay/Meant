@@ -29,6 +29,8 @@ mod diagnostics;
 /// `bundle` one and the native materialized/`check_file` one below.
 #[cfg(all(test, feature = "filesystem-compiler"))]
 mod differential;
+/// Doc attributes v1: `@name(…)` lines in doc comments (`docs/doc-attributes.md`).
+mod doc_attributes;
 mod loading;
 mod lower;
 /// Materialization writes the resolved bundle into a private temporary
@@ -44,6 +46,10 @@ use bundle::compile_resolved_bundle;
 use diagnostics::candid_file_error;
 use diagnostics::{
     budget_error, candid_error, candid_error_at, lower_error, source_info_compile_error,
+};
+pub use doc_attributes::{
+    DocArgument, DocAttribute, DocAttributes, DocItem, DocItemKind, DocValue,
+    DOC_ATTRIBUTES_VERSION,
 };
 use loading::{accept_source, load_source_units_with_resolver, SourceUnit};
 use lower::lower_checked;
@@ -221,7 +227,7 @@ fn compile_materialized_bundle(
 /// anything itself.
 ///
 /// ```
-/// use candid_core::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+/// use meant::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 ///
 /// let resolver = MemoryResolver::new()
 ///     .with_source("memory:/entry.did", "import \"types.did\";\nservice : { get: () -> (Item) query };")?

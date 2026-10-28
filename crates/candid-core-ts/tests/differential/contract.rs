@@ -415,7 +415,7 @@ pub fn reference_verdict(edited: &Value, ops: &[Value]) -> Value {
             }
         }
         let built = guarded(|| {
-            serde_json::from_value::<candid_core::ContractDraft>(Value::Object(draft))
+            serde_json::from_value::<meant::ContractDraft>(Value::Object(draft))
                 .ok()
                 .and_then(|draft| draft.build().ok())
         })
@@ -431,10 +431,10 @@ pub fn reference_verdict(edited: &Value, ops: &[Value]) -> Value {
         }
     }
     let text = document.to_string();
-    match guarded(|| candid_core::Contract::from_json(&text)) {
+    match guarded(|| meant::Contract::from_json(&text)) {
         Err(_) => json!({ "verdict": "panic" }),
         Ok(Ok(_)) => json!({ "verdict": "accept" }),
-        Ok(Err(candid_core::ContractJsonError::MalformedJson(message))) => {
+        Ok(Err(meant::ContractJsonError::MalformedJson(message))) => {
             // `MalformedJson` is one variant for every shape error; its class
             // here is refined from the serde message's fixed prefix (the
             // reference's own wording, used only to name the class, never
@@ -452,7 +452,7 @@ pub fn reference_verdict(edited: &Value, ops: &[Value]) -> Value {
             };
             json!({ "verdict": "reject", "class": class })
         }
-        Ok(Err(candid_core::ContractJsonError::InvalidContract(error))) => {
+        Ok(Err(meant::ContractJsonError::InvalidContract(error))) => {
             let code = error
                 .violations
                 .first()

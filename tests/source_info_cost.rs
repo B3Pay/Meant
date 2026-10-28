@@ -14,7 +14,7 @@
 //! the collection is linear, and quadruples it when every type clones the
 //! environment. The assertion is a ratio, not a magic number.
 
-use candid_core::{compile_did_with_options, CompileOptions};
+use meant::{compile_did_with_options, CompileOptions};
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Mutex, MutexGuard};

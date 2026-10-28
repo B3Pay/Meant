@@ -17,11 +17,19 @@
 #   publishing, and `id-token: write` is granted to that one job;
 # - the npm dist-tag is an input checked against the version before the
 #   approval pause: a prerelease can never become `latest`, and a stable
-#   version moves `latest` unless `stable-off-latest` says otherwise.
+#   version moves `latest` unless `stable-off-latest` says otherwise;
+# - ic-reactor is built, type-checked and tested against the tarballs of
+#   this commit (downstream.yml) before the approval is requested; a
+#   downstream failure stops the publish unless `accept-downstream-failure`
+#   says otherwise, and the run records that it did.
 #
 # docs/releasing.md is the procedure of record, including the one-time
 # prerequisites (npm org, trusted publishing, the protected environment).
 name: npm release
+# The acceptance of a downstream failure is part of the run's name, so the
+# runs list keeps it.
+run-name: >-
+  npm release ${{ inputs.version }} as ${{ inputs.dist-tag }}${{ inputs.accept-downstream-failure && ', accepting a downstream failure' || '' }}
 
 on:
   workflow_dispatch:
@@ -39,6 +47,14 @@ on:
         description: Publish a stable version under a non-latest dist-tag (a backport); otherwise a stable version must use latest
         type: boolean
         default: false
+      accept-downstream-failure:
+        description: Publish even if the downstream check fails on ic-reactor's side (a security fix); say why in the release record
+        type: boolean
+        default: false
+      downstream-ref:
+        description: The ic-reactor branch, tag or SHA the downstream check builds; to accept a failure, the SHA its report named
+        required: false
+        default: main
 
 permissions: {}
 
@@ -169,9 +185,22 @@ jobs:
       - name: Verify the packaged artifact
         run: python3 tests/fixtures/packaging/verify_npm_package.py
 
+  # ic-reactor built against the tarballs of this commit (downstream.yml). It
+  # runs beside `verify`, and the approval is requested only when both pass,
+  # or when the dispatch accepted a downstream failure.
+  downstream:
+    name: Downstream check
+    permissions:
+      contents: read
+    uses: ./.github/workflows/downstream.yml
+    with:
+      commit: ${{ inputs.commit }}
+      accept-failure: ${{ inputs.accept-downstream-failure }}
+      downstream-ref: ${{ inputs.downstream-ref }}
+
   publish:
     name: Publish to npm (protected)
-    needs: verify
+    needs: [verify, downstream]
     runs-on: ubuntu-latest
     environment: npm-publish
     permissions:

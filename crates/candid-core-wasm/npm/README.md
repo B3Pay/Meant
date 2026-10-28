@@ -5,28 +5,38 @@ toolchain: the [candid-core] compiler and its TypeScript generator compiled
 to WebAssembly, usable as a Node CLI and as a browser library. Data in, data
 out — no eval, no network, and nothing generated is ever executed.
 
-> **0.3.0, the `latest` release.** This README describes 0.3.0. Upgrading
-> from 0.2.0 changes the text of every module `gen` writes with a
-> declaration or an actor (each type is declared under its Candid name, and
-> each method of `Actor` carries its mode), so regenerate committed modules:
-> `gen --check` reports such a module 0.2.0 wrote as drifted. It adds the `project` and `check` commands
-> ([Projection and compatibility](#projection-and-compatibility)). The modules
-> this release emits need `@candid-core/schema` 0.4.0 exactly, which is the
-> optional peer it declares; install the two as a pair, each with
-> `--save-exact`: `npm install --save-exact @candid-core/schema` and
-> `npm install --save-dev --save-exact @candid-core/cli`. Upgrading from
-> 0.1.0 is a larger break: 0.1.0 emits modules in an older layout with an
-> object-shaped principal type, refuses a whole interface with
-> `ts_generation_refused` for one declaration it cannot represent, and
+> **0.4.0, the `latest` release.** This README describes 0.4.0. Upgrading
+> from 0.3.0 adds [`didToDocAttributes`](#doc-attributes), which reads
+> `@name(…)` attributes in a `.did`'s doc comments, and an `identities`
+> object on each entry of `gen --json`. It changes every envelope `gen`
+> writes, whose `producer` now names `meant` 0.1.0, the compiler crate
+> published as `candid-core` before its rename; and it changes the module
+> text where a declared `blob`, `record {}` or `variant {}` is used, which
+> now renders as itself. So regenerate committed files: `gen --check`
+> reports each envelope 0.3.0 wrote as drifted. No Contract and no identity
+> moves. The modules this release emits pair with `@candid-core/schema`
+> 0.5.0 exactly, which is the optional peer it declares; install the two as
+> a pair, each with `--save-exact`: `npm install --save-exact
+> @candid-core/schema` and `npm install --save-dev --save-exact
+> @candid-core/cli`. Upgrading from 0.2.0 also changes the text of every
+> module with a declaration or an actor (each type is declared under its
+> Candid name, and each method of `Actor` carries its mode) and adds the
+> `project` and `check` commands
+> ([Projection and compatibility](#projection-and-compatibility)).
+> Upgrading from 0.1.0 is a larger break: 0.1.0 emits modules in an older
+> layout with an object-shaped principal type, refuses a whole interface
+> with `ts_generation_refused` for one declaration it cannot represent, and
 > returns no `omitted` list.
 >
 > `@candid-core/schema` 0.3 breaks the 0.2 API (principal values are canonical text, collapsing opts are boxed, every `vec nat8` is a `Uint8Array`, generated modules use a new binding layout and may omit declarations, and the `./actor`, `./transport-icp`, `./forms` and `./labels` subpaths are gone); there is no compatibility layer.
 >
 > Every change is recorded in the [changelog](./CHANGELOG.md), which ships
-> in the tarball: since 0.2.0 under `0.3.0`, and since 0.1.0 under `0.3.0`,
-> `0.2.0` and `0.2.0-beta.1`. The migration notes
-> [from 0.2.0](https://b3hr4d.github.io/candid-core/migrating-from-0-3.html)
-> and [from 0.1.0](https://b3hr4d.github.io/candid-core/migrating-from-0-2.html)
+> in the tarball: since 0.3.0 under `0.4.0`, since 0.2.0 under `0.4.0` and
+> `0.3.0`, and since 0.1.0 under those, `0.2.0` and `0.2.0-beta.1`. The
+> migration notes
+> [from 0.3.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-4.html),
+> [from 0.2.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-3.html)
+> and [from 0.1.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-2.html)
 > show what each break means for your code, with before and after code where
 > the compiler shows it.
 
@@ -51,12 +61,13 @@ That emits three things:
 - **`service.envelope.json`** — the one-document `ContractEnvelope`: the
   canonical Contract plus its field-name table under the
   `org.candid-core.field-names/v1` extension, byte-identical to
-  `candid-core compile ./service.did --envelope`, ready to hand whole to
+  `meant compile ./service.did --envelope`, ready to hand whole to
   `schemaFromContract`;
 - the printed **content-addressed identities** (`contract`, and `interface`
   when the service has an actor) — the same
   `candid-core:contract:v1:sha256:…` addresses the Rust toolchain computes,
-  usable to pin an interface and detect drift.
+  usable to pin an interface and detect drift. `--json` carries them as
+  each entry's `identities`.
 
 A declaration the generator cannot represent does not cost the whole
 module: it is left out, together with every declaration and actor method that
@@ -136,8 +147,8 @@ looked for.
 ### `--json`
 
 Prints exactly one JSON document on stdout and nothing else; stderr stays
-empty. The identities the human report prints are not part of it. Combine it
-with `--check`. A usage error (exit 64) prints no document.
+empty. Each compiled entry carries the identities the human report prints.
+Combine it with `--check`. A usage error (exit 64) prints no document.
 
 ```json
 {
@@ -150,6 +161,10 @@ with `--check`. A usage error (exit 64) prints no document.
       "status": "written",
       "module": "generated/service.ts",
       "envelope": "generated/service.envelope.json",
+      "identities": {
+        "contract_id": "candid-core:contract:v1:sha256:…",
+        "interface_id": "candid-core:interface:v1:sha256:…"
+      },
       "omitted": [],
       "diagnostics": []
     }
@@ -171,6 +186,11 @@ with `--check`. A usage error (exit 64) prints no document.
   - `status`: `written` (a file was created or changed), `unchanged` (both
     files already held these bytes), `drifted` (`--check` only: a file is
     missing or differs; nothing was written) or `failed`;
+  - `identities` (new in 0.4.0): `{ contract_id, interface_id }`, equal to the envelope's
+    `contract.identities` and to what the human report prints, with the key
+    names `project --json` and `check --json` use. `interface_id` is absent
+    when the `.did` has no actor. Present on every entry that compiled,
+    `--check` included; absent on a failed entry;
   - `omitted`: what the module leaves out, exactly as `didToModule` returns it
     (see [Omissions](#omissions)), `[]` for a failed entry. Omissions never make
     an entry fail;
@@ -185,8 +205,8 @@ with `--check`. A usage error (exit 64) prints no document.
 - `drift` lists every path `--check` found missing or different, in entry
   order, module before envelope; always `[]` without `--check`.
 
-The same types ship as `CliReport` and `CliEntryReport` in the package's
-declarations. A run is deterministic: the same inputs give the same files and
+The same types ship as `CliReport`, `CliEntryReport` and `CliIdentities` in
+the package's declarations. A run is deterministic: the same inputs give the same files and
 the same document, byte for byte, from any working directory. There are no
 timestamps, and every path in the document and in the human report (including
 the messages of failures such as an unreadable or missing entry) is spelled as
@@ -374,6 +394,52 @@ against the subtype check of the `candid` crate it pins and against the one
 subtype (its coinductive memo can keep a pair proven under an assumption it
 later retracted), this check refuses it, as the decoder does.
 
+## Doc attributes
+
+> **New in 0.4.0.** `didToDocAttributes` and the types it returns are not in
+> 0.3.0; the [changelog](./CHANGELOG.md) records them under `0.4.0`.
+
+`didToDocAttributes(sources)` compiles the sources and reads the
+`@name(key = value, …)` lines in their doc comments, as specified in
+[`docs/doc-attributes.md`](https://github.com/b3hr4d/candid-core/blob/main/docs/doc-attributes.md):
+
+```candid
+service : {
+  /// Send tokens to another principal.
+  /// @intent(title = "Send", template = "Send {amount} to {to}")
+  /// @amount(at = "amount", decimals = query(decimals))
+  send : (record { to : principal; amount : nat }) -> ();
+}
+```
+
+```js
+import { didToDocAttributes } from "@candid-core/cli";
+
+const result = await didToDocAttributes(didText);
+if (result.ok) {
+  for (const item of result.doc_attributes.items) {
+    // item.path is "actor.methods[0]"; item.prose is ["Send tokens to another principal."]
+    for (const attribute of item.attributes) console.log(attribute.name, attribute.args);
+  }
+}
+```
+
+Success is `{ ok: true, contract, source_info, doc_attributes }`: the
+Contract and SourceInfo that `meant compile <path>` prints, and every
+documented item (the actor, a declaration, a field, a method) with its prose
+lines and its attributes in order. An attribute is `{ name, doc_line, args }`,
+and each argument value is tagged: `text`, `number` (the digits as written,
+never a float), `bool`, `ident`, `call` (`query(decimals)`), `list` or
+`record`. The compiler gives no name a meaning: the tool that reads them
+decides which it knows.
+
+A line counts as an attribute only when it starts with `@`, a lowercase
+name, then `(` or nothing: `@param amount the value` and `@amount (…)` stay
+prose. Once a line is an attribute it must parse to its end, so a malformed
+one fails the call with `doc_attribute_malformed`, and a repeated key with
+`doc_attribute_duplicate_key`; each names its item's `path`. Comments never
+change `contract_id` or `interface_id`.
+
 ## Omissions
 
 `didToModule`'s success carries `omitted`, an array of
@@ -419,7 +485,8 @@ convention.
 ## Version pairing
 
 This package embeds exact revisions, recorded per release in
-[CHANGELOG.md](./CHANGELOG.md): the `candid-core` compiler crate and the
+[CHANGELOG.md](./CHANGELOG.md): the compiler crate (`meant`, published as
+`candid-core` before its rename) and the
 `candid-core-ts` generator (unpublishable on crates.io by design; embedding
 it in this wasm artifact is an owner decision recorded on the repository's
 issue tracker) are built from one repository commit, and the parity gates

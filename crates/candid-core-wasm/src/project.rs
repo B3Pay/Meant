@@ -106,12 +106,12 @@
 use std::borrow::Borrow;
 use std::collections::BTreeSet;
 
-use candid_core::{Limits, SourceImportKind, SourceInfo};
 use candid_parser::candid::types::{FuncMode, Label};
 use candid_parser::syntax::{
     Binding, FuncType, IDLActorType, IDLArgType, IDLType, PrimType, TypeField,
 };
 use candid_parser::IDLProg;
+use meant::{Limits, SourceImportKind, SourceInfo};
 
 /// The most bytes the unknown-method diagnostics of one projection take in
 /// its failure: each diagnostic as the JSON response writes it (its keys,

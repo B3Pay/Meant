@@ -1,7 +1,7 @@
 #![no_main]
 
-use candid_core::{ContractDraft, RawContract};
 use libfuzzer_sys::fuzz_target;
+use meant::{ContractDraft, RawContract};
 
 fuzz_target!(|data: &[u8]| {
     // The seed corpus is RawContract-shaped, so decode that wire DTO and then

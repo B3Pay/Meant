@@ -1,0 +1,227 @@
+# The downstream check (#273): ic-reactor built against the two npm packages
+# a commit would publish, not against the releases it pins.
+#
+# tests/fixtures/packaging/verify_downstream.py does the work: it packs
+# @candid-core/schema and @candid-core/cli, regenerates every module
+# B3Pay/ic-reactor checks in and reports the difference, then installs the
+# tarballs through pnpm overrides and runs ic-reactor's build, type checks and
+# tests. A failed step fails the check; drift does not, because a candid-core
+# change often means to change the generated modules. The report is the job
+# summary and the `downstream-report` artifact (summary, JSON, drift.diff,
+# one log per step).
+#
+# It runs:
+# - from both npm release workflows, whose publish job needs it. A release
+#   that must go out over a downstream failure (a security fix) is dispatched
+#   with `accept-downstream-failure`, which reaches this workflow as
+#   `accept-failure` (docs/releasing.md);
+# - weekly against `main`, so drift that merged shows up before a release
+#   rather than at it;
+# - on a pull request that changes the check itself, so its first execution
+#   is never a release dispatch;
+# - by dispatch, for any candid-core commit (a pull request's head) and any
+#   ic-reactor ref.
+#
+# Two trees of candid-core are checked out. `candid-core/` is the commit under
+# test, which is packed. `checker/` is the ref this workflow runs from, which
+# holds the script: a release from a commit older than the check still gets
+# it, and the check that judges a release is the reviewed one on `main`.
+#
+# Only a failure on ic-reactor's side can be accepted: its checkout, its pnpm,
+# or the script's exit 1 (a step, a `.did` the new CLI refuses, a layout the
+# script cannot read, an install that would load a published copy). The
+# toolchains, the wasm build, packing the tarballs (the script's exit 2) and a
+# crash of the script itself always fail the job.
+#
+# The downstream ref moves, so every run records the ic-reactor commit it
+# built. The toolchains are the release workflows' pins: RELEASE_TOOLCHAIN and
+# wasm-pack 0.14.0 for the wasm, Node 24.18.0, and the pnpm ic-reactor's own
+# `packageManager` names. Nothing here can publish: the token reads contents
+# and nothing else, and no secret is passed in. The check runs ic-reactor's
+# code in this job, so it trusts that code not to forge its own result.
+name: Downstream
+
+on:
+  workflow_call:
+    inputs:
+      commit:
+        description: Full 40-character SHA of candid-core to pack
+        type: string
+        required: true
+      accept-failure:
+        description: Pass the job when the downstream check fails on ic-reactor's side
+        type: boolean
+        default: false
+      downstream-ref:
+        description: B3Pay/ic-reactor branch, tag or SHA to build
+        type: string
+        default: main
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Full 40-character SHA of candid-core to pack; empty for the dispatched ref
+        required: false
+        default: ""
+      downstream-ref:
+        description: B3Pay/ic-reactor branch, tag or SHA to build
+        required: false
+        default: main
+      accept-failure:
+        description: Pass the job when the downstream check fails on ic-reactor's side (to try the release path)
+        type: boolean
+        default: false
+  schedule:
+    - cron: '0 4 * * 1'
+  pull_request:
+    paths:
+      - .github/workflows/downstream.yml
+      - tests/fixtures/packaging/verify_downstream.py
+
+permissions:
+  contents: read
+
+jobs:
+  downstream:
+    name: ic-reactor against the packed tarballs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      # Inputs reach a shell through `env:` only, as in the release workflows.
+      - name: Validate the input shapes
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          if [ -n "${COMMIT}" ]; then
+            printf '%s' "${COMMIT}" | grep -qE '^[0-9a-f]{40}$' \
+              || { echo "commit must be a full 40-character lowercase SHA" >&2; exit 1; }
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: checker
+          persist-credentials: false
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.commit }}
+          path: candid-core
+          persist-credentials: false
+
+      - name: Check out ic-reactor
+        id: downstream-checkout
+        continue-on-error: true
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: B3Pay/ic-reactor
+          ref: ${{ inputs.downstream-ref || 'main' }}
+          path: ic-reactor
+          persist-credentials: false
+
+      - name: Read the pinned toolchain
+        run: grep -E '^[A-Z_]+=' candid-core/tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
+        with:
+          toolchain: ${{ env.RELEASE_TOOLCHAIN }}
+          targets: wasm32-unknown-unknown
+      - name: Install the pinned wasm-pack
+        run: cargo install wasm-pack --version 0.14.0 --locked
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+
+      - name: Build the wasm artifact
+        working-directory: candid-core/crates/candid-core-wasm
+        run: wasm-pack build --target web --out-dir npm/wasm --no-pack --release -- --locked
+
+      - name: Install the schema package's pinned compiler
+        working-directory: candid-core/crates/candid-core-ts/ts
+        run: npm ci
+
+      # ic-reactor's own CI does the same with corepack; the version is the one
+      # its package.json names, so a pnpm bump there needs nothing here.
+      - name: Enable ic-reactor's pnpm
+        id: pnpm
+        if: steps.downstream-checkout.outcome == 'success'
+        continue-on-error: true
+        working-directory: ic-reactor
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare "$(node -p 'require("./package.json").packageManager')" --activate
+          pnpm --version
+
+      # The exit status goes to an output: 1 is a failure on ic-reactor's side,
+      # anything else but 0 is candid-core's (docs/releasing.md).
+      - name: Build, type-check and test ic-reactor against the tarballs
+        id: check
+        if: steps.pnpm.outcome == 'success'
+        continue-on-error: true
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+        run: |
+          set +e
+          python3 checker/tests/fixtures/packaging/verify_downstream.py \
+            --candid-core candid-core --downstream ic-reactor --report downstream-report
+          code=$?
+          echo "exit=${code}" >> "$GITHUB_OUTPUT"
+          exit "${code}"
+
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f downstream-report/summary.md ]; then
+            cat downstream-report/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: downstream-report
+          path: downstream-report/
+          if-no-files-found: warn
+
+      # The steps above may fail so that the report is always written and
+      # uploaded; this step turns their outcomes into the job's. A failure
+      # passes only when it is on ic-reactor's side and the caller accepted it.
+      - name: Decide
+        env:
+          CHECKOUT: ${{ steps.downstream-checkout.outcome }}
+          PNPM: ${{ steps.pnpm.outcome }}
+          CHECK: ${{ steps.check.outcome }}
+          CODE: ${{ steps.check.outputs.exit }}
+          ACCEPT: ${{ inputs.accept-failure }}
+        run: |
+          set -euo pipefail
+          if [ "${CHECKOUT}" = success ] && [ "${PNPM}" = success ] && [ "${CHECK}" = success ]; then
+            if [ "${ACCEPT}" = true ]; then
+              printf '\n`accept-failure` was set and not needed: the check passed.\n' >> "$GITHUB_STEP_SUMMARY"
+            fi
+            exit 0
+          fi
+          if [ "${CHECKOUT}" != success ]; then
+            side=ic-reactor; why="ic-reactor could not be checked out"
+          elif [ "${PNPM}" != success ]; then
+            side=ic-reactor; why="ic-reactor's pnpm could not be enabled"
+          elif [ "${CODE}" = 1 ]; then
+            side=ic-reactor; why="ic-reactor failed against the tarballs; the job summary and the downstream-report artifact say where"
+          else
+            side=candid-core; why="The check could not run on candid-core's side (exit ${CODE:-none}); the step's log says why"
+          fi
+          if [ "${side}" = ic-reactor ] && [ "${ACCEPT}" = true ]; then
+            note="The run set accept-failure, which a release sets with accept-downstream-failure"
+            echo "::warning::${why}. Accepted. ${note}."
+            printf '\n**Accepted.** %s. %s.\n' "${why}" "${note}" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          printf '\n**%s.**\n' "${why}" >> "$GITHUB_STEP_SUMMARY"
+          echo "${why}" >&2
+          if [ "${side}" = ic-reactor ]; then
+            echo "A release can go out over it with accept-downstream-failure (docs/releasing.md)." >&2
+          fi
+          exit 1

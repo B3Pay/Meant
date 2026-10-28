@@ -261,30 +261,38 @@ def main():
                 f"'{heading_date.group(1)}', which is not a real date"
             ) from None
 
-        pairing = re.search(r"[Pp]airs with `candid-core` (\S+)", body)
+        # The crate is named as the root manifest names it today (`meant`,
+        # published as `candid-core` before the rename), so an entry written
+        # under the old name, or a README on-ramp left on it, fails here.
+        crate = re.search(
+            r'^name\s*=\s*"([^"]+)"', (REPO / "Cargo.toml").read_text(), re.M
+        )
+        if not crate:
+            raise SystemExit("could not read the crate name from Cargo.toml")
+        crate = crate.group(1)
+        pairing = re.search(rf"[Pp]airs with `{re.escape(crate)}` (\S+)", body)
         if not pairing:
             raise SystemExit(
-                f"the changelog entry for {version} names no `candid-core` "
+                f"the changelog entry for {version} names no `{crate}` "
                 "pairing, which is exactly what the README promises it does"
             )
 
-        # Every `cargo install candid-core --version X` the README tells a
-        # reader to run must name the version this release pairs with. The
-        # on-ramp once shipped pointing at a crate release that predated the
-        # `--envelope` flag the very next line invokes, and nothing caught it:
-        # only ```ts blocks are compiled, so ```sh is unverified prose.
+        # Every `cargo install <crate> --version X` the README tells a reader
+        # to run must name this crate and the version this release pairs with.
+        # The on-ramp once shipped pointing at a crate release that predated
+        # the `--envelope` flag the very next line invokes, and nothing caught
+        # it: only ```ts blocks are compiled, so ```sh is unverified prose.
         paired = pairing.group(1).rstrip(".")
         readme_text = (extracted / "README.md").read_text()
         pinned = set(
-            re.findall(
-                r"cargo install candid-core --version (\S+)", readme_text
-            )
+            re.findall(r"cargo install (\S+) --version (\S+)", readme_text)
         )
-        if pinned - {paired}:
+        if pinned - {(crate, paired)}:
             raise SystemExit(
-                f"the shipped README tells the reader to install candid-core "
-                f"{sorted(pinned)}, but this release pairs with {paired}. The "
-                "on-ramp must install the version it was verified against."
+                f"the shipped README tells the reader to install "
+                f"{sorted(pinned)}, but this release pairs with {crate} "
+                f"{paired}. The on-ramp must install the crate and version it "
+                "was verified against."
             )
 
         # A declaration line count stated in the released entry has to match

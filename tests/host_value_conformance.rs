@@ -2,8 +2,8 @@
 //! contract-directed cases additionally need a compiled Contract.
 
 #[cfg(feature = "compiler")]
-use candid_core::{compile_did, validate_host_value, Contract};
-use candid_core::{HostValue, Limits};
+use meant::{compile_did, validate_host_value, Contract};
+use meant::{HostValue, Limits};
 use serde_json::{json, Value};
 
 #[cfg(feature = "compiler")]
@@ -115,7 +115,7 @@ fn public_constructors_produce_only_canonical_scalars() {
     assert!(HostValue::func("AAAAA-AA", "go").is_err());
 
     HostValue::record(
-        vec![candid_core::HostFieldValue::new(
+        vec![meant::HostFieldValue::new(
             1,
             HostValue::vector(vec![HostValue::nat("1").unwrap()], &Limits::default()).unwrap(),
         )],
@@ -363,7 +363,7 @@ fn principal_acceptance_and_error_text_match_the_reference_implementation() {
 
         match (observed, expected) {
             (Ok(_), Ok(())) => {}
-            (Err(candid_core::HostValueJsonError::Malformed(message)), Err(expected)) => {
+            (Err(meant::HostValueJsonError::Malformed(message)), Err(expected)) => {
                 assert_eq!(message, expected, "error text for principal {text:?}");
             }
             (observed, expected) => panic!(

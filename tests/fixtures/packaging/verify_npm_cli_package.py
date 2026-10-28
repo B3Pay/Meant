@@ -141,7 +141,7 @@ def main():
                 f"'{heading_date.group(1)}', which is not a real date"
             ) from None
 
-        # This package pairs by *revision*, not version: it embeds a candid-core
+        # This package pairs by *revision*, not version: it embeds a compiler
         # build from one commit. So the wording is "Embeds", where the sibling
         # gate looks for "Pairs with".
         #
@@ -161,23 +161,33 @@ def main():
         # the `## Unreleased` section must name the crate as it stands. Release
         # prep renames that section, which points the check at the entry being
         # released again.
+        #
+        # The crate is named as the root manifest names it (`meant`, published
+        # as `candid-core` before the rename), so an entry that names the old
+        # crate claims provenance this build does not have.
         claimant = "Unreleased" if "Unreleased" in entries else version
-        embedded = re.search(r"Embeds `candid-core` (\S+)", entries[claimant][1])
+        root_manifest = (REPO / "Cargo.toml").read_text()
+        crate = re.search(r'^name\s*=\s*"([^"]+)"', root_manifest, re.M)
+        actual = re.search(r'^version\s*=\s*"([^"]+)"', root_manifest, re.M)
+        if not crate or not actual:
+            raise SystemExit(
+                "could not read the crate name and version from Cargo.toml"
+            )
+        crate = crate.group(1)
+        embedded = re.search(
+            rf"Embeds `{re.escape(crate)}` (\S+)", entries[claimant][1]
+        )
         if not embedded:
             raise SystemExit(
                 f"the changelog entry for {claimant} names no embedded "
-                "`candid-core` revision, which is the pairing this package "
+                f"`{crate}` revision, which is the pairing this package "
                 "promises in place of a version pairing"
             )
         named = embedded.group(1).rstrip(".,;")
-        root_manifest = (REPO / "Cargo.toml").read_text()
-        actual = re.search(r'^version\s*=\s*"([^"]+)"', root_manifest, re.M)
-        if not actual:
-            raise SystemExit("could not read the crate version from Cargo.toml")
         if named != actual.group(1):
             raise SystemExit(
                 f"the changelog entry for {claimant} says it embeds "
-                f"`candid-core` {named}, but this build embeds "
+                f"`{crate}` {named}, but this build embeds "
                 f"{actual.group(1)}. An npm version is permanent, so the "
                 "provenance it claims has to be the provenance it has."
             )
@@ -263,6 +273,23 @@ def main():
         ):
             raise SystemExit(f"--json document has the wrong shape: {gen_json.stdout}")
 
+        def expected_identities(entry):
+            stem = pathlib.Path(entry["entry"]).stem
+            written = json.loads((consumer / "out" / f"{stem}.envelope.json").read_text())
+            identities = written["contract"]["identities"]
+            expected = {"contract_id": identities["contract"]}
+            if "interface" in identities:
+                expected["interface_id"] = identities["interface"]
+            return expected
+
+        # Each compiled entry carries its own envelope's identities.
+        for entry in report["entries"]:
+            if entry.get("identities") != expected_identities(entry):
+                raise SystemExit(
+                    f"--json identities of {entry['entry']} differ from its envelope's: "
+                    f"{entry.get('identities')!r}"
+                )
+
         check_json = run(
             cli + ["gen", "./service.did", "./sub/second.did", "-o", "./out", "--check", "--json"],
             cwd=consumer,
@@ -272,6 +299,34 @@ def main():
         checked = json.loads(check_json.stdout)
         if checked["ok"] is not True or checked["check"] is not True or checked["drift"]:
             raise SystemExit(f"--check on a clean tree is not clean: {check_json.stdout}")
+        if [e.get("identities") for e in checked["entries"]] != [
+            expected_identities(e) for e in checked["entries"]
+        ]:
+            raise SystemExit(f"--check --json lost the identities: {check_json.stdout}")
+
+        # An actorless entry has no `interface_id`, and a failed entry no
+        # `identities` at all, from the tarball too.
+        (consumer / "types").mkdir()
+        (consumer / "types" / "shapes.did").write_text("type Count = nat;\n")
+        (consumer / "broken").mkdir()
+        (consumer / "broken" / "broken.did").write_text("service : {\n")
+        edges = subprocess.run(
+            cli + ["gen", "./types/shapes.did", "./broken/broken.did", "-o", "./edges", "--json"],
+            cwd=consumer,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        shapes, broken = json.loads(edges.stdout)["entries"]
+        shapes_envelope = json.loads((consumer / "edges" / "shapes.envelope.json").read_text())
+        if (
+            edges.returncode != 1
+            or shapes.get("identities")
+            != {"contract_id": shapes_envelope["contract"]["identities"]["contract"]}
+            or broken["status"] != "failed"
+            or "identities" in broken
+        ):
+            raise SystemExit(f"--json identities on an actorless or failed entry: {edges.stdout}")
 
         target = consumer / "out" / "second.ts"
         original = target.read_bytes()
@@ -381,8 +436,8 @@ def main():
         # make this probe fail for a reason that has nothing to do with the
         # package's own declarations.
         (consumer / "check.ts").write_text(
-            'import { checkCompatible, didToContract, didToModule, projectDid } from "@candid-core/cli";\n'
-            'import type { CliReport, CompatibilityDiagnostic } from "@candid-core/cli";\n'
+            'import { checkCompatible, didToContract, didToDocAttributes, didToModule, projectDid } from "@candid-core/cli";\n'
+            'import type { CliIdentities, CliReport, CompatibilityDiagnostic, DocItem, DocValue } from "@candid-core/cli";\n'
             'import { schemaFromContract } from "@candid-core/schema/contract";\n'
             "\n"
             "export async function main(): Promise<string[]> {\n"
@@ -395,6 +450,18 @@ def main():
             "    for (const issue of result.diagnostics) {\n"
             '      notes.push(`${issue.code}: ${issue.message} ${issue.phase ?? ""}`);\n'
             "    }\n"
+            "  }\n"
+            '  const documented = await didToDocAttributes("service : {\\n  /// @deprecated(since = 2)\\n  ping : () -> ();\\n}");\n'
+            "  if (documented.ok) {\n"
+            "    const items: DocItem[] = documented.doc_attributes.items;\n"
+            "    for (const item of items) {\n"
+            "      for (const attribute of item.attributes) {\n"
+            "        const first: DocValue | undefined = attribute.args[0]?.value;\n"
+            '        notes.push(item.path, attribute.name, first?.kind === "number" ? first.value : "");\n'
+            "      }\n"
+            "    }\n"
+            "  } else {\n"
+            "    notes.push(...documented.diagnostics.map((issue) => issue.code));\n"
             "  }\n"
             '  const emitted = await didToModule({ source: "service : { ping : () -> (); }" });\n'
             '  notes.push(emitted.ok ? String(emitted.module.length) : "failed");\n'
@@ -415,8 +482,14 @@ def main():
             "}\n"
             "\n"
             "export function summarize(report: CliReport): string[] {\n"
+            "  const first: CliIdentities | undefined = report.entries[0]?.identities;\n"
+            "  // @ts-expect-error -- interface_id is absent for a .did without an actor.\n"
+            "  const pinned: string = first!.interface_id;\n"
+            "  void pinned;\n"
             "  return report.entries.map(\n"
-            "    (entry) => `${entry.entry} ${entry.status} ${entry.omitted.length} ${entry.diagnostics.length}`,\n"
+            "    (entry) =>\n"
+            "      `${entry.entry} ${entry.status} ${entry.omitted.length} ${entry.diagnostics.length} ` +\n"
+            "      `${entry.identities?.contract_id ?? \"failed\"} ${entry.identities?.interface_id ?? \"no actor\"}`,\n"
             "  ).concat(report.drift, String(report.schemaVersion), String(report.ok));\n"
             "}\n"
         )

@@ -469,7 +469,7 @@ fn refuse_opt_only_cycles(
         "did_type_check_error",
         DiagnosticPhase::TypeCheck,
         format!(
-            "type {name} lies on a cycle that passes only through opt; candid-core refuses \
+            "type {name} lies on a cycle that passes only through opt; meant refuses \
              it, because decoding a value that is not an opt at such a type unwraps opt \
              without end"
         ),

@@ -14,7 +14,7 @@
 //! | --- | --- | --- |
 //! | *(base)* `default-features = false` | `Contract`, `ContractDraft`, `RawContract`, validation, canonicalization, the semantic Contract identities, detached [`artifact_id_with_limits`], `Limits`/`RuntimeContext`, `Diagnostic`, `ContractEnvelope` | `serde`, `serde_json`, `sha2`, `hex` |
 //! | `host-value` | `HostValue` and graph-directed value validation | `ic_principal` |
-//! | `compiler` | `compile_did`, `compile_with_resolver`, `Compilation`, `SourceId`/`SourceResolver`/`MemoryResolver`, `SourceInfo` provenance | `candid`, `candid_parser` |
+//! | `compiler` | `compile_did`, `compile_with_resolver`, `Compilation`, `SourceId`/`SourceResolver`/`MemoryResolver`, `SourceInfo` provenance, `DocAttributes` | `candid`, `candid_parser` |
 //! | `filesystem-compiler` (implies `compiler`) | `WorkspaceResolver`, `compile_did_file`, source materialization, the `candid-core` binary | `cap-std` |
 //!
 //! Items outside the enabled set are absent at compile time rather than
@@ -52,7 +52,7 @@
 // with a clear message rather than silently truncating or overflowing a
 // literal.
 #[cfg(not(any(target_pointer_width = "32", target_pointer_width = "64")))]
-compile_error!("candid-core supports only 32- and 64-bit targets: portable u64 wire values must represent every usize exactly (usize must not exceed 64 bits), and the InteractiveV1 default limits require a usize of at least 32 bits");
+compile_error!("meant supports only 32- and 64-bit targets: portable u64 wire values must represent every usize exactly (usize must not exceed 64 bits), and the InteractiveV1 default limits require a usize of at least 32 bits");
 
 mod artifact_id;
 // `bounded` reads a capped byte count off a `std::io::Read`; only the native
@@ -80,7 +80,8 @@ pub use artifact_id::{artifact_id_with_context, artifact_id_with_limits, Artifac
 #[cfg(feature = "compiler")]
 pub use compile::{
     compile_did, compile_did_with_context, compile_did_with_options, compile_with_resolver,
-    Compilation, CompileOptions,
+    Compilation, CompileOptions, DocArgument, DocAttribute, DocAttributes, DocItem, DocItemKind,
+    DocValue, DOC_ATTRIBUTES_VERSION,
 };
 #[cfg(feature = "filesystem-compiler")]
 pub use compile::{compile_did_file, compile_did_file_with_context, compile_did_file_with_options};
@@ -126,47 +127,51 @@ pub use value::{
 #[cfg(not(feature = "compiler"))]
 mod compiler_surface_is_absent_without_its_feature {
     //! ```compile_fail
-    //! let _ = candid_core::compile_did("service : {};");
+    //! let _ = meant::compile_did("service : {};");
     //! ```
     //!
     //! ```compile_fail
-    //! let _: candid_core::MemoryResolver = candid_core::MemoryResolver::new();
+    //! let _: meant::MemoryResolver = meant::MemoryResolver::new();
     //! ```
     //!
     //! ```compile_fail
-    //! fn takes(_: candid_core::SourceInfo) {}
+    //! fn takes(_: meant::SourceInfo) {}
     //! ```
     //!
     //! ```compile_fail
-    //! let _ = candid_core::compile_with_resolver;
+    //! fn takes(_: meant::DocAttributes) {}
+    //! ```
+    //!
+    //! ```compile_fail
+    //! let _ = meant::compile_with_resolver;
     //! ```
 }
 
 #[cfg(all(feature = "compiler", not(feature = "filesystem-compiler")))]
 mod filesystem_surface_is_absent_without_its_feature {
     //! ```compile_fail
-    //! let _ = candid_core::compile_did_file("service.did");
+    //! let _ = meant::compile_did_file("service.did");
     //! ```
     //!
     //! ```compile_fail
-    //! let _ = candid_core::WorkspaceResolver::new(".");
+    //! let _ = meant::WorkspaceResolver::new(".");
     //! ```
     //!
     //! Imported-bundle compilation is on the other side of this boundary: it
     //! is `compiler` surface since issue #21, so it must still resolve here.
     //!
     //! ```
-    //! let _ = candid_core::compile_with_resolver;
+    //! let _ = meant::compile_with_resolver;
     //! ```
 }
 
 #[cfg(not(feature = "host-value"))]
 mod host_value_surface_is_absent_without_its_feature {
     //! ```compile_fail
-    //! let _ = candid_core::HostValue::null();
+    //! let _ = meant::HostValue::null();
     //! ```
     //!
     //! ```compile_fail
-    //! fn takes(_: candid_core::HostValueValidationError) {}
+    //! fn takes(_: meant::HostValueValidationError) {}
     //! ```
 }

@@ -27,7 +27,7 @@
 //! actor, `origin`, `label`) are not unit variants: serde reads a tag only as
 //! a string, so a map there was refused before and keeps that error.
 
-use candid_core::{
+use meant::{
     compile_did, compile_with_resolver, Compilation, CompileOptions, Contract, ContractEnvelope,
     ContractJsonError, Limits, MemoryResolver, RuntimeContext,
 };
@@ -876,7 +876,7 @@ fn validate_command_refuses_the_repro() {
     std::fs::create_dir_all(&directory).unwrap();
     let path = directory.join("repro.contract.json");
     std::fs::write(&path, issue_repro(json!({"nat": null}))).unwrap();
-    let output = std::process::Command::new(env!("CARGO_BIN_EXE_candid-core"))
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_meant"))
         .arg("validate")
         .arg(&path)
         .output()

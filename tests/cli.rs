@@ -5,7 +5,7 @@
 //! channel each response uses, the JSON shapes and stable codes, source-info
 //! suppression, and the byte bounds at the exact limit and one byte over.
 
-use candid_core::Limits;
+use meant::Limits;
 use serde_json::{json, Value};
 use std::ffi::OsStr;
 use std::fs;
@@ -21,7 +21,8 @@ const CONTRACT_FIXTURE: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/tests/fixtures/conformance/empty_actor.contract.json"
 );
-const USAGE: &str = "usage: candid-core compile <path> [--no-source-info | --envelope]\n       candid-core validate <path>\n";
+const USAGE: &str =
+    "usage: meant compile <path> [--no-source-info | --envelope]\n       meant validate <path>\n";
 
 const FIELD_NAMES_EXTENSION: &str = "org.candid-core.field-names/v1";
 
@@ -58,7 +59,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    Command::new(env!("CARGO_BIN_EXE_candid-core"))
+    Command::new(env!("CARGO_BIN_EXE_meant"))
         .args(arguments)
         .output()
         .unwrap()
@@ -69,7 +70,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    Command::new(env!("CARGO_BIN_EXE_candid-core"))
+    Command::new(env!("CARGO_BIN_EXE_meant"))
         .current_dir(directory)
         .args(arguments)
         .output()

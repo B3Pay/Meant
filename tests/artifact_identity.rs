@@ -21,7 +21,7 @@
 //! `tests/fixtures/artifact-identity/verify_artifact_ids.py`, which shares the
 //! manifest and no code.
 
-use candid_core::{
+use meant::{
     artifact_id_with_context, artifact_id_with_limits, ArtifactKind, CancellationToken, Contract,
     ContractDraft, ContractEnvelope, ContractValidationError, Limits, ProducerInfo, RuntimeContext,
 };
@@ -408,7 +408,7 @@ fn rewritten_producer_bytes_move_the_artifact_id_and_not_the_semantic_ids() {
     assert_eq!(rebranded.contract_id(), unchanged.contract_id());
     assert_eq!(rebranded.interface_id(), unchanged.interface_id());
 
-    let render = |contract: &candid_core::Contract| {
+    let render = |contract: &meant::Contract| {
         ContractEnvelope::new(contract.clone())
             .to_json_pretty_with_limits(&limits)
             .unwrap()
@@ -427,7 +427,7 @@ fn rewritten_producer_bytes_move_the_artifact_id_and_not_the_semantic_ids() {
 #[cfg(feature = "compiler")]
 #[test]
 fn sidecar_and_producer_edits_move_the_artifact_id_and_not_the_semantic_ids() {
-    use candid_core::Compilation;
+    use meant::Compilation;
 
     let limits = Limits::default();
     let baseline_bytes = vector_bytes("compilation");
@@ -758,5 +758,5 @@ fn the_new_limit_override_is_additive_and_one_directional() {
     );
 
     // And the schema version did not move: adding a limit is not a schema break.
-    assert_eq!(candid_core::LIMITS_CONFIG_VERSION, 1);
+    assert_eq!(meant::LIMITS_CONFIG_VERSION, 1);
 }

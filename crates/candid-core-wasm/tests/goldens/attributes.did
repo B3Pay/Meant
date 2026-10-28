@@ -1,0 +1,38 @@
+// Doc attributes v1 (docs/doc-attributes.md): the input of the
+// attributes.doc-attributes.json golden, which tests/doc_attributes.rs and
+// npm/test/doc-attributes.test.js both compare against.
+
+/// Token amounts.
+/// @ui.group(name = "Ledger")
+type Tokens = record {
+  /// @amount(decimals = 8, symbol = "ICP")
+  e8s : nat64;
+};
+
+type Outcome = variant {
+  /// @class(kind = success)
+  Ok : nat;
+  /// @param code prose, not an attribute
+  Err : record { code : nat32; message : text };
+};
+
+/// A ledger.
+/// @deprecated
+service : {
+  decimals : () -> (nat8) query;
+  /// Send tokens to another principal.
+  /// @intent(
+  ///   title = "Send",
+  ///   template = "Send {amount} to {to}[ with memo {memo}]",
+  /// )
+  /// @effect(kind = "transfer", irreversible = true)
+  /// @amount(at = "amount", decimals = query(decimals), symbol = "TOK")
+  /// @bytes(at = "memo", encoding = "utf8", max_len = 32)
+  /// @outcome(classes = { Ok = "success", "Err.code" = "fail" }, default = "fail")
+  send : (record { to : principal; amount : nat; memo : opt blob }) -> (Outcome);
+  /// @ranges(values = [-1, 0, 0.25, "\u{1F600}"], flags = [true, false], nothing = [])
+  tune : (record {
+    /// @describe(label = "Who")
+    who : principal;
+  }) -> ();
+}

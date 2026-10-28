@@ -10,7 +10,7 @@
 //! and those types compile exactly as before. The Contract loaders do not
 //! change: a Contract document that already holds such a type still loads.
 
-use candid_core::{
+use meant::{
     compile_did, compile_did_with_context, compile_did_with_options, compile_with_resolver,
     CompileError, CompileOptions, Contract, DiagnosticPhase, MemoryResolver, RawSourceInfo,
     RuntimeContext, SourceInfo, SourceSpan,
@@ -71,7 +71,7 @@ fn assert_refusal(error: &CompileError, name: &str, source_name: Option<&str>, c
     assert_eq!(
         diagnostic.message,
         format!(
-            "type {name} lies on a cycle that passes only through opt; candid-core refuses \
+            "type {name} lies on a cycle that passes only through opt; meant refuses \
              it, because decoding a value that is not an opt at such a type unwraps opt \
              without end"
         ),
@@ -171,7 +171,7 @@ fn native_file_compilation_refuses_too() {
         "import \"types.did\";\nservice : { m : (A) -> () };",
     )
     .unwrap();
-    let outcome = candid_core::compile_did_file(&entry);
+    let outcome = meant::compile_did_file(&entry);
     let _ = std::fs::remove_dir_all(&directory);
     let error = outcome.expect_err("an imported opt-only cycle");
     let span = error.diagnostics[0].span.clone().expect("a source scope");
@@ -220,7 +220,7 @@ fn source_info_rederivation_refuses_an_embedded_opt_only_cycle() {
     assert_eq!(violation.path.as_deref(), Some("$"));
     assert!(
         violation.message.ends_with(
-            "type T lies on a cycle that passes only through opt; candid-core refuses it, \
+            "type T lies on a cycle that passes only through opt; meant refuses it, \
              because decoding a value that is not an opt at such a type unwraps opt without end"
         ),
         "{}",
@@ -244,9 +244,9 @@ fn a_contract_document_holding_an_opt_only_cycle_still_loads() {
     );
     // The same graph built through the model, and the compiler's refusal of
     // the source that used to produce it.
-    let built = candid_core::ContractDraft::new(
-        vec![candid_core::TypeNode::Opt { inner: 0 }],
-        vec![candid_core::Declaration {
+    let built = meant::ContractDraft::new(
+        vec![meant::TypeNode::Opt { inner: 0 }],
+        vec![meant::Declaration {
             name: "T0".to_string(),
             ty: 0,
         }],

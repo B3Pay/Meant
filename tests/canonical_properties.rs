@@ -7,7 +7,7 @@
 //! are target-independent pure-model behaviour, covered natively.
 #![cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 
-use candid_core::{
+use meant::{
     Actor, Contract, ContractDraft, Declaration, Field, MethodMode, PrimitiveType, ServiceMethod,
     TypeNode, TypeRef,
 };
@@ -359,7 +359,7 @@ proptest! {
 /// disabled.
 #[cfg(feature = "compiler")]
 mod compiler_properties {
-    use candid_core::SourceId;
+    use meant::SourceId;
     use proptest::prelude::*;
 
     proptest! {
@@ -367,8 +367,8 @@ mod compiler_properties {
         fn equivalent_source_ordering_preserves_semantic_identity(reverse: bool) {
             let fields = if reverse { "right: text; left: nat" } else { "left: nat; right: text" };
             let source = format!("type Payload = record {{ {fields} }}; service : {{ read: (Payload) -> (Payload) query }};");
-            let contract = candid_core::compile_did(&source).unwrap().into_parts().0;
-            let canonical = candid_core::compile_did("type Payload = record { left: nat; right: text }; service : { read: (Payload) -> (Payload) query };").unwrap().into_parts().0;
+            let contract = meant::compile_did(&source).unwrap().into_parts().0;
+            let canonical = meant::compile_did("type Payload = record { left: nat; right: text }; service : { read: (Payload) -> (Payload) query };").unwrap().into_parts().0;
             prop_assert_eq!(contract, canonical);
         }
 

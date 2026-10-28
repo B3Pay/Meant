@@ -11,10 +11,10 @@
 
 use std::path::PathBuf;
 
-use candid_core::compile_did;
 use candid_core_ts::{
     generate_module, GeneratedModule, Omission, OmissionKind, OmissionReason, TsNames, TsOptions,
 };
+use meant::compile_did;
 
 fn generate_fixture(name: &str) -> String {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
@@ -62,10 +62,10 @@ fn assert_golden(name: &str) {
 /// node — and emitting both would let the loader's last-entry-wins table
 /// render a different key than the generated builder. The native binary's
 /// `field_name_triples` mirrors this derivation exactly.
-fn name_triples(source_info: &candid_core::SourceInfo) -> Vec<(u32, u32, String)> {
+fn name_triples(source_info: &meant::SourceInfo) -> Vec<(u32, u32, String)> {
     let mut names: std::collections::BTreeMap<(u32, u32), &str> = std::collections::BTreeMap::new();
     for provenance in source_info.field_labels() {
-        if let candid_core::SourceLabel::Named { name } = &provenance.label {
+        if let meant::SourceLabel::Named { name } = &provenance.label {
             names.insert((provenance.container, provenance.id), name.as_str());
         }
     }
@@ -228,6 +228,17 @@ fn golden_fidelity() {
     assert_golden("fidelity");
 }
 
+/// Issue #268: a node with a fixed rendering — `blob`, `record {}`, `variant
+/// {}` — names only itself. The fixture pins the capture cases: two `blob`
+/// aliases beside plain blobs, the ICRC ledger's `TransferArg`, and the empty
+/// record and empty variant beside their own aliases; the tsc equality gate
+/// compiles the golden, and its Contract, names and envelope goldens feed the
+/// loader crosscheck (`ts/tests/crosscheck.test.ts`).
+#[test]
+fn golden_fixedshapes() {
+    assert_golden("fixedshapes");
+}
+
 /// Issue #244: each `Actor` method carries its mode — `query`,
 /// `composite_query`, `update`, `oneway` — as `$.WithMode<...>` intersected
 /// with its call signature, whether the method is written inline, typed by a
@@ -301,6 +312,8 @@ fn golden_runtime_contract_documents() {
         "arms",
         "options",
         "fidelity",
+        "fixedshapes",
+        "fixedomitted",
         "omissions",
     ] {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
@@ -317,7 +330,7 @@ fn golden_runtime_contract_documents() {
             "candid_parser_version": "0.0.0-golden",
         });
         let normalized = serde_json::to_string(&document).expect("document must serialize");
-        let reparsed = candid_core::Contract::from_json(&normalized)
+        let reparsed = meant::Contract::from_json(&normalized)
             .expect("the normalized document must still be a valid canonical Contract");
         let pretty = serde_json::to_value(&reparsed).expect("contract must serialize");
         let mut text = serde_json::to_string_pretty(&pretty).expect("document must pretty-print");
@@ -348,12 +361,12 @@ fn golden_runtime_contract_documents() {
         // own validation, exactly as the `candid-core compile --envelope`
         // path builds it. `ts/tests/crosscheck.test.ts` proves this document
         // yields verdict-for-verdict the same schemas as the two files above.
-        let mut envelope = candid_core::ContractEnvelope::new(reparsed);
+        let mut envelope = meant::ContractEnvelope::new(reparsed);
         envelope
             .insert_extension(
                 "org.candid-core.field-names/v1",
                 serde_json::Value::Array(entries),
-                &candid_core::Limits::default(),
+                &meant::Limits::default(),
             )
             .expect("the field-names extension must validate");
         let envelope_value = serde_json::to_value(&envelope).expect("envelope must serialize");
@@ -386,7 +399,7 @@ fn generation_is_deterministic_across_serde_round_trips() {
         assert_eq!(first, second, "{fixture}");
 
         let json = serde_json::to_string(compilation.contract()).expect("serialize");
-        let reparsed = candid_core::Contract::from_json(&json).expect("reparse");
+        let reparsed = meant::Contract::from_json(&json).expect("reparse");
         let third = generate_module(&reparsed, &names, &options).expect("generate");
         assert_eq!(first, third, "{fixture}");
         assert_eq!(fixture == "omissions", !first.omitted.is_empty());
@@ -477,9 +490,9 @@ fn collapsing_options_box() {
     // `type L = opt L;` since issue #234 (a cycle through opt alone), but a
     // Contract document holding that graph still loads, so the generator
     // still meets it: the same graph, built through the model.
-    let contract = candid_core::ContractDraft::new(
-        vec![candid_core::TypeNode::Opt { inner: 0 }],
-        vec![candid_core::Declaration {
+    let contract = meant::ContractDraft::new(
+        vec![meant::TypeNode::Opt { inner: 0 }],
+        vec![meant::Declaration {
             name: "L".to_string(),
             ty: 0,
         }],
@@ -750,24 +763,24 @@ fn names_only_a_document_declares_fall_back() {
         ("x$", "x$"),
         ("type", "type"),
     ] {
-        let contract = candid_core::ContractDraft::new(
+        let contract = meant::ContractDraft::new(
             vec![
-                candid_core::TypeNode::Record {
-                    fields: vec![candid_core::Field { id: 5, ty: 2 }],
+                meant::TypeNode::Record {
+                    fields: vec![meant::Field { id: 5, ty: 2 }],
                 },
-                candid_core::TypeNode::Record {
-                    fields: vec![candid_core::Field { id: 7, ty: 0 }],
+                meant::TypeNode::Record {
+                    fields: vec![meant::Field { id: 7, ty: 0 }],
                 },
-                candid_core::TypeNode::Primitive {
-                    primitive: candid_core::PrimitiveType::Nat8,
+                meant::TypeNode::Primitive {
+                    primitive: meant::PrimitiveType::Nat8,
                 },
             ],
             vec![
-                candid_core::Declaration {
+                meant::Declaration {
                     name: name.to_string(),
                     ty: 0,
                 },
-                candid_core::Declaration {
+                meant::Declaration {
                     name: "Holder".to_string(),
                     ty: 1,
                 },
@@ -924,11 +937,11 @@ fn export_name_declarations_are_omitted() {
 #[test]
 fn non_identifier_declaration_names_are_omitted() {
     let contract_named = |name: &str| {
-        candid_core::ContractDraft::new(
-            vec![candid_core::TypeNode::Primitive {
-                primitive: candid_core::PrimitiveType::Nat,
+        meant::ContractDraft::new(
+            vec![meant::TypeNode::Primitive {
+                primitive: meant::PrimitiveType::Nat,
             }],
-            vec![candid_core::Declaration {
+            vec![meant::Declaration {
                 name: name.to_string(),
                 ty: 0,
             }],
@@ -970,24 +983,24 @@ fn non_identifier_declaration_names_are_omitted() {
 
     // A declaration that renders the omitted one's name goes with it, and
     // the header quotes the `via` name the same way.
-    let contract = candid_core::ContractDraft::new(
+    let contract = meant::ContractDraft::new(
         vec![
-            candid_core::TypeNode::Record {
-                fields: vec![candid_core::Field { id: 1, ty: 1 }],
+            meant::TypeNode::Record {
+                fields: vec![meant::Field { id: 1, ty: 1 }],
             },
-            candid_core::TypeNode::Record {
-                fields: vec![candid_core::Field { id: 2, ty: 2 }],
+            meant::TypeNode::Record {
+                fields: vec![meant::Field { id: 2, ty: 2 }],
             },
-            candid_core::TypeNode::Primitive {
-                primitive: candid_core::PrimitiveType::Nat,
+            meant::TypeNode::Primitive {
+                primitive: meant::PrimitiveType::Nat,
             },
         ],
         vec![
-            candid_core::Declaration {
+            meant::Declaration {
                 name: "a-b".to_string(),
                 ty: 1,
             },
-            candid_core::Declaration {
+            meant::Declaration {
                 name: "Uses".to_string(),
                 ty: 0,
             },
@@ -1053,6 +1066,13 @@ fn declared_opt_empty_variant_arms_are_omitted() {
             "type Never = variant {}; type W = opt Never; type V = variant { a : W };",
             &["Never", "W"][..],
         ),
+        // Issue #268: the empty variant no longer names its other uses, but
+        // the arm's `opt` node is still declared, so the verdict stands.
+        (
+            "type Abyss = variant {}; type MaybeAbyss = opt Abyss; \
+             type V = variant { x : MaybeAbyss; y };",
+            &["Abyss", "MaybeAbyss"][..],
+        ),
         // Dedup alone declares the arm: an anonymous arm and a same-shape
         // declaration share one node, so the arm renders as the name.
         (
@@ -1116,6 +1136,26 @@ fn golden_omissions() {
         .expect("the omitted list serializes");
     text.push('\n');
     assert_golden_file("omissions.omitted.json", &text);
+}
+
+/// Issue #268: a reserved-name declaration of a fixed shape is omitted on its
+/// own; `X`, which uses the same shapes, and both methods are kept. The
+/// omitted list is a golden the loader crosscheck holds its own list equal to.
+#[test]
+fn golden_fixedomitted() {
+    let generated = generate_fixture_full("fixedomitted");
+    assert_golden_file("fixedomitted.ts", &generated.module);
+    assert_eq!(
+        generated.omitted,
+        vec![
+            declaration_omitted("Actor", OmissionReason::ReservedExportName),
+            declaration_omitted("actor", OmissionReason::ReservedExportName),
+        ],
+    );
+    let mut text = serde_json::to_string_pretty(&omitted_json(&generated.omitted))
+        .expect("the omitted list serializes");
+    text.push('\n');
+    assert_golden_file("fixedomitted.omitted.json", &text);
 }
 
 /// The closure proof: nothing the module emits references an omitted
@@ -1353,6 +1393,7 @@ fn modules_without_omissions_are_unchanged() {
         "options",
         "shadowing",
         "fidelity",
+        "fixedshapes",
         "docs",
     ] {
         let generated = generate_fixture_full(name);
@@ -1416,16 +1457,16 @@ fn the_last_name_for_a_key_wins_before_it_is_classified() {
     let id = candid_parser_id(reserved);
     assert_eq!(id, candid_parser_id(collision), "the two spellings collide");
     assert_eq!(id, 4_735_054);
-    let contract = candid_core::ContractDraft::new(
+    let contract = meant::ContractDraft::new(
         vec![
-            candid_core::TypeNode::Record {
-                fields: vec![candid_core::Field { id, ty: 1 }],
+            meant::TypeNode::Record {
+                fields: vec![meant::Field { id, ty: 1 }],
             },
-            candid_core::TypeNode::Primitive {
-                primitive: candid_core::PrimitiveType::Nat,
+            meant::TypeNode::Primitive {
+                primitive: meant::PrimitiveType::Nat,
             },
         ],
-        vec![candid_core::Declaration {
+        vec![meant::Declaration {
             name: "A".to_string(),
             ty: 0,
         }],
@@ -1436,7 +1477,7 @@ fn the_last_name_for_a_key_wins_before_it_is_classified() {
     let record = contract
         .types()
         .iter()
-        .position(|node| matches!(node, candid_core::TypeNode::Record { .. }))
+        .position(|node| matches!(node, meant::TypeNode::Record { .. }))
         .expect("the record node") as u32;
 
     // Reserved first, ordinary last: the ordinary spelling wins and renders.
@@ -1784,6 +1825,108 @@ fn a_declared_primitive_renders_structurally_everywhere() {
     }
 }
 
+/// Issue #268: a declared `blob`, `record {}` or `variant {}` names only
+/// itself. Adding an alias whose name sorts before every other declaration
+/// of the same node — `Aaa` — adds exactly its own three lines and changes no
+/// use site, wherever the alias sits in the file; and the plain uses render
+/// structurally beside a declared alias.
+#[test]
+fn a_declared_fixed_shape_names_only_itself() {
+    for (alias, ty, structure) in [
+        ("blob", "Uint8Array", "$.c.blob()"),
+        ("vec nat8", "Uint8Array", "$.c.blob()"),
+        ("record {}", "Record<string, never>", "$.c.unit()"),
+        ("variant {}", "never", "$.c.variant({})"),
+    ] {
+        let base = format!(
+            "type Subaccount = {alias};\n\
+             type Account = record {{ owner : principal; subaccount : opt Subaccount }};\n\
+             type Args = record {{ to : Account; plain : opt {alias}; raw : {alias}; \
+             list : vec {alias} }};\n\
+             service : {{ go : (Args, {alias}) -> (Subaccount) }}"
+        );
+        let without = generate_source(&base);
+        // Every use is structural, and `Subaccount` is its own declaration.
+        assert!(
+            without.contains(&format!("subaccount: {ty} | null")),
+            "{alias}: {without}"
+        );
+        assert!(
+            without.contains(&format!("plain: {ty} | null")),
+            "{alias}: {without}"
+        );
+        assert!(
+            without.contains(&format!("$.c.opt({structure})")),
+            "{alias}: {without}"
+        );
+        assert!(
+            without.contains(&format!("export type Subaccount = {ty};")),
+            "{alias}: {without}"
+        );
+        assert!(
+            without.contains(&format!(
+                "const $Subaccount: $.Schema<Subaccount> = $.c.rec(() => {structure});"
+            )),
+            "{alias}: {without}"
+        );
+
+        let own = [
+            format!("export type Aaa = {ty};"),
+            format!("const $Aaa: $.Schema<Aaa> = $.c.rec(() => {structure});"),
+            "export { $Aaa as Aaa };".to_string(),
+        ];
+        // Before or after the other alias: source order plays no part either.
+        let (first, rest) = base.split_once('\n').expect("the base has lines");
+        for with in [
+            generate_source(&format!("type Aaa = {alias};\n{base}")),
+            generate_source(&format!("{first}\ntype Aaa = {alias};\n{rest}")),
+        ] {
+            let added: Vec<&str> = with
+                .lines()
+                .filter(|line| !without.lines().any(|kept| kept == *line))
+                .filter(|line| !line.trim().is_empty())
+                .collect();
+            assert_eq!(added, own, "{alias}: the alias changed a use site:\n{with}");
+            let removed: Vec<&str> = without
+                .lines()
+                .filter(|line| !with.lines().any(|kept| kept == *line))
+                .collect();
+            assert!(removed.is_empty(), "{alias}: {removed:?}\n{with}");
+        }
+    }
+}
+
+/// Issue #268 with the #116 locality rule: an export-named declaration of a
+/// fixed shape is omitted on its own, and no longer takes every other use of
+/// that shape with it.
+#[test]
+fn an_omitted_fixed_shape_declaration_omits_only_itself() {
+    for (shape, ty) in [
+        ("blob", "Uint8Array"),
+        ("record {}", "Record<string, never>"),
+        ("variant {}", "never"),
+    ] {
+        let generated = generate_source_full(&format!(
+            "type actor = {shape}; type R = record {{ a : {shape}; n : nat }};"
+        ));
+        assert_eq!(
+            generated.omitted,
+            vec![declaration_omitted(
+                "actor",
+                OmissionReason::ReservedExportName
+            )],
+            "{shape}"
+        );
+        assert!(
+            generated
+                .module
+                .contains(&format!("export type R = {{ a: {ty}; n: bigint }};")),
+            "{shape}: {}",
+            generated.module
+        );
+    }
+}
+
 /// The locality rule of #116 applied to value shapes: adding an unrelated
 /// declaration of `nat8` never changes another declaration's rendering.
 #[test]
@@ -1855,7 +1998,7 @@ fn documented_generation_is_deterministic() {
     let compilation = compile_did(&source).expect("compile");
     let names = TsNames::from_source_info(compilation.source_info().expect("provenance"));
     let json = serde_json::to_string(compilation.contract()).expect("serialize");
-    let reparsed = candid_core::Contract::from_json(&json).expect("reparse");
+    let reparsed = meant::Contract::from_json(&json).expect("reparse");
     let again = generate_module(&reparsed, &names, &TsOptions::default())
         .expect("generate")
         .module;
