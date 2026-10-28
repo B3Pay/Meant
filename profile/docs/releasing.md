@@ -6,16 +6,17 @@ The procedure of record for publishing `@meantjs/profile`, `@meantjs/format`,
 version can never be replaced, and an unpublished name or version cannot be reused. So the irreversible step needs the
 owner's approval in GitHub, and everything before it is checked.
 
-**Status (2026-10-28): 0.1.0 is published.** `@meantjs/profile`, `@meantjs/format`, `@meantjs/consent`,
-`@meantjs/tools` and `@meantjs/reconcile` 0.1.0 are on npm under `latest`, each with signed provenance (fact: the
-registry's `dist.attestations`, read 2026-10-28). They were published from the public repository `B3Pay/Meant`, where
-the spec and the packages sit under `profile/` as a reviewed copy of this one that `scripts/public-copy/` builds
-(D-051, D-052), never from this private repository: its merge commit 57afdae (the 0.1.0 sync, B3Pay/Meant#292),
-`npm release (profile)` run 40692299884, approved by the owner. An empty project that installs the five from the
-registry passes `scripts/package-check/smoke.mjs`, and `npm audit signatures` verifies their signatures and
-attestations. The one-time prerequisites below are done: the `npm-publish` environment, the bootstrap of the five
-names, their trusted publishers and, after the publish, the hardening (two-factor authentication, tokens
-disallowed). The next release starts at step 1 of "Releasing a version".
+**Status (2026-10-28): 0.2.0 is published.** `@meantjs/profile`, `@meantjs/format`, `@meantjs/consent`,
+`@meantjs/tools` and `@meantjs/reconcile` 0.2.0 are on npm under `latest`, each with signed provenance. They were
+published from the public repository `B3Pay/Meant`, where the spec and the packages sit under `profile/` as a reviewed
+copy of this one that `scripts/public-copy/` builds (D-051, D-052), never from this private repository: its merge
+commit 4e016b8 (the 0.2.0 sync, B3Pay/Meant#295), `npm release (profile)` run 40757959363, approved by the owner. An
+empty project that installs the five 0.2.0 packages from the registry passes `scripts/package-check/smoke.mjs`, and
+`npm audit signatures` verifies their signatures and attestations (fact: run 2026-10-28, 12 packages with verified
+signatures, 8 with verified attestations). 0.1.0, the first release, was published the same way from 57afdae
+(B3Pay/Meant#292) by run 40692299884. The one-time prerequisites below are done: the `npm-publish` environment, the
+bootstrap of the five names, their trusted publishers and, after the first publish, the hardening (two-factor
+authentication, tokens disallowed). The next release starts at step 1 of "Releasing a version".
 
 ## What is released
 
