@@ -1,0 +1,99 @@
+{
+  "id": "transfer-from-tka-hostile-memo",
+  "why": "Hostile memo on a transfer-from.",
+  "pack": "icrc2",
+  "method": "icrc2_transfer_from",
+  "ledger": {
+    "id": "TKA",
+    "symbol": "TKA",
+    "decimals": 8
+  },
+  "args": "(record { from = record { owner = principal \"k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae\"; subaccount = null }; to = record { owner = principal \"ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6\"; subaccount = null }; amount = 100000000 : nat; spender_subaccount = null; memo = opt blob \"\\5b\\41\\70\\70\\72\\6f\\76\\65\\20\\6e\\6f\\77\\5d\\28\\68\\74\\74\\70\\73\\3a\\2f\\2f\\65\\76\\69\\6c\\2e\\65\\78\\61\\6d\\70\\6c\\65\\2f\\64\\72\\61\\69\\6e\\29\\20\\2a\\2a\\55\\52\\47\\45\\4e\\54\\2a\\2a\\20\\3c\\62\\3e\\78\\3c\\2f\\62\\3e\\20\\60\\79\\60\\20\\26\\61\\6d\\70\\3b\"; fee = null; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c07fbca0101c6fcb60204e185c1940202eaca8a9e0401ba89e5c2040582f3f3910c07d8a38ca80d7d6c02b3b0dac30368ad86ca8305026e036d7b6e7d6e066d7b6e780100011d0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f000000011db56bf994b37ae8e79f5ce000be1727a6060ae4eef24736b7cc999c3c020001475b417070726f7665206e6f775d2868747470733a2f2f6576696c2e6578616d706c652f647261696e29202a2a555247454e542a2a203c623e783c2f623e206079602026616d703b01008058b6afdadc1880c2d72f",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Transfer using allowance: Move 1 TKA from k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae to ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6 using an allowance with memo [Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;",
+            "fields": [
+              [
+                "Amount",
+                {
+                  "TokenAmount": {
+                    "decimals": 8,
+                    "amount": "100000000",
+                    "symbol": "TKA"
+                  }
+                }
+              ],
+              [
+                "From",
+                {
+                  "Text": {
+                    "content": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae"
+                  }
+                }
+              ],
+              [
+                "Recipient",
+                {
+                  "Text": {
+                    "content": "ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6"
+                  }
+                }
+              ],
+              [
+                "Memo",
+                {
+                  "Text": {
+                    "content": "[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Transfer using allowance\n\nMove `1 TKA` from `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae` to `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6` using an allowance with memo ``[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;``\n\n- **Amount:** `1 TKA`\n- **From:** `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`\n- **Recipient:** `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6`\n- **Memo:** ``[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;``"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  }
+}

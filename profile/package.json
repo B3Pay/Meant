@@ -1,0 +1,25 @@
+{
+  "name": "meant-profile",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Meant profiles, the meaning layer for Internet Computer canister calls: the Candid Profile v0 spec, its schema and standard packs, and the @meantjs packages that read them.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "validate": "node scripts/validate.mjs && node scripts/validate.mjs examples/tokens.profile.json --did examples/tokens.did",
+    "test": "node --test \"scripts/*.test.mjs\" \"packages/*/test/*.test.mjs\"",
+    "pack:check": "node scripts/package-check/check.mjs",
+    "types": "tsc -p scripts/package-check/types/tsconfig.json",
+    "fixtures": "node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.resolved.json && node scripts/validate.mjs packs/icrc2.profile.json --resolved > fixtures/icrc2.resolved.json && node scripts/validate.mjs examples/tokens.profile.json --did examples/tokens.did --resolved > fixtures/tokens-example.resolved.json && npm run data -w packages/resolver"
+  },
+  "devDependencies": {
+    "@candid-core/cli": "0.4.0",
+    "ajv": "8.18.0",
+    "typescript": "7.0.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

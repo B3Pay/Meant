@@ -1,0 +1,966 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:candid-profile:v0:schema",
+  "title": "Candid Profile v0",
+  "description": "Meaning for positions in a Candid interface (units, formats, intent, risk, idempotency, outcome classes). Normative prose: docs/profile-v0.md. Structural checks only; address resolution and tag applicability are checked by scripts/validate.mjs.",
+  "type": "object",
+  "required": [
+    "format",
+    "format_version",
+    "kind",
+    "name",
+    "origin",
+    "binds",
+    "annotations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "candid-profile"
+    },
+    "format_version": {
+      "const": 0
+    },
+    "kind": {
+      "enum": [
+        "canister",
+        "pack"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$"
+    },
+    "origin": {
+      "enum": [
+        "author",
+        "third_party",
+        "pack",
+        "inferred"
+      ]
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$",
+      "default": "en"
+    },
+    "description": {
+      "type": "string"
+    },
+    "binds": {
+      "type": "object"
+    },
+    "annotations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/annotation"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "pack"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "origin": {
+            "const": "pack"
+          },
+          "binds": {
+            "$ref": "#/$defs/pack_binds"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "canister"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "origin": {
+            "enum": [
+              "author",
+              "third_party",
+              "inferred"
+            ]
+          },
+          "binds": {
+            "$ref": "#/$defs/canister_binds"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "pack_binds": {
+      "type": "object",
+      "required": [
+        "standard",
+        "requires"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "standard": {
+          "type": "string",
+          "pattern": "^[A-Z]+-[0-9]+$"
+        },
+        "spec_url": {
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "requires": {
+          "type": "string",
+          "minLength": 10,
+          "description": "A Candid service fragment. The pack applies to a canister whose service type is a subtype of this fragment."
+        }
+      }
+    },
+    "canister_binds": {
+      "type": "object",
+      "required": [
+        "interface_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "interface_id": {
+          "type": "string",
+          "pattern": "^candid-core:interface:v1:sha256:[0-9a-f]{64}$"
+        },
+        "contract_id": {
+          "type": "string",
+          "pattern": "^candid-core:contract:v1:sha256:[0-9a-f]{64}$"
+        },
+        "canister_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]{5}(-[a-z0-9]{5})*(-[a-z0-9]{1,5})?$"
+        }
+      }
+    },
+    "value_address": {
+      "type": "string",
+      "description": "METHOD(i)path | METHOD->(i)path | type:DECL path. Paths: .label, .#id, [] (vec element). opt is transparent.",
+      "pattern": "^(([A-Za-z_][A-Za-z0-9_]*)(\\((0|[1-9][0-9]*)\\)|->\\((0|[1-9][0-9]*)\\))|type:[A-Za-z_][A-Za-z0-9_]*)((\\.([A-Za-z_][A-Za-z0-9_]*|#(0|[1-9][0-9]{0,9})))|\\[\\])*$"
+    },
+    "method_address": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "relpath": {
+      "type": "string",
+      "description": "Path relative to a method's argument tuple (or result tuple, for outcome/list.next/list.items). Starts with (i) when the tuple has more than one element; otherwise relative to element 0.",
+      "pattern": "^(\\((0|[1-9][0-9]*)\\))?(\\.?([A-Za-z_][A-Za-z0-9_]*|#(0|[1-9][0-9]{0,9}))|\\[\\])?((\\.([A-Za-z_][A-Za-z0-9_]*|#(0|[1-9][0-9]{0,9})))|\\[\\])*$",
+      "minLength": 1
+    },
+    "int_string": {
+      "type": "string",
+      "pattern": "^(0|-?[1-9][0-9]*)$"
+    },
+    "dynamic": {
+      "type": "object",
+      "required": [
+        "from"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "pattern": "^(query:[A-Za-z_][A-Za-z0-9_]*|now|caller)$"
+        }
+      }
+    },
+    "time_unit": {
+      "enum": [
+        "ns",
+        "us",
+        "ms",
+        "s"
+      ]
+    },
+    "outcome_class": {
+      "enum": [
+        "success",
+        "already_done",
+        "retry_same",
+        "retry_new",
+        "fix_input",
+        "fail"
+      ]
+    },
+    "annotation": {
+      "type": "object",
+      "required": [
+        "at",
+        "tag",
+        "args"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "type": "string"
+        },
+        "tag": {
+          "enum": [
+            "amount",
+            "timestamp",
+            "duration",
+            "account",
+            "subaccount",
+            "bytes",
+            "text",
+            "range",
+            "default",
+            "describe",
+            "ui",
+            "intent",
+            "effect",
+            "idempotency",
+            "outcome",
+            "list",
+            "names",
+            "named"
+          ]
+        },
+        "args": {
+          "type": "object"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "enum": [
+                  "intent",
+                  "effect",
+                  "idempotency",
+                  "outcome",
+                  "list",
+                  "names"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "at": {
+                "$ref": "#/$defs/method_address"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "enum": [
+                  "amount",
+                  "timestamp",
+                  "duration",
+                  "account",
+                  "subaccount",
+                  "bytes",
+                  "text",
+                  "range",
+                  "default",
+                  "ui",
+                  "named"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "at": {
+                "$ref": "#/$defs/value_address"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "describe"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "at": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/value_address"
+                  },
+                  {
+                    "$ref": "#/$defs/method_address"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "amount"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_amount"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "timestamp"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_timestamp"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "duration"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_duration"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "account"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_account"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "subaccount"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_empty"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "bytes"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_bytes"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "text"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_text"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "range"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_range"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_default"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "describe"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_describe"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "ui"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_ui"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "intent"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_intent"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "effect"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_effect"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "idempotency"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_idempotency"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "outcome"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_outcome"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "list"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_list"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "names"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_names"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "named"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_named"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "args_empty": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 0
+    },
+    "args_amount": {
+      "type": "object",
+      "required": [
+        "decimals"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "$ref": "#/$defs/dynamic"
+            }
+          ]
+        },
+        "symbol": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            {
+              "$ref": "#/$defs/dynamic"
+            }
+          ]
+        }
+      }
+    },
+    "args_timestamp": {
+      "type": "object",
+      "required": [
+        "unit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "$ref": "#/$defs/time_unit"
+        },
+        "epoch": {
+          "const": "unix"
+        }
+      }
+    },
+    "args_duration": {
+      "type": "object",
+      "required": [
+        "unit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "$ref": "#/$defs/time_unit"
+        }
+      }
+    },
+    "args_account": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "encoding": {
+          "const": "icrc1"
+        }
+      }
+    },
+    "args_bytes": {
+      "type": "object",
+      "required": [
+        "encoding"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "encoding": {
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ]
+        },
+        "max_len": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "args_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "format": {
+          "enum": [
+            "plain",
+            "markdown",
+            "email",
+            "url"
+          ]
+        },
+        "max_len": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pattern": {
+          "type": "string"
+        }
+      }
+    },
+    "args_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "min": {
+          "$ref": "#/$defs/int_string"
+        },
+        "max": {
+          "$ref": "#/$defs/int_string"
+        },
+        "min_len": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_len": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "args_default": {
+      "type": "object",
+      "required": [
+        "value",
+        "mode"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Candid textual literal, e.g. \"null\" or \"opt 0\""
+            },
+            {
+              "$ref": "#/$defs/dynamic"
+            }
+          ]
+        },
+        "mode": {
+          "enum": [
+            "auto",
+            "suggest"
+          ]
+        }
+      }
+    },
+    "args_describe": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "help": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      }
+    },
+    "args_ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "order": {
+          "type": "integer"
+        },
+        "group": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "widget": {
+          "type": "string"
+        }
+      }
+    },
+    "args_intent": {
+      "type": "object",
+      "required": [
+        "title",
+        "template"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "template": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "args_effect": {
+      "type": "object",
+      "required": [
+        "kind",
+        "irreversible"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "read",
+            "write",
+            "transfer",
+            "approve",
+            "admin",
+            "destroy"
+          ]
+        },
+        "irreversible": {
+          "type": "boolean"
+        },
+        "replicated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "args_idempotency": {
+      "type": "object",
+      "required": [
+        "mode",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "replay_same_payload"
+        },
+        "stamp": {
+          "$ref": "#/$defs/relpath"
+        }
+      }
+    },
+    "args_outcome": {
+      "type": "object",
+      "description": "classes, default or both: a result with no variant to select has default alone (spec 5.3, D-049)",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "classes": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "$ref": "#/$defs/relpath"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/outcome_class"
+          }
+        },
+        "default": {
+          "$ref": "#/$defs/outcome_class"
+        }
+      }
+    },
+    "args_list": {
+      "type": "object",
+      "required": [
+        "cursor",
+        "next",
+        "items"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cursor": {
+          "$ref": "#/$defs/relpath"
+        },
+        "next": {
+          "$ref": "#/$defs/relpath"
+        },
+        "items": {
+          "$ref": "#/$defs/relpath"
+        }
+      }
+    },
+    "set_name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 64,
+      "description": "A names set's name, which named tags refer to."
+    },
+    "args_names": {
+      "type": "object",
+      "required": [
+        "set",
+        "items",
+        "name",
+        "value"
+      ],
+      "additionalProperties": false,
+      "description": "A method that lists named things (spec 5.3, D-045). items is a results relpath to a vec of records; name, value, show and kind are paths inside one item.",
+      "properties": {
+        "set": {
+          "$ref": "#/$defs/set_name"
+        },
+        "items": {
+          "$ref": "#/$defs/relpath"
+        },
+        "name": {
+          "$ref": "#/$defs/relpath"
+        },
+        "value": {
+          "$ref": "#/$defs/relpath"
+        },
+        "show": {
+          "$ref": "#/$defs/relpath"
+        },
+        "kind": {
+          "$ref": "#/$defs/relpath"
+        }
+      }
+    },
+    "args_named": {
+      "type": "object",
+      "required": [
+        "set"
+      ],
+      "additionalProperties": false,
+      "description": "A position a name from a names set can stand for (spec 5.3, D-045).",
+      "properties": {
+        "set": {
+          "$ref": "#/$defs/set_name"
+        },
+        "by": {
+          "enum": [
+            "value",
+            "show"
+          ]
+        }
+      }
+    }
+  }
+}

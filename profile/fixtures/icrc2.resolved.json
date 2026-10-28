@@ -1,0 +1,935 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "interface_id": "candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f",
+  "profiles": [
+    {
+      "name": "icrc2",
+      "origin": "pack",
+      "profile_id": "candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae"
+    }
+  ],
+  "methods": {
+    "icrc1_decimals": {
+      "mode": "query",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "candid": "nat8"
+        }
+      ]
+    },
+    "icrc1_symbol": {
+      "mode": "query",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "candid": "text"
+        }
+      ]
+    },
+    "icrc2_allowance": {
+      "mode": "query",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "account": {
+              "candid": "record",
+              "tags": {
+                "account": {
+                  "args": {
+                    "encoding": "icrc1"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              },
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            },
+            "spender": {
+              "candid": "record",
+              "tags": {
+                "account": {
+                  "args": {
+                    "encoding": "icrc1"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              },
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "record",
+          "fields": {
+            "allowance": {
+              "candid": "nat",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "expires_at": {
+              "candid": "nat64",
+              "optional": true,
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "ns",
+                    "epoch": "unix"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "icrc2_approve": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Approve spending",
+            "template": "Set {spender}'s allowance to {amount}, replacing any existing allowance[ (only if the current allowance is {expected_allowance})][ until {expires_at}][ from subaccount {from_subaccount}][ with memo {memo}]"
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        },
+        "effect": {
+          "args": {
+            "kind": "approve",
+            "irreversible": false
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        },
+        "idempotency": {
+          "args": {
+            "mode": "replay_same_payload",
+            "stamp": "created_at_time"
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        },
+        "outcome": {
+          "args": {
+            "classes": {
+              "Ok": "success",
+              "Err.Duplicate": "already_done",
+              "Err.TemporarilyUnavailable": "retry_same",
+              "Err.TooOld": "retry_new",
+              "Err.CreatedInFuture": "retry_new",
+              "Err.BadFee": "fix_input",
+              "Err.AllowanceChanged": "fix_input",
+              "Err.Expired": "fix_input",
+              "Err.InsufficientFunds": "fail",
+              "Err.GenericError": "fail"
+            },
+            "default": "fail"
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "fee": {
+              "candid": "nat",
+              "optional": true,
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "auto"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "memo": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "bytes": {
+                  "args": {
+                    "encoding": "utf8"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "suggest"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Memo",
+                    "help": "Ledgers accept at least 32 bytes; longer memos may be rejected."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "from_subaccount": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "subaccount": {
+                  "args": {},
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "From subaccount"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "created_at_time": {
+              "candid": "nat64",
+              "optional": true,
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "ns",
+                    "epoch": "unix"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "ui": {
+                  "args": {
+                    "hidden": true
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "amount": {
+              "candid": "nat",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Allowance",
+                    "help": "Maximum the spender may transfer. An approval replaces the previous allowance; it does not add to it."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "expected_allowance": {
+              "candid": "nat",
+              "optional": true,
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Expected current allowance",
+                    "help": "Optional safety check: the call fails with AllowanceChanged if the current allowance differs."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "expires_at": {
+              "candid": "nat64",
+              "optional": true,
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "ns",
+                    "epoch": "unix"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Expires at",
+                    "help": "Omit for an allowance that does not expire."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "spender": {
+              "candid": "record",
+              "tags": {
+                "account": {
+                  "args": {
+                    "encoding": "icrc1"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Spender"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              },
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "nat",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Block index"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "Err": {
+              "candid": "variant",
+              "cases": {
+                "GenericError": {
+                  "candid": "record",
+                  "fields": {
+                    "message": {
+                      "candid": "text"
+                    },
+                    "error_code": {
+                      "candid": "nat"
+                    }
+                  }
+                },
+                "TemporarilyUnavailable": {
+                  "candid": "null"
+                },
+                "Duplicate": {
+                  "candid": "record",
+                  "fields": {
+                    "duplicate_of": {
+                      "candid": "nat"
+                    }
+                  }
+                },
+                "BadFee": {
+                  "candid": "record",
+                  "fields": {
+                    "expected_fee": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "AllowanceChanged": {
+                  "candid": "record",
+                  "fields": {
+                    "current_allowance": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "CreatedInFuture": {
+                  "candid": "record",
+                  "fields": {
+                    "ledger_time": {
+                      "candid": "nat64",
+                      "tags": {
+                        "timestamp": {
+                          "args": {
+                            "unit": "ns",
+                            "epoch": "unix"
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "TooOld": {
+                  "candid": "null"
+                },
+                "Expired": {
+                  "candid": "record",
+                  "fields": {
+                    "ledger_time": {
+                      "candid": "nat64",
+                      "tags": {
+                        "timestamp": {
+                          "args": {
+                            "unit": "ns",
+                            "epoch": "unix"
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "InsufficientFunds": {
+                  "candid": "record",
+                  "fields": {
+                    "balance": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "icrc2_transfer_from": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Transfer using allowance",
+            "template": "Move {amount} from {from} to {to} using an allowance[ (spender subaccount {spender_subaccount})][ with memo {memo}]"
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        },
+        "idempotency": {
+          "args": {
+            "mode": "replay_same_payload",
+            "stamp": "created_at_time"
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        },
+        "outcome": {
+          "args": {
+            "classes": {
+              "Ok": "success",
+              "Err.Duplicate": "already_done",
+              "Err.TemporarilyUnavailable": "retry_same",
+              "Err.TooOld": "retry_new",
+              "Err.CreatedInFuture": "retry_new",
+              "Err.BadFee": "fix_input",
+              "Err.BadBurn": "fix_input",
+              "Err.InsufficientFunds": "fail",
+              "Err.InsufficientAllowance": "fail",
+              "Err.GenericError": "fail"
+            },
+            "default": "fail"
+          },
+          "origin": "pack",
+          "profile": "icrc2"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "to": {
+              "candid": "record",
+              "tags": {
+                "account": {
+                  "args": {
+                    "encoding": "icrc1"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Recipient"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              },
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            },
+            "fee": {
+              "candid": "nat",
+              "optional": true,
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "auto"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "spender_subaccount": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "subaccount": {
+                  "args": {},
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Spender subaccount"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "from": {
+              "candid": "record",
+              "tags": {
+                "account": {
+                  "args": {
+                    "encoding": "icrc1"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "From"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              },
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            },
+            "memo": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "bytes": {
+                  "args": {
+                    "encoding": "utf8"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "suggest"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Memo",
+                    "help": "Ledgers accept at least 32 bytes; longer memos may be rejected."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "created_at_time": {
+              "candid": "nat64",
+              "optional": true,
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "ns",
+                    "epoch": "unix"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "ui": {
+                  "args": {
+                    "hidden": true
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "amount": {
+              "candid": "nat",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "nat",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Block index"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc2"
+                }
+              }
+            },
+            "Err": {
+              "candid": "variant",
+              "cases": {
+                "GenericError": {
+                  "candid": "record",
+                  "fields": {
+                    "message": {
+                      "candid": "text"
+                    },
+                    "error_code": {
+                      "candid": "nat"
+                    }
+                  }
+                },
+                "TemporarilyUnavailable": {
+                  "candid": "null"
+                },
+                "InsufficientAllowance": {
+                  "candid": "record",
+                  "fields": {
+                    "allowance": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "BadBurn": {
+                  "candid": "record",
+                  "fields": {
+                    "min_burn_amount": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Duplicate": {
+                  "candid": "record",
+                  "fields": {
+                    "duplicate_of": {
+                      "candid": "nat"
+                    }
+                  }
+                },
+                "BadFee": {
+                  "candid": "record",
+                  "fields": {
+                    "expected_fee": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "CreatedInFuture": {
+                  "candid": "record",
+                  "fields": {
+                    "ledger_time": {
+                      "candid": "nat64",
+                      "tags": {
+                        "timestamp": {
+                          "args": {
+                            "unit": "ns",
+                            "epoch": "unix"
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "TooOld": {
+                  "candid": "null"
+                },
+                "InsufficientFunds": {
+                  "candid": "record",
+                  "fields": {
+                    "balance": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": []
+}

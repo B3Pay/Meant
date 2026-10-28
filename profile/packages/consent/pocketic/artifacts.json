@@ -1,0 +1,39 @@
+{
+  "format": "candid-profile-consent-pocketic-artifacts",
+  "version": 1,
+  "notes": [
+    "Every file is untrusted until its sha256 matches. scripts/fetch-artifacts.mjs downloads into .cache/ (git-ignored), verifies, and the test verifies again before use.",
+    "pocket_ic: the release and the .gz digests are the ones eval/harness/artifacts.json pins (W2). linux-x64 was downloaded and unpacked for this package on 2026-10-12 (the .gz matched the pinned digest); darwin-arm64's unpacked sha256 is W2's observation. Platforms without an unpacked sha256 are refused.",
+    "sns_governance: built by DFINITY's CI at the dfinity/ic commit whose source docs/proposals/w4-sns-validator-rendering.md cites; both hashes equal the SHA256SUMS file published next to them (checked 2026-10-12). This is not necessarily the version deployed SNSes run (README, Open)."
+  ],
+  "pocket_ic": {
+    "version": "16.0.0",
+    "release": "https://github.com/dfinity/pocketic/releases/tag/16.0.0",
+    "platforms": {
+      "darwin-arm64": {
+        "url": "https://github.com/dfinity/pocketic/releases/download/16.0.0/pocket-ic-arm64-darwin.gz",
+        "gz_sha256": "41cf77e24effc381e21f5e07e908ed078783646e6de05ed52fd6973221f07e64",
+        "sha256": "781f643d4b16105e7544ca810a972f99c0ef1919016c680faa93f10909a14496"
+      },
+      "linux-x64": {
+        "url": "https://github.com/dfinity/pocketic/releases/download/16.0.0/pocket-ic-x86_64-linux.gz",
+        "gz_sha256": "268ba79ec7fe9a563a575adf4983c69627093cce2711d142e476cdc7ad04249e",
+        "sha256": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+      }
+    }
+  },
+  "sns_governance": {
+    "commit": "649156c2bca1315da5699e2125b34be6397c9987",
+    "sha256sums": "https://download.dfinity.systems/ic/649156c2bca1315da5699e2125b34be6397c9987/canisters/SHA256SUMS",
+    "files": {
+      "sns-governance-canister.wasm.gz": {
+        "url": "https://download.dfinity.systems/ic/649156c2bca1315da5699e2125b34be6397c9987/canisters/sns-governance-canister.wasm.gz",
+        "sha256": "64b2bf4b5aa90a15da86d8d12cf6ac0c03e384f9ca8a45e839798567ce4cb53c"
+      },
+      "sns-governance-canister.wasm.gz.did": {
+        "url": "https://download.dfinity.systems/ic/649156c2bca1315da5699e2125b34be6397c9987/canisters/sns-governance-canister.wasm.gz.did",
+        "sha256": "302c60f65ad8514ace351830637938a5b9f3c94db8fdb576fe7f9774ff616f59"
+      }
+    }
+  }
+}

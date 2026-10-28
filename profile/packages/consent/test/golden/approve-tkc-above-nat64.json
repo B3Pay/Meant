@@ -1,0 +1,89 @@
+{
+  "id": "approve-tkc-above-nat64",
+  "why": "18 decimals: the allowance and the expected allowance both exceed nat64, so both rows are Text.",
+  "pack": "icrc2",
+  "method": "icrc2_approve",
+  "ledger": {
+    "id": "TKC",
+    "symbol": "TKC",
+    "decimals": 18
+  },
+  "args": "(record { spender = record { owner = principal \"un4fu-tqaaa-aaaab-qadjq-cai\"; subaccount = null }; amount = 100000000000000000000 : nat; expires_at = null; expected_allowance = opt (30_000_000_000_000_000_000 : nat); memo = null; fee = null; from_subaccount = null; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b010000000001008058b6afdadc188080c098d6c5d7e3eb0a018080e0edd9a1daaaa00300010a00000000003000d3010100",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Approve spending: Set un4fu-tqaaa-aaaab-qadjq-cai's allowance to 100 TKC, replacing any existing allowance (only if the current allowance is 30 TKC)",
+            "fields": [
+              [
+                "Spender",
+                {
+                  "Text": {
+                    "content": "un4fu-tqaaa-aaaab-qadjq-cai"
+                  }
+                }
+              ],
+              [
+                "Allowance",
+                {
+                  "Text": {
+                    "content": "100 TKC"
+                  }
+                }
+              ],
+              [
+                "Expected current allowance",
+                {
+                  "Text": {
+                    "content": "30 TKC"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Approve spending\n\nSet `un4fu-tqaaa-aaaab-qadjq-cai`'s allowance to `100 TKC`, replacing any existing allowance (only if the current allowance is `30 TKC`)\n\n- **Spender:** `un4fu-tqaaa-aaaab-qadjq-cai`\n- **Allowance:** `100 TKC`\n- **Expected current allowance:** `30 TKC`"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  }
+}

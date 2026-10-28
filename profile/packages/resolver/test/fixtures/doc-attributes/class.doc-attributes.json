@@ -1,0 +1,254 @@
+{
+  "contract": {
+    "actor": {
+      "class": 0,
+      "kind": "class"
+    },
+    "canonicalization_profile": "candid-core-canon-1",
+    "declarations": [
+      {
+        "name": "Api",
+        "type": 2
+      }
+    ],
+    "format": "candid-core",
+    "format_version": 1,
+    "identities": {
+      "contract": "candid-core:contract:v1:sha256:a393881aaf815510407e1fb258c69fd75cb00b2421b6510b677b8d2df4de4d44",
+      "interface": "candid-core:interface:v1:sha256:35211c5255cb9d77775525869ff2b0e1a324421a1952b69bb295c87d249acd00"
+    },
+    "producer": {
+      "candid_parser_version": "0.4.0",
+      "candid_version": "0.10.30",
+      "name": "meant",
+      "version": "0.1.0"
+    },
+    "semantics_profile": "candid-1",
+    "types": [
+      {
+        "init": [
+          1
+        ],
+        "kind": "class",
+        "service": 2
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat"
+      },
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 3,
+            "id": 4846113,
+            "name": "add"
+          },
+          {
+            "function": 5,
+            "id": 5144726,
+            "name": "get"
+          }
+        ]
+      },
+      {
+        "args": [
+          4
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "fields": [
+          {
+            "id": 110,
+            "type": 1
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "args": [],
+        "kind": "func",
+        "mode": "query",
+        "results": [
+          1
+        ]
+      }
+    ]
+  },
+  "doc_attributes": {
+    "doc_attributes_version": 1,
+    "items": [
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "title",
+                "value": {
+                  "kind": "text",
+                  "value": "Add"
+                }
+              },
+              {
+                "key": "template",
+                "value": {
+                  "kind": "text",
+                  "value": "Add {n}"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "intent"
+          }
+        ],
+        "kind": "method",
+        "name": "add",
+        "origin": {
+          "kind": "declaration",
+          "name": "Api",
+          "source": "memory:/class.did"
+        },
+        "path": "type:Api.methods[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "text",
+                  "value": "read"
+                }
+              },
+              {
+                "key": "irreversible",
+                "value": {
+                  "kind": "bool",
+                  "value": false
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "effect"
+          }
+        ],
+        "kind": "method",
+        "name": "get",
+        "origin": {
+          "kind": "declaration",
+          "name": "Api",
+          "source": "memory:/class.did"
+        },
+        "path": "type:Api.methods[1]",
+        "prose": [
+          "Read the counter."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "label",
+                "value": {
+                  "kind": "text",
+                  "value": "How much"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "describe"
+          }
+        ],
+        "kind": "field",
+        "name": "n",
+        "origin": {
+          "kind": "declaration",
+          "name": "Api",
+          "source": "memory:/class.did"
+        },
+        "path": "type:Api.methods[0].function.args[0].type.fields[0]",
+        "prose": []
+      }
+    ]
+  },
+  "ok": true,
+  "source_info": {
+    "actors": [
+      {
+        "source": "memory:/class.did"
+      }
+    ],
+    "contract_id": "candid-core:contract:v1:sha256:a393881aaf815510407e1fb258c69fd75cb00b2421b6510b677b8d2df4de4d44",
+    "declarations": [
+      {
+        "name": "Api",
+        "source": "memory:/class.did",
+        "type": 2
+      }
+    ],
+    "field_labels": [
+      {
+        "container": 4,
+        "docs": [
+          "/ @describe(label = \"How much\")"
+        ],
+        "id": 110,
+        "label": {
+          "kind": "named",
+          "name": "n"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Api",
+          "source": "memory:/class.did"
+        },
+        "path": "type:Api.methods[0].function.args[0].type.fields[0]"
+      }
+    ],
+    "function_arguments": [],
+    "imports": [],
+    "methods": [
+      {
+        "docs": [
+          "/ @intent(title = \"Add\", template = \"Add {n}\")"
+        ],
+        "name": "add",
+        "origin": {
+          "kind": "declaration",
+          "name": "Api",
+          "source": "memory:/class.did"
+        },
+        "path": "type:Api.methods[0]",
+        "service": 2
+      },
+      {
+        "docs": [
+          "/ Read the counter.",
+          "/ @effect(kind = \"read\", irreversible = false)"
+        ],
+        "name": "get",
+        "origin": {
+          "kind": "declaration",
+          "name": "Api",
+          "source": "memory:/class.did"
+        },
+        "path": "type:Api.methods[1]",
+        "service": 2
+      }
+    ],
+    "source_bundle_id": "candid-core:source-bundle:v1:sha256:6e5e01b12ff6fe3175bfd278b6e29058b612d111b61107bbf1dd904abf178d27",
+    "source_info_version": 1,
+    "sources": [
+      {
+        "name": "memory:/class.did",
+        "source": "// A service class whose methods come from a declared service type.\n\ntype Api = service {\n  /// Read the counter.\n  /// @effect(kind = \"read\", irreversible = false)\n  get : () -> (nat) query;\n  /// @intent(title = \"Add\", template = \"Add {n}\")\n  add : (record {\n    /// @describe(label = \"How much\")\n    n : nat;\n  }) -> ();\n};\nservice : (nat) -> Api\n"
+      }
+    ]
+  }
+}

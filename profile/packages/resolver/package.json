@@ -1,0 +1,73 @@
+{
+  "name": "@meantjs/profile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Candid Profile resolver: validates profiles, matches packs by Candid subtyping, merges layers (spec section 8) and emits the resolved form (spec section 10).",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/B3Pay/Meant.git",
+    "directory": "profile/packages/resolver"
+  },
+  "homepage": "https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver#readme",
+  "bugs": {
+    "url": "https://github.com/B3Pay/Meant/issues"
+  },
+  "keywords": [
+    "candid",
+    "internet-computer",
+    "icp",
+    "icrc-1",
+    "icrc-2",
+    "profile",
+    "resolver",
+    "json-schema"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.mjs",
+  "types": "./src/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "default": "./src/index.mjs"
+    },
+    "./address": {
+      "types": "./src/address.d.mts",
+      "default": "./src/address.mjs"
+    },
+    "./browser": {
+      "types": "./src/browser.d.mts",
+      "default": "./src/browser.mjs"
+    },
+    "./schema.json": "./data/profile-v0.schema.json",
+    "./packs/*": "./data/packs/*",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "candid-profile": "./bin/candid-profile.mjs"
+  },
+  "files": [
+    "src",
+    "bin",
+    "data",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "data": "node scripts/data.mjs",
+    "data:check": "node scripts/data.mjs --check"
+  },
+  "dependencies": {
+    "@candid-core/cli": "0.4.0",
+    "ajv": "8.18.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "playwright-core": "1.64.0"
+  }
+}

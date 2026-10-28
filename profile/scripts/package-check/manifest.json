@@ -1,0 +1,133 @@
+{
+  "@meantjs/profile": {
+    "exports": [
+      ".",
+      "./address",
+      "./browser",
+      "./schema.json",
+      "./packs/*",
+      "./package.json"
+    ],
+    "files": [
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "bin/candid-profile.mjs",
+      "data/packs/icrc1.profile.json",
+      "data/packs/icrc2.profile.json",
+      "data/profile-v0.schema.json",
+      "data/profile-v0.validate.mjs",
+      "package.json",
+      "src/address.d.mts",
+      "src/address.mjs",
+      "src/analyze.mjs",
+      "src/browser.d.mts",
+      "src/browser.mjs",
+      "src/checks.mjs",
+      "src/cli.mjs",
+      "src/compile.mjs",
+      "src/doc-annotations.mjs",
+      "src/idl.mjs",
+      "src/iface.mjs",
+      "src/index.d.mts",
+      "src/index.mjs",
+      "src/pack-match.mjs",
+      "src/packs.mjs",
+      "src/resolve.mjs",
+      "src/resolved.mjs",
+      "src/schema-core.mjs",
+      "src/schema.mjs",
+      "src/served.mjs",
+      "src/sha256.mjs",
+      "src/subtype.mjs",
+      "src/tags.mjs",
+      "src/util.mjs",
+      "src/validate.mjs"
+    ]
+  },
+  "@meantjs/format": {
+    "exports": [
+      ".",
+      "./package.json"
+    ],
+    "files": [
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "package.json",
+      "src/account.mjs",
+      "src/amount.mjs",
+      "src/bytes.mjs",
+      "src/errors.mjs",
+      "src/formatter.mjs",
+      "src/index.d.mts",
+      "src/index.mjs",
+      "src/names.mjs",
+      "src/principal.mjs",
+      "src/subaccount.mjs",
+      "src/time.mjs",
+      "src/util.mjs"
+    ]
+  },
+  "@meantjs/consent": {
+    "exports": [
+      ".",
+      "./sns",
+      "./package.json"
+    ],
+    "files": [
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "package.json",
+      "src/bytes.mjs",
+      "src/consent.mjs",
+      "src/decode.mjs",
+      "src/display.mjs",
+      "src/errors.mjs",
+      "src/icrc21-codec.mjs",
+      "src/icrc21.mjs",
+      "src/index.d.mts",
+      "src/index.mjs",
+      "src/model.mjs",
+      "src/paths.mjs",
+      "src/render.mjs",
+      "src/resolved.mjs",
+      "src/sns.d.mts",
+      "src/sns.mjs",
+      "src/template.mjs",
+      "src/text.mjs"
+    ]
+  },
+  "@meantjs/tools": {
+    "exports": [
+      ".",
+      "./package.json"
+    ],
+    "files": [
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "package.json",
+      "src/index.d.mts",
+      "src/index.mjs",
+      "src/input.mjs",
+      "src/layer.mjs",
+      "src/plan.mjs"
+    ]
+  },
+  "@meantjs/reconcile": {
+    "exports": [
+      ".",
+      "./package.json"
+    ],
+    "files": [
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "package.json",
+      "src/index.d.mts",
+      "src/index.mjs"
+    ]
+  }
+}

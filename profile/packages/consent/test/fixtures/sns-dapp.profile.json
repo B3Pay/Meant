@@ -1,0 +1,36 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "canister",
+  "name": "sns-dapp-example",
+  "origin": "author",
+  "language": "en",
+  "description": "Author profile of the hypothetical dapp in sns-dapp.did, for the SNS validator rendering tests.",
+  "binds": {
+    "interface_id": "candid-core:interface:v1:sha256:b8b02efa62a133bbf24d1c211875df5ff59c36c47cfe6bfa924e419bdb23daf1"
+  },
+  "annotations": [
+    { "at": "pay_grant", "tag": "intent", "args": { "title": "Pay a grant", "template": "Pay {amount} from the treasury to {to}[ with memo {memo}]" } },
+    { "at": "pay_grant", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+    { "at": "pay_grant(0).amount", "tag": "amount", "args": { "decimals": 8, "symbol": "GOV" } },
+    { "at": "pay_grant(0).amount", "tag": "describe", "args": { "label": "Amount" } },
+    { "at": "pay_grant(0).to", "tag": "account", "args": { "encoding": "icrc1" } },
+    { "at": "pay_grant(0).to", "tag": "describe", "args": { "label": "Recipient" } },
+    { "at": "pay_grant(0).memo", "tag": "bytes", "args": { "encoding": "utf8" } },
+    { "at": "pay_grant(0).memo", "tag": "describe", "args": { "label": "Memo" } },
+    { "at": "set_ledger", "tag": "intent", "args": { "title": "Change the token ledger", "template": "Use the ledger {(0)} for all payments from now on" } },
+    { "at": "set_ledger", "tag": "effect", "args": { "kind": "admin", "irreversible": false } },
+    { "at": "set_ledger(0)", "tag": "describe", "args": { "label": "Ledger" } },
+    { "at": "set_claim_window", "tag": "intent", "args": { "title": "Set the claim window", "template": "Accept claims from {opens_at} until {closes_at}" } },
+    { "at": "set_claim_window", "tag": "effect", "args": { "kind": "admin", "irreversible": false } },
+    { "at": "set_claim_window(0).opens_at", "tag": "timestamp", "args": { "unit": "s", "epoch": "unix" } },
+    { "at": "set_claim_window(0).opens_at", "tag": "describe", "args": { "label": "Opens at" } },
+    { "at": "set_claim_window(0).closes_at", "tag": "timestamp", "args": { "unit": "s", "epoch": "unix" } },
+    { "at": "set_claim_window(0).closes_at", "tag": "describe", "args": { "label": "Closes at" } },
+    { "at": "set_fee_bps", "tag": "intent", "args": { "title": "Change the claim fee", "template": "Charge {(0)} basis points on each claim" } },
+    { "at": "set_fee_bps", "tag": "effect", "args": { "kind": "admin", "irreversible": false } },
+    { "at": "set_fee_bps(0)", "tag": "describe", "args": { "label": "Fee (basis points)" } },
+    { "at": "pause", "tag": "intent", "args": { "title": "Pause the dapp", "template": "Stop all claims and payments until a later proposal resumes them" } },
+    { "at": "pause", "tag": "effect", "args": { "kind": "admin", "irreversible": false } }
+  ]
+}

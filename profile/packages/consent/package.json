@@ -1,0 +1,64 @@
+{
+  "name": "@meantjs/consent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ICRC-21 consent messages and SNS proposal validator renderings generated from a Candid Profile resolved form: any method, both GenericDisplayMessage and FieldsDisplayMessage, values formatted and escaped, nothing rounded.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/B3Pay/Meant.git",
+    "directory": "profile/packages/consent"
+  },
+  "homepage": "https://github.com/B3Pay/Meant/tree/main/profile/packages/consent#readme",
+  "bugs": {
+    "url": "https://github.com/B3Pay/Meant/issues"
+  },
+  "keywords": [
+    "candid",
+    "internet-computer",
+    "icp",
+    "icrc-21",
+    "consent-message",
+    "sns",
+    "wallet"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.mjs",
+  "types": "./src/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "default": "./src/index.mjs"
+    },
+    "./sns": {
+      "types": "./src/sns.d.mts",
+      "default": "./src/sns.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "golden": "node scripts/generate-golden.mjs",
+    "upstream": "node scripts/fetch-icrc21.mjs",
+    "sns": "node scripts/sns-render.mjs"
+  },
+  "dependencies": {
+    "@meantjs/profile": "0.1.0",
+    "@meantjs/format": "0.1.0",
+    "@candid-core/schema": "0.5.0"
+  },
+  "devDependencies": {
+    "@dfinity/didc": "0.0.4",
+    "commonmark": "0.31.2",
+    "esbuild": "0.28.2"
+  }
+}

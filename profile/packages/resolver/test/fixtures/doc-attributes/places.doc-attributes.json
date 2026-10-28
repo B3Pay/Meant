@@ -1,0 +1,1303 @@
+{
+  "contract": {
+    "actor": {
+      "kind": "service",
+      "service": 0
+    },
+    "canonicalization_profile": "candid-core-canon-1",
+    "declarations": [
+      {
+        "name": "Account",
+        "type": 5
+      },
+      {
+        "name": "Payment",
+        "type": 4
+      },
+      {
+        "name": "Status",
+        "type": 17
+      },
+      {
+        "name": "Tokens",
+        "type": 2
+      }
+    ],
+    "format": "candid-core",
+    "format_version": 1,
+    "identities": {
+      "contract": "candid-core:contract:v1:sha256:4a9fcdf10307c2d788736d5d3b424deaf2372e60155b1fac23e44dc725a0fad9",
+      "interface": "candid-core:interface:v1:sha256:a33117fda2784118f03ace8220b4513249f4a8f8ce2568b205b1b28bbf08470e"
+    },
+    "producer": {
+      "candid_parser_version": "0.4.0",
+      "candid_version": "0.10.30",
+      "name": "meant",
+      "version": "0.1.0"
+    },
+    "semantics_profile": "candid-1",
+    "types": [
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 1,
+            "id": 5544103,
+            "name": "old"
+          },
+          {
+            "function": 3,
+            "id": 5591400,
+            "name": "pay"
+          },
+          {
+            "function": 16,
+            "id": 100394802,
+            "name": "status"
+          },
+          {
+            "function": 19,
+            "id": 274041465,
+            "name": "multi"
+          },
+          {
+            "function": 20,
+            "id": 308955842,
+            "name": "decimals"
+          },
+          {
+            "function": 21,
+            "id": 2571094617,
+            "name": "inline"
+          }
+        ]
+      },
+      {
+        "args": [
+          2
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat"
+      },
+      {
+        "args": [
+          4
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": [
+          12
+        ]
+      },
+      {
+        "fields": [
+          {
+            "id": 25979,
+            "type": 5
+          },
+          {
+            "id": 1248019663,
+            "type": 2
+          },
+          {
+            "id": 1779848746,
+            "type": 10
+          },
+          {
+            "id": 3573748184,
+            "type": 2
+          },
+          {
+            "id": 4240438726,
+            "type": 9
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "fields": [
+          {
+            "id": 947296307,
+            "type": 6
+          },
+          {
+            "id": 1349681965,
+            "type": 7
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "principal"
+      },
+      {
+        "inner": 8,
+        "kind": "opt"
+      },
+      {
+        "inner": 9,
+        "kind": "vec"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat8"
+      },
+      {
+        "inner": 11,
+        "kind": "opt"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat64"
+      },
+      {
+        "fields": [
+          {
+            "id": 17724,
+            "type": 2
+          },
+          {
+            "id": 3456837,
+            "type": 13
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "fields": [
+          {
+            "id": 3373249171,
+            "type": 14
+          },
+          {
+            "id": 3382957744,
+            "type": 15
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "null"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "text"
+      },
+      {
+        "args": [],
+        "kind": "func",
+        "mode": "query",
+        "results": [
+          17
+        ]
+      },
+      {
+        "fields": [
+          {
+            "id": 759635106,
+            "type": 14
+          },
+          {
+            "id": 3099235807,
+            "type": 18
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "fields": [
+          {
+            "id": 2250962861,
+            "type": 9
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "args": [
+          2,
+          11,
+          2
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "args": [],
+        "kind": "func",
+        "mode": "query",
+        "results": [
+          9
+        ]
+      },
+      {
+        "args": [
+          22
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": [
+          27
+        ]
+      },
+      {
+        "fields": [
+          {
+            "id": 5941054,
+            "type": 6
+          },
+          {
+            "id": 1214305123,
+            "type": 23
+          },
+          {
+            "id": 3255610368,
+            "type": 24
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "fields": [
+          {
+            "id": 781119164,
+            "type": 14
+          },
+          {
+            "id": 925829665,
+            "type": 14
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "inner": 25,
+        "kind": "opt"
+      },
+      {
+        "inner": 26,
+        "kind": "vec"
+      },
+      {
+        "fields": [
+          {
+            "id": 3364572809,
+            "type": 2
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "fields": [
+          {
+            "id": 17724,
+            "type": 11
+          },
+          {
+            "id": 3456837,
+            "type": 15
+          }
+        ],
+        "kind": "variant"
+      }
+    ]
+  },
+  "doc_attributes": {
+    "doc_attributes_version": 1,
+    "items": [
+      {
+        "attributes": [],
+        "kind": "declaration",
+        "name": "Payment",
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment",
+        "prose": [
+          "An account and an amount."
+        ]
+      },
+      {
+        "attributes": [],
+        "kind": "declaration",
+        "name": "Tokens",
+        "origin": {
+          "kind": "declaration",
+          "name": "Tokens",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Tokens",
+        "prose": [
+          "A token amount."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(0)"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "args": [
+                    {
+                      "kind": "ident",
+                      "value": "decimals"
+                    }
+                  ],
+                  "kind": "call",
+                  "name": "query"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(1)"
+                }
+              },
+              {
+                "key": "unit",
+                "value": {
+                  "kind": "ident",
+                  "value": "ns"
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "timestamp"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(2)"
+                }
+              },
+              {
+                "key": "min",
+                "value": {
+                  "kind": "number",
+                  "value": "1"
+                }
+              },
+              {
+                "key": "max",
+                "value": {
+                  "kind": "number",
+                  "value": "18446744073709551615"
+                }
+              }
+            ],
+            "doc_line": 2,
+            "name": "range"
+          }
+        ],
+        "kind": "method",
+        "name": "multi",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[2]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [],
+            "doc_line": 0,
+            "name": "ui.hidden"
+          },
+          {
+            "args": [],
+            "doc_line": 1,
+            "name": "deprecated"
+          },
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 2,
+            "name": "amout"
+          }
+        ],
+        "kind": "method",
+        "name": "old",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[3]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "title",
+                "value": {
+                  "kind": "text",
+                  "value": "Pay"
+                }
+              },
+              {
+                "key": "template",
+                "value": {
+                  "kind": "text",
+                  "value": "Pay {amount} to {to}"
+                }
+              }
+            ],
+            "doc_line": 3,
+            "name": "intent"
+          },
+          {
+            "args": [
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "text",
+                  "value": "transfer"
+                }
+              },
+              {
+                "key": "irreversible",
+                "value": {
+                  "kind": "bool",
+                  "value": true
+                }
+              }
+            ],
+            "doc_line": 4,
+            "name": "effect"
+          },
+          {
+            "args": [
+              {
+                "key": "classes",
+                "value": {
+                  "fields": [
+                    {
+                      "key": "Ok",
+                      "value": {
+                        "kind": "ident",
+                        "value": "success"
+                      }
+                    },
+                    {
+                      "key": "Err.TooOld",
+                      "value": {
+                        "kind": "ident",
+                        "value": "fix_input"
+                      }
+                    }
+                  ],
+                  "kind": "record"
+                }
+              },
+              {
+                "key": "default",
+                "value": {
+                  "kind": "ident",
+                  "value": "fail"
+                }
+              }
+            ],
+            "doc_line": 5,
+            "name": "outcome"
+          }
+        ],
+        "kind": "method",
+        "name": "pay",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[4]",
+        "prose": [
+          "Pay someone.",
+          "",
+          "The payment is final."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [],
+            "doc_line": 0,
+            "name": "account"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "subaccount"
+                }
+              },
+              {
+                "key": "encoding",
+                "value": {
+                  "kind": "text",
+                  "value": "hex"
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "bytes"
+          }
+        ],
+        "kind": "field",
+        "name": "to",
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "label",
+                "value": {
+                  "kind": "text",
+                  "value": "Count"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "describe"
+          }
+        ],
+        "kind": "field",
+        "name": "count",
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[1]",
+        "prose": [
+          "How many times."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "unit",
+                "value": {
+                  "kind": "ident",
+                  "value": "ns"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "timestamp"
+          },
+          {
+            "args": [
+              {
+                "key": "value",
+                "value": {
+                  "args": [],
+                  "kind": "call",
+                  "name": "now"
+                }
+              },
+              {
+                "key": "mode",
+                "value": {
+                  "kind": "ident",
+                  "value": "auto"
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "default"
+          }
+        ],
+        "kind": "field",
+        "name": "created_at",
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[2]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              },
+              {
+                "key": "symbol",
+                "value": {
+                  "kind": "text",
+                  "value": "ICP"
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "amount",
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[3]",
+        "prose": [
+          "How much, in e8s."
+        ]
+      },
+      {
+        "attributes": [],
+        "kind": "field",
+        "name": "retries",
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[4]",
+        "prose": [
+          "The number of retries."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "label",
+                "value": {
+                  "kind": "text",
+                  "value": "Done"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "describe"
+          }
+        ],
+        "kind": "field",
+        "name": "Done",
+        "origin": {
+          "kind": "declaration",
+          "name": "Status",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Status.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [],
+        "kind": "field",
+        "name": "Running",
+        "origin": {
+          "kind": "declaration",
+          "name": "Status",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Status.fields[1]",
+        "prose": [
+          "Still running."
+        ]
+      },
+      {
+        "attributes": [],
+        "kind": "field",
+        "name": "who",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[0]",
+        "prose": [
+          "Who receives it."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "label",
+                "value": {
+                  "kind": "text",
+                  "value": "Mode"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "describe"
+          }
+        ],
+        "kind": "field",
+        "name": "mode",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[1]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "2"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "price",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[2].type.inner.inner.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "unit",
+                "value": {
+                  "kind": "ident",
+                  "value": "ms"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "timestamp"
+          }
+        ],
+        "kind": "field",
+        "name": "Ok",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.results[0].type.fields[0]",
+        "prose": []
+      }
+    ]
+  },
+  "ok": true,
+  "source_info": {
+    "actors": [
+      {
+        "source": "memory:/places.did"
+      }
+    ],
+    "contract_id": "candid-core:contract:v1:sha256:4a9fcdf10307c2d788736d5d3b424deaf2372e60155b1fac23e44dc725a0fad9",
+    "declarations": [
+      {
+        "name": "Account",
+        "source": "memory:/places.did",
+        "type": 5
+      },
+      {
+        "docs": [
+          "/ An account and an amount."
+        ],
+        "name": "Payment",
+        "source": "memory:/places.did",
+        "type": 4
+      },
+      {
+        "name": "Status",
+        "source": "memory:/places.did",
+        "type": 17
+      },
+      {
+        "docs": [
+          "/ A token amount."
+        ],
+        "name": "Tokens",
+        "source": "memory:/places.did",
+        "type": 2
+      }
+    ],
+    "field_labels": [
+      {
+        "container": 5,
+        "id": 947296307,
+        "label": {
+          "kind": "named",
+          "name": "owner"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Account",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Account.fields[0]"
+      },
+      {
+        "container": 5,
+        "id": 1349681965,
+        "label": {
+          "kind": "named",
+          "name": "subaccount"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Account",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Account.fields[1]"
+      },
+      {
+        "container": 4,
+        "docs": [
+          "/ @account",
+          "/ @bytes(at = \"subaccount\", encoding = \"hex\")"
+        ],
+        "id": 25979,
+        "label": {
+          "kind": "named",
+          "name": "to"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[0]"
+      },
+      {
+        "container": 4,
+        "docs": [
+          "/ @describe(label = \"Count\")",
+          "/ How many times."
+        ],
+        "id": 1248019663,
+        "label": {
+          "kind": "named",
+          "name": "count"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[1]"
+      },
+      {
+        "container": 4,
+        "docs": [
+          "/ @timestamp(unit = ns)",
+          "/ @default(value = now(), mode = auto)"
+        ],
+        "id": 1779848746,
+        "label": {
+          "kind": "named",
+          "name": "created_at"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[2]"
+      },
+      {
+        "container": 4,
+        "docs": [
+          "/ How much, in e8s.",
+          "/ @amount(decimals = 8, symbol = \"ICP\")"
+        ],
+        "id": 3573748184,
+        "label": {
+          "kind": "named",
+          "name": "amount"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[3]"
+      },
+      {
+        "container": 4,
+        "docs": [
+          "/ The number of retries."
+        ],
+        "id": 4240438726,
+        "label": {
+          "kind": "named",
+          "name": "retries"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Payment",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Payment.fields[4]"
+      },
+      {
+        "container": 17,
+        "docs": [
+          "/ @describe(label = \"Done\")"
+        ],
+        "id": 759635106,
+        "label": {
+          "kind": "named",
+          "name": "Done"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Status",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Status.fields[0]"
+      },
+      {
+        "container": 17,
+        "docs": [
+          "/ Still running."
+        ],
+        "id": 3099235807,
+        "label": {
+          "kind": "named",
+          "name": "Running"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Status",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Status.fields[1]"
+      },
+      {
+        "container": 18,
+        "id": 2250962861,
+        "label": {
+          "kind": "named",
+          "name": "progress"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Status",
+          "source": "memory:/places.did"
+        },
+        "path": "type:Status.fields[1].type.fields[0]"
+      },
+      {
+        "container": 22,
+        "docs": [
+          "/ Who receives it."
+        ],
+        "id": 5941054,
+        "label": {
+          "kind": "named",
+          "name": "who"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[0]"
+      },
+      {
+        "container": 22,
+        "docs": [
+          "/ @describe(label = \"Mode\")"
+        ],
+        "id": 1214305123,
+        "label": {
+          "kind": "named",
+          "name": "mode"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[1]"
+      },
+      {
+        "container": 23,
+        "id": 781119164,
+        "label": {
+          "kind": "named",
+          "name": "Fast"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[1].type.fields[0]"
+      },
+      {
+        "container": 23,
+        "id": 925829665,
+        "label": {
+          "kind": "named",
+          "name": "Slow"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[1].type.fields[1]"
+      },
+      {
+        "container": 22,
+        "id": 3255610368,
+        "label": {
+          "kind": "named",
+          "name": "items"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[2]"
+      },
+      {
+        "container": 26,
+        "docs": [
+          "/ @amount(decimals = 2)"
+        ],
+        "id": 3364572809,
+        "label": {
+          "kind": "named",
+          "name": "price"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.args[0].type.fields[2].type.inner.inner.fields[0]"
+      },
+      {
+        "container": 27,
+        "docs": [
+          "/ @timestamp(unit = ms)"
+        ],
+        "id": 17724,
+        "label": {
+          "kind": "named",
+          "name": "Ok"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.results[0].type.fields[0]"
+      },
+      {
+        "container": 27,
+        "id": 3456837,
+        "label": {
+          "kind": "named",
+          "name": "Err"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1].function.results[0].type.fields[1]"
+      },
+      {
+        "container": 12,
+        "id": 17724,
+        "label": {
+          "kind": "named",
+          "name": "Ok"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[4].function.results[0].type.fields[0]"
+      },
+      {
+        "container": 12,
+        "id": 3456837,
+        "label": {
+          "kind": "named",
+          "name": "Err"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[4].function.results[0].type.fields[1]"
+      },
+      {
+        "container": 13,
+        "id": 3373249171,
+        "label": {
+          "kind": "named",
+          "name": "TooOld"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[4].function.results[0].type.fields[1].type.fields[0]"
+      },
+      {
+        "container": 13,
+        "id": 3382957744,
+        "label": {
+          "kind": "named",
+          "name": "Other"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[4].function.results[0].type.fields[1].type.fields[1]"
+      }
+    ],
+    "function_arguments": [],
+    "imports": [],
+    "methods": [
+      {
+        "name": "decimals",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[0]",
+        "service": 0
+      },
+      {
+        "name": "inline",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[1]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @amount(at = \"(0)\", decimals = query(decimals))",
+          "/ @timestamp(at = \"(1)\", unit = ns)",
+          "/ @range(at = \"(2)\", min = 1, max = 18446744073709551615)"
+        ],
+        "name": "multi",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[2]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @ui.hidden()",
+          "/ @deprecated",
+          "/ @amout(decimals = 8)"
+        ],
+        "name": "old",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[3]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ Pay someone.",
+          "/",
+          "/ The payment is final.",
+          "/ @intent(title = \"Pay\", template = \"Pay {amount} to {to}\")",
+          "/ @effect(kind = \"transfer\", irreversible = true)",
+          "/ @outcome(classes = { Ok = success, \"Err.TooOld\" = fix_input }, default = fail)"
+        ],
+        "name": "pay",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[4]",
+        "service": 0
+      },
+      {
+        "name": "status",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/places.did"
+        },
+        "path": "actor.methods[5]",
+        "service": 0
+      }
+    ],
+    "source_bundle_id": "candid-core:source-bundle:v1:sha256:2e47465a60bde8a94743cbe8392675f9cba20b71e4359fd5c6cda80614e54ede",
+    "source_info_version": 1,
+    "sources": [
+      {
+        "name": "memory:/places.did",
+        "source": "// Every place a doc comment can put a tag (spec section 9, OQ-4).\n\ntype Account = record { owner : principal; subaccount : opt blob };\n/// An account and an amount.\ntype Payment = record {\n  /// @account\n  /// @bytes(at = \"subaccount\", encoding = \"hex\")\n  to : Account;\n  /// How much, in e8s.\n  /// @amount(decimals = 8, symbol = \"ICP\")\n  amount : nat;\n  /// The number of retries.\n  retries : nat8;\n  /// @describe(label = \"Count\")\n  /// How many times.\n  count : nat;\n  /// @timestamp(unit = ns)\n  /// @default(value = now(), mode = auto)\n  created_at : opt nat64;\n};\n/// A token amount.\ntype Tokens = nat;\ntype Status = variant {\n  /// @describe(label = \"Done\")\n  Done;\n  /// Still running.\n  Running : record { progress : nat8 };\n};\nservice : {\n  decimals : () -> (nat8) query;\n  /// Pay someone.\n  ///\n  /// The payment is final.\n  /// @intent(title = \"Pay\", template = \"Pay {amount} to {to}\")\n  /// @effect(kind = \"transfer\", irreversible = true)\n  /// @outcome(classes = { Ok = success, \"Err.TooOld\" = fix_input }, default = fail)\n  pay : (Payment) -> (variant { Ok : nat; Err : variant { TooOld; Other : text } });\n  /// @amount(at = \"(0)\", decimals = query(decimals))\n  /// @timestamp(at = \"(1)\", unit = ns)\n  /// @range(at = \"(2)\", min = 1, max = 18446744073709551615)\n  multi : (nat, nat64, nat) -> ();\n  inline : (record {\n    /// Who receives it.\n    who : principal;\n    items : opt vec record {\n      /// @amount(decimals = 2)\n      price : nat;\n    };\n    /// @describe(label = \"Mode\")\n    mode : variant { Fast; Slow };\n  }) -> (variant {\n    /// @timestamp(unit = ms)\n    Ok : nat64;\n    Err : text;\n  });\n  status : () -> (Status) query;\n  /// @ui.hidden()\n  /// @deprecated\n  /// @amout(decimals = 8)\n  old : (nat) -> ();\n}\n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "id": "approve-tka-unlimited",
+  "why": "The common 'unlimited' approval, 2^256 - 1 base units: shown in full as Text, not as a rounded or scientific number.",
+  "pack": "icrc2",
+  "method": "icrc2_approve",
+  "ledger": {
+    "id": "TKA",
+    "symbol": "TKA",
+    "decimals": 8
+  },
+  "args": "(record { spender = record { owner = principal \"un4fu-tqaaa-aaaab-qadjq-cai\"; subaccount = null }; amount = 115792089237316195423570985008687907853269984665640564039457584007913129639935 : nat; expires_at = null; expected_allowance = null; memo = null; fee = null; from_subaccount = null; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b010000000001008058b6afdadc18ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0f0000010a00000000003000d3010100",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Approve spending: Set un4fu-tqaaa-aaaab-qadjq-cai's allowance to 1157920892373161954235709850086879078532699846656405640394575840079131.29639935 TKA, replacing any existing allowance",
+            "fields": [
+              [
+                "Spender",
+                {
+                  "Text": {
+                    "content": "un4fu-tqaaa-aaaab-qadjq-cai"
+                  }
+                }
+              ],
+              [
+                "Allowance",
+                {
+                  "Text": {
+                    "content": "1157920892373161954235709850086879078532699846656405640394575840079131.29639935 TKA"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Approve spending\n\nSet `un4fu-tqaaa-aaaab-qadjq-cai`'s allowance to `1157920892373161954235709850086879078532699846656405640394575840079131.29639935 TKA`, replacing any existing allowance\n\n- **Spender:** `un4fu-tqaaa-aaaab-qadjq-cai`\n- **Allowance:** `1157920892373161954235709850086879078532699846656405640394575840079131.29639935 TKA`"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  }
+}

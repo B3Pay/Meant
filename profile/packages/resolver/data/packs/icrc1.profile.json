@@ -1,0 +1,275 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "pack",
+  "name": "icrc1",
+  "origin": "pack",
+  "language": "en",
+  "description": "Standard pack for ICRC-1 fungible token ledgers. Applies to any canister whose service is a subtype of `binds.requires`.",
+  "binds": {
+    "standard": "ICRC-1",
+    "spec_url": "https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-1/README.md",
+    "requires": "type Account = record { owner : principal; subaccount : opt blob };\ntype TransferArgs = record {\n  from_subaccount : opt blob;\n  to : Account;\n  amount : nat;\n  fee : opt nat;\n  memo : opt blob;\n  created_at_time : opt nat64;\n};\ntype TransferError = variant {\n  BadFee : record { expected_fee : nat };\n  BadBurn : record { min_burn_amount : nat };\n  InsufficientFunds : record { balance : nat };\n  TooOld;\n  CreatedInFuture : record { ledger_time : nat64 };\n  Duplicate : record { duplicate_of : nat };\n  TemporarilyUnavailable;\n  GenericError : record { error_code : nat; message : text };\n};\nservice : {\n  icrc1_symbol : () -> (text) query;\n  icrc1_decimals : () -> (nat8) query;\n  icrc1_fee : () -> (nat) query;\n  icrc1_balance_of : (Account) -> (nat) query;\n  icrc1_transfer : (TransferArgs) -> (variant { Ok : nat; Err : TransferError });\n}\n"
+  },
+  "annotations": [
+    {
+      "at": "icrc1_transfer",
+      "tag": "intent",
+      "args": {
+        "title": "Send tokens",
+        "template": "Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}][ paying fee {fee}]"
+      }
+    },
+    {
+      "at": "icrc1_transfer",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true
+      }
+    },
+    {
+      "at": "icrc1_transfer",
+      "tag": "idempotency",
+      "args": {
+        "mode": "replay_same_payload",
+        "stamp": "created_at_time"
+      }
+    },
+    {
+      "at": "icrc1_transfer",
+      "tag": "outcome",
+      "args": {
+        "classes": {
+          "Ok": "success",
+          "Err.Duplicate": "already_done",
+          "Err.TemporarilyUnavailable": "retry_same",
+          "Err.TooOld": "retry_new",
+          "Err.CreatedInFuture": "retry_new",
+          "Err.BadFee": "fix_input",
+          "Err.BadBurn": "fix_input",
+          "Err.InsufficientFunds": "fail",
+          "Err.GenericError": "fail"
+        },
+        "default": "fail"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).amount",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).amount",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).to",
+      "tag": "account",
+      "args": {
+        "encoding": "icrc1"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).to",
+      "tag": "describe",
+      "args": {
+        "label": "Recipient"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).from_subaccount",
+      "tag": "subaccount",
+      "args": {}
+    },
+    {
+      "at": "icrc1_transfer(0).from_subaccount",
+      "tag": "describe",
+      "args": {
+        "label": "From subaccount",
+        "help": "Omit to send from the default subaccount."
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).fee",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).fee",
+      "tag": "default",
+      "args": {
+        "value": "null",
+        "mode": "auto"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).fee",
+      "tag": "describe",
+      "args": {
+        "label": "Fee",
+        "help": "Leave empty to pay the ledger's current default fee. A wrong explicit fee fails with BadFee."
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).memo",
+      "tag": "bytes",
+      "args": {
+        "encoding": "utf8"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).memo",
+      "tag": "default",
+      "args": {
+        "value": "null",
+        "mode": "suggest"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).memo",
+      "tag": "describe",
+      "args": {
+        "label": "Memo",
+        "help": "Transfers with different memos are never deduplicated against each other. Ledgers accept at least 32 bytes; longer memos may be rejected."
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).created_at_time",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).created_at_time",
+      "tag": "describe",
+      "args": {
+        "label": "Created at",
+        "help": "Set once per intent by the tool layer; enables the ledger's duplicate protection."
+      }
+    },
+    {
+      "at": "icrc1_transfer(0).created_at_time",
+      "tag": "ui",
+      "args": {
+        "hidden": true
+      }
+    },
+    {
+      "at": "icrc1_transfer->(0).Ok",
+      "tag": "describe",
+      "args": {
+        "label": "Block index"
+      }
+    },
+    {
+      "at": "icrc1_transfer->(0).Err.BadFee.expected_fee",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc1_transfer->(0).Err.BadBurn.min_burn_amount",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc1_transfer->(0).Err.InsufficientFunds.balance",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc1_transfer->(0).Err.CreatedInFuture.ledger_time",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc1_transfer->(0).Err.Duplicate.duplicate_of",
+      "tag": "describe",
+      "args": {
+        "label": "Existing block index",
+        "help": "The same transfer was already executed in this block."
+      }
+    },
+    {
+      "at": "icrc1_balance_of",
+      "tag": "describe",
+      "args": {
+        "label": "Balance of an account"
+      }
+    },
+    {
+      "at": "icrc1_balance_of(0)",
+      "tag": "account",
+      "args": {
+        "encoding": "icrc1"
+      }
+    },
+    {
+      "at": "icrc1_balance_of->(0)",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc1_fee->(0)",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    }
+  ]
+}

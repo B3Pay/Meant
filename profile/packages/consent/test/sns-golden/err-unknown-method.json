@@ -1,0 +1,15 @@
+{
+  "id": "err-unknown-method",
+  "why": "A validator registered for a method the profile's interface does not have.",
+  "source": "dapp",
+  "method": "upgrade_protocol",
+  "encoded_as": "pause",
+  "args": "()",
+  "refs": {},
+  "payload_hex": "4449444c0000",
+  "payload_sha256": "0fee102bd16b053022b69f2c65fd5e2f41d150ce9c214ac8731cfaf496ebda4e",
+  "reply": {
+    "Err": "E_METHOD_UNKNOWN: the resolved form has no method \"upgrade_protocol\""
+  },
+  "reply_hex": "4449444c016b02bc8a0171c5fed2017101000144455f4d4554484f445f554e4b4e4f574e3a20746865207265736f6c76656420666f726d20686173206e6f206d6574686f642022757067726164655f70726f746f636f6c22"
+}

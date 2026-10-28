@@ -1,0 +1,458 @@
+{
+  "contract": {
+    "actor": {
+      "kind": "service",
+      "service": 0
+    },
+    "canonicalization_profile": "candid-core-canon-1",
+    "declarations": [
+      {
+        "name": "SendArgs",
+        "type": 4
+      },
+      {
+        "name": "Tokens",
+        "type": 11
+      }
+    ],
+    "format": "candid-core",
+    "format_version": 1,
+    "identities": {
+      "contract": "candid-core:contract:v1:sha256:85d49e25b57490d33d538be8f6f795500724598c218d910b7543410838a80080",
+      "interface": "candid-core:interface:v1:sha256:80667075e294fea8d4114cbf27820489282912e0d3575861444d75c86a385995"
+    },
+    "producer": {
+      "candid_parser_version": "0.4.0",
+      "candid_version": "0.10.30",
+      "name": "meant",
+      "version": "0.1.0"
+    },
+    "semantics_profile": "candid-1",
+    "types": [
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 1,
+            "id": 308955842,
+            "name": "decimals"
+          },
+          {
+            "function": 3,
+            "id": 1280347464,
+            "name": "send"
+          }
+        ]
+      },
+      {
+        "args": [],
+        "kind": "func",
+        "mode": "query",
+        "results": [
+          2
+        ]
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat8"
+      },
+      {
+        "args": [
+          4
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": [
+          9
+        ]
+      },
+      {
+        "fields": [
+          {
+            "id": 25979,
+            "type": 5
+          },
+          {
+            "id": 1213809850,
+            "type": 6
+          },
+          {
+            "id": 3573748184,
+            "type": 8
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "principal"
+      },
+      {
+        "inner": 7,
+        "kind": "opt"
+      },
+      {
+        "inner": 2,
+        "kind": "vec"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat"
+      },
+      {
+        "fields": [
+          {
+            "id": 17724,
+            "type": 8
+          },
+          {
+            "id": 3456837,
+            "type": 10
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "text"
+      },
+      {
+        "fields": [
+          {
+            "id": 5035232,
+            "type": 12
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat64"
+      }
+    ]
+  },
+  "doc_attributes": {
+    "doc_attributes_version": 1,
+    "items": [
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "title",
+                "value": {
+                  "kind": "text",
+                  "value": "Send"
+                }
+              },
+              {
+                "key": "template",
+                "value": {
+                  "kind": "text",
+                  "value": "Send {amount} to {to}[ with memo {memo}]"
+                }
+              }
+            ],
+            "doc_line": 1,
+            "name": "intent"
+          },
+          {
+            "args": [
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "text",
+                  "value": "transfer"
+                }
+              },
+              {
+                "key": "irreversible",
+                "value": {
+                  "kind": "bool",
+                  "value": true
+                }
+              }
+            ],
+            "doc_line": 2,
+            "name": "effect"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "amount"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "args": [
+                    {
+                      "kind": "ident",
+                      "value": "decimals"
+                    }
+                  ],
+                  "kind": "call",
+                  "name": "query"
+                }
+              },
+              {
+                "key": "symbol",
+                "value": {
+                  "kind": "text",
+                  "value": "TOK"
+                }
+              }
+            ],
+            "doc_line": 3,
+            "name": "amount"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "memo"
+                }
+              },
+              {
+                "key": "encoding",
+                "value": {
+                  "kind": "text",
+                  "value": "utf8"
+                }
+              }
+            ],
+            "doc_line": 4,
+            "name": "bytes"
+          },
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "->(0).Ok"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "args": [
+                    {
+                      "kind": "ident",
+                      "value": "decimals"
+                    }
+                  ],
+                  "kind": "call",
+                  "name": "query"
+                }
+              },
+              {
+                "key": "symbol",
+                "value": {
+                  "kind": "text",
+                  "value": "TOK"
+                }
+              }
+            ],
+            "doc_line": 5,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "send",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "actor.methods[1]",
+        "prose": [
+          "Send tokens to another principal."
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              },
+              {
+                "key": "symbol",
+                "value": {
+                  "kind": "text",
+                  "value": "ICP"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "e8s",
+        "origin": {
+          "kind": "declaration",
+          "name": "Tokens",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "type:Tokens.fields[0]",
+        "prose": []
+      }
+    ]
+  },
+  "ok": true,
+  "source_info": {
+    "actors": [
+      {
+        "source": "memory:/spec-9.did"
+      }
+    ],
+    "contract_id": "candid-core:contract:v1:sha256:85d49e25b57490d33d538be8f6f795500724598c218d910b7543410838a80080",
+    "declarations": [
+      {
+        "name": "SendArgs",
+        "source": "memory:/spec-9.did",
+        "type": 4
+      },
+      {
+        "name": "Tokens",
+        "source": "memory:/spec-9.did",
+        "type": 11
+      }
+    ],
+    "field_labels": [
+      {
+        "container": 4,
+        "id": 25979,
+        "label": {
+          "kind": "named",
+          "name": "to"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "SendArgs",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "type:SendArgs.fields[0]"
+      },
+      {
+        "container": 4,
+        "id": 1213809850,
+        "label": {
+          "kind": "named",
+          "name": "memo"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "SendArgs",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "type:SendArgs.fields[1]"
+      },
+      {
+        "container": 4,
+        "id": 3573748184,
+        "label": {
+          "kind": "named",
+          "name": "amount"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "SendArgs",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "type:SendArgs.fields[2]"
+      },
+      {
+        "container": 11,
+        "docs": [
+          "/ @amount(decimals = 8, symbol = \"ICP\")"
+        ],
+        "id": 5035232,
+        "label": {
+          "kind": "named",
+          "name": "e8s"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Tokens",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "type:Tokens.fields[0]"
+      },
+      {
+        "container": 9,
+        "id": 17724,
+        "label": {
+          "kind": "named",
+          "name": "Ok"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "actor.methods[1].function.results[0].type.fields[0]"
+      },
+      {
+        "container": 9,
+        "id": 3456837,
+        "label": {
+          "kind": "named",
+          "name": "Err"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "actor.methods[1].function.results[0].type.fields[1]"
+      }
+    ],
+    "function_arguments": [],
+    "imports": [],
+    "methods": [
+      {
+        "name": "decimals",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "actor.methods[0]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ Send tokens to another principal.",
+          "/ @intent(title = \"Send\", template = \"Send {amount} to {to}[ with memo {memo}]\")",
+          "/ @effect(kind = \"transfer\", irreversible = true)",
+          "/ @amount(at = \"amount\", decimals = query(decimals), symbol = \"TOK\")",
+          "/ @bytes(at = \"memo\", encoding = \"utf8\")",
+          "/ @amount(at = \"->(0).Ok\", decimals = query(decimals), symbol = \"TOK\")"
+        ],
+        "name": "send",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/spec-9.did"
+        },
+        "path": "actor.methods[1]",
+        "service": 0
+      }
+    ],
+    "source_bundle_id": "candid-core:source-bundle:v1:sha256:919a276d00fa3402bb0030b5b9bb3c57eec4105a36b7135cd6e999e974a58421",
+    "source_info_version": 1,
+    "sources": [
+      {
+        "name": "memory:/spec-9.did",
+        "source": "type Tokens = record {\n  /// @amount(decimals = 8, symbol = \"ICP\")\n  e8s : nat64;\n};\ntype SendArgs = record { to : principal; amount : nat; memo : opt blob };\nservice : {\n  decimals : () -> (nat8) query;\n  /// Send tokens to another principal.\n  /// @intent(title = \"Send\", template = \"Send {amount} to {to}[ with memo {memo}]\")\n  /// @effect(kind = \"transfer\", irreversible = true)\n  /// @amount(at = \"amount\", decimals = query(decimals), symbol = \"TOK\")\n  /// @bytes(at = \"memo\", encoding = \"utf8\")\n  /// @amount(at = \"->(0).Ok\", decimals = query(decimals), symbol = \"TOK\")\n  send : (SendArgs) -> (variant { Ok : nat; Err : text });\n}\n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "format": "candid-profile-w4-upstream-source",
+  "notes": [
+    "Untrusted third-party data (Apache-2.0, see LICENSE). Tests read these files as text and never import or execute anything from this directory.",
+    "ICRC-21.did is the interface the ICRC-21 tests validate against. The examples are the non-normative en_US example messages of the standard, used only in packages/consent/docs/oisy-comparison.md.",
+    "To re-check: npm run upstream -w packages/consent (needs network; compares sha256, never overwrites)."
+  ],
+  "repository": "https://github.com/dfinity/wg-identity-authentication",
+  "commit": "202e6df31e338a91d485663834818bdd96e05c6a",
+  "commit_note": "head of main on 2026-10-09 (git ls-remote)",
+  "downloaded": "2026-10-09",
+  "downloaded_with": "curl into an empty directory outside the repository, then copied here",
+  "files": {
+    "ICRC-21.did": {
+      "sha256": "c62d3ecc415f0994f18523a7c573f7888dc9d3f0acb9fe30e58029153731dff9",
+      "bytes": 8035,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/ICRC-21.did"
+    },
+    "LICENSE": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/LICENSE"
+    },
+    "icrc_21_consent_msg.md": {
+      "sha256": "2bf9964ffe9446c2db71b6f1fdb71ccca50323406d11160a3d76218e8bbc9725",
+      "bytes": 13172,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/icrc_21_consent_msg.md"
+    },
+    "examples/icrc1_transfer_authenticated_default.json": {
+      "sha256": "938fde3df9a763bb3ec5fd8becd47400a9789b0fb3043d14b8316e23c54c8938",
+      "bytes": 720,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/examples/en_US/icrc1_transfer/authenticated/default.json"
+    },
+    "examples/icrc1_transfer_authenticated_default.md": {
+      "sha256": "1382d470335ef403840069bf16492653b51c4bfbe88a32c05df78a38f9023e44",
+      "bytes": 250,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/examples/en_US/icrc1_transfer/authenticated/default.md"
+    },
+    "examples/icrc2_approve_authenticated_default.json": {
+      "sha256": "83cd7e7bc1515eb8a8e596b402969eb3f48cd20526ee2343318eec251c1df852",
+      "bytes": 1123,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/examples/en_US/icrc2_approve/authenticated/default.json"
+    },
+    "examples/icrc2_approve_authenticated_default.md": {
+      "sha256": "7e8356943e66a4d7ba8c1d4d693b0cb9450ff234242150ff5edd737dc58ea0af",
+      "bytes": 572,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/examples/en_US/icrc2_approve/authenticated/default.md"
+    },
+    "examples/icrc2_transfer_from_anonymous_default.json": {
+      "sha256": "0e016981af3f7770286fb285130ee4254bca0ea027fdb5a5a4646ea4df43deca",
+      "bytes": 721,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/examples/en_US/icrc2_transfer_from/anonymous/default.json"
+    },
+    "examples/icrc2_transfer_from_anonymous_default.md": {
+      "sha256": "8cd28173062fd7a8958842ed93a9f01c7a478368acdf9fd8a0def6092f70dcf4",
+      "bytes": 259,
+      "url": "https://raw.githubusercontent.com/dfinity/wg-identity-authentication/202e6df31e338a91d485663834818bdd96e05c6a/topics/ICRC-21/examples/en_US/icrc2_transfer_from/anonymous/default.md"
+    }
+  }
+}

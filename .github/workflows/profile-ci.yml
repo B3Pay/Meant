@@ -1,0 +1,62 @@
+name: Profile
+
+# The checks of profile/, the Candid Profile spec and the @meantjs packages: validate and test on every Node line
+# the packages support (engines: >=22), and the packaged-consumer check of the five library packages
+# (profile/scripts/package-check/check.mjs). It runs only when profile/ or its workflows change. This file and
+# profile/ arrive together from the project's working repository (profile/README.md).
+on:
+  pull_request:
+    paths:
+      - "profile/**"
+      - ".github/workflows/profile-ci.yml"
+      - ".github/workflows/npm-release-profile.yml"
+  push:
+    branches: [main]
+    paths:
+      - "profile/**"
+      - ".github/workflows/profile-ci.yml"
+      - ".github/workflows/npm-release-profile.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: profile
+
+jobs:
+  validate-and-test:
+    name: profile, validate and test (Node ${{ matrix.node }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22.22.0, 24.22.1, 26.12.1]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: profile/package-lock.json
+      - run: npm ci
+      - run: npm run validate
+      - run: npm test
+
+  package:
+    name: profile, packaged consumer
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.22.0
+          cache: npm
+          cache-dependency-path: profile/package-lock.json
+      - run: npm ci
+      - run: npm run types
+      - run: npm run pack:check

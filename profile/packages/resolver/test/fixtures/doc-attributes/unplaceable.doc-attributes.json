@@ -1,0 +1,1142 @@
+{
+  "contract": {
+    "actor": {
+      "kind": "service",
+      "service": 0
+    },
+    "canonicalization_profile": "candid-core-canon-1",
+    "declarations": [
+      {
+        "name": "Callback",
+        "type": 7
+      },
+      {
+        "name": "Hook",
+        "type": 9
+      },
+      {
+        "name": "Pair",
+        "type": 12
+      }
+    ],
+    "format": "candid-core",
+    "format_version": 1,
+    "identities": {
+      "contract": "candid-core:contract:v1:sha256:e40192d49fe58ae2229a554d6ad0cdb00aa5fe65c813607f398d20acc528e265",
+      "interface": "candid-core:interface:v1:sha256:0d02bd9d71f54a820113fe88632e520040cdcbd9d7b49dcc5026f863aa2abd0a"
+    },
+    "producer": {
+      "candid_parser_version": "0.4.0",
+      "candid_version": "0.10.30",
+      "name": "meant",
+      "version": "0.1.0"
+    },
+    "semantics_profile": "candid-1",
+    "types": [
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 1,
+            "id": 5795212,
+            "name": "two"
+          },
+          {
+            "function": 4,
+            "id": 308955842,
+            "name": "decimals"
+          },
+          {
+            "function": 6,
+            "id": 421006154,
+            "name": "subscribe"
+          },
+          {
+            "function": 9,
+            "id": 742856340,
+            "name": "misplaced"
+          },
+          {
+            "function": 8,
+            "id": 1091626802,
+            "name": "bare"
+          },
+          {
+            "function": 10,
+            "id": 1158859747,
+            "name": "hook"
+          },
+          {
+            "function": 11,
+            "id": 1246878746,
+            "name": "pair"
+          },
+          {
+            "function": 8,
+            "id": 1693357570,
+            "name": "fraction"
+          },
+          {
+            "function": 8,
+            "id": 2018429224,
+            "name": "unknowncall"
+          },
+          {
+            "function": 8,
+            "id": 2055484387,
+            "name": "identat"
+          },
+          {
+            "function": 8,
+            "id": 2309066979,
+            "name": "badcall"
+          },
+          {
+            "function": 13,
+            "id": 2571094617,
+            "name": "inline"
+          },
+          {
+            "function": 8,
+            "id": 2913911288,
+            "name": "badat"
+          },
+          {
+            "function": 17,
+            "id": 3144538704,
+            "name": "quoted-name"
+          },
+          {
+            "function": 18,
+            "id": 3307542095,
+            "name": "watch"
+          }
+        ]
+      },
+      {
+        "args": [
+          2,
+          3
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "fields": [
+          {
+            "id": 120,
+            "type": 3
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat"
+      },
+      {
+        "args": [],
+        "kind": "func",
+        "mode": "query",
+        "results": [
+          5
+        ]
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat8"
+      },
+      {
+        "args": [
+          7
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 8,
+            "id": 834198217,
+            "name": "notify"
+          }
+        ]
+      },
+      {
+        "args": [
+          3
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "args": [
+          2
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "args": [
+          9
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "args": [
+          12
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "fields": [
+          {
+            "id": 97,
+            "type": 3
+          },
+          {
+            "id": 98,
+            "type": 3
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "args": [
+          14,
+          15
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "fields": [
+          {
+            "id": 121,
+            "type": 3
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "args": [
+          16
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "fields": [
+          {
+            "id": 122,
+            "type": 3
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "args": [],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "args": [
+          19
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 20,
+            "id": 834198217,
+            "name": "notify"
+          }
+        ]
+      },
+      {
+        "args": [
+          21
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": []
+      },
+      {
+        "fields": [
+          {
+            "id": 118,
+            "type": 3
+          }
+        ],
+        "kind": "record"
+      }
+    ]
+  },
+  "doc_attributes": {
+    "doc_attributes_version": 1,
+    "items": [
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "actor",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "text",
+                  "value": "write"
+                }
+              },
+              {
+                "key": "irreversible",
+                "value": {
+                  "kind": "bool",
+                  "value": false
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "effect"
+          }
+        ],
+        "kind": "method",
+        "name": "notify",
+        "origin": {
+          "kind": "declaration",
+          "name": "Callback",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "type:Callback.methods[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(0"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "badat",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "x"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "two",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[12]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(0)"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "args": [],
+                  "kind": "call",
+                  "name": "later"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "unknowncall",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[13]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "text",
+                  "value": "write"
+                }
+              },
+              {
+                "key": "irreversible",
+                "value": {
+                  "kind": "bool",
+                  "value": false
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "effect"
+          }
+        ],
+        "kind": "method",
+        "name": "notify",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[14].function.args[0].type.methods[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(0)"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "args": [
+                    {
+                      "kind": "ident",
+                      "value": "decimals"
+                    },
+                    {
+                      "kind": "ident",
+                      "value": "symbol"
+                    }
+                  ],
+                  "kind": "call",
+                  "name": "query"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "badcall",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[1]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "bare",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[2]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(0)"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "0.5"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "fraction",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[4]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "ident",
+                  "value": "x"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "method",
+        "name": "identat",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[6]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "x"
+                }
+              },
+              {
+                "key": "kind",
+                "value": {
+                  "kind": "text",
+                  "value": "read"
+                }
+              },
+              {
+                "key": "irreversible",
+                "value": {
+                  "kind": "bool",
+                  "value": false
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "effect"
+          }
+        ],
+        "kind": "method",
+        "name": "misplaced",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[8]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "x",
+        "origin": {
+          "kind": "declaration",
+          "name": "Hook",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "type:Hook.args[0].type.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "title",
+                "value": {
+                  "kind": "text",
+                  "value": "No"
+                }
+              },
+              {
+                "key": "template",
+                "value": {
+                  "kind": "text",
+                  "value": "No"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "intent"
+          }
+        ],
+        "kind": "field",
+        "name": "a",
+        "origin": {
+          "kind": "declaration",
+          "name": "Pair",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "type:Pair.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "v",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[14].function.args[0].type.methods[0].function.args[0].type.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "at",
+                "value": {
+                  "kind": "text",
+                  "value": "(0)"
+                }
+              },
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "y",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[7].function.args[0].type.fields[0]",
+        "prose": []
+      },
+      {
+        "attributes": [
+          {
+            "args": [
+              {
+                "key": "decimals",
+                "value": {
+                  "kind": "number",
+                  "value": "8"
+                }
+              }
+            ],
+            "doc_line": 0,
+            "name": "amount"
+          }
+        ],
+        "kind": "field",
+        "name": "z",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[7].function.args[1].type.args[0].type.fields[0]",
+        "prose": []
+      }
+    ]
+  },
+  "ok": true,
+  "source_info": {
+    "actors": [
+      {
+        "docs": [
+          "/ @amount(decimals = 8)"
+        ],
+        "source": "memory:/unplaceable.did"
+      }
+    ],
+    "contract_id": "candid-core:contract:v1:sha256:e40192d49fe58ae2229a554d6ad0cdb00aa5fe65c813607f398d20acc528e265",
+    "declarations": [
+      {
+        "name": "Callback",
+        "source": "memory:/unplaceable.did",
+        "type": 7
+      },
+      {
+        "name": "Hook",
+        "source": "memory:/unplaceable.did",
+        "type": 9
+      },
+      {
+        "name": "Pair",
+        "source": "memory:/unplaceable.did",
+        "type": 12
+      }
+    ],
+    "field_labels": [
+      {
+        "container": 2,
+        "docs": [
+          "/ @amount(decimals = 8)"
+        ],
+        "id": 120,
+        "label": {
+          "kind": "named",
+          "name": "x"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Hook",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "type:Hook.args[0].type.fields[0]"
+      },
+      {
+        "container": 12,
+        "docs": [
+          "/ @intent(title = \"No\", template = \"No\")"
+        ],
+        "id": 97,
+        "label": {
+          "kind": "named",
+          "name": "a"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Pair",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "type:Pair.fields[0]"
+      },
+      {
+        "container": 12,
+        "id": 98,
+        "label": {
+          "kind": "named",
+          "name": "b"
+        },
+        "origin": {
+          "kind": "declaration",
+          "name": "Pair",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "type:Pair.fields[1]"
+      },
+      {
+        "container": 2,
+        "id": 120,
+        "label": {
+          "kind": "named",
+          "name": "x"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[12].function.args[0].type.fields[0]"
+      },
+      {
+        "container": 21,
+        "docs": [
+          "/ @amount(decimals = 8)"
+        ],
+        "id": 118,
+        "label": {
+          "kind": "named",
+          "name": "v"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[14].function.args[0].type.methods[0].function.args[0].type.fields[0]"
+      },
+      {
+        "container": 14,
+        "docs": [
+          "/ @amount(at = \"(0)\", decimals = 8)"
+        ],
+        "id": 121,
+        "label": {
+          "kind": "named",
+          "name": "y"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[7].function.args[0].type.fields[0]"
+      },
+      {
+        "container": 16,
+        "docs": [
+          "/ @amount(decimals = 8)"
+        ],
+        "id": 122,
+        "label": {
+          "kind": "named",
+          "name": "z"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[7].function.args[1].type.args[0].type.fields[0]"
+      },
+      {
+        "container": 2,
+        "id": 120,
+        "label": {
+          "kind": "named",
+          "name": "x"
+        },
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[8].function.args[0].type.fields[0]"
+      }
+    ],
+    "function_arguments": [],
+    "imports": [],
+    "methods": [
+      {
+        "docs": [
+          "/ @effect(kind = \"write\", irreversible = false)"
+        ],
+        "name": "notify",
+        "origin": {
+          "kind": "declaration",
+          "name": "Callback",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "type:Callback.methods[0]",
+        "service": 7
+      },
+      {
+        "docs": [
+          "/ @amount(at = \"(0\", decimals = 8)"
+        ],
+        "name": "badat",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[0]",
+        "service": 0
+      },
+      {
+        "name": "quoted-name",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[10]",
+        "service": 0
+      },
+      {
+        "name": "subscribe",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[11]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @amount(at = \"x\", decimals = 8)"
+        ],
+        "name": "two",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[12]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @amount(at = \"(0)\", decimals = later())"
+        ],
+        "name": "unknowncall",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[13]",
+        "service": 0
+      },
+      {
+        "name": "watch",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[14]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @effect(kind = \"write\", irreversible = false)"
+        ],
+        "name": "notify",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[14].function.args[0].type.methods[0]",
+        "service": 19
+      },
+      {
+        "docs": [
+          "/ @amount(at = \"(0)\", decimals = query(decimals, symbol))"
+        ],
+        "name": "badcall",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[1]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @amount(decimals = 8)"
+        ],
+        "name": "bare",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[2]",
+        "service": 0
+      },
+      {
+        "name": "decimals",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[3]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @amount(at = \"(0)\", decimals = 0.5)"
+        ],
+        "name": "fraction",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[4]",
+        "service": 0
+      },
+      {
+        "name": "hook",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[5]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @amount(at = x, decimals = 8)"
+        ],
+        "name": "identat",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[6]",
+        "service": 0
+      },
+      {
+        "name": "inline",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[7]",
+        "service": 0
+      },
+      {
+        "docs": [
+          "/ @effect(at = \"x\", kind = \"read\", irreversible = false)"
+        ],
+        "name": "misplaced",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[8]",
+        "service": 0
+      },
+      {
+        "name": "pair",
+        "origin": {
+          "kind": "actor",
+          "source": "memory:/unplaceable.did"
+        },
+        "path": "actor.methods[9]",
+        "service": 0
+      }
+    ],
+    "source_bundle_id": "candid-core:source-bundle:v1:sha256:9bca6462faebc7de4e70fd8cddeab3598e2c32b36ff5f790b666dadd60f414b2",
+    "source_info_version": 1,
+    "sources": [
+      {
+        "name": "memory:/unplaceable.did",
+        "source": "// Tags no v0 address reaches, and tags in the wrong place: each is an error.\n\ntype Hook = func (record {\n  /// @amount(decimals = 8)\n  x : nat;\n}) -> ();\ntype Callback = service {\n  /// @effect(kind = \"write\", irreversible = false)\n  notify : (nat) -> ();\n};\ntype Pair = record {\n  /// @intent(title = \"No\", template = \"No\")\n  a : nat;\n  b : nat;\n};\n/// @amount(decimals = 8)\nservice : {\n  decimals : () -> (nat8) query;\n  /// @amount(decimals = 8)\n  bare : (nat) -> ();\n  /// @effect(at = \"x\", kind = \"read\", irreversible = false)\n  misplaced : (record { x : nat }) -> ();\n  /// @amount(at = \"x\", decimals = 8)\n  two : (record { x : nat }, nat) -> ();\n  /// @amount(at = \"(0)\", decimals = 0.5)\n  fraction : (nat) -> ();\n  /// @amount(at = \"(0)\", decimals = query(decimals, symbol))\n  badcall : (nat) -> ();\n  /// @amount(at = \"(0)\", decimals = later())\n  unknowncall : (nat) -> ();\n  /// @amount(at = \"(0\", decimals = 8)\n  badat : (nat) -> ();\n  /// @amount(at = x, decimals = 8)\n  identat : (nat) -> ();\n  hook : (Hook) -> ();\n  subscribe : (Callback) -> ();\n  pair : (Pair) -> ();\n  /// @effect(kind = \"write\", irreversible = false)\n  \"quoted-name\" : () -> ();\n  watch : (service {\n    /// @effect(kind = \"write\", irreversible = false)\n    notify : (record {\n      /// @amount(decimals = 8)\n      v : nat;\n    }) -> ();\n  }) -> ();\n  inline : (record {\n    /// @amount(at = \"(0)\", decimals = 8)\n    y : nat;\n  }, func (record {\n    /// @amount(decimals = 8)\n    z : nat;\n  }) -> ()) -> ();\n}\n"
+      }
+    ]
+  }
+}

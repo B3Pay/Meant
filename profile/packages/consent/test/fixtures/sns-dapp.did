@@ -1,0 +1,15 @@
+// A hypothetical SNS-governed dapp, for the SNS validator rendering tests. Not the interface of any real canister.
+// Each method the DAO calls through a generic nervous system function has a validator with the same argument types
+// that returns the text voters read (variant { Ok : text; Err : text }).
+type Account = record { owner : principal; subaccount : opt blob };
+type GrantArgs = record { to : Account; amount : nat; memo : opt blob };
+type Window = record { opens_at : nat64; closes_at : nat64 };
+service : {
+  pay_grant : (GrantArgs) -> (variant { Ok : nat; Err : text });
+  set_ledger : (principal) -> ();
+  set_claim_window : (Window) -> ();
+  set_fee_bps : (nat16) -> ();
+  pause : () -> ();
+  validate_pay_grant : (GrantArgs) -> (variant { Ok : text; Err : text });
+  validate_set_ledger : (principal) -> (variant { Ok : text; Err : text });
+}

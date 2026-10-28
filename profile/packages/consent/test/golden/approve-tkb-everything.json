@@ -1,0 +1,117 @@
+{
+  "id": "approve-tkb-everything",
+  "why": "6 decimals, every optional present: expected allowance, expiry with half a second (not a whole number of seconds, so Text in UTC), memo, sender subaccount, spender subaccount. The row labels come from the icrc2 pack (D-029).",
+  "pack": "icrc2",
+  "method": "icrc2_approve",
+  "ledger": {
+    "id": "TKB",
+    "symbol": "TKB",
+    "decimals": 6
+  },
+  "args": "(record { spender = record { owner = principal \"ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6\"; subaccount = opt blob \"\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\09\" }; amount = 12500000 : nat; expires_at = opt (1_791_547_200_500_000_000 : nat64); expected_allowance = opt (3_000_000 : nat); memo = opt blob \"\\6d\\6f\\6e\\74\\68\\6c\\79\"; fee = null; from_subaccount = opt blob \"\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\02\"; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b01000001076d6f6e74686c790120000000000000000000000000000000000000000000000000000000000000000201008058b6afdadc18a0f8fa0501c08db7010100e525d4afdadc18011d0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f01200000000000000000000000000000000000000000000000000000000000000009",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": -330
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Approve spending: Set ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-665s52i.9's allowance to 12.5 TKB, replacing any existing allowance (only if the current allowance is 3 TKB) until 2026-10-09T12:00:00.5Z from subaccount #2 with memo monthly",
+            "fields": [
+              [
+                "Spender",
+                {
+                  "Text": {
+                    "content": "ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-665s52i.9"
+                  }
+                }
+              ],
+              [
+                "Allowance",
+                {
+                  "TokenAmount": {
+                    "decimals": 6,
+                    "amount": "12500000",
+                    "symbol": "TKB"
+                  }
+                }
+              ],
+              [
+                "Expected current allowance",
+                {
+                  "TokenAmount": {
+                    "decimals": 6,
+                    "amount": "3000000",
+                    "symbol": "TKB"
+                  }
+                }
+              ],
+              [
+                "Expires at",
+                {
+                  "Text": {
+                    "content": "2026-10-09T12:00:00.5Z"
+                  }
+                }
+              ],
+              [
+                "From subaccount",
+                {
+                  "Text": {
+                    "content": "#2"
+                  }
+                }
+              ],
+              [
+                "Memo",
+                {
+                  "Text": {
+                    "content": "monthly"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": -330
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Approve spending\n\nSet `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-665s52i.9`'s allowance to `12.5 TKB`, replacing any existing allowance (only if the current allowance is `3 TKB`) until `2026-10-09 06:30:00.5 UTC-05:30` from subaccount `#2` with memo `monthly`\n\n- **Spender:** `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-665s52i.9`\n- **Allowance:** `12.5 TKB`\n- **Expected current allowance:** `3 TKB`\n- **Expires at:** `2026-10-09 06:30:00.5 UTC-05:30`\n- **From subaccount:** `#2`\n- **Memo:** `monthly`"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": -330
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "note": "Untrusted download. Read as text by scripts/fetch-icrc1-vectors.mjs only; never imported or executed.",
+  "repo": "https://github.com/dfinity/ICRC-1",
+  "commit": "5d670e54d9a58fbf472bf0a25f33743d60cfd0e6",
+  "files": {
+    "TextualEncoding.md": {
+      "path": "standards/ICRC-1/TextualEncoding.md",
+      "url": "https://raw.githubusercontent.com/dfinity/ICRC-1/5d670e54d9a58fbf472bf0a25f33743d60cfd0e6/standards/ICRC-1/TextualEncoding.md",
+      "sha256": "64757f37bf51fd9d65c0dffa400c14c1e26e7ef5579bc8ffd192cf540b0a0820",
+      "bytes": 4642
+    },
+    "LICENSE": {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/dfinity/ICRC-1/5d670e54d9a58fbf472bf0a25f33743d60cfd0e6/LICENSE",
+      "sha256": "a631589fe4da41cd2a15d2fdc19ab82f815625aa5e37fca75d4c1d65cb407405",
+      "bytes": 11349,
+      "license": "Apache-2.0"
+    }
+  },
+  "fetched": "2026-10-08"
+}

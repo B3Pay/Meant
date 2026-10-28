@@ -1,0 +1,390 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "interface_id": "candid-core:interface:v1:sha256:b8b02efa62a133bbf24d1c211875df5ff59c36c47cfe6bfa924e419bdb23daf1",
+  "profiles": [
+    {
+      "name": "sns-dapp-example",
+      "origin": "author",
+      "profile_id": "candid-profile:v0:sha256:41d00b240eb065919300ff6a9743d033280953feea2833a2027efcdd503510e1"
+    }
+  ],
+  "methods": {
+    "pause": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Pause the dapp",
+            "template": "Stop all claims and payments until a later proposal resumes them"
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "admin",
+            "irreversible": false
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        }
+      },
+      "args": [],
+      "results": []
+    },
+    "pay_grant": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Pay a grant",
+            "template": "Pay {amount} from the treasury to {to}[ with memo {memo}]"
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "to": {
+              "candid": "record",
+              "tags": {
+                "account": {
+                  "args": {
+                    "encoding": "icrc1"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Recipient"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                }
+              },
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            },
+            "memo": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "bytes": {
+                  "args": {
+                    "encoding": "utf8"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Memo"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                }
+              }
+            },
+            "amount": {
+              "candid": "nat",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": 8,
+                    "symbol": "GOV"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "nat"
+            },
+            "Err": {
+              "candid": "text"
+            }
+          }
+        }
+      ]
+    },
+    "set_claim_window": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Set the claim window",
+            "template": "Accept claims from {opens_at} until {closes_at}"
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "admin",
+            "irreversible": false
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "opens_at": {
+              "candid": "nat64",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Opens at"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                }
+              }
+            },
+            "closes_at": {
+              "candid": "nat64",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Closes at"
+                  },
+                  "origin": "author",
+                  "profile": "sns-dapp-example"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": []
+    },
+    "set_fee_bps": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Change the claim fee",
+            "template": "Charge {(0)} basis points on each claim"
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "admin",
+            "irreversible": false
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        }
+      },
+      "args": [
+        {
+          "candid": "nat16",
+          "tags": {
+            "describe": {
+              "args": {
+                "label": "Fee (basis points)"
+              },
+              "origin": "author",
+              "profile": "sns-dapp-example"
+            }
+          }
+        }
+      ],
+      "results": []
+    },
+    "set_ledger": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Change the token ledger",
+            "template": "Use the ledger {(0)} for all payments from now on"
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "admin",
+            "irreversible": false
+          },
+          "origin": "author",
+          "profile": "sns-dapp-example"
+        }
+      },
+      "args": [
+        {
+          "candid": "principal",
+          "tags": {
+            "describe": {
+              "args": {
+                "label": "Ledger"
+              },
+              "origin": "author",
+              "profile": "sns-dapp-example"
+            }
+          }
+        }
+      ],
+      "results": []
+    },
+    "validate_pay_grant": {
+      "mode": "update",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "write",
+            "irreversible": true
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "to": {
+              "candid": "record",
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            },
+            "memo": {
+              "candid": "blob",
+              "optional": true
+            },
+            "amount": {
+              "candid": "nat"
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "text"
+            },
+            "Err": {
+              "candid": "text"
+            }
+          }
+        }
+      ]
+    },
+    "validate_set_ledger": {
+      "mode": "update",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "write",
+            "irreversible": true
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "candid": "principal"
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "text"
+            },
+            "Err": {
+              "candid": "text"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": [
+    {
+      "severity": "info",
+      "code": "I_PACK_NOT_MATCHED",
+      "at": "icrc1",
+      "message": "pack does not apply: icrc1_balance_of: method \"icrc1_balance_of\" is missing from the canister; icrc1_decimals: method \"icrc1_decimals\" is missing from the canister; icrc1_fee: method \"icrc1_fee\" is missing from the canister; and 2 more",
+      "profile": "icrc1"
+    },
+    {
+      "severity": "info",
+      "code": "I_PACK_NOT_MATCHED",
+      "at": "icrc2",
+      "message": "pack does not apply: icrc1_decimals: method \"icrc1_decimals\" is missing from the canister; icrc2_allowance: method \"icrc2_allowance\" is missing from the canister; icrc1_symbol: method \"icrc1_symbol\" is missing from the canister; and 2 more",
+      "profile": "icrc2"
+    },
+    {
+      "severity": "info",
+      "code": "I_UNTAGGED_NUMERIC",
+      "at": "validate_pay_grant(0).amount",
+      "message": "nat argument without amount/timestamp/duration/describe"
+    }
+  ]
+}

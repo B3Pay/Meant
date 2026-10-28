@@ -1,0 +1,91 @@
+{
+  "id": "approve-tka-hostile-memo",
+  "why": "Hostile memo on an approval, with a spender subaccount.",
+  "pack": "icrc2",
+  "method": "icrc2_approve",
+  "ledger": {
+    "id": "TKA",
+    "symbol": "TKA",
+    "decimals": 8
+  },
+  "args": "(record { spender = record { owner = principal \"ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6\"; subaccount = opt blob \"\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\01\" }; amount = 100000000 : nat; expires_at = null; expected_allowance = null; memo = opt blob \"\\5b\\41\\70\\70\\72\\6f\\76\\65\\20\\6e\\6f\\77\\5d\\28\\68\\74\\74\\70\\73\\3a\\2f\\2f\\65\\76\\69\\6c\\2e\\65\\78\\61\\6d\\70\\6c\\65\\2f\\64\\72\\61\\69\\6e\\29\\20\\2a\\2a\\55\\52\\47\\45\\4e\\54\\2a\\2a\\20\\3c\\62\\3e\\78\\3c\\2f\\62\\3e\\20\\60\\79\\60\\20\\26\\61\\6d\\70\\3b\"; fee = null; from_subaccount = null; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b01000001475b417070726f7665206e6f775d2868747470733a2f2f6576696c2e6578616d706c652f647261696e29202a2a555247454e542a2a203c623e783c2f623e206079602026616d703b0001008058b6afdadc1880c2d72f0000011d0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f01200000000000000000000000000000000000000000000000000000000000000001",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Approve spending: Set ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-7fqknwy.1's allowance to 1 TKA, replacing any existing allowance with memo [Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;",
+            "fields": [
+              [
+                "Spender",
+                {
+                  "Text": {
+                    "content": "ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-7fqknwy.1"
+                  }
+                }
+              ],
+              [
+                "Allowance",
+                {
+                  "TokenAmount": {
+                    "decimals": 8,
+                    "amount": "100000000",
+                    "symbol": "TKA"
+                  }
+                }
+              ],
+              [
+                "Memo",
+                {
+                  "Text": {
+                    "content": "[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Approve spending\n\nSet `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-7fqknwy.1`'s allowance to `1 TKA`, replacing any existing allowance with memo ``[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;``\n\n- **Spender:** `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-7fqknwy.1`\n- **Allowance:** `1 TKA`\n- **Memo:** ``[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;``"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  }
+}
