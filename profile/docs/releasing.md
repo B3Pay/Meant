@@ -6,12 +6,14 @@ The procedure of record for publishing `@meantjs/profile`, `@meantjs/format`,
 version can never be replaced, and an unpublished name or version cannot be reused. So the irreversible step needs the
 owner's approval in GitHub, and everything before it is checked.
 
-**Status (2026-10-28): nothing is published.** The packages still say `"private": true`. The names are decided: the
-`@meantjs` scope (D-051). The packages publish from the public repository `B3Pay/Meant`, where the spec and the
-packages sit under `profile/` as a reviewed copy of this one that `scripts/public-copy/` builds (D-052), never from
-this private repository. The owner moved `b3hr4d/candid-core` to B3Pay on 2026-10-28, and GitHub names it
-`B3Pay/Meant`, capital M. What still stands before the first publish, all the owner's: the first sync into it, its
-`npm-publish` environment with the owner as required reviewer, the bootstrap below, and the owner's OK.
+**Status (2026-10-28): 0.1.0, the first release, is prepared; nothing is published yet.** The release PR for 0.1.0
+removed `"private": true` from the five packages and dated their changelogs. The names are decided: the `@meantjs`
+scope (D-051). The packages publish from the public repository `B3Pay/Meant`, where the spec and the packages sit
+under `profile/` as a reviewed copy of this one that `scripts/public-copy/` builds (D-052), never from this private
+repository. The owner moved `b3hr4d/candid-core` to B3Pay on 2026-10-28, and GitHub names it `B3Pay/Meant`, capital
+M; the first sync merged there the same day (B3Pay/Meant#291). What still stands before the first publish, all the
+owner's: checking its `npm-publish` environment for the owner as required reviewer, the bootstrap below, the
+trusted publishers, and the approval of the publish job.
 
 ## What is released
 

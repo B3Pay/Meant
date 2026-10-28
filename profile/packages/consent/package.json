@@ -1,7 +1,6 @@
 {
   "name": "@meantjs/consent",
   "version": "0.1.0",
-  "private": true,
   "description": "ICRC-21 consent messages and SNS proposal validator renderings generated from a Candid Profile resolved form: any method, both GenericDisplayMessage and FieldsDisplayMessage, values formatted and escaped, nothing rounded.",
   "license": "Apache-2.0",
   "repository": {
