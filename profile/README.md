@@ -21,7 +21,7 @@ npm). Meant is a B3Pay project.
 
 - The spec is **Draft 0.2**. Breaking changes are expected until the preregistered eval reports; its tasks stay
   private so that no model trains on them.
-- The packages are **not on npm yet**. 0.1.0 is next.
+- 0.1.0 is the packages' **first npm release** (`docs/releasing.md`).
 - **Internet Computer only.** Ethereum, through ERC-7730 clear-signing files, and Solana are planned, not supported.
 - **Try it** in B3Forge: open the [playground](https://forge.b3pay.net/playground), fetch any ICRC ledger by its
   canister id and switch to Profile.

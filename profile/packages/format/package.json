@@ -1,7 +1,6 @@
 {
   "name": "@meantjs/format",
   "version": "0.1.0",
-  "private": true,
   "description": "Exact value conversion for Candid Profile value tags (amount, timestamp, duration, account, subaccount, bytes): parse human input, display canonical text, never round.",
   "license": "Apache-2.0",
   "repository": {

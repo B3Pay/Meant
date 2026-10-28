@@ -1,7 +1,6 @@
 {
   "name": "@meantjs/tools",
   "version": "0.1.0",
-  "private": true,
   "description": "Agent tools from any Candid Profile resolved form: tool definitions, exact input reading, and a tool layer with a confirmation hook, an injected encoder, call and clock. Browser-safe.",
   "license": "Apache-2.0",
   "repository": {

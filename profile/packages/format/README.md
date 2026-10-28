@@ -11,8 +11,7 @@ npm install @meantjs/format
 - **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
 - **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
   `/reconcile`) release together under one version and pin each other exactly; in 0.x a minor is breaking,
-  and so is any change to generated text ([releasing](https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md)). Not on npm yet: the first release waits on
-  the owner's go.
+  and so is any change to generated text ([releasing](https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md)).
 
 - **No rounding, ever** (ground rule 8, D-006): input with excess precision is rejected, a conversion that would lose precision throws, integers never pass through a JavaScript number.
 - **No dependencies** at run time or for tests. Node >= 22.
