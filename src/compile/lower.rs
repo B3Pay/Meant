@@ -15,9 +15,6 @@ pub(super) fn lower_checked(
         budget
             .checkpoint()
             .map_err(|error| budget_error(error, DiagnosticPhase::Lower, "Contract lowering"))?;
-        // FAULT, to be dropped (#289, acceptance criterion 4): one extra
-        // allocation per declaration.
-        drop(std::hint::black_box(Box::new(0u64)));
         lowerer.lower_named(name).map_err(lower_error)?;
     }
 

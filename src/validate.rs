@@ -71,13 +71,6 @@ pub(crate) fn validate_contract_with_budget(
     contract: &Contract,
     budget: &mut Budget<'_>,
 ) -> Result<(), ContractValidationError> {
-    // FAULT, to be dropped (#289, acceptance criterion 4): a slowdown of a
-    // measured path, `artifact/ledger/validate`.
-    let mut spin = 0u64;
-    for step in 0..20_000u64 {
-        spin = std::hint::black_box(spin.wrapping_add(step));
-    }
-    std::hint::black_box(spin);
     validate_and_canonicalize_with_budget(contract, budget).map(|_| ())
 }
 
