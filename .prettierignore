@@ -23,10 +23,6 @@
 # every pinned artifact ID.
 /tests/fixtures/
 
-# Reviewed measurement records, not source: reformatting them would make a
-# baseline diff unreadable at exactly the moment it matters (docs/benchmarks.md).
-/benches/baselines/
-
 # Build output of `npm run build`, and the packaged-consumer fixture's tree.
 /crates/candid-core-ts/ts/dist/
 
