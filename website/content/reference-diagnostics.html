@@ -7,7 +7,7 @@
   <code>HostValueValidationError.violations</code> — but the items are the same algebra, and
   <code>ContractViolation</code> and <code>HostValueViolation</code> are type aliases for
   <code>Diagnostic</code>. The TypeScript runtime deliberately reproduces the same serialized item
-  shape, so a consumer that already reads candid-core violations reads those too.
+  shape, so a consumer that already reads <code>meant</code> violations reads those too.
 </p>
 
 <p>
@@ -314,7 +314,7 @@ pub struct ResourceLimitInfo {
   </thead>
   <tbody>
     <tr><td><code>did_parse_error</code></td><td><code>parse</code></td><td>The Candid parser rejected the text. Carries an exact span when the offsets index the original source; the materialized-bundle path withholds them, as the span rules above describe.</td></tr>
-    <tr><td><code>did_type_check_error</code></td><td><code>type_check</code></td><td>The source parses but does not type-check. Also candid-core's own refusal of a type that lies on a cycle passing only through <code>opt</code>, such as <code>type T = opt T;</code>, which <code>candid_parser</code> accepts: the message names the type, and the span names the source that declares it.</td></tr>
+    <tr><td><code>did_type_check_error</code></td><td><code>type_check</code></td><td>The source parses but does not type-check. Also Meant's own refusal of a type that lies on a cycle passing only through <code>opt</code>, such as <code>type T = opt T;</code>, which <code>candid_parser</code> accepts: the message names the type, and the span names the source that declares it.</td></tr>
     <tr><td><code>did_load_error</code></td><td><code>load</code></td><td>A load-phase failure with no more specific code.</td></tr>
     <tr><td><code>contract_lowering_error</code></td><td><code>lower</code></td><td>An unstructured invariant failure while lowering the checked AST into the arena.</td></tr>
     <tr><td><code>did_import_cycle</code></td><td><code>load</code></td><td>Import resolution reached a source already on the stack.</td></tr>
@@ -401,7 +401,7 @@ pub struct ResourceLimitInfo {
     <tr><th>Code</th><th>Triggered by</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>malformed_contract_json</code></td><td><code>candid-core validate</code> was given something that is not a well-formed Contract document at all. Phase <code>load</code>.</td></tr>
+    <tr><td><code>malformed_contract_json</code></td><td><code>meant validate</code> was given something that is not a well-formed Contract document at all. Phase <code>load</code>.</td></tr>
     <tr><td><code>contract_file_read_error</code></td><td>The file could not be read, or was not valid UTF-8. Phase <code>load</code>.</td></tr>
   </tbody>
 </table>
@@ -409,15 +409,15 @@ pub struct ResourceLimitInfo {
 <h2>Reading a failure in Rust</h2>
 
 <pre data-lang="rust">
-use candid_core::{Contract, Limits, RuntimeContext};
+use meant::{Contract, Limits, RuntimeContext};
 
 let context = RuntimeContext::new(Limits::default().with_max_input_bytes(64));
 match Contract::from_slice_with_context(document, &context) {
     Ok(contract) => println!("{}", contract.contract_id()),
-    Err(candid_core::ContractJsonError::MalformedJson(message)) => {
+    Err(meant::ContractJsonError::MalformedJson(message)) => {
         eprintln!("not a Contract document: {message}");
     }
-    Err(candid_core::ContractJsonError::InvalidContract(error)) => {
+    Err(meant::ContractJsonError::InvalidContract(error)) => {
         for violation in &error.violations {
             // `code` and `path` are the stable surface; `message` is not.
             eprint!("{} at {}", violation.code, violation.path.as_deref().unwrap_or("$"));
@@ -462,7 +462,7 @@ match Contract::from_slice_with_context(document, &context) {
   interfaces carry exactly <code>{ code, path, message, resource_limit? }</code>, its codes are stable
   snake_case strings, and its paths are <code>$</code>-rooted with <code>.name</code> for
   ASCII-identifier-shaped keys and <code>["…"]</code> or <code>[3]</code> otherwise — the same
-  <code>$.declarations[3].name</code> style candid-core emits.
+  <code>$.declarations[3].name</code> style <code>meant</code> emits.
 </p>
 
 <pre data-lang="ts" data-file="crates/candid-core-ts/ts/validate.ts" data-partial>
@@ -537,7 +537,7 @@ export type ValidateResult =
     <strong>Some resource names have no Rust counterpart</strong> — the codec's <code>bytes</code>,
     <code>type_table_entries</code> and <code>numeric_bytes</code>, the loader's
     <code>name_table_entries</code>, which bounds a caller-supplied field-name table that has no
-    candid-core equivalent, and <code>stack</code>, reported by <code>validate</code>,
+    <code>meant</code> equivalent, and <code>stack</code>, reported by <code>validate</code>,
     <code>encode</code> and <code>decode</code> when the host JavaScript stack runs out — in code
     a walk calls (a getter, a <code>rec</code> thunk), since the walks themselves are iterative.
   </li>

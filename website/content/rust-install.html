@@ -1,5 +1,5 @@
 <p>
-  <code>candid-core</code> is one crate on crates.io. It reads Candid
+  <code>meant</code> is one crate on crates.io. It reads Candid
   <code>.did</code> interface source and projects it into a <strong>Contract</strong>:
   a validated, canonically ordered type graph with named declarations, an optional
   actor, and content-addressed identities computed over its canonical bytes. What
@@ -19,7 +19,7 @@
 
 <p>
   Write the exact requirement. <code>0.1.0</code> is the first version without a
-  prerelease suffix, so the usual caret spelling, <code>candid-core = "0.1"</code>,
+  prerelease suffix, so the usual caret spelling, <code>meant = "0.1"</code>,
   now resolves to it — and to any later <code>0.1.x</code>, which before 1.0 may
   change the API, the serialized shapes and the identities.
 </p>
@@ -28,13 +28,13 @@
 [dependencies]
 # The full surface: compiler, filesystem-compiler and host-value are all
 # enabled by default, so no feature selection is needed.
-candid-core = "=0.1.0"
+meant = "=0.1.0"
 </pre>
 
 <p>The same thing from the command line:</p>
 
 <pre data-lang="bash">
-cargo add candid-core@=0.1.0
+cargo add meant@=0.1.0
 </pre>
 
 <p>
@@ -108,7 +108,7 @@ cargo add candid-core@=0.1.0
       <td>
         <code>WorkspaceResolver</code>, <code>compile_did_file</code> and its
         variants, source materialization for
-        <code>candid_parser::check_file</code>, the <code>candid-core</code> binary
+        <code>candid_parser::check_file</code>, the <code>meant</code> binary
       </td>
       <td><code>cap-std</code></td>
     </tr>
@@ -180,14 +180,14 @@ cargo add candid-core@=0.1.0
   Adds <code>WorkspaceResolver</code>, which holds an open <code>cap-std</code>
   directory capability for one authorized root and opens every path relative to it;
   <code>compile_did_file</code>, which roots a resolver at the file's own parent
-  directory; and the <code>candid-core</code> binary. It implies
+  directory; and the <code>meant</code> binary. It implies
   <code>compiler</code>, so it is a superset.
 </p>
 
 <p>
   <strong>Choose it if</strong> you are a native tool that reads <code>.did</code>
   files off disk, or you want the CLI. See
-  <a href="cli-rust.html">The candid-core binary</a>.
+  <a href="cli-rust.html">The <code>meant</code> binary</a>.
 </p>
 
 <h2>What feature selection does, and does not, do</h2>
@@ -200,7 +200,7 @@ cargo add candid-core@=0.1.0
   <strong>Cargo unifies features across a build.</strong> Feature splitting bounds
   what a <em>dependency graph</em> must contain — it cannot subtract from a graph
   that already asked for more. If anything else in your build depends on
-  <code>candid-core</code> with defaults, the whole surface is compiled once for
+  <code>meant</code> with defaults, the whole surface is compiled once for
   every consumer in that build, including yours. Your
   <code>default-features = false</code> line is still meaningful: it states what
   <em>your</em> crate needs, and it is what makes a lean graph possible when nothing
@@ -232,7 +232,7 @@ cargo add candid-core@=0.1.0
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = { version = "=0.1.0", default-features = false, features = ["compiler"] }
+meant = { version = "=0.1.0", default-features = false, features = ["compiler"] }
 </pre>
 
 <p>
@@ -244,7 +244,7 @@ candid-core = { version = "=0.1.0", default-features = false, features = ["compi
 </p>
 
 <pre data-lang="rust" data-file="examples/hermetic_bundle.rs">
-use candid_core::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+use meant::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 
 let mut resolver = MemoryResolver::new();
 resolver.insert(
@@ -269,11 +269,11 @@ println!("contract: {}", compilation.contract().contract_id());
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = { version = "=0.1.0", default-features = false }
+meant = { version = "=0.1.0", default-features = false }
 </pre>
 
 <pre data-lang="rust">
-use candid_core::{Contract, ContractJsonError, Limits, RuntimeContext};
+use meant::{Contract, ContractJsonError, Limits, RuntimeContext};
 
 fn accept(document: &[u8]) -> Result<Contract, ContractJsonError> {
     // The byte gate runs before serde_json is invoked, so an oversized

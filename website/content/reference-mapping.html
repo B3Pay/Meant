@@ -24,7 +24,7 @@
   Two independent implementations apply this mapping and must agree. The Rust generator
   <code>candid-core-ts</code> emits a TypeScript module ahead of time; the npm runtime's
   <code>schemaFromContract</code> builds the same schemas at load time from a canonical Contract JSON
-  document. A <em>Contract</em> is candid-core's validated model of a <code>.did</code> file: a flat
+  document. A <em>Contract</em> is Meant's validated model of a <code>.did</code> file: a flat
   array of type nodes addressed by index, a list of named declarations pointing into it, and an
   optional actor. Both sides read that graph, so the rows below describe both — see
   <a href="generator.html">The code generator</a> and

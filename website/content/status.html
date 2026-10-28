@@ -1,11 +1,13 @@
-<p>This repository produces one crate on crates.io, two packages on npm, and several units that are deliberately unpublishable. All of it is pre-1.0. This page states where each unit is, what changed in each released version, and which parts of the release machinery a consumer should care about — with no forward-looking dates, because none are promised.</p>
+<p>This repository produces two crates on crates.io, two packages on npm, and several units that are deliberately unpublishable. All of it is pre-1.0. This page states where each unit is, what changed in each released version, and which parts of the release machinery a consumer should care about — with no forward-looking dates, because none are promised.</p>
 
 <h2>What is published today</h2>
 
 <table>
   <thead><tr><th>Unit</th><th>Registry</th><th>Status</th></tr></thead>
   <tbody>
-    <tr><td><code>candid-core</code></td><td>crates.io</td><td><span class="pill ok">Published</span> — latest <code>0.1.0</code>, published on 2026-10-12. Also on the registry: <code>0.1.0-beta.1</code>, <code>0.1.0-beta.2</code>, <code>0.1.0-beta.3</code>. None yanked.</td></tr>
+    <tr><td><code>meant</code></td><td>crates.io</td><td><span class="pill ok">Published</span> — latest <code>0.1.0</code>, published on 2026-10-27: the code of <code>candid-core</code> <code>0.1.0</code> under the crate&rsquo;s new name. Its binary is <code>meant</code>.</td></tr>
+    <tr><td><code>candid-core</code></td><td>crates.io</td><td><span class="pill ok">Published</span> — the crate&rsquo;s name before the rename: <code>0.1.0</code>, published on 2026-10-12, and <code>0.1.0-beta.1</code>, <code>0.1.0-beta.2</code>, <code>0.1.0-beta.3</code>. None yanked. Its binary is <code>candid-core</code>.</td></tr>
+    <tr><td><code>meant-format</code></td><td>crates.io</td><td><span class="pill ok">Published</span> — latest <code>0.1.0</code>, published on 2026-10-27. Exact conversion between the amounts people write and the base units a contract call carries; it never rounds. Versioned on its own.</td></tr>
     <tr><td><code>@candid-core/schema</code></td><td>npm</td><td><span class="pill ok">Published</span> — latest <code>0.5.0</code>; beta <code>0.3.0-beta.1</code>. Also on the registry: <code>0.0.0-bootstrap</code>, <code>0.1.0</code>, <code>0.1.1</code>, <code>0.2.0</code>, <code>0.3.0</code>, <code>0.4.0</code>.</td></tr>
     <tr><td><code>@candid-core/cli</code></td><td>npm</td><td><span class="pill ok">Published</span> — latest <code>0.4.0</code>; beta <code>0.2.0-beta.1</code>. Also on the registry: <code>0.0.0-bootstrap</code>, <code>0.1.0</code>, <code>0.2.0</code>, <code>0.3.0</code>.</td></tr>
     <tr><td><code>candid-core-ts</code></td><td>—</td><td><code>publish = false</code> by design. Use it as a path or git dependency from this repository, or not at all.</td></tr>
@@ -22,7 +24,7 @@
 
 <pre data-lang="toml" data-file="README.md">
 # every feature on by default
-candid-core = "=0.1.0"
+meant = "=0.1.0"
 </pre>
 
 <pre data-lang="bash">
@@ -31,7 +33,7 @@ npm install --save-dev --save-exact @candid-core/cli
 </pre>
 
 <callout type="warn" title="Pin the exact version">
-  <p><code>0.1.0</code> is the first <code>candid-core</code> version without a prerelease suffix, so <code>candid-core = "0.1"</code> resolves to it, and to any later <code>0.1.x</code>. Before 1.0 any release may change the API, the serialized shapes and the identities, so write the exact version: <code>candid-core = "=0.1.0"</code>, or <code>cargo install candid-core --version 0.1.0 --locked</code> for the binary. Moving to the next release should be something you opt into.</p>
+  <p><code>meant</code> <code>0.1.0</code> has no prerelease suffix, so <code>meant = "0.1"</code> resolves to it, and to any later <code>0.1.x</code>. Before 1.0 any release may change the API, the serialized shapes and the identities, so write the exact version: <code>meant = "=0.1.0"</code>, or <code>cargo install meant --version 0.1.0 --locked</code> for the binary. Moving to the next release should be something you opt into.</p>
 </callout>
 
 <h3>The CLI</h3>
@@ -50,7 +52,7 @@ npm run build
 # runs: cd .. && wasm-pack build --target web --out-dir npm/wasm --no-pack --release
 </pre>
 
-<p>Its changelog names the <code>candid-core</code> revision each release embeds — <code>0.1.0-beta.3</code>, the crate's release before <code>0.1.0</code>, in <code>0.1.0</code>, <code>0.2.0-beta.1</code>, <code>0.2.0</code> and <code>0.3.0</code> — rather than pairing by version number. <code>0.2.0-beta.1</code>'s embedded source is ahead of that crates.io archive by one change not yet in a crate release (a leading UTF-8 byte order mark is accepted), and its changelog entry says so; <code>0.2.0</code>'s is ahead by four: that one; a run of more than 256 consecutive comments is refused; a type on a cycle that passes only through <code>opt</code> is refused; and the crate's Contract loaders refuse a struct written as a JSON array, which no input of the CLI reaches, since it reads <code>.did</code> sources and never a Contract document. Its entry says so too. <code>0.3.0</code>'s is ahead by five: those four, and the crate's Contract loaders refuse a unit variant written as a JSON map, which no input of the CLI reaches either. <code>0.4.0</code> embeds <code>meant</code> <code>0.1.0</code>, the crate published as <code>candid-core</code> before its rename, with those five and two more (a record field whose id is 4294967295 is refused, and collecting the provenance sidecar no longer grows with the square of the declarations); its source is ahead of that archive by one change, the doc attributes reader behind <code>didToDocAttributes</code>, which moves no Contract and no identity. See <a href="cli-npm.html">@candid-core/cli</a> for what it does.</p>
+<p>Its changelog names the Rust crate revision each release embeds —<code>0.1.0-beta.3</code>, the crate's release before <code>0.1.0</code>, in <code>0.1.0</code>, <code>0.2.0-beta.1</code>, <code>0.2.0</code> and <code>0.3.0</code> — rather than pairing by version number. <code>0.2.0-beta.1</code>'s embedded source is ahead of that crates.io archive by one change not yet in a crate release (a leading UTF-8 byte order mark is accepted), and its changelog entry says so; <code>0.2.0</code>'s is ahead by four: that one; a run of more than 256 consecutive comments is refused; a type on a cycle that passes only through <code>opt</code> is refused; and the crate's Contract loaders refuse a struct written as a JSON array, which no input of the CLI reaches, since it reads <code>.did</code> sources and never a Contract document. Its entry says so too. <code>0.3.0</code>'s is ahead by five: those four, and the crate's Contract loaders refuse a unit variant written as a JSON map, which no input of the CLI reaches either. <code>0.4.0</code> embeds <code>meant</code> <code>0.1.0</code>, the crate published as <code>candid-core</code> before its rename, with those five and two more (a record field whose id is 4294967295 is refused, and collecting the provenance sidecar no longer grows with the square of the declarations); its source is ahead of that archive by one change, the doc attributes reader behind <code>didToDocAttributes</code>, which moves no Contract and no identity. See <a href="cli-npm.html">@candid-core/cli</a> for what it does.</p>
 
 <h2>The pre-1.0 policy, in full</h2>
 
@@ -65,7 +67,7 @@ npm run build
 <p>The Rust crate and <code>@candid-core/schema</code> do not share a version number and are released on separate cycles, so the numbers carry no pairing information at all. Because of that, every entry in the schema package's changelog names the crate version it pairs with (<code>@candid-core/cli</code> pairs by the revision it embeds instead, as above):</p>
 
 <table>
-  <thead><tr><th><code>@candid-core/schema</code></th><th>Released</th><th>Pairs with <code>candid-core</code></th></tr></thead>
+  <thead><tr><th><code>@candid-core/schema</code></th><th>Released</th><th>Pairs with the Rust crate</th></tr></thead>
   <tbody>
     <tr><td><code>0.5.0</code> (<code>latest</code>)</td><td>2026-10-27</td><td><code>meant</code> <code>0.1.0</code>, the crate published as <code>candid-core</code> before its rename</td></tr>
     <tr><td><code>0.4.0</code></td><td>2026-10-10</td><td><code>0.1.0-beta.3</code></td></tr>
@@ -110,7 +112,7 @@ npm run build
 
 <h2>What changed in each release</h2>
 
-<h3><code>candid-core</code> on crates.io</h3>
+<h3><code>meant</code> on crates.io, published as <code>candid-core</code> until the rename</h3>
 
 <p><strong><code>0.1.0-beta.1</code></strong> — the first published version. It established the shape rather than changing anything: one published package with four build surfaces (the base Contract model plus <code>compiler</code>, <code>filesystem-compiler</code> and <code>host-value</code>, all on by default); browser-WASM compilation of imported bundles through a resolver; the separation of semantic identities from a detached exact-octet artifact identity; and the rule that all untrusted work is bounded, with <code>Contract</code>, <code>ContractEnvelope</code>, <code>Compilation</code> and <code>HostValue</code> deliberately not implementing <code>Deserialize</code>. The semver gate was absent by necessity — there was no published baseline to compare against.</p>
 
@@ -118,7 +120,9 @@ npm run build
 
 <p><strong><code>0.1.0-beta.3</code></strong> — the first version that carries a fix for a defect in an already-published version. Both type-depth guard walks stopped re-expanding shared subtrees and now charge for the work they do, under a new <code>max_type_preflight_work</code> limit (default 10 000 000) with a matching <code>with_max_type_preflight_work</code> builder. The addition is additive in both senses: the public surface gains two methods and removes nothing, and a configuration that leaves the limit at its profile value still serializes with no such key. The CLI gained <code>compile &lt;path&gt; --envelope</code>, which emits a one-document <code>ContractEnvelope</code> carrying the canonical Contract plus its field-name table — the single document <code>@candid-core/schema</code>'s <code>schemaFromContract</code> consumes.</p>
 
-<p><strong><code>0.1.0</code></strong> — the current version, published on 2026-10-12, and the first without a prerelease suffix. It is still pre-1.0, so pin it exactly: <code>candid-core = "=0.1.0"</code>. The public API is identical to <code>0.1.0-beta.3</code>'s, and no change is marked breaking. Each change refuses an input that crashed, stalled or was misread before: a record field whose id is <code>4294967295</code> is refused instead of panicking a debug build or misnumbering the next field in a release build; a long run of consecutive comments is refused under <code>max_source_nesting</code> instead of overflowing the stack; a type on a cycle that passes only through <code>opt</code> is refused; and the Contract loaders refuse a struct written as a JSON array and a unit variant written as a map. A <code>.did</code> source may now begin with a UTF-8 byte order mark, and collecting the provenance sidecar takes time proportional to the source instead of its square.</p>
+<p><strong><code>0.1.0</code></strong> — published on 2026-10-12 as <code>candid-core</code>, the last version under that name and the first without a prerelease suffix. The public API is identical to <code>0.1.0-beta.3</code>'s, and no change is marked breaking. Each change refuses an input that crashed, stalled or was misread before: a record field whose id is <code>4294967295</code> is refused instead of panicking a debug build or misnumbering the next field in a release build; a long run of consecutive comments is refused under <code>max_source_nesting</code> instead of overflowing the stack; a type on a cycle that passes only through <code>opt</code> is refused; and the Contract loaders refuse a struct written as a JSON array and a unit variant written as a map. A <code>.did</code> source may now begin with a UTF-8 byte order mark, and collecting the provenance sidecar takes time proportional to the source instead of its square.</p>
+
+<p><strong><code>meant</code> <code>0.1.0</code></strong> — the current version, published on 2026-10-27: the code of <code>0.1.0</code> above under the crate&rsquo;s new name. It is pre-1.0, so pin it exactly: <code>meant = "=0.1.0"</code>, and write <code>use meant::…</code> where you wrote <code>use candid_core::…</code>. The binary is <code>meant</code>, and <code>producer.name</code> in a Contract it writes is <code>"meant"</code>. The producer is outside <code>contract_id</code> and <code>interface_id</code>, so those identities do not move; <code>artifact_id</code> over a newly written document does, because it hashes the exact bytes. The Contract <code>format</code>, the <code>candid-core:</code> identity prefixes, the <code>org.candid-core.field-names/v1</code> extension and the <code>@candid-core/*</code> npm packages are unchanged by the rename.</p>
 
 <callout type="danger" title="0.1.0-beta.1 and 0.1.0-beta.2 carry a reachable defect">
   <p>Both walks that enforce <code>max_type_depth</code> traversed declaration graphs as trees, re-expanding a subtree once per incoming edge. A sub-kilobyte <code>.did</code> file with shared type aliases produced work doubling per level, and — the part that matters — <em>nothing was charged for it</em>, so no limit ever refused it and the walk returned <code>Ok</code>. It is reachable from the public <code>compile_did</code> entry point under default limits, which means every consumer that compiles <code>.did</code> source it did not write inherited it in both published versions. <code>0.1.0-beta.3</code> fixes it. A published version cannot be corrected in place, only superseded, so upgrade rather than pinning either earlier version.</p>

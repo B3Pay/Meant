@@ -7,7 +7,7 @@
 </p>
 
 <p>
-  candid-core parses that string once, through the official <code>candid_parser</code>, and
+  Meant parses that string once, through the official <code>candid_parser</code>, and
   projects the checked result into a <strong>Contract</strong>: a validated data structure with
   one exact byte encoding and a SHA-256 identity over it. Parsing DID text stays inside the Rust
   boundary, behind the <code>compiler</code> feature; downstream of that single parse — the
@@ -102,7 +102,7 @@ for each UTF-8 byte b of the name:
 </p>
 
 <p>
-  candid-core's rule is that exactly one component may parse DID text or apply Candid type
+  Meant's rule is that exactly one component may parse DID text or apply Candid type
   rules: the Rust boundary, and only when the <code>compiler</code> feature is enabled.
   <code>candid_parser</code> is authoritative for what the source means, and the builder only
   projects that checked result into the graph — it reimplements no part of alias resolution,
@@ -140,7 +140,7 @@ for each UTF-8 byte b of the name:
 </p>
 
 <p>
-  candid-core's own first two prereleases got this wrong, which is the most honest example
+  Meant's own first two prereleases, published as <code>candid-core</code>, got this wrong, which is the most honest example
   available. Both <code>0.1.0-beta.1</code> and <code>0.1.0-beta.2</code> walked the
   declaration reference graph as a tree, re-expanding a shared subtree once per incoming edge —
   node visits doubling per level, from a source under a kilobyte, reachable from the public
@@ -165,7 +165,7 @@ for each UTF-8 byte b of the name:
 
 <h2>The idea: compile once, into a Contract</h2>
 
-<p>A Contract is what candid-core hands you instead of the source. Four things happen, in order.</p>
+<p>A Contract is what Meant hands you instead of the source. Four things happen, in order.</p>
 
 <ol>
   <li>
@@ -435,14 +435,14 @@ export { $Odd as Odd };
   <p>
     Until 1.0, any release may change the public Rust API, the serialized Contract, envelope and
     compilation shapes, the canonical bytes, and therefore every identity computed over them.
-    A caret requirement such as <code>candid-core = "0.1"</code> would take such a release with
+    A caret requirement such as <code>meant = "0.1"</code> would take such a release with
     it. Name the version exactly, as below.
   </p>
 </callout>
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = "=0.1.0"
+meant = "=0.1.0"
 </pre>
 
 <p>

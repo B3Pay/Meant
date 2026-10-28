@@ -605,7 +605,7 @@ void kind;
   <code>DEFAULT_MAX_DEPTH</code> stays 256, and with <code>maxDepth</code> raised a 100,000-level value
   validates, encodes and decodes on any engine, where the recursive walkers used to overflow the host
   stack from about 1,500 to 2,600 levels. And <code>encode</code> charges <code>maxDepth</code> for
-  Candid nesting depth only, never for a <code>rec</code> hop, so any type the candid-core compiler
+  Candid nesting depth only, never for a <code>rec</code> hop, so any type the Meant compiler
   accepts encodes through its generated module at the default limits, however it is split into
   declarations. <a href="schema-codec.html#the-budgets-and-what-a-caller-observes">The codec page</a>
   states both with their numbers.
@@ -619,7 +619,7 @@ void kind;
   <code>rec</code> hop a depth step and an element, and a Contract-loaded schema makes every type
   reference a hop, so its values reached the default <code>maxDepth</code> at about 128 levels and
   <code>maxElements</code> at about 500,000 elements. Now a generated, a Contract-loaded and a
-  hand-built schema of one type accept the same values, 256 levels deep at the defaults as candid-core
+  hand-built schema of one type accept the same values, 256 levels deep at the defaults as Meant
   does, and 1,000,000 elements wide, where <code>validate</code> and <code>encode</code> also count
   each record or variant key they examine. Two narrow cases are refused that were accepted:
 </p>
@@ -654,8 +654,8 @@ void kind;
 
 <p>
   <code>schemaFromContract</code> now refuses three kinds of Contract document that 0.2.0 loaded,
-  because candid-core's own loader, <code>Contract::from_json</code>, refuses them. Every Contract and
-  envelope <code>candid-core compile</code> writes still loads exactly as before, with the same
+  because Meant's own loader, <code>Contract::from_json</code>, refuses them. Every Contract and
+  envelope <code>meant compile</code> writes still loads exactly as before, with the same
   schemas, <code>actor</code> and <code>omitted</code>; only a hand-written or tool-mutated document
   is affected.
 </p>

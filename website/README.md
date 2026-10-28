@@ -1,4 +1,4 @@
-# The candid-core documentation site
+# The Meant documentation site
 
 A static documentation site with **no dependencies at all** — no site generator,
 no CSS framework, no webfonts, no npm install. `build.mjs` and `check.mjs` use
@@ -143,18 +143,24 @@ broken spellings, and a copyable line is the thing that must work:
   yet, such as a prepared beta (`@candid-core/schema@0.3.0-beta.2`, or
   `@candid-core/schema@beta` before any beta exists). The version-bump pull
   request adds its specs; the publish-day pull request removes them;
-- a `candid-core` dependency requirement that is anything other than the
-  exact pin. The required spelling is derived from the `version` in
-  `Cargo.toml` rather than written down here, so a release makes every stale
-  line in the documentation fail on the next run. While that version is a
-  prerelease the `=` is mandatory, because a caret requirement never selects
-  a prerelease; until 1.0 it stays mandatory by policy, because a caret
-  requirement would take a breaking 0.x release. Note that a bare
-  `candid-core = "0.1.0"` _is_ a caret requirement. After 1.0 the plain
-  requirement becomes the correct one and this rule follows on its own;
-- a bare `cargo add candid-core`, or `cargo add candid-core@<wrong-req>`.
+- a `meant` dependency requirement that is anything other than the
+  exact pin. The crate's name and the required spelling are derived from the
+  `name` and `version` in `Cargo.toml` rather than written down here, so a
+  release, or a rename, makes every stale line in the documentation fail on
+  the next run. While that version is a prerelease the `=` is mandatory,
+  because a caret requirement never selects a prerelease; until 1.0 it stays
+  mandatory by policy, because a caret requirement would take a breaking 0.x
+  release. Note that a bare `meant = "0.1.0"` _is_ a caret requirement.
+  After 1.0 the plain requirement becomes the correct one and this rule
+  follows on its own;
+- a bare `cargo add meant`, or `cargo add meant@<wrong-req>`;
+- the crate's name before the rename, `candid-core` (`OLD_CRATE_NAMES` in
+  `check.mjs`): a dependency line, a `cargo add` or `cargo install` line, a
+  `candid_core::` or `use candid_core` path, or a `candid-core compile` /
+  `validate` command. Those still resolve, to the old crate, so nothing else
+  would catch them. Prose may name the old crate, and history does.
 
-`cargo install candid-core --version 0.1.0` is deliberately **not**
+`cargo install meant --version 0.1.0` is deliberately **not**
 flagged. Cargo's manual states that a `--version` without a requirement
 operator installs exactly that version and is not treated as a caret
 requirement — unlike a dependency in a manifest, where a bare string is one.

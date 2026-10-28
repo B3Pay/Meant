@@ -1,5 +1,5 @@
 <p>
-  Five JSON documents travel between candid-core and everything else: the <strong>Contract</strong>
+  Five JSON documents travel between Meant and everything else: the <strong>Contract</strong>
   (the canonical interface graph), the <strong>ContractEnvelope</strong> (a Contract plus namespaced
   side-band metadata), the <strong>Compilation</strong> (a Contract plus its provenance sidecar), the
   <strong>host value</strong> encoding (one Candid value, losslessly tagged), and the
@@ -86,7 +86,7 @@
     "interface": "candid-core:interface:v1:sha256:99f400820c0ca2fb7c32cc3ab1df6d6c000bc614cffe0e350b6a9a576da18d48"
   },
   "producer": {
-    "name": "candid-core",
+    "name": "meant",
     "version": "0.1.0",
     "candid_version": "0.10.30",
     "candid_parser_version": "0.4.0"
@@ -184,7 +184,7 @@
   "semantics_profile": "candid-1",
   "canonicalization_profile": "candid-core-canon-1",
   "identities": { "contract": "candid-core:contract:v1:sha256:d43274872cdb6c503456065d12c26b512ba9e3eac5b0a9533c8f9716293c6e18" },
-  "producer": { "name": "candid-core", "version": "0.1.0", "candid_version": "0.10.30", "candid_parser_version": "0.4.0" },
+  "producer": { "name": "meant", "version": "0.1.0", "candid_version": "0.10.30", "candid_parser_version": "0.4.0" },
   "types": [
     { "kind": "record", "fields": [{ "id": 834174833, "type": 1 }, { "id": 1225398258, "type": 2 }] },
     { "kind": "primitive", "primitive": "nat" },
@@ -238,7 +238,7 @@
 </pre>
 
 <p>
-  This is what <code>candid-core compile &lt;path&gt; --envelope</code> prints: the envelope document
+  This is what <code>meant compile &lt;path&gt; --envelope</code> prints: the envelope document
   itself, not an <code>ok</code>-wrapped response, so the output can be saved and handed whole to the
   TypeScript runtime's <code>schemaFromContract</code>. The <code>producer</code> block and the
   <code>types</code> array are elided above only for length; the fixture carries both in full.
@@ -392,7 +392,7 @@
 <h3>The CLI wrapper is a different shape</h3>
 
 <p>
-  <code>candid-core compile &lt;path&gt;</code> prints an <code>ok</code>-wrapped response rather than
+  <code>meant compile &lt;path&gt;</code> prints an <code>ok</code>-wrapped response rather than
   the Compilation document, and that wrapper always carries the <code>source_info</code> key — exactly
   <code>null</code> when <code>--no-source-info</code> suppressed it:
 </p>
@@ -404,7 +404,7 @@
 <p>
   Failures print <code>{"ok": false, "diagnostics": [...]}</code> or, for Contract validation,
   <code>{"ok": false, "violations": [...]}</code>, with exit status 1; a usage error exits 64.
-  <a href="cli-rust.html">The candid-core binary</a> has the full grammar.
+  <a href="cli-rust.html">The <code>meant</code> binary</a> has the full grammar.
 </p>
 
 <h2>The host value encoding</h2>

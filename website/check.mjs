@@ -25,12 +25,19 @@ const fail = (page, message) => failures.push({ page, message });
 
 const site = JSON.parse(await readFile(join(CONTENT, "_site.json"), "utf8"));
 
-/* The crate version the pages must agree with, read from the manifest rather
- * than repeated here, so a release makes every stale dependency line in the
- * documentation fail on the next run instead of quietly lying. */
+/* The crate name and version the pages must agree with, read from the manifest
+ * rather than repeated here, so a release (or a rename) makes every stale
+ * dependency line in the documentation fail on the next run instead of quietly
+ * lying. */
 const manifest = await readFile(join(HERE, "..", "Cargo.toml"), "utf8");
+const CRATE_NAME = (manifest.match(/^name\s*=\s*"([^"]+)"/m) || [])[1];
 const CRATE_VERSION = (manifest.match(/^version\s*=\s*"([^"]+)"/m) || [])[1];
+if (!CRATE_NAME) throw new Error("could not read the crate name from Cargo.toml");
 if (!CRATE_VERSION) throw new Error("could not read the crate version from Cargo.toml");
+/* The names the crate was published under before. A code block that depends on,
+ * installs, imports or runs one of them teaches the old crate: it still
+ * resolves, so nothing else would catch it. Prose may name them; history does. */
+const OLD_CRATE_NAMES = ["candid-core"];
 const IS_PRERELEASE = CRATE_VERSION.includes("-");
 /* Exact while pre-1.0, not only while a prerelease: any 0.x release may break,
  * so the pages pin `=0.1.0` as they pinned the betas (issue #259). */
@@ -102,12 +109,27 @@ const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({
   message: `${spec}, which the registry does not hold yet`,
 }));
 
+const CRATE_RE = escapeRe(CRATE_NAME);
+
+const oldCrateRules = OLD_CRATE_NAMES.flatMap((old) => {
+  const name = escapeRe(old);
+  const path = escapeRe(old.replace(/-/g, "_"));
+  const now = `the crate is \`${CRATE_NAME}\` now; \`${old}\` is its name before the rename`;
+  return [
+    { pattern: new RegExp(`^[ \\t]*${name}\\s*=`, "m"), message: `a \`${old}\` dependency line: ${now}` },
+    { pattern: new RegExp(`\\bcargo\\s+(?:add|install)\\s+${name}(?![\\w-])`), message: `\`cargo add\`/\`cargo install ${old}\`: ${now}` },
+    { pattern: new RegExp(`\\b${path}::|\\buse\\s+${path}\\b`), message: `a \`${old.replace(/-/g, "_")}\` path: ${now}` },
+    { pattern: new RegExp(`(?:^|[\\s$>])${name}\\s+(?:compile|validate)\\b`, "m"), message: `the \`${old}\` binary: ${now}` },
+  ];
+});
+
 const FORBIDDEN_IN_CODE = [
   ...unpublishedRules,
   ...unpublishedSpecRules,
+  ...oldCrateRules,
   {
-    pattern: /^\s*cargo\s+add\s+candid-core\s*$/m,
-    message: "bare `cargo add candid-core`, which cannot resolve a prerelease",
+    pattern: new RegExp(`^\\s*cargo\\s+add\\s+${CRATE_RE}\\s*$`, "m"),
+    message: `bare \`cargo add ${CRATE_NAME}\`, which writes a caret requirement`,
   },
 ];
 
@@ -286,7 +308,7 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
     if (hit) fail(page, `${rule.message} — found ${JSON.stringify(hit[0].trim())}`);
   }
 
-  /* --- candid-core dependency requirements ---
+  /* --- dependency requirements on the crate ---
    *
    * An allowlist, not a blocklist, for the same reason Cargo.toml's `include`
    * is one: it decides which way a mistake falls. A blocklist of the caret
@@ -304,17 +326,17 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
    * 0.1.0-beta.3` is NOT the same defect: cargo's manual states that a
    * `--version` without a requirement operator installs exactly that version
    * and is not treated as a caret requirement, unlike a dependency. */
-  for (const match of code.matchAll(/^[ \t]*candid-core\s*=\s*(.+)$/gm)) {
+  for (const match of code.matchAll(new RegExp(`^[ \\t]*${CRATE_RE}\\s*=\\s*(.+)$`, "gm"))) {
     const value = match[1].trim();
     const version = (value.match(/^"([^"]*)"/) ||
       value.match(/\bversion\s*=\s*"([^"]*)"/) ||
       [])[1];
     if (version === undefined) {
-      fail(page, `candid-core dependency line with no readable version: ${JSON.stringify(value)}`);
+      fail(page, `${CRATE_NAME} dependency line with no readable version: ${JSON.stringify(value)}`);
     } else if (version !== REQUIRED_REQ) {
       fail(
         page,
-        `candid-core dependency requirement ${JSON.stringify(version)}; it must be ${JSON.stringify(REQUIRED_REQ)}` +
+        `${CRATE_NAME} dependency requirement ${JSON.stringify(version)}; it must be ${JSON.stringify(REQUIRED_REQ)}` +
           (IS_PRERELEASE
             ? " — a caret requirement never selects a prerelease"
             : IS_PRE_1_0
@@ -323,11 +345,11 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
       );
     }
   }
-  for (const match of code.matchAll(/\bcargo\s+add\s+candid-core@(\S+)/g)) {
+  for (const match of code.matchAll(new RegExp(`\\bcargo\\s+add\\s+${CRATE_RE}@(\\S+)`, "g"))) {
     if (match[1] !== REQUIRED_REQ) {
       fail(
         page,
-        `\`cargo add candid-core@${match[1]}\`; the requirement must be ${JSON.stringify(REQUIRED_REQ)}`,
+        `\`cargo add ${CRATE_NAME}@${match[1]}\`; the requirement must be ${JSON.stringify(REQUIRED_REQ)}`,
       );
     }
   }

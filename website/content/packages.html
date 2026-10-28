@@ -1,6 +1,6 @@
 <p>This repository ships one published Rust crate, two published npm packages, and three more units that exist for good reasons but are deliberately on no registry at all. This page is the whole inventory: what each one is, who it is for, where its manifest lives, whether you can install it today, and the exact line you write to depend on it.</p>
 
-<p>The short version. If you write Rust, you want <code>candid-core</code>. If you write TypeScript, you want <code>@candid-core/schema</code>. Everything else on this page either produces one of those two, or tests them.</p>
+<p>The short version. If you write Rust, you want <code>meant</code>. If you write TypeScript, you want <code>@candid-core/schema</code>. Everything else on this page either produces one of those two, or tests them.</p>
 
 <h2>The pipeline in one view</h2>
 
@@ -15,7 +15,7 @@
   <div class="pipeline-step">
     <span class="n">02</span>
     <h3>Compilation</h3>
-    <p><code>candid-core</code> hands the source to the exact-pinned <code>candid_parser</code> for parsing and type checking, then projects the result into a validated graph under an explicit resource budget.</p>
+    <p><code>meant</code> hands the source to the exact-pinned <code>candid_parser</code> for parsing and type checking, then projects the result into a validated graph under an explicit resource budget.</p>
   </div>
   <div class="pipeline-step">
     <span class="n">03</span>
@@ -38,8 +38,8 @@
     <tr><th>Unit</th><th>Kind</th><th>Manifest</th><th>Registry</th><th>Version</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>candid-core</code></td><td>Rust library</td><td><code>Cargo.toml</code></td><td>crates.io</td><td><code>0.1.0</code></td></tr>
-    <tr><td><code>candid-core</code> (binary)</td><td>CLI, same crate</td><td><code>Cargo.toml</code> <code>[[bin]]</code></td><td>crates.io</td><td><code>0.1.0</code></td></tr>
+    <tr><td><code>meant</code></td><td>Rust library</td><td><code>Cargo.toml</code></td><td>crates.io</td><td><code>0.1.0</code></td></tr>
+    <tr><td><code>meant</code> (binary)</td><td>CLI, same crate</td><td><code>Cargo.toml</code> <code>[[bin]]</code></td><td>crates.io</td><td><code>0.1.0</code></td></tr>
     <tr><td><code>candid-core-ts</code></td><td>Rust library</td><td><code>crates/candid-core-ts/Cargo.toml</code></td><td>none, by <code>publish = false</code></td><td><code>0.0.0</code></td></tr>
     <tr><td><code>@candid-core/schema</code></td><td>npm package</td><td><code>crates/candid-core-ts/ts/package.json</code></td><td>npm</td><td><code>0.5.0</code>; <code>beta</code>: <code>0.3.0-beta.1</code></td></tr>
     <tr><td><code>@candid-core/cli</code></td><td>npm package</td><td><code>crates/candid-core-wasm/npm/package.json</code></td><td>npm</td><td><code>0.4.0</code>; <code>beta</code>: <code>0.2.0-beta.1</code></td></tr>
@@ -66,9 +66,9 @@
     <tr><th>What you are trying to do</th><th>Reach for</th><th>Where to read next</th></tr>
   </thead>
   <tbody>
-    <tr><td>Turn a <code>.did</code> file into a validated Contract from Rust</td><td><code>candid-core</code>, default features</td><td><a href="rust-compiling.html">Compiling Candid sources</a></td></tr>
-    <tr><td>Consume Contracts someone else produced, with no Candid parser in your dependency graph</td><td><code>candid-core</code>, <code>default-features = false</code></td><td><a href="rust-install.html">Install and feature surfaces</a></td></tr>
-    <tr><td>Get a Contract document on the command line, no Rust code of your own</td><td>the <code>candid-core</code> binary</td><td><a href="cli-rust.html">The candid-core binary</a></td></tr>
+    <tr><td>Turn a <code>.did</code> file into a validated Contract from Rust</td><td><code>meant</code>, default features</td><td><a href="rust-compiling.html">Compiling Candid sources</a></td></tr>
+    <tr><td>Consume Contracts someone else produced, with no Candid parser in your dependency graph</td><td><code>meant</code>, <code>default-features = false</code></td><td><a href="rust-install.html">Install and feature surfaces</a></td></tr>
+    <tr><td>Get a Contract document on the command line, no Rust code of your own</td><td>the <code>meant</code> binary</td><td><a href="cli-rust.html">The <code>meant</code> binary</a></td></tr>
     <tr><td>Validate, encode or decode Candid values from TypeScript</td><td><code>@candid-core/schema</code></td><td><a href="quickstart-typescript.html">Quickstart: TypeScript</a></td></tr>
     <tr><td>Build schemas at runtime from a Contract document, with no code generation step</td><td><code>@candid-core/schema</code>, subpath <code>./contract</code></td><td><a href="schema-from-contract.html">Schemas at runtime</a></td></tr>
     <tr><td>Emit a TypeScript module from a Contract inside your own Rust tool</td><td><code>candid-core-ts</code>, path or git dependency</td><td><a href="generator.html">The code generator</a></td></tr>
@@ -77,13 +77,13 @@
   </tbody>
 </table>
 
-<h2>candid-core, the Rust library</h2>
+<h2><code>meant</code>, the Rust library</h2>
 
 <p>The root package of the workspace, and the only thing here published on crates.io. It owns the Contract model, validation, canonicalization, the content-addressed identities, the limits and cancellation machinery, and the structured diagnostics. With the compiler feature on, it also owns the projection from Candid source into that model. It is for anyone who needs a Candid interface as data rather than as text: a registry that pins interfaces, a tool that detects drift, a service that accepts <code>.did</code> files it did not write.</p>
 
 <ul>
   <li><strong>Manifest:</strong> <code>Cargo.toml</code> at the repository root.</li>
-  <li><strong>Published:</strong> yes, on <a href="https://crates.io/crates/candid-core">crates.io</a>. Released versions are <code>0.1.0-beta.1</code>, <code>0.1.0-beta.2</code>, <code>0.1.0-beta.3</code> and <code>0.1.0</code>, the latest; none are yanked. API documentation is on <a href="https://docs.rs/candid-core">docs.rs</a>.</li>
+  <li><strong>Published:</strong> yes, on <a href="https://crates.io/crates/meant">crates.io</a>. Released versions are <code>0.1.0-beta.1</code>, <code>0.1.0-beta.2</code>, <code>0.1.0-beta.3</code> and <code>0.1.0</code>, the latest; none are yanked. API documentation is on <a href="https://docs.rs/meant">docs.rs</a>.</li>
   <li><strong>Edition</strong> 2021, <strong>MSRV</strong> <code>rust-version = "1.78"</code>, licensed Apache-2.0.</li>
 </ul>
 
@@ -91,7 +91,7 @@
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = "=0.1.0"
+meant = "=0.1.0"
 </pre>
 
 <callout type="danger" title="Pin the exact version">
@@ -102,7 +102,7 @@ candid-core = "=0.1.0"
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = { version = "=0.1.0", default-features = false }
+meant = { version = "=0.1.0", default-features = false }
 </pre>
 
 <h3>The four feature surfaces</h3>
@@ -126,7 +126,7 @@ candid-core = { version = "=0.1.0", default-features = false }
     </tr>
     <tr>
       <td><span class="pill accent">filesystem-compiler</span></td>
-      <td><code>WorkspaceResolver</code>, <code>compile_did_file</code>, and the <code>candid-core</code> binary. Implies <code>compiler</code>.</td>
+      <td><code>WorkspaceResolver</code>, <code>compile_did_file</code>, and the <code>meant</code> binary. Implies <code>compiler</code>.</td>
       <td><code>cap-std =4.0.2</code>, and only on targets that are not <code>target_os = "unknown"</code></td>
     </tr>
     <tr>
@@ -139,33 +139,33 @@ candid-core = { version = "=0.1.0", default-features = false }
 
 <p>A disabled feature removes its API rather than leaving a stub that fails later. The full account, including what feature splitting does and does not bound in a workspace, is on <a href="rust-install.html">Install and feature surfaces</a>.</p>
 
-<h2>candid-core, the command-line binary</h2>
+<h2><code>meant</code>, the command-line binary</h2>
 
-<p>The same published crate also ships a binary, declared as <code>[[bin]] name = "candid-core"</code> at <code>src/bin/candid-core.rs</code> with <code>required-features = ["filesystem-compiler"]</code>. It is for the developer who wants a Contract document on disk and does not want to write Rust to get one. It fits a build step, a CI check, or a drift comparison run by hand.</p>
+<p>The same published crate also ships a binary, declared as <code>[[bin]] name = "meant"</code> at <code>src/bin/meant.rs</code> with <code>required-features = ["filesystem-compiler"]</code>. It is for the developer who wants a Contract document on disk and does not want to write Rust to get one. It fits a build step, a CI check, or a drift comparison run by hand.</p>
 
 <p>Because <code>filesystem-compiler</code> is part of the default set, an ordinary install builds it. From the published crate:</p>
 
 <pre data-lang="bash">
-cargo install candid-core --locked --version '=0.1.0'
-candid-core compile ./service.did
+cargo install meant --locked --version '=0.1.0'
+meant compile ./service.did
 </pre>
 
 <p>From a checkout of the repository, without installing anything:</p>
 
 <pre data-lang="bash">
-cargo run --bin candid-core -- compile ./service.did
-cargo run --bin candid-core -- compile ./service.did --envelope
-cargo run --bin candid-core -- validate ./contract.json
+cargo run --bin meant -- compile ./service.did
+cargo run --bin meant -- compile ./service.did --envelope
+cargo run --bin meant -- validate ./contract.json
 </pre>
 
 <p>It accepts exactly this grammar and nothing else:</p>
 
-<pre data-lang="text" data-file="src/bin/candid-core.rs">
-candid-core compile <path> [--no-source-info | --envelope]
-candid-core validate <path>
+<pre data-lang="text" data-file="src/bin/meant.rs">
+meant compile <path> [--no-source-info | --envelope]
+meant validate <path>
 </pre>
 
-<p>Every non-usage outcome is one pretty-printed JSON document on stdout with an empty stderr. A failure is exit 1 and <code>{"ok": false, "diagnostics": …}</code>. Success is exit 0: plain <code>compile</code> and <code>validate</code> print <code>"ok": true</code> alongside the contract, while <code>compile --envelope</code> prints the envelope document itself — <code>{"contract": …, "extensions": …}</code>, with no <code>ok</code> key — so the output can be saved and consumed whole. Anything outside the grammar exits 64, prints the usage text on stderr, and writes nothing to stdout. <a href="cli-rust.html">The candid-core binary</a> has the full contract.</p>
+<p>Every non-usage outcome is one pretty-printed JSON document on stdout with an empty stderr. A failure is exit 1 and <code>{"ok": false, "diagnostics": …}</code>. Success is exit 0: plain <code>compile</code> and <code>validate</code> print <code>"ok": true</code> alongside the contract, while <code>compile --envelope</code> prints the envelope document itself — <code>{"contract": …, "extensions": …}</code>, with no <code>ok</code> key — so the output can be saved and consumed whole. Anything outside the grammar exits 64, prints the usage text on stderr, and writes nothing to stdout. <a href="cli-rust.html">The <code>meant</code> binary</a> has the full contract.</p>
 
 <h2>candid-core-ts, the TypeScript generator</h2>
 
@@ -175,7 +175,7 @@ candid-core validate <path>
   <li><strong>Manifest:</strong> <code>crates/candid-core-ts/Cargo.toml</code>. A member of the root workspace.</li>
   <li><strong>Published:</strong> <strong>no</strong>, and not by accident. The manifest carries <code>publish = false</code> because a crates.io crate name is as permanent as a version, and <code>candid-core-ts</code> is a working name, not a decision. The gate stands until the name is chosen deliberately.</li>
   <li><strong>Version</strong> <code>0.0.0</code>, edition 2021, <code>rust-version = "1.78"</code>, Apache-2.0.</li>
-  <li><strong>Depends on</strong> <code>candid-core</code> at <code>version = "=0.1.0"</code> with <code>default-features = false</code>, and a <code>path</code> alongside it so the workspace builds against the sibling. The base surface only, which is the design statement: a generator needs no Candid parser, no filesystem capability and no host-value ABI.</li>
+  <li><strong>Depends on</strong> <code>meant</code> at <code>version = "=0.1.0"</code> with <code>default-features = false</code>, and a <code>path</code> alongside it so the workspace builds against the sibling. The base surface only, which is the design statement: a generator needs no Candid parser, no filesystem capability and no host-value ABI.</li>
 </ul>
 
 <h3>Depending on the generator</h3>
@@ -210,8 +210,8 @@ pub fn generate_module(
 <table>
   <thead><tr><th>Feature</th><th>What it adds</th></tr></thead>
   <tbody>
-    <tr><td><span class="pill">none</span></td><td>The default. A pure base-surface consumer of <code>candid-core</code>. This featureless build is the boundary claim, and CI checks it on its own.</td></tr>
-    <tr><td><span class="pill accent">compiler</span></td><td>Enables <code>candid-core/compiler</code> and with it <code>TsNames::from_source_info</code>, the bridge from a compilation's provenance sidecar into the name table.</td></tr>
+    <tr><td><span class="pill">none</span></td><td>The default. A pure base-surface consumer of <code>meant</code>. This featureless build is the boundary claim, and CI checks it on its own.</td></tr>
+    <tr><td><span class="pill accent">compiler</span></td><td>Enables <code>meant/compiler</code> and with it <code>TsNames::from_source_info</code>, the bridge from a compilation's provenance sidecar into the name table.</td></tr>
   </tbody>
 </table>
 
@@ -223,7 +223,7 @@ pub fn generate_module(
   <li><strong>Manifest:</strong> <code>crates/candid-core-ts/ts/package.json</code>.</li>
   <li><strong>Published:</strong> yes, on <a href="https://www.npmjs.com/package/@candid-core/schema">npm</a>. Released versions are <code>0.0.0-bootstrap</code>, <code>0.1.0</code>, <code>0.1.1</code>, <code>0.2.0</code>, <code>0.3.0-beta.1</code>, <code>0.3.0</code>, <code>0.4.0</code> and <code>0.5.0</code>; <code>0.5.0</code> is <code>latest</code>, <code>0.3.0-beta.1</code> is <code>beta</code>, <code>0.2.0</code>, <code>0.3.0-beta.1</code>, <code>0.3.0</code> and <code>0.4.0</code> all pair with <code>candid-core</code> <code>0.1.0-beta.3</code>, and <code>0.5.0</code> pairs with <code>meant</code> <code>0.1.0</code>, the crate published as <code>candid-core</code> before its rename. <code>0.4.0</code> adds <code>WithMode</code> and <code>ModeOf</code> to <code>0.3.0</code>, and <code>0.5.0</code> types <code>decode</code> and <code>decodeArgs</code> values by their schemas.</li>
   <li><strong>ESM only</strong> (<code>"type": "module"</code>), <code>sideEffects: false</code>, Apache-2.0. The tarball ships <code>dist</code>, <code>README.md</code>, <code>CHANGELOG.md</code> and <code>LICENSE</code>.</li>
-  <li><strong>Versions independently</strong> of the Rust crate. Its changelog names the <code>candid-core</code> version each release pairs with.</li>
+  <li><strong>Versions independently</strong> of the Rust crate. Its changelog names the Rust crate version each release pairs with.</li>
 </ul>
 
 <pre data-lang="bash">
@@ -252,7 +252,7 @@ npm install --save-exact @candid-core/schema
 npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
 </pre>
 
-<p>It gives a JavaScript-only project the whole pipeline with no Rust toolchain. The <code>candid-core</code> compiler surface and the <code>candid-core-ts</code> generator are compiled together into one WebAssembly artifact, wrapped in a Node CLI and a small JS module that also runs in a browser. Every library call is data in, data out: one JSON-serialisable request to the WebAssembly module, its parsed JSON response returned verbatim, no <code>eval</code>, and no filesystem access from the WebAssembly side.</p>
+<p>It gives a JavaScript-only project the whole pipeline with no Rust toolchain. The <code>meant</code> compiler surface and the <code>candid-core-ts</code> generator are compiled together into one WebAssembly artifact, wrapped in a Node CLI and a small JS module that also runs in a browser. Every library call is data in, data out: one JSON-serialisable request to the WebAssembly module, its parsed JSON response returned verbatim, no <code>eval</code>, and no filesystem access from the WebAssembly side.</p>
 
 <ul>
   <li><strong>Manifest:</strong> <code>crates/candid-core-wasm/npm/package.json</code>.</li>
@@ -288,7 +288,7 @@ node ./bin/cli.js gen ./service.did -o ./generated</pre>
 
 <h2>candid-core-wasm, the crate behind the CLI</h2>
 
-<p>The Rust crate that becomes that artifact. It is a <code>wasm-bindgen</code> shim over <code>candid-core</code>'s <code>compiler</code> surface (<code>compile_with_resolver</code> plus <code>MemoryResolver</code>, so no filesystem is ever touched from the WebAssembly side) and the <code>candid-core-ts</code> generator, and it carries two pieces of its own: the projection printer behind <code>projectDid</code> (<code>src/project.rs</code>), which reprints the requested methods and what they reach from the Candid syntax, and the service compatibility check behind <code>checkCompatible</code> (<code>src/compat.rs</code>), which evaluates Candid subtyping on the two compiled Contracts. It exposes four functions, each string in and string out; their request and response documents are on <a href="cli-npm.html#in-a-browser">@candid-core/cli</a>:</p>
+<p>The Rust crate that becomes that artifact. It is a <code>wasm-bindgen</code> shim over <code>meant</code>'s <code>compiler</code> surface (<code>compile_with_resolver</code> plus <code>MemoryResolver</code>, so no filesystem is ever touched from the WebAssembly side) and the <code>candid-core-ts</code> generator, and it carries two pieces of its own: the projection printer behind <code>projectDid</code> (<code>src/project.rs</code>), which reprints the requested methods and what they reach from the Candid syntax, and the service compatibility check behind <code>checkCompatible</code> (<code>src/compat.rs</code>), which evaluates Candid subtyping on the two compiled Contracts. It exposes four functions, each string in and string out; their request and response documents are on <a href="cli-npm.html#in-a-browser">@candid-core/cli</a>:</p>
 
 <pre data-lang="rust" data-file="crates/candid-core-wasm/src/lib.rs">
 #[wasm_bindgen(js_name = didToContract)]
@@ -307,7 +307,7 @@ pub fn check_compatible(request: &str) -> String
 <ul>
   <li><strong>Manifest:</strong> <code>crates/candid-core-wasm/Cargo.toml</code>. Version <code>0.1.0</code>, <code>publish = false</code>, Apache-2.0, <code>crate-type = ["cdylib", "rlib"]</code>.</li>
   <li><strong>Its own workspace root.</strong> The manifest carries a bare <code>[workspace]</code> table and a tracked <code>Cargo.lock</code> of its own, and the root manifest names it in <code>exclude = ["fuzz", "crates/candid-core-wasm"]</code>. That is the point: <code>wasm-bindgen</code> never enters the main workspace's resolved graph or its feature unification, and <code>cargo metadata</code> over the published crate never sees it.</li>
-  <li><strong>Dependencies:</strong> <code>candid-core</code> and <code>candid-core-ts</code> by path, <code>serde_json =1.0.150</code>, <code>candid_parser =0.4.0</code> (the version <code>candid-core</code> itself pins; the projection uses it only to parse and merge the sources), and <code>wasm-bindgen =0.2.108</code> only under <code>cfg(target_arch = "wasm32")</code>. One dev-dependency, <code>candid =0.10.30</code>, also the version <code>candid-core</code> pins: the compatibility check's differential tests compare its verdicts with upstream's subtype check.</li>
+  <li><strong>Dependencies:</strong> <code>meant</code> and <code>candid-core-ts</code> by path, <code>serde_json =1.0.150</code>, <code>candid_parser =0.4.0</code> (the version <code>meant</code> itself pins; the projection uses it only to parse and merge the sources), and <code>wasm-bindgen =0.2.108</code> only under <code>cfg(target_arch = "wasm32")</code>. One dev-dependency, <code>candid =0.10.30</code>, also the version <code>candid-core</code> pins: the compatibility check's differential tests compare its verdicts with upstream's subtype check.</li>
 </ul>
 
 <p>You do not depend on this crate; you build it. <code>wasm-opt</code> is switched off in the manifest on purpose, so the emitted bytes are a function of the pinned <code>rustc</code> and <code>wasm-bindgen</code> alone with no binaryen download in the build path.</p>
@@ -319,7 +319,7 @@ pub fn check_compatible(request: &str) -> String
 <ul>
   <li><strong>Manifest:</strong> <code>fuzz/Cargo.toml</code>. Version <code>0.0.0</code>, <code>publish = false</code>, <code>[package.metadata] cargo-fuzz = true</code>.</li>
   <li><strong>Its own workspace root</strong> with its own tracked <code>fuzz/Cargo.lock</code>, excluded from the root workspace for the same reason as <code>candid-core-wasm</code>. Dependencies are exact-pinned to match the crate under test, <code>libfuzzer-sys =0.4.13</code> and <code>serde_json =1.0.150</code>, because the library's observable decode behaviour depends on <code>serde_json</code>'s recursion limit.</li>
-  <li><strong>Features</strong> mirror the library's: <code>default = ["compiler", "filesystem-compiler", "host-value"]</code>, each forwarding to the matching <code>candid-core</code> feature, so a target is only built when the feature owning the API it drives is on.</li>
+  <li><strong>Features</strong> mirror the library's: <code>default = ["compiler", "filesystem-compiler", "host-value"]</code>, each forwarding to the matching <code>meant</code> feature, so a target is only built when the feature owning the API it drives is on.</li>
   <li><strong>Seven targets:</strong> <code>source_parsing</code>, <code>contract_json</code>, <code>canonicalization</code>, <code>resolver_ids</code>, <code>provenance</code>, <code>host_value</code> and <code>envelope_json</code>.</li>
 </ul>
 

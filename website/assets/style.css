@@ -1,4 +1,4 @@
-/* candid-core documentation — the Meant Docs design system.
+/* Meant documentation — the Meant Docs design system.
    Zero dependencies: no webfonts, no CSS framework, no build step beyond
    build.mjs. The font stacks name the design system's faces first and fall
    back to system faces, so a reader without them installed gets the fallback.

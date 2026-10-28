@@ -6,7 +6,7 @@
   happens to be running on.
 </p>
 <p>
-  candid-core does not do that. Import resolution is a <strong>capability you hand in</strong>:
+  Meant does not do that. Import resolution is a <strong>capability you hand in</strong>:
   an object with two methods that turns an import spelling into a canonical identifier and
   returns bytes for it. The compiler never reaches for a file or a socket on its own, so
   whatever authority the resolver has is the only authority in play. The result is that the same
@@ -55,7 +55,7 @@ impl SourceId {
 <h2>The SourceResolver capability</h2>
 
 <p>
-  This is the whole interface between candid-core and wherever your sources live. Two required
+  This is the whole interface between Meant and wherever your sources live. Two required
   methods; the rest have defaults.
 </p>
 
@@ -323,7 +323,7 @@ assert_eq!(loads.load(Ordering::SeqCst), 4);
 //! logical bundle. Nothing is read from or written to disk, so this is
 //! `compiler` surface — the same code a browser-WASM host runs.
 
-use candid_core::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+use meant::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -469,7 +469,7 @@ pub enum SourceLabel {
 
 <p>
   This is the property that makes the sidecar worth shipping. When somebody hands you a
-  <code>SourceInfo</code>, candid-core does not check that it looks internally consistent. It
+  <code>SourceInfo</code>, Meant does not check that it looks internally consistent. It
   takes the source bundle embedded inside it, <em>recompiles it</em> through the same backend
   that produced it, and accepts the sidecar only if the re-derived Contract identity and every
   derived collection match exactly.
@@ -519,7 +519,7 @@ pub enum SourceLabel {
 <h2>The hermetic guarantee, stated plainly</h2>
 
 <p>
-  <strong>candid-core never fetches anything, never resolves asynchronously, and never consults
+  <strong>Meant never fetches anything, never resolves asynchronously, and never consults
   a registry.</strong> Its entire production dependency set is <code>serde</code>,
   <code>serde_json</code>, <code>sha2</code>, <code>hex</code>, and — behind features —
   <code>candid</code>, <code>candid_parser</code>, <code>ic_principal</code> and

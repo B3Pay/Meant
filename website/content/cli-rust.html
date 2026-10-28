@@ -1,7 +1,7 @@
 <p>
-  <code>candid-core</code> is the command-line front end to the Rust crate. It does two things: it
+  <code>meant</code> is the command-line front end to the Rust crate. It does two things: it
   compiles a Candid <code>.did</code> file into a canonical, validated <strong>Contract</strong>
-  document — candid-core's model of an interface, a flat table of type nodes with named declarations,
+  document — Meant's model of an interface, a flat table of type nodes with named declarations,
   an optional actor, and content-addressed identities computed over it — and it re-validates such a
   document that arrived from somewhere else. Both outcomes are one pretty-printed JSON document on
   stdout, so the binary composes with <code>jq</code>, with a build script, or with any language that
@@ -22,15 +22,15 @@
 <h2>Installing it</h2>
 
 <pre data-lang="bash">
-cargo install candid-core --version 0.1.0 --locked
-candid-core compile ./service.did --envelope > ./service.json
+cargo install meant --version 0.1.0 --locked
+meant compile ./service.did --envelope > ./service.json
 </pre>
 
 <p>
-  Name the version. <code>candid-core</code> is pre-1.0, and any 0.x release may change what the
+  Name the version. <code>meant</code> is pre-1.0, and any 0.x release may change what the
   binary writes, so install the release you mean rather than whatever is newest. Spelling the exact
   requirement — <code>--version '=0.1.0'</code> — works the same way and matches the dependency
-  line a library consumer writes, <code>candid-core = "=0.1.0"</code>. <code>--locked</code>
+  line a library consumer writes, <code>meant = "=0.1.0"</code>. <code>--locked</code>
   builds against the lockfile shipped inside the crate archive.
 </p>
 
@@ -40,21 +40,21 @@ candid-core compile ./service.did --envelope > ./service.json
   feature selection the release verification uses when it installs the CLI from the packaged archive:
 </p>
 
-<pre data-lang="bash">cargo install candid-core --version 0.1.0 --locked --no-default-features --features filesystem-compiler</pre>
+<pre data-lang="bash">cargo install meant --version 0.1.0 --locked --no-default-features --features filesystem-compiler</pre>
 
 <p>Working from a clone, the same commands run through Cargo without installing anything:</p>
 
 <pre data-lang="bash">
-cargo run --bin candid-core -- compile ./service.did
-cargo run --bin candid-core -- compile ./service.did --no-source-info
-cargo run --bin candid-core -- compile ./service.did --envelope
-cargo run --bin candid-core -- validate ./contract.json
+cargo run --bin meant -- compile ./service.did
+cargo run --bin meant -- compile ./service.did --no-source-info
+cargo run --bin meant -- compile ./service.did --envelope
+cargo run --bin meant -- validate ./contract.json
 </pre>
 
 <callout type="note" title="Turn defaults off and there is no binary">
   <p>
     A consumer who takes the crate with <code>default-features = false</code> to get the pure Contract
-    model gets no <code>candid-core</code> executable, because <code>filesystem-compiler</code> is what
+    model gets no <code>meant</code> executable, because <code>filesystem-compiler</code> is what
     declares it. That is the intended shape: the model has no filesystem dependency, and the binary is
     the part that does.
   </p>
@@ -64,9 +64,9 @@ cargo run --bin candid-core -- validate ./contract.json
 
 <p>The binary accepts exactly this, and nothing else:</p>
 
-<pre data-lang="text" data-file="src/bin/candid-core.rs">
-usage: candid-core compile <path> [--no-source-info | --envelope]
-       candid-core validate <path>
+<pre data-lang="text" data-file="src/bin/meant.rs">
+usage: meant compile <path> [--no-source-info | --envelope]
+       meant validate <path>
 </pre>
 
 <table>
@@ -132,7 +132,7 @@ usage: candid-core compile <path> [--no-source-info | --envelope]
   Two more grammar rules bite in practice. Flags go <em>after</em> the path and may appear at most once
   — <code>compile --envelope ./service.did</code> is a usage error. And any token beginning with
   <code>-</code> in the path position is treated as an option, never as a path, so a dash-leading file
-  is spelled with a prefix: <code>candid-core compile ./-service.did</code>.
+  is spelled with a prefix: <code>meant compile ./-service.did</code>.
 </p>
 
 <h2>Exit codes and streams</h2>
@@ -212,7 +212,7 @@ usage: candid-core compile <path> [--no-source-info | --envelope]
     "producer": {
       "candid_parser_version": "0.4.0",
       "candid_version": "0.10.30",
-      "name": "candid-core",
+      "name": "meant",
       "version": "0.1.0"
     },
     "semantics_profile": "candid-1",
@@ -295,7 +295,7 @@ service : { transfer: (Payload) -> () };
     "producer": {
       "candid_parser_version": "0.4.0",
       "candid_version": "0.10.30",
-      "name": "candid-core",
+      "name": "meant",
       "version": "0.1.0"
     },
     "semantics_profile": "candid-1",
@@ -513,7 +513,7 @@ expected="$(cat ci/interface.id)"
 
 # Both outcomes print JSON on stdout; failure exits 1, so check the status
 # rather than the stream.
-if ! response="$(candid-core compile ./service.did --no-source-info)"; then
+if ! response="$(meant compile ./service.did --no-source-info)"; then
   printf '%s\n' "$response"       # {"ok": false, "diagnostics": [...]}
   exit 1
 fi
@@ -536,7 +536,7 @@ echo "interface unchanged: $actual"
 
 <p>
   Seed <code>ci/interface.id</code> once with
-  <code>candid-core compile ./service.did --no-source-info | jq -r '.contract.identities.interface' &gt; ci/interface.id</code>,
+  <code>meant compile ./service.did --no-source-info | jq -r '.contract.identities.interface' &gt; ci/interface.id</code>,
   and thereafter the only way to change it is a commit that also changes the recorded value — which is
   the review moment you wanted. <code>--no-source-info</code> keeps the output small; the identity is
   the same either way, since the sidecar is not part of it.
@@ -547,7 +547,7 @@ echo "interface unchanged: $actual"
     Everything here is pre-1.0. Until 1.0, any release may change the public API, the serialized shapes,
     the canonical bytes, and therefore every identity computed over them. A recorded
     <code>interface_id</code> is a guard against <em>your</em> interface drifting, not a permanent
-    address across candid-core upgrades — pin the compiler version alongside it, and expect to
+    address across <code>meant</code> upgrades — pin the compiler version alongside it, and expect to
     re-record when you move.
   </p>
 </callout>

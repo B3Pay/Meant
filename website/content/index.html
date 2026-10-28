@@ -1,8 +1,8 @@
 <section class="hero">
-  <a class="hero-eyebrow" href="status.html">candid-core 0.1.0 · pre-1.0</a>
+  <a class="hero-eyebrow" href="status.html">meant 0.1.0 · pre-1.0</a>
   <h1>Candid interfaces as data, not text</h1>
   <p class="hero-sub">
-    candid-core parses a <code>.did</code> file once, through the official Candid type
+    Meant parses a <code>.did</code> file once, through the official Candid type
     checker, and projects the checked result into a validated type graph with a SHA-256
     identity over it. Rust and TypeScript packages read that one graph to give you typed
     schemas, validation, and a binary codec.
@@ -137,7 +137,7 @@ service : {
   <h2>Parse once, project into a model everything else reads</h2>
   <p class="section-sub">
     The parsing and type checking are delegated to the official <code>candid_parser</code>. What
-    candid-core owns is the projection: a validated graph, one canonical byte encoding, and the
+    Meant owns is the projection: a validated graph, one canonical byte encoding, and the
     identities computed over it.
   </p>
 
@@ -207,7 +207,7 @@ service : {
 
   <div class="card-grid">
     <a class="card" href="identities.html">
-      <span class="card-kicker">candid-core · CLI</span>
+      <span class="card-kicker">meant · CLI</span>
       <span class="card-title">Tell whether an interface actually changed</span>
       <p>Compare one string. Renamed types, reordered fields, reformatting and comments leave
       <code>interface_id</code> where it was; adding a method or changing an argument type moves it.</p>
@@ -238,13 +238,13 @@ service : {
       with no code generation step — for an explorer, a wallet, or an agent tool.</p>
     </a>
     <a class="card" href="limits-and-diagnostics.html">
-      <span class="card-kicker">candid-core</span>
+      <span class="card-kicker">meant</span>
       <span class="card-title">Accept <code>.did</code> source you did not write</span>
       <p>Over-limit input comes back as a <code>resource_limit_exceeded</code> diagnostic carrying
       <code>{ resource, limit, observed }</code> rather than exhausting memory, CPU or the stack.</p>
     </a>
     <a class="card" href="host-values.html">
-      <span class="card-kicker">candid-core · host-value</span>
+      <span class="card-kicker">meant · host-value</span>
       <span class="card-title">Move Candid values through JSON losslessly</span>
       <p>Every value carries its own Candid tag and its exact bits, so a large <code>nat</code>, a
       negative zero, and the difference between <code>opt null</code> and an absent field all survive.</p>
@@ -261,8 +261,8 @@ service : {
   <div class="card-grid">
     <a class="card" href="rust-install.html">
       <span class="card-kicker">crates.io · 0.1.0</span>
-      <span class="card-title">candid-core</span>
-      <p>The Rust library and the <code>candid-core</code> binary. Four feature surfaces, from a
+      <span class="card-title">meant</span>
+      <p>The Rust library and the <code>meant</code> binary. Four feature surfaces, from a
       pure model with no Candid engine up to a sandboxed filesystem compiler.</p>
     </a>
     <a class="card" href="generator.html">
@@ -347,7 +347,7 @@ service : {
       <code>0.4.0</code> under <code>latest</code>. Any release before 1.0 may change the public API, the serialized
       shapes, the canonical bytes, and therefore every identity computed over them, so pin an
       exact version. A caret requirement would take the next breaking 0.x release with it, so
-      the dependency line is <code>candid-core = "=0.1.0"</code>.
+      the dependency line is <code>meant = "=0.1.0"</code>.
       <a href="status.html">Versions, changes and release policy →</a>
     </p>
   </callout>

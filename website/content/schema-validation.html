@@ -108,7 +108,7 @@ export interface ValidationIssue {
 
 <p>
   The snake_case <code>resource_limit</code> in an otherwise camelCase file is not a slip. This is
-  deliberately the shape a candid-core validation violation serializes to —
+  deliberately the shape a Meant validation violation serializes to —
   <code>{ code, path, message }</code>, plus <code>resource_limit</code> when a bound was hit — so a
   consumer that already reads those reads these without a second parser. The
   <a href="reference-diagnostics.html">diagnostics reference</a> covers the shared shape, and

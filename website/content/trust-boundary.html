@@ -1,5 +1,5 @@
 <p>
-  A <strong>Contract</strong> is candid-core's validated model of a Candid interface: an arena
+  A <strong>Contract</strong> is Meant's validated model of a Candid interface: an arena
   of type nodes, a table of declared names, an optional actor, and the content identities
   computed over them. The library takes a position that shapes its whole API surface — a value
   of type <code>Contract</code> is always valid, and the only way to get one is through a
@@ -46,7 +46,7 @@
 <pre data-lang="rust" data-file="src/model/contract.rs">
 /// ```compile_fail
 /// // A validated Contract cannot be produced by serde alone.
-/// let _: candid_core::Contract = serde_json::from_str("{}").unwrap();
+/// let _: meant::Contract = serde_json::from_str("{}").unwrap();
 /// ```
 </pre>
 
@@ -201,7 +201,7 @@ pub struct RawContract {
 </p>
 
 <pre data-lang="rust" data-file="examples/trust_boundary.rs">
-use candid_core::{compile_did, Contract};
+use meant::{compile_did, Contract};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -328,16 +328,16 @@ pub struct ContractDraft {
 </p>
 
 <pre data-lang="rust" data-file="src/model/contract.rs">
-use candid_core::{ContractDraft, PrimitiveType, TypeNode};
+use meant::{ContractDraft, PrimitiveType, TypeNode};
 
 let contract = ContractDraft::new(
     vec![TypeNode::Primitive { primitive: PrimitiveType::Nat }],
-    vec![candid_core::Declaration { name: "Amount".to_string(), ty: 0 }],
+    vec![meant::Declaration { name: "Amount".to_string(), ty: 0 }],
     None,
 )
 .build()?;
 assert!(contract.contract_id().starts_with("candid-core:contract:v1:sha256:"));
-assert_eq!(contract.producer(), &candid_core::ProducerInfo::current());
+assert_eq!(contract.producer(), &meant::ProducerInfo::current());
 </pre>
 
 <p>

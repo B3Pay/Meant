@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* The candid-core documentation site generator.
+/* The Meant documentation site generator.
  *
  * Zero dependencies — Node built-ins only. It reads content/_site.json for the
  * navigation and content/<slug>.html for each page body, then writes a flat set
@@ -215,7 +215,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
     <a href="${site.docs.url}">${escapeHtml(site.docs.title)}</a>
     <a href="${site.repo}">Repository</a>
     <a href="${site.repo}/issues">Issues</a>
-    <a href="https://crates.io/crates/candid-core">crates.io</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
     <a href="https://www.npmjs.com/package/@candid-core/schema">npm</a>
   </div>
 </footer>`;

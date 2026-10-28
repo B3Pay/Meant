@@ -53,7 +53,7 @@ impl ContractDraft {
 </p>
 
 <pre data-lang="rust">
-use candid_core::{
+use meant::{
     Actor, ContractDraft, Declaration, Field, Limits, MethodMode, PrimitiveType,
     ServiceMethod, TypeNode,
 };
@@ -201,7 +201,7 @@ Contract::from_slice_with_context(input: &[u8], context: &RuntimeContext)
 </p>
 
 <pre data-lang="rust" data-file="examples/trust_boundary.rs">
-use candid_core::{compile_did, Contract};
+use meant::{compile_did, Contract};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -356,7 +356,7 @@ pub fn artifact_id_with_context(
 </p>
 
 <pre data-lang="rust" data-file="src/artifact_id.rs">
-use candid_core::{artifact_id_with_limits, ArtifactKind, Limits};
+use meant::{artifact_id_with_limits, ArtifactKind, Limits};
 
 let document = br#"{"contract":{}}"#;
 let id = artifact_id_with_limits(

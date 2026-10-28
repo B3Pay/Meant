@@ -6,7 +6,7 @@
     <code>0.2.0-beta.1</code>.
     The registry also holds <code>0.0.0-bootstrap</code> under the <code>bootstrap</code> tag, which
     exists only so a trusted publisher could be attached to the name; do not install it. The
-    <a href="cli-rust.html"><code>candid-core</code> binary</a> does the same compilation from Rust.
+    <a href="cli-rust.html"><code>meant</code> binary</a> does the same compilation from Rust.
   </p>
 </callout>
 
@@ -34,7 +34,7 @@ npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
 </pre>
 
 <p>
-  Here is what the package is and what it does. Everything candid-core does to a
+  Here is what the package is and what it does. Everything Meant does to a
   <code>.did</code> file normally happens in Rust. <code>@candid-core/cli</code> is that same Rust code
   — the compiler's <span class="pill accent">compiler</span> feature surface plus the
   <a href="generator.html"><code>candid-core-ts</code></a> TypeScript generator — compiled once to
@@ -150,7 +150,7 @@ usage: candid-core-cli gen <service.did>... [-o <dir>] [--json] [--check]
 
 <p>
   Run over the repository's two-line <code>basic.did</code> fixture — the same one shown on
-  <a href="cli-rust.html">the candid-core binary</a> page — with <code>-o generated</code>, stdout is
+  <a href="cli-rust.html">the <code>meant</code> binary</a> page — with <code>-o generated</code>, stdout is
   four lines and the exit status is 0:
 </p>
 
@@ -790,7 +790,7 @@ npm test
       <td>
         Format, clippy with warnings denied, and the Rust parity tests: every golden fixture reproduces
         its reviewed <code>.ts</code> module byte for byte; the emitted envelope equals the committed
-        fixture the native <code>candid-core compile --envelope</code> binary produced, byte for byte;
+        fixture the native <code>meant compile --envelope</code> binary produced, byte for byte;
         the field-name triples equal the generator's reviewed <code>*.names.json</code> goldens for five
         fixtures; identical requests produce identical responses.
       </td>
@@ -835,7 +835,7 @@ npm test
 
 <p>
   <a href="schema-from-contract.html">Schemas from a Contract document</a> shows the TypeScript side
-  consuming the envelope this package writes. <a href="cli-rust.html">The candid-core binary</a>
+  consuming the envelope this package writes. <a href="cli-rust.html">The <code>meant</code> binary</a>
   produces the same envelope document from Rust. For where each unit stands, see
   <a href="status.html">Status, versions and releases</a>.
 </p>

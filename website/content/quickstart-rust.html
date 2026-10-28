@@ -12,10 +12,10 @@ generator, the schema runtime, the CLI — consumes that graph rather than the
 source text.</p>
 
 <callout type="warn" title="Pre-1.0, so pin the exact version">
-  <p><code>candid-core</code> is at <code>0.1.0</code>. Until 1.0, any
+  <p><code>meant</code> is at <code>0.1.0</code>. Until 1.0, any
   release may change the public API, the serialized shapes, the canonical bytes,
   and therefore every identity computed over them, and a caret requirement such
-  as <code>candid-core = "0.1"</code> would take such a release with it. Every
+  as <code>meant = "0.1"</code> would take such a release with it. Every
   example below pins the exact version.</p>
 </callout>
 
@@ -25,14 +25,14 @@ source text.</p>
   <li>
     <h3>Add the dependency</h3>
     <pre data-lang="toml" data-file="Cargo.toml">[dependencies]
-candid-core = "=0.1.0"</pre>
-    <p>Or from the command line, <code>cargo add candid-core@=0.1.0</code>.
+meant = "=0.1.0"</pre>
+    <p>Or from the command line, <code>cargo add meant@=0.1.0</code>.
     The MSRV is Rust 1.78 and the licence is Apache-2.0.</p>
     <p>That line gives you the whole surface, because all three Cargo features
     are on by default: <span class="pill accent">compiler</span> (the
     <code>candid_parser</code>-backed source compiler),
     <span class="pill accent">filesystem-compiler</span> (reading
-    <code>.did</code> files, and the <code>candid-core</code> binary) and
+    <code>.did</code> files, and the <code>meant</code> binary) and
     <span class="pill accent">host-value</span> (the tagged JSON value ABI).
     A consumer that only reads Contracts someone else produced can switch all
     three off with <code>default-features = false</code> and keep the model,
@@ -47,7 +47,7 @@ candid-core = "=0.1.0"</pre>
     returns a <code>Compilation</code>: the Contract itself plus an optional
     provenance sidecar. It needs no filesystem, which is what makes it the
     entry point a browser or WASM host uses.</p>
-    <pre data-lang="rust">use candid_core::compile_did;
+    <pre data-lang="rust">use meant::compile_did;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -107,7 +107,7 @@ interface: candid-core:interface:v1:sha256:<64 lowercase hex digits></pre>
     <code>WorkspaceResolver</code> at the entry file's parent directory and
     reads the bundle through it, so nothing outside that directory is
     reachable.</p>
-    <pre data-lang="rust">use candid_core::compile_did_file;
+    <pre data-lang="rust">use meant::compile_did_file;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -146,7 +146,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     profile and override with <code>with_*</code> builders, then wrap the result
     in a <code>RuntimeContext</code> and pass it to a
     <code>_with_context</code> entry point.</p>
-    <pre data-lang="rust">use candid_core::{compile_did_with_context, CompileOptions, Limits, RuntimeContext};
+    <pre data-lang="rust">use meant::{compile_did_with_context, CompileOptions, Limits, RuntimeContext};
 
 fn main() {
     // 38 bytes of source, and a 16-byte ceiling.
@@ -196,16 +196,16 @@ budget:  resource=source_bytes limit=16 observed=38</pre>
 
   <li>
     <h3>Skip the Rust and use the binary</h3>
-    <p>The crate ships one binary, also called <code>candid-core</code>, gated
+    <p>The crate ships one binary, also called <code>meant</code>, gated
     on the same <span class="pill accent">filesystem-compiler</span> feature.
     It accepts exactly this grammar and nothing else.</p>
-    <pre data-lang="text">candid-core compile <path> [--no-source-info | --envelope]
-candid-core validate <path></pre>
-    <pre data-lang="bash">cargo install candid-core --version 0.1.0 --locked
+    <pre data-lang="text">meant compile <path> [--no-source-info | --envelope]
+meant validate <path></pre>
+    <pre data-lang="bash">cargo install meant --version 0.1.0 --locked
 
-candid-core compile ./service.did              # contract + provenance sidecar
-candid-core compile ./service.did --envelope   # one self-describing document
-candid-core validate ./contract.json           # re-check a document you were given</pre>
+meant compile ./service.did              # contract + provenance sidecar
+meant compile ./service.did --envelope   # one self-describing document
+meant validate ./contract.json           # re-check a document you were given</pre>
     <p><code>compile</code> prints
     <code>{"contract": …, "ok": true, "source_info": …}</code>. The Contract
     inside has nine top-level keys when the interface has an actor, in this
@@ -225,7 +225,7 @@ candid-core validate ./contract.json           # re-check a document you were gi
   "producer": {
     "candid_parser_version": "0.4.0",
     "candid_version": "0.10.30",
-    "name": "candid-core",
+    "name": "meant",
     "version": "0.1.0"
   },
   "semantics_profile": "candid-1",
@@ -259,7 +259,7 @@ candid-core validate ./contract.json           # re-check a document you were gi
       beginning with <code>-</code> is always an option in the path position —
       spell a dash-leading file as <code>./-service.did</code>.</p>
     </callout>
-    <p><a href="cli-rust.html">The candid-core binary</a> has the full output
+    <p><a href="cli-rust.html">The <code>meant</code> binary</a> has the full output
     contract, including the two different failure keys
     <code>validate</code> uses depending on how far the read got.</p>
   </li>

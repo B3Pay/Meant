@@ -1,5 +1,5 @@
 {
-  "title": "candid-core",
+  "title": "Meant",
   "description": "One canonical, validated, content-addressed model of a Candid interface — and the Rust and TypeScript tooling built on top of it.",
   "repo": "https://github.com/b3hr4d/candid-core",
   "url": "https://ic-reactor.b3pay.net/candid-core/",
@@ -10,14 +10,14 @@
       "pages": [
         {
           "slug": "index",
-          "title": "candid-core",
+          "title": "Meant",
           "nav": "Home",
           "layout": "landing"
         },
         {
           "slug": "what-is-candid-core",
-          "title": "What is candid-core?",
-          "nav": "What is candid-core?",
+          "title": "What is Meant?",
+          "nav": "What is Meant?",
           "lead": "The problem it solves, in the language of a .did file you already have."
         },
         {
@@ -127,8 +127,8 @@
       "pages": [
         {
           "slug": "cli-rust",
-          "title": "The candid-core binary",
-          "nav": "candid-core (Rust)",
+          "title": "The meant binary",
+          "nav": "meant (Rust)",
           "lead": "Compile a .did file to a canonical Contract document, an envelope, or validate one."
         },
         {
