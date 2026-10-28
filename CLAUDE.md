@@ -17,6 +17,25 @@ tag, matched case by case against the JavaScript reference in the
 candid-profile repository. `fuzz/` is its own
 workspace root with its own lockfile.
 
+## profile/, a synced copy
+
+`profile/` and two root workflows, `.github/workflows/profile-ci.yml` and
+`.github/workflows/npm-release-profile.yml`, are the public copy of the
+private candid-profile repository: the profile spec and the five profile
+packages, published to npm as `@meantjs/*` (decisions D-051 and D-052 there).
+They arrive only through a sync pull request, built by that repository's
+`scripts/public-copy/build.mjs`, and each sync replaces them whole. Do not
+edit them here: a pull request that changes them is applied in candid-profile
+by a maintainer and comes back with the next sync, and a change made only
+here is undone by it. Their own instructions are `profile/AGENTS.md`, their
+CI is `profile-ci.yml`, and their releases are `profile/docs/releasing.md`;
+nothing in the batteries below covers them. Prettier leaves them alone
+(`/profile/` in `.prettierignore`), and `Verify`, `wasm CLI` and `Benchmark
+comparison` do not run on a pull request that changes only them. A crate
+under `profile/` must carry its own empty `[workspace]` table: the root's
+`members = [".", …]` makes every path below it an explicit member, which
+`workspace.exclude` cannot override.
+
 ## Non-negotiables
 
 - **One issue per branch per PR.** Never push implementation commits to `main`.

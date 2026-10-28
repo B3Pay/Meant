@@ -18,8 +18,15 @@ name: Benchmark comparison
 # hold nothing beyond `contents: read`. This one gains no ability to tag,
 # publish, or write repository contents.
 
+# A pull request that changes only the profile copy and its two workflows
+# touches nothing the benchmarks measure, so it gets no comparison and no
+# comment.
 on:
   pull_request:
+    paths-ignore:
+      - "profile/**"
+      - ".github/workflows/profile-ci.yml"
+      - ".github/workflows/npm-release-profile.yml"
 
 permissions:
   contents: read
