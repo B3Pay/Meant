@@ -1,0 +1,61 @@
+// Every place a doc comment can put a tag (spec section 9, OQ-4).
+
+type Account = record { owner : principal; subaccount : opt blob };
+/// An account and an amount.
+type Payment = record {
+  /// @account
+  /// @bytes(at = "subaccount", encoding = "hex")
+  to : Account;
+  /// How much, in e8s.
+  /// @amount(decimals = 8, symbol = "ICP")
+  amount : nat;
+  /// The number of retries.
+  retries : nat8;
+  /// @describe(label = "Count")
+  /// How many times.
+  count : nat;
+  /// @timestamp(unit = ns)
+  /// @default(value = now(), mode = auto)
+  created_at : opt nat64;
+};
+/// A token amount.
+type Tokens = nat;
+type Status = variant {
+  /// @describe(label = "Done")
+  Done;
+  /// Still running.
+  Running : record { progress : nat8 };
+};
+service : {
+  decimals : () -> (nat8) query;
+  /// Pay someone.
+  ///
+  /// The payment is final.
+  /// @intent(title = "Pay", template = "Pay {amount} to {to}")
+  /// @effect(kind = "transfer", irreversible = true)
+  /// @outcome(classes = { Ok = success, "Err.TooOld" = fix_input }, default = fail)
+  pay : (Payment) -> (variant { Ok : nat; Err : variant { TooOld; Other : text } });
+  /// @amount(at = "(0)", decimals = query(decimals))
+  /// @timestamp(at = "(1)", unit = ns)
+  /// @range(at = "(2)", min = 1, max = 18446744073709551615)
+  multi : (nat, nat64, nat) -> ();
+  inline : (record {
+    /// Who receives it.
+    who : principal;
+    items : opt vec record {
+      /// @amount(decimals = 2)
+      price : nat;
+    };
+    /// @describe(label = "Mode")
+    mode : variant { Fast; Slow };
+  }) -> (variant {
+    /// @timestamp(unit = ms)
+    Ok : nat64;
+    Err : text;
+  });
+  status : () -> (Status) query;
+  /// @ui.hidden()
+  /// @deprecated
+  /// @amout(decimals = 8)
+  old : (nat) -> ();
+}

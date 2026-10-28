@@ -1,0 +1,19 @@
+{
+  "name": "candid-profile-consent-pocketic",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "W4: the example SNS validator canister registered with the real SNS governance canister on PocketIC.",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch-artifacts.mjs",
+    "build": "cargo build --release --target wasm32-unknown-unknown --manifest-path ../rust/Cargo.toml --example sns_validator --example sns_target",
+    "test": "npm run fetch && npm run build && node --test --test-concurrency=1 \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@dfinity/pic": "0.25.0",
+    "@icp-sdk/core": "6.1.0"
+  }
+}

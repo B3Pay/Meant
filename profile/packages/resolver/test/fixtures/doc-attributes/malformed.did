@@ -1,0 +1,4 @@
+service : {
+  /// @intent(title = "Send", title = "Again")
+  send : () -> ();
+}

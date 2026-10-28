@@ -1,0 +1,24 @@
+{
+  // The consumer programs of the library packages' hand-written types, compiled strict and with no skipLibCheck, so
+  // a declaration that does not compile, or that is `any` where a type is promised, fails here and not on npm.
+  // `npm run types` compiles them against the workspace; `npm run pack:check` compiles and runs them against the
+  // packed tarballs installed outside the repository (no Node types: the programs import no node:* module).
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": false,
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolveJsonModule": true,
+    "lib": ["es2023", "dom"],
+    "types": [],
+    "allowImportingTsExtensions": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": ["*.mts"]
+}

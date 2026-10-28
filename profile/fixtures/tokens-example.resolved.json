@@ -1,0 +1,226 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "interface_id": "candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c",
+  "profiles": [
+    {
+      "name": "tokens-example",
+      "origin": "author",
+      "profile_id": "candid-profile:v0:sha256:70abc8cbce701650b6adafeabbf636a10b9c80e620bfcb6cc2d8793ee027745c"
+    }
+  ],
+  "methods": {
+    "balance": {
+      "mode": "query",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "candid": "principal"
+        }
+      ],
+      "results": [
+        {
+          "candid": "record",
+          "fields": {
+            "e8s": {
+              "candid": "nat64",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": 8,
+                    "symbol": "TOK"
+                  },
+                  "origin": "author",
+                  "profile": "tokens-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Balance"
+                  },
+                  "origin": "author",
+                  "profile": "tokens-example"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "send": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Send TOK",
+            "template": "Send {amount.e8s} to {to}[ with memo {memo}]"
+          },
+          "origin": "author",
+          "profile": "tokens-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true
+          },
+          "origin": "author",
+          "profile": "tokens-example"
+        },
+        "idempotency": {
+          "args": {
+            "mode": "replay_same_payload",
+            "stamp": "created_at"
+          },
+          "origin": "author",
+          "profile": "tokens-example"
+        },
+        "outcome": {
+          "args": {
+            "classes": {
+              "Ok": "success",
+              "Err.Duplicate": "already_done",
+              "Err.Insufficient": "fail",
+              "Err.Other": "fail"
+            }
+          },
+          "origin": "author",
+          "profile": "tokens-example"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "to": {
+              "candid": "principal"
+            },
+            "memo": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "bytes": {
+                  "args": {
+                    "encoding": "utf8"
+                  },
+                  "origin": "author",
+                  "profile": "tokens-example"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "suggest"
+                  },
+                  "origin": "author",
+                  "profile": "tokens-example"
+                }
+              }
+            },
+            "created_at": {
+              "candid": "nat64",
+              "optional": true,
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "ns",
+                    "epoch": "unix"
+                  },
+                  "origin": "author",
+                  "profile": "tokens-example"
+                }
+              }
+            },
+            "amount": {
+              "candid": "record",
+              "fields": {
+                "e8s": {
+                  "candid": "nat64",
+                  "tags": {
+                    "amount": {
+                      "args": {
+                        "decimals": 8,
+                        "symbol": "TOK"
+                      },
+                      "origin": "author",
+                      "profile": "tokens-example"
+                    },
+                    "describe": {
+                      "args": {
+                        "label": "Amount"
+                      },
+                      "origin": "author",
+                      "profile": "tokens-example"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "nat"
+            },
+            "Err": {
+              "candid": "variant",
+              "cases": {
+                "Duplicate": {
+                  "candid": "record",
+                  "fields": {
+                    "block": {
+                      "candid": "nat"
+                    }
+                  }
+                },
+                "Insufficient": {
+                  "candid": "record",
+                  "fields": {
+                    "balance": {
+                      "candid": "record",
+                      "fields": {
+                        "e8s": {
+                          "candid": "nat64",
+                          "tags": {
+                            "amount": {
+                              "args": {
+                                "decimals": 8,
+                                "symbol": "TOK"
+                              },
+                              "origin": "author",
+                              "profile": "tokens-example"
+                            },
+                            "describe": {
+                              "args": {
+                                "label": "Amount"
+                              },
+                              "origin": "author",
+                              "profile": "tokens-example"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "Other": {
+                  "candid": "text"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": []
+}

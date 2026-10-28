@@ -1,0 +1,16 @@
+{
+  "format": "candid-profile-w4-test-fixtures",
+  "notes": [
+    "ledger.did is a byte-for-byte copy of packages/resolver/test/fixtures/ledger.did (W1), which is the exact file the eval harness pins and hash-checks. Untrusted third-party data: tests only pass it to the Candid parser.",
+    "sns-dapp.did and sns-dapp.profile.json are written for this package: a hypothetical SNS-governed dapp for the SNS validator rendering tests, not the interface of any real canister. Not third-party data.",
+    "wide.did and wide.profile.json are written for this package: a hypothetical interface with every Candid type a resolved form carries and every value tag, for the differential corpus of the Rust port (test/differential/). Not third-party data."
+  ],
+  "files": {
+    "ledger.did": {
+      "sha256": "02a42599e3d2036a19dcfa53db04ad5a5271b0bd78ac1a5986b3dd361f33a99c",
+      "bytes": 16004,
+      "url": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ledger.did",
+      "release": "ledger-suite-icrc-2026-03-09"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+// A wide interface for the differential test of the Rust port (test/differential/): the Candid types a resolved form
+// carries and every value tag. Hypothetical, written for the tests.
+type Account = record { owner : principal; subaccount : opt blob };
+type Payment = record {
+  to : Account;
+  amount : nat;
+  fee : opt nat;
+  memo : opt blob;
+  from_subaccount : opt blob;
+  created_at_time : opt nat64;
+};
+type Leaf = record { id : nat32; flags : vec bool; note : opt text };
+type Kind = variant { Small; Large : nat64; Named : record { label : text; weight : float64 }; Ratio : float32 };
+type Schedule = record { at : nat64; every : nat64; drift : opt int; label : text };
+type Numbered = record { 0 : text; 1 : nat; 7 : opt principal };
+type Ordered = record { zeta : nat; alpha : int; mid : text; tail : opt Leaf };
+service : {
+  pay : (Payment) -> ();
+  schedule : (Schedule) -> ();
+  tag_items : (vec Leaf, Kind) -> ();
+  set_keys : (blob, blob, blob) -> ();
+  tune : (int8, int16, int32, int64, nat8, nat16, nat32, float32, float64, bool, null, reserved) -> ();
+  numbered : (Numbered) -> ();
+  grid : (vec vec text, opt vec opt nat) -> ();
+  echo : (text) -> ();
+  ordered : (Ordered) -> ();
+  peek : (nat) -> () query;
+  stamp : (int, nat32, int64) -> ();
+  sub : (blob) -> ();
+  decimals : () -> (nat8) query;
+  symbol : () -> (text) query;
+}

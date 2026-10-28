@@ -1,0 +1,54 @@
+// Tags no v0 address reaches, and tags in the wrong place: each is an error.
+
+type Hook = func (record {
+  /// @amount(decimals = 8)
+  x : nat;
+}) -> ();
+type Callback = service {
+  /// @effect(kind = "write", irreversible = false)
+  notify : (nat) -> ();
+};
+type Pair = record {
+  /// @intent(title = "No", template = "No")
+  a : nat;
+  b : nat;
+};
+/// @amount(decimals = 8)
+service : {
+  decimals : () -> (nat8) query;
+  /// @amount(decimals = 8)
+  bare : (nat) -> ();
+  /// @effect(at = "x", kind = "read", irreversible = false)
+  misplaced : (record { x : nat }) -> ();
+  /// @amount(at = "x", decimals = 8)
+  two : (record { x : nat }, nat) -> ();
+  /// @amount(at = "(0)", decimals = 0.5)
+  fraction : (nat) -> ();
+  /// @amount(at = "(0)", decimals = query(decimals, symbol))
+  badcall : (nat) -> ();
+  /// @amount(at = "(0)", decimals = later())
+  unknowncall : (nat) -> ();
+  /// @amount(at = "(0", decimals = 8)
+  badat : (nat) -> ();
+  /// @amount(at = x, decimals = 8)
+  identat : (nat) -> ();
+  hook : (Hook) -> ();
+  subscribe : (Callback) -> ();
+  pair : (Pair) -> ();
+  /// @effect(kind = "write", irreversible = false)
+  "quoted-name" : () -> ();
+  watch : (service {
+    /// @effect(kind = "write", irreversible = false)
+    notify : (record {
+      /// @amount(decimals = 8)
+      v : nat;
+    }) -> ();
+  }) -> ();
+  inline : (record {
+    /// @amount(at = "(0)", decimals = 8)
+    y : nat;
+  }, func (record {
+    /// @amount(decimals = 8)
+    z : nat;
+  }) -> ()) -> ();
+}

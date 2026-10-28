@@ -1,0 +1,504 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "interface_id": "candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689",
+  "profiles": [
+    {
+      "name": "icrc1",
+      "origin": "pack",
+      "profile_id": "candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b"
+    }
+  ],
+  "methods": {
+    "icrc1_balance_of": {
+      "mode": "query",
+      "tags": {
+        "describe": {
+          "args": {
+            "label": "Balance of an account"
+          },
+          "origin": "pack",
+          "profile": "icrc1"
+        },
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "tags": {
+            "account": {
+              "args": {
+                "encoding": "icrc1"
+              },
+              "origin": "pack",
+              "profile": "icrc1"
+            }
+          },
+          "fields": {
+            "owner": {
+              "candid": "principal"
+            },
+            "subaccount": {
+              "candid": "blob",
+              "optional": true
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "nat",
+          "tags": {
+            "amount": {
+              "args": {
+                "decimals": {
+                  "from": "query:icrc1_decimals"
+                },
+                "symbol": {
+                  "from": "query:icrc1_symbol"
+                }
+              },
+              "origin": "pack",
+              "profile": "icrc1"
+            }
+          }
+        }
+      ]
+    },
+    "icrc1_decimals": {
+      "mode": "query",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "candid": "nat8"
+        }
+      ]
+    },
+    "icrc1_fee": {
+      "mode": "query",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "candid": "nat",
+          "tags": {
+            "amount": {
+              "args": {
+                "decimals": {
+                  "from": "query:icrc1_decimals"
+                },
+                "symbol": {
+                  "from": "query:icrc1_symbol"
+                }
+              },
+              "origin": "pack",
+              "profile": "icrc1"
+            }
+          }
+        }
+      ]
+    },
+    "icrc1_symbol": {
+      "mode": "query",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "candid": "text"
+        }
+      ]
+    },
+    "icrc1_transfer": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Send tokens",
+            "template": "Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}][ paying fee {fee}]"
+          },
+          "origin": "pack",
+          "profile": "icrc1"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true
+          },
+          "origin": "pack",
+          "profile": "icrc1"
+        },
+        "idempotency": {
+          "args": {
+            "mode": "replay_same_payload",
+            "stamp": "created_at_time"
+          },
+          "origin": "pack",
+          "profile": "icrc1"
+        },
+        "outcome": {
+          "args": {
+            "classes": {
+              "Ok": "success",
+              "Err.Duplicate": "already_done",
+              "Err.TemporarilyUnavailable": "retry_same",
+              "Err.TooOld": "retry_new",
+              "Err.CreatedInFuture": "retry_new",
+              "Err.BadFee": "fix_input",
+              "Err.BadBurn": "fix_input",
+              "Err.InsufficientFunds": "fail",
+              "Err.GenericError": "fail"
+            },
+            "default": "fail"
+          },
+          "origin": "pack",
+          "profile": "icrc1"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "to": {
+              "candid": "record",
+              "tags": {
+                "account": {
+                  "args": {
+                    "encoding": "icrc1"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Recipient"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                }
+              },
+              "fields": {
+                "owner": {
+                  "candid": "principal"
+                },
+                "subaccount": {
+                  "candid": "blob",
+                  "optional": true
+                }
+              }
+            },
+            "fee": {
+              "candid": "nat",
+              "optional": true,
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "auto"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Fee",
+                    "help": "Leave empty to pay the ledger's current default fee. A wrong explicit fee fails with BadFee."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                }
+              }
+            },
+            "memo": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "bytes": {
+                  "args": {
+                    "encoding": "utf8"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "suggest"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Memo",
+                    "help": "Transfers with different memos are never deduplicated against each other. Ledgers accept at least 32 bytes; longer memos may be rejected."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                }
+              }
+            },
+            "from_subaccount": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "subaccount": {
+                  "args": {},
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "describe": {
+                  "args": {
+                    "label": "From subaccount",
+                    "help": "Omit to send from the default subaccount."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                }
+              }
+            },
+            "created_at_time": {
+              "candid": "nat64",
+              "optional": true,
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "ns",
+                    "epoch": "unix"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Created at",
+                    "help": "Set once per intent by the tool layer; enables the ledger's duplicate protection."
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "ui": {
+                  "args": {
+                    "hidden": true
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                }
+              }
+            },
+            "amount": {
+              "candid": "nat",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:icrc1_decimals"
+                    },
+                    "symbol": {
+                      "from": "query:icrc1_symbol"
+                    }
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "nat",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Block index"
+                  },
+                  "origin": "pack",
+                  "profile": "icrc1"
+                }
+              }
+            },
+            "Err": {
+              "candid": "variant",
+              "cases": {
+                "GenericError": {
+                  "candid": "record",
+                  "fields": {
+                    "message": {
+                      "candid": "text"
+                    },
+                    "error_code": {
+                      "candid": "nat"
+                    }
+                  }
+                },
+                "TemporarilyUnavailable": {
+                  "candid": "null"
+                },
+                "BadBurn": {
+                  "candid": "record",
+                  "fields": {
+                    "min_burn_amount": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc1"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Duplicate": {
+                  "candid": "record",
+                  "fields": {
+                    "duplicate_of": {
+                      "candid": "nat",
+                      "tags": {
+                        "describe": {
+                          "args": {
+                            "label": "Existing block index",
+                            "help": "The same transfer was already executed in this block."
+                          },
+                          "origin": "pack",
+                          "profile": "icrc1"
+                        }
+                      }
+                    }
+                  }
+                },
+                "BadFee": {
+                  "candid": "record",
+                  "fields": {
+                    "expected_fee": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc1"
+                        }
+                      }
+                    }
+                  }
+                },
+                "CreatedInFuture": {
+                  "candid": "record",
+                  "fields": {
+                    "ledger_time": {
+                      "candid": "nat64",
+                      "tags": {
+                        "timestamp": {
+                          "args": {
+                            "unit": "ns",
+                            "epoch": "unix"
+                          },
+                          "origin": "pack",
+                          "profile": "icrc1"
+                        }
+                      }
+                    }
+                  }
+                },
+                "TooOld": {
+                  "candid": "null"
+                },
+                "InsufficientFunds": {
+                  "candid": "record",
+                  "fields": {
+                    "balance": {
+                      "candid": "nat",
+                      "tags": {
+                        "amount": {
+                          "args": {
+                            "decimals": {
+                              "from": "query:icrc1_decimals"
+                            },
+                            "symbol": {
+                              "from": "query:icrc1_symbol"
+                            }
+                          },
+                          "origin": "pack",
+                          "profile": "icrc1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": []
+}

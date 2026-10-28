@@ -1,0 +1,49 @@
+{
+  "intent": "Send {{name}}",
+  "fields": [
+    [
+      "From",
+      {
+        "Text": {
+          "content": "{{from}}"
+        }
+      }
+    ],
+    [
+      "Amount",
+      {
+        "TokenAmount": {
+          "decimals": "{{decimals}}",
+          "amount": "{{amount}}",
+          "symbol": "{{symbol}}"
+        }
+      }
+    ],
+    [
+      "To",
+      {
+        "Text": {
+          "content": "{{to}}"
+        }
+      }
+    ],
+    [
+      "Fees",
+      {
+        "TokenAmount": {
+          "decimals": "{{decimals}}",
+          "amount": "{{fees}}",
+          "symbol": "{{symbol}}"
+        }
+      }
+    ],
+    [
+      "Memo",
+      {
+        "Text": {
+          "content": "{{memo}}"
+        }
+      }
+    ]
+  ]
+}

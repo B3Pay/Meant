@@ -1,0 +1,18 @@
+{
+  "format": "candid-profile-resolver-test-fixtures",
+  "notes": [
+    "Copies of third-party files used as test input. Untrusted data: the tests only read them. Do not edit; replace by re-downloading and updating the hash here.",
+    "ledger.did is the exact file the eval harness pins and hash-checks (eval/harness/artifacts.json, ledger_suite.files['ledger.did']); a test compares this record with that manifest."
+  ],
+  "files": {
+    "ledger.did": {
+      "sha256": "02a42599e3d2036a19dcfa53db04ad5a5271b0bd78ac1a5986b3dd361f33a99c",
+      "bytes": 16004,
+      "url": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ledger.did",
+      "release": "ledger-suite-icrc-2026-03-09",
+      "release_url": "https://github.com/dfinity/ic/releases/tag/ledger-suite-icrc-2026-03-09",
+      "downloaded": "2026-10-09",
+      "downloaded_with": "curl, then sha256 compared to the harness manifest before use"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "diagnostics": [
+    {
+      "code": "doc_attribute_duplicate_key",
+      "message": "doc line 1 of actor.methods[0]: @intent: the key `title` repeats",
+      "path": "actor.methods[0]",
+      "phase": "parse",
+      "severity": "error",
+      "span": {
+        "source_name": "memory:/malformed.did"
+      }
+    }
+  ],
+  "ok": false
+}

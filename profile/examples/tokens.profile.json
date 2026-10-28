@@ -1,0 +1,24 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "canister",
+  "name": "tokens-example",
+  "origin": "author",
+  "language": "en",
+  "description": "Example author profile for examples/tokens.did. Shows type: addresses (one tag on Tokens.e8s reaches every Tokens position), a method-address override, and the idempotency stamp.",
+  "binds": {
+    "interface_id": "candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c"
+  },
+  "annotations": [
+    { "at": "type:Tokens.e8s", "tag": "amount", "args": { "decimals": 8, "symbol": "TOK" } },
+    { "at": "type:Tokens.e8s", "tag": "describe", "args": { "label": "Amount" } },
+    { "at": "balance->(0).e8s", "tag": "describe", "args": { "label": "Balance" } },
+    { "at": "send", "tag": "intent", "args": { "title": "Send TOK", "template": "Send {amount.e8s} to {to}[ with memo {memo}]" } },
+    { "at": "send", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+    { "at": "send", "tag": "idempotency", "args": { "mode": "replay_same_payload", "stamp": "created_at" } },
+    { "at": "send", "tag": "outcome", "args": { "classes": { "Ok": "success", "Err.Duplicate": "already_done", "Err.Insufficient": "fail", "Err.Other": "fail" } } },
+    { "at": "send(0).created_at", "tag": "timestamp", "args": { "unit": "ns", "epoch": "unix" } },
+    { "at": "send(0).memo", "tag": "bytes", "args": { "encoding": "utf8" } },
+    { "at": "send(0).memo", "tag": "default", "args": { "value": "null", "mode": "suggest" } }
+  ]
+}

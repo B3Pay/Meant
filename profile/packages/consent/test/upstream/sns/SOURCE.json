@@ -1,0 +1,20 @@
+{
+  "format": "candid-profile-w4-upstream-source",
+  "notes": [
+    "Untrusted third-party data (Apache-2.0, the license of dfinity/ic). Tests read these files as text and never import or execute anything from this directory.",
+    "execute-generic-function-rendering.txt is the expected value of the upstream test validate_and_render_execute_nervous_system_function_success (the raw string literal, verbatim, no trailing newline): the payload_text_rendering SNS governance stores for a generic function whose validator returned Ok(\"Payload rendering here\") for the payload [1, 2, 3]. Extracted by a script from the file below; from_sha256 is the sha256 of that whole file."
+  ],
+  "repository": "https://github.com/dfinity/ic",
+  "commit": "649156c2bca1315da5699e2125b34be6397c9987",
+  "commit_note": "head of master on 2026-10-12 (git ls-remote)",
+  "downloaded": "2026-10-12",
+  "downloaded_with": "curl into an empty scratch directory outside the repository; the literal extracted from it",
+  "files": {
+    "execute-generic-function-rendering.txt": {
+      "sha256": "7afb73e6e7c828e325e0dd68dcf8c8f28994fa5002272399ec5e0757fe75c2a1",
+      "bytes": 935,
+      "url": "https://raw.githubusercontent.com/dfinity/ic/649156c2bca1315da5699e2125b34be6397c9987/rs/sns/governance/src/proposal.rs",
+      "from_sha256": "dc2228b1f7525d0e1851916514d322aedd8d5dd4c9259e9476be085ba08e8dbf"
+    }
+  }
+}

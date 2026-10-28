@@ -1,0 +1,109 @@
+{
+  "id": "transfer-tka-full",
+  "why": "Every optional present: recipient subaccount 7, sender subaccount 1, memo, explicit fee. Rows follow the template, not the record order.",
+  "pack": "icrc1",
+  "method": "icrc1_transfer",
+  "ledger": {
+    "id": "TKA",
+    "symbol": "TKA",
+    "decimals": 8
+  },
+  "args": "(record { to = record { owner = principal \"ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6\"; subaccount = opt blob \"\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\07\" }; amount = 150000000 : nat; memo = opt blob \"\\6c\\75\\6e\\63\\68\"; fee = opt (10_000 : nat); from_subaccount = opt blob \"\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\00\\01\"; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c06fbca0101c6fcb60204ba89e5c20405a2de94eb060282f3f3910c07d8a38ca80d7d6c02b3b0dac30368ad86ca8305026e036d7b6e7d6e066d7b6e780100011d0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f0120000000000000000000000000000000000000000000000000000000000000000701904e01056c756e63680120000000000000000000000000000000000000000000000000000000000000000101008058b6afdadc1880a3c347",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Send tokens: Send 1.5 TKA to ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-cabqh3q.7 from subaccount #1 with memo lunch paying fee 0.0001 TKA",
+            "fields": [
+              [
+                "Amount",
+                {
+                  "TokenAmount": {
+                    "decimals": 8,
+                    "amount": "150000000",
+                    "symbol": "TKA"
+                  }
+                }
+              ],
+              [
+                "Recipient",
+                {
+                  "Text": {
+                    "content": "ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-cabqh3q.7"
+                  }
+                }
+              ],
+              [
+                "From subaccount",
+                {
+                  "Text": {
+                    "content": "#1"
+                  }
+                }
+              ],
+              [
+                "Memo",
+                {
+                  "Text": {
+                    "content": "lunch"
+                  }
+                }
+              ],
+              [
+                "Fee",
+                {
+                  "TokenAmount": {
+                    "decimals": 8,
+                    "amount": "10000",
+                    "symbol": "TKA"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Send tokens\n\nSend `1.5 TKA` to `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-cabqh3q.7` from subaccount `#1` with memo `lunch` paying fee `0.0001 TKA`\n\n- **Amount:** `1.5 TKA`\n- **Recipient:** `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6-cabqh3q.7`\n- **From subaccount:** `#1`\n- **Memo:** `lunch`\n- **Fee:** `0.0001 TKA`"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  }
+}

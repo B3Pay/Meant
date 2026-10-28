@@ -1,0 +1,515 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "pack",
+  "name": "icrc2",
+  "origin": "pack",
+  "language": "en",
+  "description": "Standard pack for ICRC-2 approve and transfer-from. Applies to any canister whose service is a subtype of `binds.requires` (ICRC-2 ledgers also implement ICRC-1, so the icrc1 pack applies too).",
+  "binds": {
+    "standard": "ICRC-2",
+    "spec_url": "https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-2/README.md",
+    "requires": "type Account = record { owner : principal; subaccount : opt blob };\ntype ApproveArgs = record {\n  from_subaccount : opt blob;\n  spender : Account;\n  amount : nat;\n  expected_allowance : opt nat;\n  expires_at : opt nat64;\n  fee : opt nat;\n  memo : opt blob;\n  created_at_time : opt nat64;\n};\ntype ApproveError = variant {\n  BadFee : record { expected_fee : nat };\n  InsufficientFunds : record { balance : nat };\n  AllowanceChanged : record { current_allowance : nat };\n  Expired : record { ledger_time : nat64 };\n  TooOld;\n  CreatedInFuture : record { ledger_time : nat64 };\n  Duplicate : record { duplicate_of : nat };\n  TemporarilyUnavailable;\n  GenericError : record { error_code : nat; message : text };\n};\ntype TransferFromArgs = record {\n  spender_subaccount : opt blob;\n  from : Account;\n  to : Account;\n  amount : nat;\n  fee : opt nat;\n  memo : opt blob;\n  created_at_time : opt nat64;\n};\ntype TransferFromError = variant {\n  BadFee : record { expected_fee : nat };\n  BadBurn : record { min_burn_amount : nat };\n  InsufficientFunds : record { balance : nat };\n  InsufficientAllowance : record { allowance : nat };\n  TooOld;\n  CreatedInFuture : record { ledger_time : nat64 };\n  Duplicate : record { duplicate_of : nat };\n  TemporarilyUnavailable;\n  GenericError : record { error_code : nat; message : text };\n};\ntype AllowanceArgs = record { account : Account; spender : Account };\nservice : {\n  icrc1_symbol : () -> (text) query;\n  icrc1_decimals : () -> (nat8) query;\n  icrc2_approve : (ApproveArgs) -> (variant { Ok : nat; Err : ApproveError });\n  icrc2_transfer_from : (TransferFromArgs) -> (variant { Ok : nat; Err : TransferFromError });\n  icrc2_allowance : (AllowanceArgs) -> (record { allowance : nat; expires_at : opt nat64 }) query;\n}\n"
+  },
+  "annotations": [
+    {
+      "at": "icrc2_approve",
+      "tag": "intent",
+      "args": {
+        "title": "Approve spending",
+        "template": "Set {spender}'s allowance to {amount}, replacing any existing allowance[ (only if the current allowance is {expected_allowance})][ until {expires_at}][ from subaccount {from_subaccount}][ with memo {memo}]"
+      }
+    },
+    {
+      "at": "icrc2_approve",
+      "tag": "effect",
+      "args": {
+        "kind": "approve",
+        "irreversible": false
+      }
+    },
+    {
+      "at": "icrc2_approve",
+      "tag": "idempotency",
+      "args": {
+        "mode": "replay_same_payload",
+        "stamp": "created_at_time"
+      }
+    },
+    {
+      "at": "icrc2_approve",
+      "tag": "outcome",
+      "args": {
+        "classes": {
+          "Ok": "success",
+          "Err.Duplicate": "already_done",
+          "Err.TemporarilyUnavailable": "retry_same",
+          "Err.TooOld": "retry_new",
+          "Err.CreatedInFuture": "retry_new",
+          "Err.BadFee": "fix_input",
+          "Err.AllowanceChanged": "fix_input",
+          "Err.Expired": "fix_input",
+          "Err.InsufficientFunds": "fail",
+          "Err.GenericError": "fail"
+        },
+        "default": "fail"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).spender",
+      "tag": "account",
+      "args": {
+        "encoding": "icrc1"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).amount",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_approve(0).amount",
+      "tag": "describe",
+      "args": {
+        "label": "Allowance",
+        "help": "Maximum the spender may transfer. An approval replaces the previous allowance; it does not add to it."
+      }
+    },
+    {
+      "at": "icrc2_approve(0).expected_allowance",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_approve(0).expected_allowance",
+      "tag": "describe",
+      "args": {
+        "label": "Expected current allowance",
+        "help": "Optional safety check: the call fails with AllowanceChanged if the current allowance differs."
+      }
+    },
+    {
+      "at": "icrc2_approve(0).expires_at",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).expires_at",
+      "tag": "describe",
+      "args": {
+        "label": "Expires at",
+        "help": "Omit for an allowance that does not expire."
+      }
+    },
+    {
+      "at": "icrc2_approve(0).from_subaccount",
+      "tag": "subaccount",
+      "args": {}
+    },
+    {
+      "at": "icrc2_approve(0).from_subaccount",
+      "tag": "describe",
+      "args": {
+        "label": "From subaccount"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).fee",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_approve(0).fee",
+      "tag": "default",
+      "args": {
+        "value": "null",
+        "mode": "auto"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).memo",
+      "tag": "bytes",
+      "args": {
+        "encoding": "utf8"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).memo",
+      "tag": "default",
+      "args": {
+        "value": "null",
+        "mode": "suggest"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).memo",
+      "tag": "describe",
+      "args": {
+        "label": "Memo",
+        "help": "Ledgers accept at least 32 bytes; longer memos may be rejected."
+      }
+    },
+    {
+      "at": "icrc2_approve(0).created_at_time",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc2_approve(0).created_at_time",
+      "tag": "ui",
+      "args": {
+        "hidden": true
+      }
+    },
+    {
+      "at": "icrc2_approve->(0).Ok",
+      "tag": "describe",
+      "args": {
+        "label": "Block index"
+      }
+    },
+    {
+      "at": "icrc2_approve->(0).Err.BadFee.expected_fee",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_approve->(0).Err.InsufficientFunds.balance",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_approve->(0).Err.AllowanceChanged.current_allowance",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_approve->(0).Err.Expired.ledger_time",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc2_approve->(0).Err.CreatedInFuture.ledger_time",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from",
+      "tag": "intent",
+      "args": {
+        "title": "Transfer using allowance",
+        "template": "Move {amount} from {from} to {to} using an allowance[ (spender subaccount {spender_subaccount})][ with memo {memo}]"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true
+      }
+    },
+    {
+      "at": "icrc2_transfer_from",
+      "tag": "idempotency",
+      "args": {
+        "mode": "replay_same_payload",
+        "stamp": "created_at_time"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from",
+      "tag": "outcome",
+      "args": {
+        "classes": {
+          "Ok": "success",
+          "Err.Duplicate": "already_done",
+          "Err.TemporarilyUnavailable": "retry_same",
+          "Err.TooOld": "retry_new",
+          "Err.CreatedInFuture": "retry_new",
+          "Err.BadFee": "fix_input",
+          "Err.BadBurn": "fix_input",
+          "Err.InsufficientFunds": "fail",
+          "Err.InsufficientAllowance": "fail",
+          "Err.GenericError": "fail"
+        },
+        "default": "fail"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).from",
+      "tag": "account",
+      "args": {
+        "encoding": "icrc1"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).from",
+      "tag": "describe",
+      "args": {
+        "label": "From"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).to",
+      "tag": "account",
+      "args": {
+        "encoding": "icrc1"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).to",
+      "tag": "describe",
+      "args": {
+        "label": "Recipient"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).amount",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).amount",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).spender_subaccount",
+      "tag": "subaccount",
+      "args": {}
+    },
+    {
+      "at": "icrc2_transfer_from(0).spender_subaccount",
+      "tag": "describe",
+      "args": {
+        "label": "Spender subaccount"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).fee",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).fee",
+      "tag": "default",
+      "args": {
+        "value": "null",
+        "mode": "auto"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).memo",
+      "tag": "bytes",
+      "args": {
+        "encoding": "utf8"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).memo",
+      "tag": "default",
+      "args": {
+        "value": "null",
+        "mode": "suggest"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).memo",
+      "tag": "describe",
+      "args": {
+        "label": "Memo",
+        "help": "Ledgers accept at least 32 bytes; longer memos may be rejected."
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).created_at_time",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from(0).created_at_time",
+      "tag": "ui",
+      "args": {
+        "hidden": true
+      }
+    },
+    {
+      "at": "icrc2_transfer_from->(0).Ok",
+      "tag": "describe",
+      "args": {
+        "label": "Block index"
+      }
+    },
+    {
+      "at": "icrc2_transfer_from->(0).Err.BadFee.expected_fee",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_transfer_from->(0).Err.BadBurn.min_burn_amount",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_transfer_from->(0).Err.InsufficientFunds.balance",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_transfer_from->(0).Err.InsufficientAllowance.allowance",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_transfer_from->(0).Err.CreatedInFuture.ledger_time",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "icrc2_allowance(0).account",
+      "tag": "account",
+      "args": {
+        "encoding": "icrc1"
+      }
+    },
+    {
+      "at": "icrc2_allowance(0).spender",
+      "tag": "account",
+      "args": {
+        "encoding": "icrc1"
+      }
+    },
+    {
+      "at": "icrc2_allowance->(0).allowance",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:icrc1_decimals"
+        },
+        "symbol": {
+          "from": "query:icrc1_symbol"
+        }
+      }
+    },
+    {
+      "at": "icrc2_allowance->(0).expires_at",
+      "tag": "timestamp",
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "id": "approve-tka-expiry-plus-2h",
+  "why": "The same instant for a user at UTC+02:00: the generic form localizes it and the response says so; the fields form is unchanged (UTC seconds).",
+  "pack": "icrc2",
+  "method": "icrc2_approve",
+  "ledger": {
+    "id": "TKA",
+    "symbol": "TKA",
+    "decimals": 8
+  },
+  "args": "(record { spender = record { owner = principal \"un4fu-tqaaa-aaaab-qadjq-cai\"; subaccount = null }; amount = 500000000 : nat; expires_at = opt (1_791_547_200_000_000_000 : nat64); expected_allowance = null; memo = null; fee = null; from_subaccount = null; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b010000000001008058b6afdadc1880cab5ee010001008058b6afdadc18010a00000000003000d3010100",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": 120
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Approve spending: Set un4fu-tqaaa-aaaab-qadjq-cai's allowance to 5 TKA, replacing any existing allowance until 2026-10-09T12:00:00Z",
+            "fields": [
+              [
+                "Spender",
+                {
+                  "Text": {
+                    "content": "un4fu-tqaaa-aaaab-qadjq-cai"
+                  }
+                }
+              ],
+              [
+                "Allowance",
+                {
+                  "TokenAmount": {
+                    "decimals": 8,
+                    "amount": "500000000",
+                    "symbol": "TKA"
+                  }
+                }
+              ],
+              [
+                "Expires at",
+                {
+                  "TimestampSeconds": {
+                    "amount": "1791547200"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": 120
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Approve spending\n\nSet `un4fu-tqaaa-aaaab-qadjq-cai`'s allowance to `5 TKA`, replacing any existing allowance until `2026-10-09 14:00:00 UTC+02:00`\n\n- **Spender:** `un4fu-tqaaa-aaaab-qadjq-cai`\n- **Allowance:** `5 TKA`\n- **Expires at:** `2026-10-09 14:00:00 UTC+02:00`"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": 120
+        }
+      }
+    }
+  }
+}

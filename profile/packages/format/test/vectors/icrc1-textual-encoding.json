@@ -1,0 +1,69 @@
+{
+  "source": {
+    "repo": "https://github.com/dfinity/ICRC-1",
+    "commit": "5d670e54d9a58fbf472bf0a25f33743d60cfd0e6",
+    "path": "standards/ICRC-1/TextualEncoding.md",
+    "sha256": "64757f37bf51fd9d65c0dffa400c14c1e26e7ef5579bc8ffd192cf540b0a0820",
+    "note": "Extracted by scripts/fetch-icrc1-vectors.mjs; `parse` is the Examples table, `display` the Account.toText code blocks."
+  },
+  "parse": [
+    {
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "ok": true,
+      "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "subaccount": null,
+      "comment": "A valid principal is a valid account."
+    },
+    {
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae-q6bn32y.",
+      "ok": false,
+      "comment": "The representation is not canonical: default subaccount should be omitted."
+    },
+    {
+      "text": "k2t6j2nvnp4zjm3-25dtz6xhaac7boj5gayfoj3xs-i43lp-teztq-6ae",
+      "ok": false,
+      "comment": "Invalid principal encoding."
+    },
+    {
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae-6cc627i.1",
+      "ok": true,
+      "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "subaccount": "0000000000000000000000000000000000000000000000000000000000000001",
+      "comment": ""
+    },
+    {
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae-6cc627i.01",
+      "ok": false,
+      "comment": "The representation is not canonical: leading zeros are not allowed in subaccounts."
+    },
+    {
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae.1",
+      "ok": false,
+      "comment": "Missing check sum."
+    },
+    {
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae-dfxgiyy.102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "ok": true,
+      "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "subaccount": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "comment": ""
+    }
+  ],
+  "display": [
+    {
+      "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "subaccount": null,
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae"
+    },
+    {
+      "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "subaccount": "0000000000000000000000000000000000000000000000000000000000000000",
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae"
+    },
+    {
+      "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "subaccount": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae-dfxgiyy.102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"
+    }
+  ]
+}

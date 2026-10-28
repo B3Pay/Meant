@@ -1,0 +1,67 @@
+{
+  "intent": "Approve spending",
+  "fields": [
+    [
+      "From",
+      {
+        "Text": {
+          "content": "{{from}}"
+        }
+      }
+    ],
+    [
+      "Approve to spender",
+      {
+        "Text": {
+          "content": "{{spender}}"
+        }
+      }
+    ],
+    [
+      "Requested allowance",
+      {
+        "TokenAmount": {
+          "decimals": "{{decimals}}",
+          "amount": "{{requested_allowance}}",
+          "symbol": "{{symbol}}"
+        }
+      }
+    ],
+    [
+      "Existing allowance",
+      {
+        "TokenAmount": {
+          "decimals": "{{decimals}}",
+          "amount": "{{existing_allowance}}",
+          "symbol": "{{symbol}}"
+        }
+      }
+    ],
+    [
+      "Approval expiration",
+      {
+        "TimestampSeconds": {
+          "amount": "{{expiration}}"
+        }
+      }
+    ],
+    [
+      "Approval fees",
+      {
+        "TokenAmount": {
+          "decimals": "{{decimals}}",
+          "amount": "{{fees}}",
+          "symbol": "{{symbol}}"
+        }
+      }
+    ],
+    [
+      "Memo",
+      {
+        "Text": {
+          "content": "{{memo}}"
+        }
+      }
+    ]
+  ]
+}

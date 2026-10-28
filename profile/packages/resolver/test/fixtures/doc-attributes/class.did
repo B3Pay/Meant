@@ -1,0 +1,13 @@
+// A service class whose methods come from a declared service type.
+
+type Api = service {
+  /// Read the counter.
+  /// @effect(kind = "read", irreversible = false)
+  get : () -> (nat) query;
+  /// @intent(title = "Add", template = "Add {n}")
+  add : (record {
+    /// @describe(label = "How much")
+    n : nat;
+  }) -> ();
+};
+service : (nat) -> Api

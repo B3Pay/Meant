@@ -1,0 +1,52 @@
+{
+  "name": "@meantjs/format",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Exact value conversion for Candid Profile value tags (amount, timestamp, duration, account, subaccount, bytes): parse human input, display canonical text, never round.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/B3Pay/Meant.git",
+    "directory": "profile/packages/format"
+  },
+  "homepage": "https://github.com/B3Pay/Meant/tree/main/profile/packages/format#readme",
+  "bugs": {
+    "url": "https://github.com/B3Pay/Meant/issues"
+  },
+  "keywords": [
+    "candid",
+    "internet-computer",
+    "icp",
+    "icrc-1",
+    "amount",
+    "account",
+    "principal",
+    "no-rounding"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.mjs",
+  "types": "./src/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "default": "./src/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "vectors": "node scripts/fetch-icrc1-vectors.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "err-wrong-payload",
+  "why": "The payload of set_fee_bps sent to the validator of set_ledger: the bytes do not decode, so governance rejects the proposal.",
+  "source": "dapp",
+  "method": "set_ledger",
+  "encoded_as": "set_fee_bps",
+  "args": "(250 : nat16)",
+  "refs": {},
+  "payload_hex": "4449444c00017afa00",
+  "payload_sha256": "22ef16a71a4962f3c83598c029614b910ded16df911d6a27c820ce4c9d0dc2d1",
+  "reply": {
+    "Err": "E_DECODE: the argument bytes do not decode as the method's signature: type_mismatch at $args[0]: wire type -6 at expected principal"
+  },
+  "reply_hex": "4449444c016b02bc8a0171c5fed201710100018301455f4445434f44453a2074686520617267756d656e7420627974657320646f206e6f74206465636f646520617320746865206d6574686f642773207369676e61747572653a20747970655f6d69736d617463682061742024617267735b305d3a20776972652074797065202d36206174206578706563746564207072696e636970616c"
+}

@@ -1,0 +1,247 @@
+{
+  "contract": {
+    "actor": {
+      "kind": "service",
+      "service": 0
+    },
+    "canonicalization_profile": "candid-core-canon-1",
+    "declarations": [
+      {
+        "name": "SendArgs",
+        "type": 6
+      },
+      {
+        "name": "SendError",
+        "type": 13
+      },
+      {
+        "name": "Tokens",
+        "type": 3
+      }
+    ],
+    "format": "candid-core",
+    "format_version": 1,
+    "identities": {
+      "contract": "candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67",
+      "interface": "candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c"
+    },
+    "producer": {
+      "candid_parser_version": "0.4.0",
+      "candid_version": "0.10.30",
+      "name": "candid-core",
+      "version": "0.1.0-beta.3"
+    },
+    "semantics_profile": "candid-1",
+    "types": [
+      {
+        "kind": "service",
+        "methods": [
+          {
+            "function": 1,
+            "id": 596483356,
+            "name": "balance"
+          },
+          {
+            "function": 5,
+            "id": 1280347464,
+            "name": "send"
+          }
+        ]
+      },
+      {
+        "args": [
+          2
+        ],
+        "kind": "func",
+        "mode": "query",
+        "results": [
+          3
+        ]
+      },
+      {
+        "kind": "primitive",
+        "primitive": "principal"
+      },
+      {
+        "fields": [
+          {
+            "id": 5035232,
+            "type": 4
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat64"
+      },
+      {
+        "args": [
+          6
+        ],
+        "kind": "func",
+        "mode": "update",
+        "results": [
+          11
+        ]
+      },
+      {
+        "fields": [
+          {
+            "id": 25979,
+            "type": 2
+          },
+          {
+            "id": 1213809850,
+            "type": 7
+          },
+          {
+            "id": 1779848746,
+            "type": 10
+          },
+          {
+            "id": 3573748184,
+            "type": 3
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "inner": 8,
+        "kind": "opt"
+      },
+      {
+        "inner": 9,
+        "kind": "vec"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat8"
+      },
+      {
+        "inner": 4,
+        "kind": "opt"
+      },
+      {
+        "fields": [
+          {
+            "id": 17724,
+            "type": 12
+          },
+          {
+            "id": 3456837,
+            "type": 13
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "nat"
+      },
+      {
+        "fields": [
+          {
+            "id": 1122632043,
+            "type": 14
+          },
+          {
+            "id": 2255533091,
+            "type": 15
+          },
+          {
+            "id": 3382957744,
+            "type": 16
+          }
+        ],
+        "kind": "variant"
+      },
+      {
+        "fields": [
+          {
+            "id": 3036443981,
+            "type": 12
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "fields": [
+          {
+            "id": 596483356,
+            "type": 3
+          }
+        ],
+        "kind": "record"
+      },
+      {
+        "kind": "primitive",
+        "primitive": "text"
+      }
+    ]
+  },
+  "extensions": {
+    "org.candid-core.field-names/v1": [
+      [
+        3,
+        5035232,
+        "e8s"
+      ],
+      [
+        6,
+        25979,
+        "to"
+      ],
+      [
+        6,
+        1213809850,
+        "memo"
+      ],
+      [
+        6,
+        1779848746,
+        "created_at"
+      ],
+      [
+        6,
+        3573748184,
+        "amount"
+      ],
+      [
+        11,
+        17724,
+        "Ok"
+      ],
+      [
+        11,
+        3456837,
+        "Err"
+      ],
+      [
+        13,
+        1122632043,
+        "Duplicate"
+      ],
+      [
+        13,
+        2255533091,
+        "Insufficient"
+      ],
+      [
+        13,
+        3382957744,
+        "Other"
+      ],
+      [
+        14,
+        3036443981,
+        "block"
+      ],
+      [
+        15,
+        596483356,
+        "balance"
+      ]
+    ]
+  }
+}

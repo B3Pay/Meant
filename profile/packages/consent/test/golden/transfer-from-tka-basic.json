@@ -1,0 +1,91 @@
+{
+  "id": "transfer-from-tka-basic",
+  "why": "A spender moves 2 TKA from Alice to Bob using an allowance.",
+  "pack": "icrc2",
+  "method": "icrc2_transfer_from",
+  "ledger": {
+    "id": "TKA",
+    "symbol": "TKA",
+    "decimals": 8
+  },
+  "args": "(record { from = record { owner = principal \"k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae\"; subaccount = null }; to = record { owner = principal \"ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6\"; subaccount = null }; amount = 200000000 : nat; spender_subaccount = null; memo = null; fee = null; created_at_time = opt (1_791_547_200_000_000_000 : nat64) })",
+  "arg_hex": "4449444c086c07fbca0101c6fcb60204e185c1940202eaca8a9e0401ba89e5c2040582f3f3910c07d8a38ca80d7d6c02b3b0dac30368ad86ca8305026e036d7b6e7d6e066d7b6e780100011d0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f000000011db56bf994b37ae8e79f5ce000be1727a6060ae4eef24736b7cc999c3c02000001008058b6afdadc188084af5f",
+  "fields": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "FieldsDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "FieldsDisplayMessage": {
+            "intent": "Transfer using allowance: Move 2 TKA from k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae to ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6 using an allowance",
+            "fields": [
+              [
+                "Amount",
+                {
+                  "TokenAmount": {
+                    "decimals": 8,
+                    "amount": "200000000",
+                    "symbol": "TKA"
+                  }
+                }
+              ],
+              [
+                "From",
+                {
+                  "Text": {
+                    "content": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae"
+                  }
+                }
+              ],
+              [
+                "Recipient",
+                {
+                  "Text": {
+                    "content": "ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6"
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  },
+  "generic": {
+    "request": {
+      "user_preferences": {
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        },
+        "device_spec": {
+          "GenericDisplay": null
+        }
+      }
+    },
+    "response": {
+      "Ok": {
+        "consent_message": {
+          "GenericDisplayMessage": "# Transfer using allowance\n\nMove `2 TKA` from `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae` to `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6` using an allowance\n\n- **Amount:** `2 TKA`\n- **From:** `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`\n- **Recipient:** `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6`"
+        },
+        "metadata": {
+          "language": "en",
+          "utc_offset_minutes": null
+        }
+      }
+    }
+  }
+}

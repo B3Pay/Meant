@@ -1,0 +1,52 @@
+{
+  "name": "@meantjs/reconcile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Consumer rule 1 without a transport: the ICRC-3 block an ICRC-1/2 write leaves, and whether the blocks a caller read since its first send hold it (found, absent, not yet, or unreadable with a lookalike). Browser-safe.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/B3Pay/Meant.git",
+    "directory": "profile/packages/reconcile"
+  },
+  "homepage": "https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile#readme",
+  "bugs": {
+    "url": "https://github.com/B3Pay/Meant/issues"
+  },
+  "keywords": [
+    "candid",
+    "internet-computer",
+    "icp",
+    "icrc-3",
+    "idempotency",
+    "reconcile"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.mjs",
+  "types": "./src/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "default": "./src/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@meantjs/format": "0.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
