@@ -2,6 +2,10 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.2.0 — 2026-10-28
+
+No changes in this package.
+
 ## 0.1.0 — 2026-10-28
 
 First published version.

@@ -2,7 +2,7 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
-## 0.2.0 (unreleased)
+## 0.2.0 — 2026-10-28
 
 - EVM integer types (spec §15, D-054): `amount` on `uint8`…`uint256` and `int8`…`int256`, `timestamp` and `duration`
   on `uint32`…`uint256` and `int64`…`int256`, with the bounds of their bits; `bytes` on `bytes` and `bytes1`…`bytes32`
