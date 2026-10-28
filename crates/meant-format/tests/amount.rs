@@ -170,9 +170,194 @@ fn only_integer_candid_types_are_accepted() {
             "{name}"
         );
     }
-    for ty in IntType::ALL {
+    for &ty in IntType::ALL {
         assert_eq!(IntType::from_candid_name(ty.candid_name()), Some(ty));
     }
+}
+
+/// 2^n as decimal digits, by doubling: an oracle for the ABI bounds that
+/// shares no code or table with the crate.
+fn pow2(n: u32) -> String {
+    let mut digits = vec![1u8]; // least significant first
+    for _ in 0..n {
+        let mut carry = 0;
+        for d in &mut digits {
+            let v = *d * 2 + carry;
+            *d = v % 10;
+            carry = v / 10;
+        }
+        if carry > 0 {
+            digits.push(carry);
+        }
+    }
+    digits.iter().rev().map(|d| char::from(b'0' + d)).collect()
+}
+
+/// `n` − 1 or `n` + 1 on decimal digits (`n` positive).
+fn step(n: &str, up: bool) -> String {
+    let mut digits: Vec<u8> = n.bytes().rev().map(|b| b - b'0').collect();
+    for d in &mut digits {
+        if up && *d == 9 {
+            *d = 0;
+        } else if !up && *d == 0 {
+            *d = 9;
+        } else {
+            *d = if up { *d + 1 } else { *d - 1 };
+            break;
+        }
+    }
+    if up && digits.iter().all(|&d| d == 0) {
+        digits.push(1);
+    }
+    let text: String = digits.iter().rev().map(|d| char::from(b'0' + d)).collect();
+    let trimmed = text.trim_start_matches('0');
+    if trimmed.is_empty() {
+        String::from("0")
+    } else {
+        String::from(trimmed)
+    }
+}
+
+#[test]
+fn the_evm_abi_integer_types_are_every_width_with_exact_bounds() {
+    assert_eq!(
+        IntType::ALL.len(),
+        70,
+        "10 Candid types and 60 ABI-only ones"
+    );
+    let mut names: Vec<&str> = IntType::ALL.iter().map(|t| t.candid_name()).collect();
+    names.sort_unstable();
+    names.dedup();
+    assert_eq!(names.len(), 70, "every name once");
+    for bits in (8..=256).step_by(8) {
+        let unsigned = IntType::from_candid_name(&format!("uint{bits}")).expect("uint");
+        let signed = IntType::from_candid_name(&format!("int{bits}")).expect("int");
+        assert!(!unsigned.is_signed() && signed.is_signed(), "{bits}");
+        let max = step(&pow2(bits), false);
+        let f = AmountFormat::new(0).with_candid(unsigned);
+        assert_eq!(f.display("0").unwrap(), "0");
+        assert_eq!(f.display(&max).unwrap(), max);
+        assert_eq!(code(f.display(&pow2(bits))), Code::Range, "uint{bits}");
+        assert_eq!(code(f.display("-1")), Code::Range, "uint{bits}");
+        assert_eq!(code(f.parse("-1")), Code::Negative, "uint{bits}");
+        let half = pow2(bits - 1);
+        let (min, max) = (format!("-{half}"), step(&half, false));
+        let f = AmountFormat::new(0).with_candid(signed);
+        assert_eq!(f.display(&min).unwrap(), min);
+        assert_eq!(f.display(&max).unwrap(), max);
+        assert_eq!(
+            code(f.display(&format!("-{}", step(&half, true)))),
+            Code::Range
+        );
+        assert_eq!(code(f.display(&half)), Code::Range, "int{bits}");
+    }
+    // int8 to int64 are Candid's types, which the ABI shares.
+    assert_eq!(IntType::from_candid_name("int64"), Some(IntType::Int64));
+    for name in [
+        "uint", "int0", "uint0", "uint7", "uint264", "int512", "Uint256", "uint08",
+    ] {
+        assert_eq!(IntType::from_candid_name(name), None, "{name}");
+    }
+}
+
+#[test]
+fn messages_name_an_abi_type_as_one() {
+    let uint = AmountFormat::new(0).with_candid(IntType::Uint256);
+    let negative = uint.parse("-1").unwrap_err();
+    assert_eq!(
+        negative.message(),
+        "negative amounts are not allowed here (the ABI type uint256 is unsigned)"
+    );
+    let above = AmountFormat::new(0)
+        .with_candid(IntType::Uint8)
+        .display("256")
+        .unwrap_err();
+    assert_eq!(
+        above.message(),
+        "amount 256 is above the maximum 255 of the ABI type"
+    );
+    let shared = AmountFormat::new(0)
+        .with_candid(IntType::Int8)
+        .display("128")
+        .unwrap_err();
+    assert_eq!(
+        shared.message(),
+        "amount 128 is above the maximum 127 of the Candid type"
+    );
+}
+
+#[test]
+fn a_value_at_or_above_the_threshold_shows_the_message() {
+    let max = step(&pow2(256), false);
+    let usdc = AmountFormat::new(6)
+        .with_symbol("USDC")
+        .unwrap()
+        .with_candid(IntType::Uint256)
+        .with_threshold(&max, None)
+        .unwrap();
+    assert_eq!(usdc.threshold(), Some(max.as_str()));
+    assert_eq!(usdc.threshold_message(), Some("Unlimited"));
+    assert_eq!(usdc.display(&max).unwrap(), "Unlimited USDC");
+    assert_eq!(usdc.display("1500000").unwrap(), "1.5 USDC");
+    // Parsing is unchanged: the threshold is for display only.
+    assert_eq!(usdc.parse("1.5").unwrap(), "1500000");
+    assert_eq!(code(usdc.display(&pow2(256))), Code::Range);
+
+    let all = AmountFormat::new(0)
+        .with_candid(IntType::Int)
+        .with_threshold("1000", Some("All"))
+        .unwrap();
+    assert_eq!(all.threshold_message(), Some("All"));
+    assert_eq!(all.display("999").unwrap(), "999");
+    assert_eq!(all.display("1000").unwrap(), "All");
+    assert_eq!(all.display("1001").unwrap(), "All");
+    assert_eq!(all.display("-5000").unwrap(), "-5000");
+
+    let zero = AmountFormat::new(2).with_threshold("0", None).unwrap();
+    assert_eq!(zero.display("0").unwrap(), "Unlimited");
+    let plain = AmountFormat::new(2);
+    assert_eq!(plain.threshold(), None);
+    assert_eq!(plain.threshold_message(), None);
+}
+
+#[test]
+fn a_threshold_and_its_message_are_checked() {
+    let longest = "9".repeat(78);
+    assert!(AmountFormat::new(0).with_threshold(&longest, None).is_ok());
+    for bad in [
+        "",
+        "01",
+        "-1",
+        "+1",
+        "1.5",
+        " 1",
+        "1 ",
+        "1e3",
+        "1_000",
+        "\u{FF10}",
+        &"1".repeat(79),
+    ] {
+        let err = AmountFormat::new(0).with_threshold(bad, None).unwrap_err();
+        assert_eq!(err.code(), Code::Arg, "{bad:?}");
+        assert!(
+            err.message().starts_with("amount threshold must be"),
+            "{err}"
+        );
+    }
+    let x32 = "x".repeat(32);
+    assert!(AmountFormat::new(0).with_threshold("1", Some(&x32)).is_ok());
+    for bad in ["", " x", "x ", "a\u{202E}b", "x\u{200B}y", &"x".repeat(33)] {
+        let err = AmountFormat::new(0)
+            .with_threshold("1", Some(bad))
+            .unwrap_err();
+        assert_eq!(err.code(), Code::Arg, "{bad:?}");
+        assert!(err.message().starts_with("amount message"), "{err}");
+    }
+    // The threshold is checked first, as the reference does.
+    let err = AmountFormat::new(0)
+        .with_threshold("x", Some(""))
+        .unwrap_err();
+    assert!(err.message().starts_with("amount threshold"), "{err}");
 }
 
 #[test]

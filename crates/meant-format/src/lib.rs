@@ -9,8 +9,8 @@
 //! - **No rounding.** Input with more fractional digits than the token has is
 //!   rejected with [`Code::ExcessPrecision`], even when the extra digits are
 //!   zeros.
-//! - **No wrapping or clamping.** A value outside its Candid integer type is
-//!   rejected with [`Code::Range`].
+//! - **No wrapping or clamping.** A value outside its integer type, Candid's
+//!   or the EVM ABI's (`uint256`), is rejected with [`Code::Range`].
 //! - **No floats.** Base units are canonical decimal strings, so `nat` amounts
 //!   of any size (18-decimal tokens, `decimals` up to 255) are exact.
 //! - **The symbol must match.** `"1.5 ICP"` on a ckBTC ledger is
@@ -33,12 +33,12 @@
 //!
 //! # Where the rules come from
 //!
-//! The rules are the `amount` tag of Candid Profile v0 (§5.3). The JavaScript
-//! package `@candid-core/profile-format` is the reference implementation, and
-//! this crate gives the same answer for the same input: the same value, or the
-//! same error code and message. `tests/parity.rs` checks that against vectors
-//! generated from the reference. Two details follow it exactly because they
-//! decide what is accepted:
+//! The rules are the `amount` tag of Candid Profile v0 (§5.3, and §15 for EVM
+//! positions). The JavaScript package `@meantjs/format` is the reference
+//! implementation, and this crate gives the same answer for the same input:
+//! the same value, or the same error code and message. `tests/parity.rs`
+//! checks that against vectors generated from the reference. Two details
+//! follow it exactly because they decide what is accepted:
 //!
 //! - Surrounding whitespace, and the whitespace between a number and its
 //!   symbol, is ECMAScript's set (the characters `String.prototype.trim`

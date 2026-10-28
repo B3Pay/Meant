@@ -330,7 +330,7 @@ jobs:
           cargo clippy -p meant-format --all-targets --locked -- -D warnings
           cargo clippy -p meant-format --all-targets --no-default-features --locked -- -D warnings
       # Includes tests/parity.rs: every case generated from the JavaScript
-      # reference (@candid-core/profile-format) must get the same value, or the
+      # reference (@meantjs/format) must get the same value, or the
       # same error code and message. The doctests include the README's example.
       - name: Test both feature configurations
         run: |

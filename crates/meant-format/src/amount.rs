@@ -1,12 +1,15 @@
 use alloc::format;
 use alloc::string::{String, ToString};
+use core::cmp::Ordering;
 
 use crate::int_type::{check_range, Decimal};
 use crate::text::{is_js_whitespace, is_unsafe_display, js_trim, json_quote, too_long};
 use crate::{Code, FormatError, IntType, MAX_INPUT_UTF16_LEN};
 
 /// The `amount` tag at one position: how many decimals the token has, its
-/// symbol if any, and the Candid integer type the position holds.
+/// symbol if any, the integer type the position holds (Candid's, or the EVM
+/// ABI's), and optionally a threshold at or above which `display` shows a
+/// message instead of the number.
 ///
 /// Base-unit values are canonical decimal strings (`"150000000"`, `"-125"`),
 /// never floats, so an amount of any size converts exactly.
@@ -24,6 +27,40 @@ pub struct AmountFormat {
     decimals: u8,
     symbol: Option<String>,
     candid: IntType,
+    threshold: Option<String>,
+    threshold_message: Option<String>,
+}
+
+/// Refuses text that is shown to the person approving a call (a symbol, a
+/// threshold message) unless it is 1 to 32 characters with no surrounding
+/// whitespace and no control or invisible characters.
+fn check_shown(what: &str, text: &str) -> Result<(), FormatError> {
+    let count = text.chars().count();
+    if !(1..=32).contains(&count) {
+        return Err(FormatError::new(
+            Code::Arg,
+            format!("amount {what} must be 1 to 32 characters, got {count}"),
+        ));
+    }
+    if js_trim(text) != text || text.chars().any(is_unsafe_display) {
+        return Err(FormatError::new(
+            Code::Arg,
+            format!(
+                "amount {what} {} has surrounding whitespace, control or invisible characters",
+                json_quote(text)
+            ),
+        ));
+    }
+    Ok(())
+}
+
+/// Whether `text` is a threshold: a canonical decimal integer, not negative,
+/// of at most 78 digits (2^256 − 1 has 78).
+fn is_threshold(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    (1..=78).contains(&bytes.len())
+        && bytes.iter().all(u8::is_ascii_digit)
+        && (bytes[0] != b'0' || bytes.len() == 1)
 }
 
 /// The pieces of `-?[0-9]+(\.[0-9]+)?(\s+\S(.*\S)?)?`, matched against
@@ -82,12 +119,20 @@ fn split(text: &str) -> Option<Parts<'_>> {
 }
 
 impl AmountFormat {
-    /// A token with `decimals` decimals, no symbol, at a `nat` position.
+    /// What `display` shows for a value at or above the threshold when
+    /// [`with_threshold`](Self::with_threshold) gives no message: ERC-7730's
+    /// default for a token amount.
+    pub const DEFAULT_THRESHOLD_MESSAGE: &'static str = "Unlimited";
+
+    /// A token with `decimals` decimals, no symbol, at a `nat` position, with
+    /// no threshold.
     pub fn new(decimals: u8) -> Self {
         Self {
             decimals,
             symbol: None,
             candid: IntType::Nat,
+            threshold: None,
+            threshold_message: None,
         }
     }
 
@@ -98,46 +143,76 @@ impl AmountFormat {
     /// and Zp), since it is shown to the person approving a call. Otherwise
     /// the error is [`Code::Arg`].
     pub fn with_symbol(mut self, symbol: &str) -> Result<Self, FormatError> {
-        let count = symbol.chars().count();
-        if !(1..=32).contains(&count) {
-            return Err(FormatError::new(
-                Code::Arg,
-                format!("amount symbol must be 1 to 32 characters, got {count}"),
-            ));
-        }
-        if js_trim(symbol) != symbol || symbol.chars().any(is_unsafe_display) {
-            return Err(FormatError::new(
-                Code::Arg,
-                format!(
-                    "amount symbol {} has surrounding whitespace, control or invisible characters",
-                    json_quote(symbol)
-                ),
-            ));
-        }
+        check_shown("symbol", symbol)?;
         self.symbol = Some(String::from(symbol));
         Ok(self)
     }
 
-    /// Sets the Candid integer type of the position, which bounds the value
-    /// and decides whether it may be negative.
+    /// Sets the integer type of the position, Candid's or the EVM ABI's,
+    /// which bounds the value and decides whether it may be negative.
     pub fn with_candid(mut self, candid: IntType) -> Self {
         self.candid = candid;
         self
     }
 
-    /// [`with_candid`](Self::with_candid) by Candid name, as a resolved
-    /// profile spells it. A name that is not an integer type is
-    /// [`Code::TagType`].
+    /// [`with_candid`](Self::with_candid) by name, as a resolved profile
+    /// spells it: `"nat64"`, or `"uint256"` at an EVM position. A name that is
+    /// not an integer type is [`Code::TagType`].
     pub fn with_candid_name(self, name: &str) -> Result<Self, FormatError> {
         match IntType::from_candid_name(name) {
             Some(candid) => Ok(self.with_candid(candid)),
             None => Err(FormatError::new(
                 Code::TagType,
                 format!(
-                    "the amount tag applies to nat, int, nat8, nat16, nat32, nat64, int8, int16, int32, int64, not {name}"
+                    "the amount tag applies to nat, int, nat8, nat16, nat32, nat64, int8, int16, int32, int64, uint8 to uint256, int8 to int256, not {name}"
                 ),
             )),
         }
+    }
+
+    /// Sets a threshold, in base units, at or above which `display` shows
+    /// `message` and the symbol instead of the number: an ERC-20 approval of
+    /// 2^256 − 1 shows as `"Unlimited USDC"`. Without a message it is
+    /// [`DEFAULT_THRESHOLD_MESSAGE`](Self::DEFAULT_THRESHOLD_MESSAGE).
+    /// Parsing is unchanged.
+    ///
+    /// `threshold` must be a canonical decimal integer, not negative, of at
+    /// most 78 digits; `message` follows the rules of
+    /// [`with_symbol`](Self::with_symbol). Otherwise the error is
+    /// [`Code::Arg`].
+    ///
+    /// ```
+    /// use meant_format::{AmountFormat, IntType};
+    ///
+    /// let max = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    /// let usdc = AmountFormat::new(6)
+    ///     .with_symbol("USDC")?
+    ///     .with_candid(IntType::Uint256)
+    ///     .with_threshold(max, None)?;
+    /// assert_eq!(usdc.display(max)?, "Unlimited USDC");
+    /// assert_eq!(usdc.display("1500000")?, "1.5 USDC");
+    /// # Ok::<(), meant_format::FormatError>(())
+    /// ```
+    pub fn with_threshold(
+        mut self,
+        threshold: &str,
+        message: Option<&str>,
+    ) -> Result<Self, FormatError> {
+        if !is_threshold(threshold) {
+            return Err(FormatError::new(
+                Code::Arg,
+                format!(
+                    "amount threshold must be a decimal string of base units (0 or more, at most 78 digits) or a bigint, got {}",
+                    json_quote(threshold)
+                ),
+            ));
+        }
+        if let Some(message) = message {
+            check_shown("message", message)?;
+        }
+        self.threshold = Some(String::from(threshold));
+        self.threshold_message = message.map(String::from);
+        Ok(self)
     }
 
     /// The token's decimals.
@@ -150,9 +225,27 @@ impl AmountFormat {
         self.symbol.as_deref()
     }
 
-    /// The Candid integer type of the position.
+    /// The integer type of the position.
     pub fn candid(&self) -> IntType {
         self.candid
+    }
+
+    /// The threshold in base units, if there is one.
+    pub fn threshold(&self) -> Option<&str> {
+        self.threshold.as_deref()
+    }
+
+    /// What a value at or above the threshold displays as, before the symbol:
+    /// the message given, or
+    /// [`DEFAULT_THRESHOLD_MESSAGE`](Self::DEFAULT_THRESHOLD_MESSAGE). `None`
+    /// without a threshold.
+    pub fn threshold_message(&self) -> Option<&str> {
+        self.threshold.as_ref()?;
+        Some(
+            self.threshold_message
+                .as_deref()
+                .unwrap_or(Self::DEFAULT_THRESHOLD_MESSAGE),
+        )
     }
 
     /// Reads an amount a person wrote, such as `"1.5"` or `"1.5 ICP"`, and
@@ -170,7 +263,7 @@ impl AmountFormat {
     /// - a minus sign at an unsigned position: [`Code::Negative`];
     /// - a symbol that is not the token's, or any symbol when the token has
     ///   none: [`Code::SymbolMismatch`];
-    /// - a value outside the Candid type: [`Code::Range`];
+    /// - a value outside the integer type: [`Code::Range`];
     /// - text longer than [`MAX_INPUT_UTF16_LEN`]: [`Code::TooLong`].
     ///
     /// ```
@@ -208,7 +301,8 @@ impl AmountFormat {
             return Err(FormatError::new(
                 Code::Negative,
                 format!(
-                    "negative amounts are not allowed here (the Candid type {} is unsigned)",
+                    "negative amounts are not allowed here (the {} {} is unsigned)",
+                    self.candid.type_word(),
                     self.candid.candid_name()
                 ),
             ));
@@ -265,12 +359,13 @@ impl AmountFormat {
     /// Shows a base-unit value as a person reads it: the decimal point placed
     /// by `decimals`, trailing fractional zeros removed, then a space and the
     /// symbol if the token has one. `"150000000"` with 8 decimals is
-    /// `"1.5 ICP"`.
+    /// `"1.5 ICP"`. A value at or above the threshold, if one is set, shows as
+    /// the threshold message and the symbol, `"Unlimited USDC"`.
     ///
     /// `base_units` must be a canonical decimal integer (no leading zeros, no
     /// `+`, no `"-0"`, no separators) or the error is [`Code::Syntax`]; that
     /// rules out `candid::Nat`'s `Display`, which writes `1_500_000`. A value
-    /// outside the Candid type is [`Code::Range`].
+    /// outside the integer type is [`Code::Range`].
     pub fn display(&self, base_units: &str) -> Result<String, FormatError> {
         if too_long(base_units) {
             return Err(FormatError::new(
@@ -290,6 +385,17 @@ impl AmountFormat {
             return Err(FormatError::new(Code::Syntax, message));
         };
         check_range(value, self.candid, "amount")?;
+        if let Some(threshold) = self.threshold.as_deref().and_then(Decimal::canonical) {
+            if value.cmp(threshold) != Ordering::Less {
+                let message = self.threshold_message.as_deref();
+                let mut out = String::from(message.unwrap_or(Self::DEFAULT_THRESHOLD_MESSAGE));
+                if let Some(symbol) = &self.symbol {
+                    out.push(' ');
+                    out.push_str(symbol);
+                }
+                return Ok(out);
+            }
+        }
 
         let decimals = usize::from(self.decimals);
         let magnitude = value.magnitude;
