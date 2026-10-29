@@ -377,8 +377,14 @@
         var crumb = link.querySelector(".search-crumb");
         // The layer icon sits beside the layer's name, never alone.
         if (LAYERS[entry.layer]) {
+          // A section such as "Guides · Profiles" already names the layer.
+          var name = LAYERS[entry.layer].name;
           crumb.innerHTML = LAYERS[entry.layer].icon;
-          crumb.appendChild(document.createTextNode(LAYERS[entry.layer].name + " · " + entry.section));
+          crumb.appendChild(
+            document.createTextNode(
+              entry.section.indexOf(name) === -1 ? name + " · " + entry.section : entry.section,
+            ),
+          );
         } else {
           crumb.textContent = entry.section;
         }
