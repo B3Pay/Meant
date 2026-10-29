@@ -37,6 +37,16 @@ What the note itself is expected to state honestly, following
 file here; its notes are the body of
 [its GitHub release](https://github.com/b3hr4d/candid-core/releases/tag/v0.1.0-beta.1).
 
+## meant-format
+
+The `meant-format` crate is versioned on its own, so its notes live under
+`meant-format/<version>.md` (for example `meant-format/0.2.0.md`), never at
+this directory's top level, for the same reason as the npm notes below. The
+`Release` workflow reads that path when it is dispatched with
+`crate: meant-format`, and appends the same provenance table. Its GitHub
+release is tagged `meant-format-v<version>`. `0.1.0` predates the workflow's
+`crate` input and was published by hand, so it has no file here (#300).
+
 ## npm packages
 
 The two npm packages keep their notes under `npm/<package>/<version>.md` —

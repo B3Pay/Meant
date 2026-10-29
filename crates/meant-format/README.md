@@ -58,7 +58,7 @@ into a canonical, identity-addressed graph; this crate converts the values a
 profile describes, and depends on nothing, `meant` included. Both are developed
 in the [B3Pay/Meant](https://github.com/B3Pay/Meant) repository.
 The rules are the `amount` tag of
-[Candid Profile v0](https://github.com/b3hr4d/candid-profile/blob/main/docs/profile-v0.md)
+[Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md)
 (§5.3, and §15 for EVM positions). The JavaScript package `@meantjs/format` is
 the reference implementation. For the same input this crate gives the same
 answer: the same value, or the same error code and message. `tests/parity.rs`

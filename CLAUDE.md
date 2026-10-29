@@ -162,7 +162,10 @@ a file a bench or the crate includes.
 
 Releases: `docs/releasing.md` is exact. The `Release` workflow is
 dispatch-only behind three protected environments; the next version needs
-`.github/release-notes/<version>.md` committed first, or the guard stops.
+`.github/release-notes/<version>.md` committed first, or the guard stops. It
+releases `meant` or, dispatched with `crate: meant-format`, that crate, whose
+notes are `.github/release-notes/meant-format/<version>.md` and whose tags are
+`meant-format-v<version>` (#300).
 crates.io versions and names are permanent; so are npm names (#106 gates any
 publish on an explicit naming decision).
 

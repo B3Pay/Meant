@@ -282,7 +282,9 @@ does not approve the release.
 ### Running it
 
 Dispatch `Release` with the release commit, the version, and the `.crate`
-SHA-256 recorded by the `Release candidate` run for that commit:
+SHA-256 recorded by the `Release candidate` run for that commit. The `crate`
+input defaults to `meant`; `meant-format` is released the same way, with the
+differences listed under [meant-format](#meant-format):
 
 ```sh
 gh workflow run release.yml \
@@ -369,6 +371,38 @@ If a release has to be withdrawn:
 For a prerelease specifically: because `"0.1"` does not select any
 prerelease, a broken beta reaches only consumers who asked for it by exact
 version. That narrows the blast radius; it does not remove the permanence.
+
+## meant-format
+
+The `meant-format` crate (`crates/meant-format`) is versioned on its own and
+released by the same `Release` workflow, dispatched with `crate: meant-format`
+(#300). Everything in §7 and §8 holds, with these differences:
+
+- **Evidence.** `Release candidate` packages it in its own job, "Package and
+  inspect the meant-format archive", with `RELEASE_TOOLCHAIN`, and records the
+  archive's SHA-256 and contents in that job's summary. That digest is the
+  `expected_sha256` of the dispatch. Its file list is pinned once, in
+  [`tests/fixtures/packaging/meant-format-files.txt`](../tests/fixtures/packaging/meant-format-files.txt),
+  and checked by `Verify`, `Release candidate` and `Release`. The root
+  package's gates (consumers, docs from the archive, public API, semver) do not
+  apply to it. Its own gates run in `Verify` (the `meant-format` job), the
+  parity test against `@meantjs/format` among them.
+- **Release note.** `.github/release-notes/meant-format/<version>.md`, never the
+  top level ([the convention](../.github/release-notes/README.md)).
+- **Tag and title.** `meant-format-v<version>`, and the GitHub release is titled
+  `meant-format <version>`.
+- **Trusted publisher.** A separate entry on the crate's own crates.io settings:
+  `B3Pay` / `Meant`, `release.yml`, environment `crates-io`.
+
+```sh
+gh workflow run release.yml \
+  --field crate=meant-format \
+  --field commit=<40-character release commit SHA> \
+  --field version=<version> \
+  --field expected_sha256=<.crate SHA-256 from the meant-format job>
+```
+
+`0.1.0` was published by hand, before the workflow took a crate, and has no tag.
 
 
 ## npm: `@candid-core/schema`
