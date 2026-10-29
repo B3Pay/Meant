@@ -1,1 +1,740 @@
-<p>This page is being written.</p>
+<p>
+  The five <code>@meantjs</code> packages are plain ES modules with hand-written TypeScript declarations
+  (<code>src/*.d.mts</code>), one per exported entry. Every signature on this page is quoted verbatim from those files,
+  and the build checks each quote against the file it names. The guides show the same functions in use:
+  <a href="resolve-profiles.html">Validate and resolve</a>, <a href="format-values.html">Parse and display values</a>,
+  <a href="consent-messages.html">Consent messages</a>, <a href="agent-tools.html">Agent tools</a> and
+  <a href="reconcile-outcomes.html">Settle an unknown outcome</a>.
+</p>
+
+<h2 id="install">Install</h2>
+
+<pre data-lang="bash">
+npm install @meantjs/profile@0.2.0 @meantjs/format@0.2.0 \
+  @meantjs/consent@0.2.0 @meantjs/tools@0.2.0 @meantjs/reconcile@0.2.0
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Package</th><th>Version</th><th>Depends on (exact pins)</th><th>Runs on</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver"><code>@meantjs/profile</code></a></td><td>0.2.0</td><td><code>@candid-core/cli</code> 0.4.0, <code>ajv</code> 8.18.0</td><td>Node 22 or later for the main entry and the CLI; <code>/browser</code> in a browser bundle; <code>/address</code> and <code>/evm</code> anywhere, with no dependency</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/format"><code>@meantjs/format</code></a></td><td>0.2.0</td><td>none</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent"><code>@meantjs/consent</code></a></td><td>0.2.0</td><td><code>@candid-core/schema</code> 0.5.0, <code>@meantjs/format</code> 0.2.0, <code>@meantjs/profile</code> 0.2.0</td><td>Node 22 or later and browsers; <code>/sns</code> is Node only (it hashes with <code>node:crypto</code>)</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/tools"><code>@meantjs/tools</code></a></td><td>0.2.0</td><td><code>@meantjs/format</code> 0.2.0</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile"><code>@meantjs/reconcile</code></a></td><td>0.2.0</td><td><code>@meantjs/format</code> 0.2.0</td><td>Node 22 or later and browsers</td></tr>
+  </tbody>
+</table>
+
+<p>Each name links to its source under <code>profile/packages/</code>; <code>@meantjs/profile</code> is <code>packages/resolver</code>.</p>
+
+<callout type="note" title="One version for all five">
+  <p>
+    The five packages release together under one version and pin each other exactly (<code>"0.2.0"</code>, not
+    <code>"^0.2.0"</code>), so an install never mixes versions that were not tested together. A release bumps all five
+    even when only one changed. While the major is 0 the minor is the breaking digit, and any change to text the
+    packages generate (consent messages, SNS renderings, tool names, descriptions, input schemas) is a breaking change.
+    The procedure is <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md"><code>profile/docs/releasing.md</code></a>.
+  </p>
+</callout>
+
+<p>
+  All entries are ES modules only. An EVM resolved form (<code>"chain": "evm"</code>) is experimental, spec §15: see
+  <a href="chain-evm.html">EVM contracts</a>.
+</p>
+
+<h2 id="meantjs-profile"><code>@meantjs/profile</code></h2>
+
+<p>
+  Validates profiles, matches packs to a service, merges layers and emits the resolved form. Also the
+  <code>candid-profile</code> command (<a href="cli-profile.html">The candid-profile command</a>).
+</p>
+
+<h3 id="profile-main"><code>@meantjs/profile</code> (main entry)</h3>
+
+<p>The Node entry: the functions shared with <code>/browser</code> (next block), plus the ones that read files and the CLI.</p>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/index.d.mts" data-partial>
+export const DEFAULT_SCHEMA_PATH: string;
+export const DEFAULT_PACKS_DIR: string;
+export function createSchemaValidator(schema?: string | Record<string, unknown>): Promise<SchemaValidator>;
+export function loadPacks(dir?: string): Promise<Pack[]>;
+export function runCli(argv: string[], io: { stdout: { write(text: string): unknown }; stderr: { write(text: string): unknown } }): Promise<0 | 1 | 2>;
+export const USAGE: string;
+</pre>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts" data-partial>
+export const LAYERS: readonly ["author", "third_party", "pack", "inferred"];
+export function resolveService(opts: ResolveOptions): Promise<ResolveResult>;
+export function validateProfile(doc: unknown, opts: { validateSchema: SchemaValidator; did?: string | null; didLabel?: string; resolved?: boolean }): Promise<ValidateResult>;
+export function idlHash(label: string): number;
+export function jcs(value: unknown): string;
+export function profileId(doc: unknown): string;
+export function parseAddress(at: string): Address | null;
+export function parseRelPath(rel: string): { index: number | null; segs: PathSegment[] } | null;
+export function compileInterface(source: string, label?: string): Promise<{ iface: Iface } | { failure: { code: string; message: string }[] }>;
+export function interfaceFromEnvelope(envelope: unknown, label?: string): { iface: Iface } | { failure: { code: string; message: string }[] };
+export function matchPack(canister: Iface, pack: unknown, opts?: Record<string, unknown>): Promise<{ matched: boolean; reasons: { at: string; message: string }[]; relaxed: unknown; fragment: Iface } | { error: { code: string; message: string }[] }>;
+export function matchService(canister: Iface, fragment: Iface, opts?: Record<string, unknown>): { ok: boolean; reasons: { at: string; message: string }[]; relaxed: unknown };
+export function typeSubtype(S: Iface, s: unknown, T: Iface, t: unknown, opts?: Record<string, unknown>): unknown;
+export function positions(iface: Iface, methodName: string, side: "args" | "results", maxDepth?: number): Generator<Position>;
+export function analyzeProfiles(iface: Iface, items: unknown[], opts?: { attribute?: boolean }): { diagnostics: Diagnostic[]; layered: LayeredTags; ordered: unknown[]; stale: Set<unknown> };
+export function resolvedForm(iface: Iface, profiles: unknown[], tags: LayeredTags, diagnostics: Diagnostic[]): ResolvedForm;
+export function buildTree(iface: Iface, methodName: string, side: "args" | "results", tags: LayeredTags): unknown;
+export const DOC_ATTRIBUTES_VERSION: 1;
+export function profileFromDocAttributes(
+  response: unknown,
+  opts?: { name?: string; origin?: "author" | "third_party"; language?: string; canisterId?: string },
+): { ok: boolean; doc: ProfileDocument | null; diagnostics: DocDiagnostic[] };
+export const SERVED_SECTION: "icp:public candid:profile";
+export const SERVED_METADATA: "candid:profile";
+export const SERVED_MAX_BYTES: number;
+export function readServedProfile(
+  bytes: Uint8Array,
+  opts: { canisterId: string | null; label?: string },
+): { ok: boolean; doc: ProfileDocument | null; diagnostics: Diagnostic[] };
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>createSchemaValidator(schema?)</code></td><td>The validate function for the profile schema: a path or a document, by default the schema the package ships. The shipped schema is compiled ahead of time; any other is compiled by <code>ajv</code> at run time with <code>new Function</code>.</td></tr>
+    <tr><td><code>resolveService(opts)</code></td><td>Resolves one service (<code>did</code>, <code>envelope</code> or <code>abi</code>, exactly one) with <code>profiles</code> (applied as given; a pack here must match) and <code>packs</code> (tried; applied only if they match). Returns <code>{ ok, resolved, diagnostics, profiles }</code>; <code>resolved</code> is null when the service does not compile.</td></tr>
+    <tr><td><code>validateProfile(doc, opts)</code></td><td>The single-profile validator that <code>scripts/validate.mjs</code> wraps: <code>{ ok, profile_id, interface_id, methods, annotations, diagnostics, resolved? }</code>.</td></tr>
+    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name (default: the shipped packs, <code>DEFAULT_PACKS_DIR</code>).</td></tr>
+    <tr><td><code>profileId(doc)</code>, <code>jcs(value)</code></td><td><code>candid-profile:v0:sha256:&lt;hex&gt;</code> over the RFC 8785 (JCS) form; the JCS text itself.</td></tr>
+    <tr><td><code>profileFromDocAttributes(response, opts?)</code></td><td>An author canister profile from the tags written as doc comments in a <code>.did</code>; <code>response</code> is what <code>didToDocAttributes</code> of <code>@candid-core/cli</code> returns (<a href="annotate-a-did.html">Annotate a .did file</a>).</td></tr>
+    <tr><td><code>readServedProfile(bytes, opts)</code>, <code>SERVED_SECTION</code>, <code>SERVED_METADATA</code>, <code>SERVED_MAX_BYTES</code></td><td>Checks the bytes of a canister's <code>candid:profile</code> metadata; <diag>E_SERVED</diag> when they cannot be used (<a href="serve-a-profile.html">Serve a profile</a>).</td></tr>
+    <tr><td><code>runCli(argv, io)</code>, <code>USAGE</code></td><td><code>candid-profile</code> as a function, returning its exit code; its help text.</td></tr>
+    <tr><td><code>parseAddress</code>, <code>parseRelPath</code>, <code>idlHash</code></td><td>The address grammar and the Candid field-name hash (also in <code>/address</code>).</td></tr>
+    <tr><td><code>compileInterface</code>, <code>interfaceFromEnvelope</code>, <code>Iface</code></td><td>An interface as the resolver sees it: the Contract graph with lookups.</td></tr>
+    <tr><td><code>matchPack</code>, <code>matchService</code>, <code>typeSubtype</code>, <code>SubtypeChecker</code></td><td>Pack matching by Candid subtyping, result variants allowed to be wider (D-019).</td></tr>
+    <tr><td><code>analyzeProfiles</code>, <code>resolvedForm</code>, <code>buildTree</code>, <code>positions</code>, <code>TagIndex</code>, <code>LayeredTags</code>, <code>LAYERS</code></td><td>The steps of a resolve: index and merge the layers, then write the tree.</td></tr>
+  </tbody>
+</table>
+
+<p>The types a caller handles most, from the same file:</p>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts">
+export interface ProfileStatus {
+  name: string;
+  origin: string | null;
+  kind: string | null;
+  profile_id: string | null;
+  status: "applied" | "rebound" | "stale" | "not_matched" | "invalid";
+  explicit: boolean;
+}
+// …
+export interface ResolveOptions {
+  /** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */
+  did?: string;
+  /** The service's candid-core ContractEnvelope. */
+  envelope?: unknown;
+  /** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */
+  abi?: readonly (string | Record<string, unknown>)[];
+  didLabel?: string;
+  /** Applied as given; a pack here must match. */
+  profiles?: { doc: unknown; label?: string }[];
+  /** Tried by Candid subtyping (an EVM pack by selector); applied only if they match. */
+  packs?: { doc: unknown; label?: string }[];
+  validateSchema: SchemaValidator;
+}
+
+export interface ResolveResult {
+  ok: boolean;
+  /** null when the service does not compile (or the envelope cannot be read). */
+  resolved: ResolvedForm | null;
+  diagnostics: Diagnostic[];
+  profiles: ProfileStatus[];
+}
+</pre>
+
+<p>
+  Other exported types: <code>ProfileDocument</code>, <code>ResolvedForm</code>, <code>Diagnostic</code>,
+  <code>DocDiagnostic</code>, <code>Pack</code>, <code>SchemaValidator</code>, <code>ValidateResult</code>,
+  <code>Address</code>, <code>PathSegment</code>, <code>ContractNode</code>, <code>Position</code>. The fields of the
+  documents are on <a href="reference-profile-format.html">Profile and resolved form</a>, and the codes on
+  <a href="reference-profile-diagnostics.html">Profile diagnostics</a>.
+</p>
+
+<pre data-lang="js" data-check>
+import { createSchemaValidator, loadPacks, resolveService } from "@meantjs/profile";
+import { readFileSync } from "node:fs";
+
+const validateSchema = await createSchemaValidator();
+const packs = (await loadPacks()).map(({ doc }) => ({ doc }));
+const r = await resolveService({ did: readFileSync("ledger.did", "utf8"), validateSchema, packs });
+for (const p of r.profiles) console.log(p.status, p.name, p.profile_id);
+</pre>
+
+<h3 id="profile-address"><code>@meantjs/profile/address</code></h3>
+
+<p>The address grammar (spec §3) and the Candid field-name hash, with no dependency, for a browser bundle.</p>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/address.d.mts">
+export interface PathSegment {
+  kind: "field" | "elem";
+  /** The field name, or `#<id>` for a numeric id. */
+  label?: string;
+  id?: number;
+}
+
+export type Address =
+  | { kind: "type"; decl: string; segs: PathSegment[] }
+  | { kind: "arg" | "result"; method: string; index: number; segs: PathSegment[] }
+  | { kind: "method"; method: string; segs: [] };
+
+/** The largest Candid field id. */
+export const U32_MAX: 4294967295;
+/** The Candid field-name hash. */
+export function idlHash(label: string): number;
+/** `.amount.e8s`, `.#5`, `[]` to segments; null when the path does not parse. */
+export function parsePath(path: string): PathSegment[] | null;
+/** `send(0).to`, `balance->(0)`, `type:Tokens.e8s` or a method name; null when the address does not parse. */
+export function parseAddress(at: string): Address | null;
+/** A path relative to a method: `(0).to.owner`, `to.owner` or `Ok`; `index` is null without `(n)`. */
+export function parseRelPath(rel: string): { index: number | null; segs: PathSegment[] } | null;
+/** The resolver's key of a method position. */
+export function methodKey(method: string, side: "arg" | "res", index: number, segs: PathSegment[]): string;
+/** The resolver's key of a `type:` edge. */
+export function edgeKey(parent: { container: number; kind: string; id?: number }): string;
+</pre>
+
+<pre data-lang="js" data-check>
+import { parseAddress, idlHash } from "@meantjs/profile/address";
+
+const a = parseAddress("icrc1_transfer(0).amount");
+if (a !== null && a.kind === "arg") console.log(a.method, a.index, a.segs.map((s) => s.label));
+idlHash("amount"); // the u32 a Contract stores for the field
+</pre>
+
+<h3 id="profile-browser"><code>@meantjs/profile/browser</code></h3>
+
+<p>
+  The whole resolver for a browser bundle: the main entry's functions without the ones that read files
+  (<code>loadPacks</code>, the CLI, the default paths), plus the shipped data and the CLI's wasm loader. The cli's wasm
+  needs <code>'wasm-unsafe-eval'</code> in a Content-Security-Policy; the shipped schema needs no
+  <code>'unsafe-eval'</code>.
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts" data-partial>
+export const PROFILE_SCHEMA: Record<string, unknown>;
+export const STANDARD_PACKS: readonly Pack[];
+export function initCompiler(input?: BufferSource | URL | string | Response): Promise<void>;
+export function createSchemaValidator(doc?: Record<string, unknown>): Promise<SchemaValidator>;
+export function schemaDiagnostics(validateSchema: SchemaValidator): Diagnostic[];
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PROFILE_SCHEMA</code>, <code>STANDARD_PACKS</code></td><td>The profile schema and the standard packs, as data.</td></tr>
+    <tr><td><code>initCompiler(input?)</code></td><td>Optional: initializes the cli's wasm compiler, for a bundler that moves the wasm file.</td></tr>
+    <tr><td><code>createSchemaValidator(doc?)</code></td><td>A document, never a path; by default the shipped schema.</td></tr>
+    <tr><td><code>schemaDiagnostics(validateSchema)</code></td><td>The last schema errors as <diag>E_SCHEMA</diag> diagnostics.</td></tr>
+    <tr><td>everything else</td><td>As in the main entry, from the same declarations.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="profile-evm"><code>@meantjs/profile/evm</code></h3>
+
+<p>
+  The EVM helpers of spec §15 (experimental), with no dependency. Every failure is an <code>AbiError</code>:
+  <diag>E_ABI</diag>, <diag>E_ABI_ENCODE</diag>, <diag>E_ABI_DECODE</diag>, <diag>E_ADDRESS</diag> or
+  <diag>E_ADDRESS_CHECKSUM</diag>.
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/evm.d.mts" data-partial>
+export interface AbiFunction {
+  name: string;
+  inputs: AbiParam[];
+  outputs: AbiParam[];
+  stateMutability: "pure" | "view" | "nonpayable" | "payable";
+  signature: string;
+  typeSignature: string;
+  selector: string;
+  canonical: string;
+  at?: string;
+}
+export type AbiValue = string | bigint | boolean | Uint8Array | AbiValue[] | { [key: string]: AbiValue };
+export declare class AbiError extends Error {
+export function keccak256(input: Uint8Array | string): Uint8Array;
+export function keccak256Hex(input: Uint8Array | string): string;
+export function jcs(value: unknown): string;
+export const DEFAULT_ABI_LIMITS: Readonly<Required<AbiLimits>>;
+export function parseAbi(entries: unknown, label?: string): { functions: AbiFunction[]; errors: { at: string; message: string }[] };
+export function parseSignature(signature: string, where?: string): AbiFunction;
+export function abiInterfaceId(functions: readonly AbiFunction[]): string;
+export function canonicalFragment(f: Pick<AbiFunction, "name" | "inputs" | "outputs" | "stateMutability">): string;
+export function namedSignature(f: Pick<AbiFunction, "name" | "inputs">): string;
+export function typeSignature(f: Pick<AbiFunction, "name" | "inputs">): string;
+export function selectorOf(f: Pick<AbiFunction, "name" | "inputs">): string;
+export function typeString(type: AbiType, names?: boolean): string;
+export function componentKey(param: AbiParam, index: number): string;
+export function encodeParams(params: readonly AbiParam[], values: Record<string, AbiValue>): Uint8Array;
+export function encodeCall(f: AbiFunction, values: Record<string, AbiValue>): Uint8Array;
+export function decodeParams(params: readonly AbiParam[], data: Uint8Array, limits?: AbiLimits): Record<string, AbiValue>;
+export function toChecksumAddress(address: string): string;
+export function readAddress(text: string): string;
+export function typedDataDigest(typed: TypedData): string;
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>parseAbi(entries, label?)</code></td><td>Reads an ABI (human-readable fragments or JSON ABI entries); only functions. Problems are listed, not thrown.</td></tr>
+    <tr><td><code>parseSignature(signature)</code></td><td>One function from its named signature, as a resolved form carries it. Throws.</td></tr>
+    <tr><td><code>abiInterfaceId(functions)</code></td><td><code>candid-profile:evm-abi:v0:sha256:…</code>: SHA-256 over the JCS array of the canonical fragments, sorted.</td></tr>
+    <tr><td><code>canonicalFragment</code>, <code>namedSignature</code>, <code>typeSignature</code>, <code>selectorOf</code>, <code>typeString</code>, <code>componentKey</code></td><td><code>function transfer(address to,uint256 value) returns (bool)</code>; <code>transfer(address to,uint256 value)</code>; <code>transfer(address,uint256)</code>; <code>0xa9059cbb</code>; a type's canonical text; a tuple component's key (its name, else <code>#</code> and its position).</td></tr>
+    <tr><td><code>encodeParams</code>, <code>encodeCall</code>, <code>decodeParams</code></td><td>The strict codec: a value read from anything but its canonical encoding is refused.</td></tr>
+    <tr><td><code>toChecksumAddress</code>, <code>readAddress</code></td><td>The EIP-55 form; reading an address whose mixed case must match it.</td></tr>
+    <tr><td><code>keccak256</code>, <code>keccak256Hex</code>, <code>typedDataDigest</code>, <code>jcs</code></td><td>Keccak-256 (Ethereum's, not NIST SHA3-256); the EIP-712 digest; RFC 8785 JSON.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="profile-schema-json"><code>@meantjs/profile/schema.json</code> and <code>@meantjs/profile/packs/*</code></h3>
+
+<p>
+  JSON documents, not modules: <code>./schema.json</code> is the package's copy of
+  <code>spec/profile-v0.schema.json</code>, and <code>./packs/*</code> its copies of the standard packs
+  (<code>icrc1.profile.json</code>, <code>icrc2.profile.json</code>, <code>erc20.profile.json</code>). Import them with an
+  import attribute, and pass them as documents:
+</p>
+
+<pre data-lang="js" data-file="profile/packages/resolver/README.md">
+import schema from "@meantjs/profile/schema.json" with { type: "json" };          // copy of spec/profile-v0.schema.json
+import icrc1 from "@meantjs/profile/packs/icrc1.profile.json" with { type: "json" };
+const validateSchema = await createSchemaValidator(schema);                            // a document, not a path
+const r = await resolveService({ did, validateSchema, packs: [{ doc: icrc1 }] });
+</pre>
+
+<p>The packs and their annotations are listed on <a href="reference-packs.html">Standard packs</a>.</p>
+
+<h2 id="meantjs-format"><code>@meantjs/format</code></h2>
+
+<p>
+  Exact value conversion for the six value tags: text a person or an agent writes to the value a call carries, and
+  back. No dependency, no I/O. Every rejection is a <code>FormatError</code>; nothing is rounded.
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/format/src/index.d.mts" data-partial>
+export type ValueTag = "amount" | "timestamp" | "duration" | "account" | "subaccount" | "bytes";
+export type TimeUnit = "ns" | "us" | "ms" | "s";
+export type BytesEncoding = "utf8" | "hex" | "base64";
+export interface AmountOptions {
+  decimals: number | bigint | string;
+  symbol?: string;
+  candid?: string;
+  threshold?: string | bigint;
+  message?: string;
+}
+export function parseAmount(input: string, options: AmountOptions): string;
+export function displayAmount(value: string | bigint, options: AmountOptions): string;
+export function convertUnit(value: string | bigint, from: TimeUnit, to: TimeUnit): string;
+export function alignNow(nowNs: bigint, unit: TimeUnit): bigint;
+export function parseTimestamp(input: string, options: { unit: TimeUnit; candid?: string; now?: bigint }): string;
+export function displayTimestamp(value: string | bigint, options: { unit: TimeUnit; candid?: string }): string;
+export function parseDuration(input: string, options: { unit: TimeUnit; candid?: string }): string;
+export function displayDuration(value: string | bigint, options: { unit: TimeUnit; candid?: string }): string;
+export function parseAccount(input: string): Account;
+export function displayAccount(account: { owner: string | Uint8Array; subaccount?: ByteInput | null }): string;
+export function principalFromText(text: string): Uint8Array;
+export function principalToText(bytes: Uint8Array): string;
+export function parseSubaccount(input: string): Uint8Array;
+export function displaySubaccount(value: ByteInput): string;
+export function parseBytes(input: string, options: { encoding: BytesEncoding; maxLen?: number }): Uint8Array;
+export function displayBytes(value: ByteInput, options: { encoding: BytesEncoding }): string;
+export function asUint8Array(value: unknown): Uint8Array | null;
+export interface Formatter {
+  readonly tag: ValueTag;
+  readonly candid: string;
+  readonly args: Readonly<Record<string, unknown>>;
+  parse(input: string, context?: { now?: bigint }): ParsedValue;
+  display(value: unknown): string;
+  safeParse(input: string, context?: { now?: bigint }): SafeResult<ParsedValue>;
+  safeDisplay(value: unknown): SafeResult<string>;
+  describe(): Description;
+}
+export const VALUE_TAGS: readonly ValueTag[];
+export function formatterFor(node: FormatNode, options?: { refs?: Record<string, unknown>; now?: bigint }): Formatter | null;
+export function describeInput(tag: ValueTag, args: Readonly<Record<string, unknown>>, candid: string, options?: { accepts?: (input: string) => boolean }): Description;
+export function normalizeName(text: string): string;
+export function resolveName<V>(
+  entries: NameEntry<V>[],
+  input: string,
+  opts?: { isValue?: (text: string) => boolean; kind?: (kind: unknown) => boolean; by?: "value" | "show" },
+): NameResolution<V>;
+export function ownerOf<V>(entries: NameEntry<V>[], value: unknown, opts?: { by?: "value" | "show" }): NameEntry<V> | undefined;
+export function nameOf<V>(entries: NameEntry<V>[], value: V, opts?: { by?: "value" | "show"; show?: (value: unknown) => string }): string;
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>formatterFor(node, options?)</code></td><td>The formatter of a resolved-form position, or null when it has no value tag. Throws <diag>E_REF_UNRESOLVED</diag>, <diag>E_ARG</diag>, <diag>E_TAG_TYPE</diag> or <diag>E_TAG_CONFLICT</diag> rather than return one that half works. <code>refs</code> are keyed by <code>from</code>.</td></tr>
+    <tr><td><code>parseAmount</code>, <code>displayAmount</code></td><td><code>"1.5 ICP"</code> to base units as a decimal string, and back. A number is refused.</td></tr>
+    <tr><td><code>parseTimestamp</code>, <code>displayTimestamp</code>, <code>parseDuration</code>, <code>displayDuration</code>, <code>convertUnit</code>, <code>alignNow</code></td><td>RFC 3339 and ISO 8601 text to a count of the tag's unit, and back; exact unit conversion.</td></tr>
+    <tr><td><code>parseAccount</code>, <code>displayAccount</code>, <code>principalFromText</code>, <code>principalToText</code></td><td>The ICRC-1 textual account encoding and principal text, checksums verified.</td></tr>
+    <tr><td><code>parseSubaccount</code>, <code>displaySubaccount</code>, <code>parseBytes</code>, <code>displayBytes</code>, <code>asUint8Array</code></td><td>32-byte subaccounts (<code>#n</code> or 64 hex), bytes in the tag's encoding, and a realm-safe byte check.</td></tr>
+    <tr><td><code>describeInput</code></td><td><code>Formatter.describe</code> without a formatter: the summary, examples and pattern of a position's input.</td></tr>
+    <tr><td><code>normalizeName</code>, <code>resolveName</code>, <code>ownerOf</code>, <code>nameOf</code></td><td>The one name-matching rule of spec §5.3 (<a href="names.html">Names</a>).</td></tr>
+    <tr><td><code>VALUE_TAGS</code>, <code>CODES</code>, <code>FormatError</code></td><td>The six value tags in spec order; the 23 codes (<a href="reference-profile-diagnostics.html#meantjs-format-formaterror">FormatError</a>).</td></tr>
+  </tbody>
+</table>
+
+<tool-view bridge="parseAmount, exact">
+<sees value="1.5 ICP">parseAmount("1.5 ICP", { decimals: 8, symbol: "ICP" })</sees>
+<sends value="150000000">"150000000"</sends>
+</tool-view>
+
+<pre data-lang="js" data-check>
+import { parseAmount, displayAmount, FormatError } from "@meantjs/format";
+
+parseAmount("1.5 ICP", { decimals: 8, symbol: "ICP" }); // "150000000"
+displayAmount("150000000", { decimals: 8, symbol: "ICP" }); // "1.5 ICP"
+try {
+  parseAmount("1.123456789", { decimals: 8 });
+} catch (e) {
+  if (e instanceof FormatError) console.log(e.code); // "E_EXCESS_PRECISION": never rounded
+}
+</pre>
+
+<h2 id="meantjs-consent"><code>@meantjs/consent</code></h2>
+
+<p>
+  ICRC-21 consent messages for any method, from a resolved form and the Candid-encoded argument bytes; the text an SNS
+  proposal's validator returns; and, experimental, consent text and ERC-7730 files for EVM calls. No network code.
+</p>
+
+<h3 id="consent-main"><code>@meantjs/consent</code> (main entry)</h3>
+
+<pre data-lang="ts" data-file="profile/packages/consent/src/index.d.mts" data-partial>
+export interface Icrc21Context {
+  resolved: ResolvedForm;
+  refs?: Record<string, unknown>;
+  languagePolicy?: "fallback" | "error";
+  rawArguments?: boolean;
+  limits?: DecodeLimits;
+}
+export type Icrc21Result = Icrc21ConsentMessageResponse & { readonly diagnostics: ConsentDiagnostic[]; readonly provenance: Provenance };
+export function icrc21ConsentMessage(request: Omit<Icrc21ConsentMessageRequest, "arg"> & { arg: Bytes }, context: Icrc21Context): Icrc21Result;
+export function handleConsentRequest(requestBytes: Uint8Array, context: Icrc21Context): Uint8Array;
+export function toIcrc21Error(error: unknown): Icrc21Error;
+export const SUPPORTED_LANGUAGE: "en";
+export function encodeConsentResponse(response: Icrc21ConsentMessageResponse): Uint8Array;
+export function decodeConsentResponse(bytes: Uint8Array): Icrc21ConsentMessageResponse;
+export function encodeConsentRequest(request: Icrc21ConsentMessageRequest): Uint8Array;
+export function decodeConsentRequest(bytes: Uint8Array): Icrc21ConsentMessageRequest;
+export function toJson(value: unknown): unknown;
+export interface GenerateConsentInput {
+  resolved: ResolvedForm;
+  method: string;
+  arg: Bytes;
+  refs?: Record<string, unknown>;
+  form?: "fields" | "generic";
+  utcOffsetMinutes?: number | null;
+  rawArguments?: boolean;
+  limits?: DecodeLimits;
+}
+export function generateConsent(input: GenerateConsentInput): {
+  form: "fields" | "generic";
+  message: Icrc21ConsentMessage;
+  zoneSensitive: boolean;
+  diagnostics: ConsentDiagnostic[];
+  provenance: Provenance;
+  model: Model;
+};
+export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits }): Model;
+export function decodeArguments(method: { args: unknown[] }, arg: Bytes, limits?: DecodeLimits): unknown[];
+export function schemaFor(node: unknown, where?: string, depth?: number): unknown;
+export function parseTemplate(template: string): TemplatePart[];
+export function resolvePath(method: { args: unknown[] }, relpath: string): ResolvedPath | { error: string };
+export function valuesAt(path: ResolvedPath, values: unknown[]): unknown[];
+export declare class Renderer {
+export function zoneName(offsetMinutes: number): string;
+export function renderFields(model: Model, renderer: Renderer, options?: { rawArguments?: boolean }): { intent: string; fields: [string, Icrc21Value][] };
+export function renderGeneric(model: Model, renderer: Renderer, options?: { rawArguments?: boolean; headingLevel?: number }): string;
+export function codeSpan(s: string): string;
+export function escapeMarkdown(s: string): string;
+export function visible(s: string): string;
+export declare class ConsentError extends Error {
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>icrc21ConsentMessage(request, context)</code></td><td>The ICRC-21 call as a function: <code>{ Ok: { consent_message, metadata } }</code> or <code>{ Err }</code>, with non-enumerable <code>diagnostics</code> and <code>provenance</code> (which profile wrote the words).</td></tr>
+    <tr><td><code>handleConsentRequest(requestBytes, context)</code></td><td>Candid bytes of <code>icrc21_consent_message_request</code> in, Candid bytes of the response out: what a canister endpoint returns.</td></tr>
+    <tr><td><code>generateConsent(input)</code></td><td>One form without the ICRC-21 envelope: <code>"generic"</code> (Markdown, the default) or <code>"fields"</code>.</td></tr>
+    <tr><td><code>encodeConsentRequest</code>, <code>decodeConsentRequest</code>, <code>encodeConsentResponse</code>, <code>decodeConsentResponse</code>, <code>toJson</code></td><td>The Candid codec for the ICRC-21 types, and a JSON-safe copy (bigint as a decimal string, <code>Uint8Array</code> as <code>{ hex }</code>).</td></tr>
+    <tr><td><code>toIcrc21Error</code>, <code>CODES</code>, <code>GENERIC_ERROR_CODES</code>, <code>ConsentError</code>, <code>SUPPORTED_LANGUAGE</code></td><td>Errors and their ICRC-21 mapping (<a href="reference-profile-diagnostics.html#meantjs-consent-consenterror">ConsentError</a>); <code>"en"</code>, the only language v0 emits.</td></tr>
+    <tr><td><code>buildModel</code>, <code>decodeArguments</code>, <code>schemaFor</code>, <code>parseTemplate</code>, <code>resolvePath</code>, <code>valuesAt</code>, <code>Renderer</code>, <code>zoneName</code>, <code>renderFields</code>, <code>renderGeneric</code>, <code>codeSpan</code>, <code>escapeMarkdown</code>, <code>visible</code></td><td>The parts: decode, model, render and escape.</td></tr>
+  </tbody>
+</table>
+
+<pre data-lang="js" data-file="profile/packages/consent/README.md">
+import { icrc21ConsentMessage, handleConsentRequest } from "@meantjs/consent";
+
+const response = icrc21ConsentMessage(
+  {
+    method: "icrc1_transfer",
+    arg: argBytes, // Uint8Array: the Candid-encoded argument tuple of the call
+    user_preferences: { metadata: { language: "en", utc_offset_minutes: 120 }, device_spec: { GenericDisplay: null } },
+  },
+  {
+    resolved, // fixtures/*.resolved.json shape, or the output of `candid-profile resolve`
+    refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" }, // dynamic refs, resolved by the caller
+  },
+);
+</pre>
+
+<h3 id="consent-sns"><code>@meantjs/consent/sns</code></h3>
+
+<p>The governance counterpart of ICRC-21: an SNS generic-function validator generated from the profile. Node only.</p>
+
+<pre data-lang="ts" data-file="profile/packages/consent/src/sns.d.mts" data-partial>
+export type ValidatorResult = { Ok: string } | { Err: string };
+export const SNS_RENDERING_RULES: "candid-profile-sns/v0";
+export function snsValidatorRendering(input: {
+  payload: Bytes;
+  resolved: ResolvedForm;
+  method: string;
+  refs?: Record<string, unknown>;
+  limits?: DecodeLimits;
+}): ValidatorResult & { readonly diagnostics: ConsentDiagnostic[]; readonly provenance: Provenance };
+export function handleSnsValidatorCall(payload: Uint8Array, context: { resolved: ResolvedForm; method: string; refs?: Record<string, unknown>; limits?: DecodeLimits }): Uint8Array;
+export function encodeValidatorResult(result: ValidatorResult): Uint8Array;
+export function decodeValidatorResult(bytes: Uint8Array): ValidatorResult;
+export function parseGovernanceRendering(text: string): GovernanceRendering | null;
+export function verifySnsRendering(input: {
+  payloadTextRendering: string;
+  payload: Bytes;
+  resolved: ResolvedForm;
+  targetCanisterId: string;
+  method: string;
+  refs?: Record<string, unknown>;
+  limits?: DecodeLimits;
+}): { ok: boolean; checks: SnsCheck[]; expectedRendering: string | null; parsed: GovernanceRendering | null };
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>snsValidatorRendering(input)</code></td><td>Payload bytes in, <code>{ Ok: text }</code> or <code>{ Err: text }</code> out. Anything the generator cannot describe is <code>Err</code>, so governance rejects the proposal.</td></tr>
+    <tr><td><code>handleSnsValidatorCall</code>, <code>encodeValidatorResult</code>, <code>decodeValidatorResult</code></td><td>The canister-side wrapper and the codec of <code>variant { Ok : text; Err : text }</code>.</td></tr>
+    <tr><td><code>verifySnsRendering(input)</code>, <code>parseGovernanceRendering(text)</code></td><td>The reviewer's check of a stored <code>payload_text_rendering</code>: five checks, <code>{ ok, checks, expectedRendering, parsed }</code>.</td></tr>
+    <tr><td><code>SNS_RENDERING_RULES</code></td><td><code>"candid-profile-sns/v0"</code>, named in every rendering.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="consent-evm"><code>@meantjs/consent/evm</code></h3>
+
+<p>Experimental (spec §15.6): the consent text of an EVM call, from an EVM contract's resolved form and its calldata.</p>
+
+<pre data-lang="ts" data-file="profile/packages/consent/src/evm.d.mts" data-partial>
+export type EvmResolvedForm = ResolvedForm & { chain: "evm" };
+export function decodeCalldata(resolved: ResolvedForm, calldata: Uint8Array | string, limits?: AbiLimits): { method: string; selector: string; values: Record<string, AbiValue> };
+export interface EvmConsentInput {
+  resolved: ResolvedForm;
+  calldata: Uint8Array | string;
+  to: string;
+  chainId?: number | bigint | string;
+  refs?: Record<string, unknown>;
+  form?: "generic" | "fields";
+  utcOffsetMinutes?: number | null;
+  rawArguments?: boolean;
+  limits?: AbiLimits;
+}
+export function evmConsent(input: EvmConsentInput): {
+  form: "generic" | "fields";
+  message: string | { intent: string; fields: [string, string][] };
+  method: string;
+  selector: string;
+  to: string;
+  chainId: string | null;
+  diagnostics: ConsentDiagnostic[];
+  provenance: Provenance;
+  model: Model;
+};
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>decodeCalldata(resolved, calldata, limits?)</code></td><td>The function a selector names and its arguments, keyed by parameter name. Strict: <diag>E_DECODE</diag> on anything but the canonical encoding; <diag>E_RESOLVED_FORM</diag> for a form that is not an EVM one; <diag>E_METHOD_UNKNOWN</diag> for an unknown selector.</td></tr>
+    <tr><td><code>evmConsent(input)</code></td><td>The same model and two layouts as an ICRC-21 message, without its envelope, ending with the contract's address and chain. A call to a contract its profiles do not list is <diag>E_DEPLOYMENT</diag>; a payable function is <diag>E_UNSUPPORTED_TYPE</diag>.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="consent-erc7730"><code>@meantjs/consent/erc7730</code></h3>
+
+<p>Experimental (spec §15.7): ERC-7730 clear-signing files and the unsigned ERC-8176 attestation a reviewer signs for one. Nothing is signed or sent.</p>
+
+<pre data-lang="ts" data-file="profile/packages/consent/src/erc7730.d.mts" data-partial>
+export const ERC7730_SCHEMA_URL: "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.1.0.schema.json";
+export const ERC8176_SCHEMA_UID: "0xe023eef113c1670774801c34b377fdf612dd8a4d2fa92fe382e15bd91fafb5c2";
+export const EAS_ADDRESS: "0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587";
+export interface Erc7730Options {
+  deployments?: Erc7730Deployment[];
+  owner?: string;
+  contractName?: string;
+  info?: { url: string; deploymentDate?: string };
+  token?: { name: string };
+}
+export function erc7730Descriptor(resolved: ResolvedForm, options?: Erc7730Options): { descriptor: Erc7730Descriptor; descriptorHash: string };
+export function descriptorHash(descriptor: object): string;
+export interface Erc8176Input {
+  descriptorHash: string;
+  time: bigint | number | string;
+  expirationTime: bigint | number | string;
+  salt: string;
+  refUID?: string;
+}
+export function erc8176Attestation(input: Erc8176Input): { typedData: Erc8176TypedData; digest: string };
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>erc7730Descriptor(resolved, options?)</code></td><td>The contract's ERC-7730 file and its ERC-8176 <code>descriptorHash</code>; deterministic. What a file cannot say is <diag>E_EXPORT</diag>; no deployment is <diag>E_DEPLOYMENT</diag>.</td></tr>
+    <tr><td><code>descriptorHash(descriptor)</code></td><td><code>0x</code> and the Keccak-256 of the RFC 8785 form: the hash of a file someone edited.</td></tr>
+    <tr><td><code>erc8176Attestation(input)</code></td><td>The unsigned offchain attestation (EAS offchain v2 typed data) and its EIP-712 digest, for a reviewer to sign with their own key.</td></tr>
+    <tr><td><code>ERC7730_SCHEMA_URL</code>, <code>ERC8176_SCHEMA_UID</code>, <code>EAS_ADDRESS</code></td><td>The exact-version schema every file names; ERC-8176's schema UID; the canonical EAS contract.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="meantjs-tools"><code>@meantjs/tools</code></h2>
+
+<p>
+  Agent tools from a Candid resolved form: MCP tool definitions in human units, a preview the person confirms before
+  every send, and the retry and reconcile rules. One tool per query method, one <code>prepare_&lt;method&gt;</code>
+  per update method, and <code>commit</code>. An EVM resolved form is refused: EVM tools are a later phase.
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/tools/src/index.d.mts" data-partial>
+export const COMMIT_TOOL: "commit";
+export function prepareToolName(method: string): string;
+export function caseToolName(method: string, label: string, read: boolean): string;
+export function resolvedMethods(resolved: ResolvedForm | ResolvedForm[]): [string, unknown][];
+export function buildToolPlans(resolved: ResolvedForm | ResolvedForm[]): { plans: Map<string, ToolPlan>; skipped: { method: string; reason: string }[] };
+export function toolDefinitions(resolved: ResolvedForm | ResolvedForm[], options?: { canisters?: Canister[] }): ToolDefinition[];
+export function readToolInput(
+  plan: ToolPlan,
+  input: unknown,
+  context?: { refs?: Record<string, unknown>; now?: bigint; names?: Record<string, NameEntry[]> },
+): { value: unknown; identity: [string, unknown][] } | { issues: InputIssue[] };
+export function toCandid(node: unknown, value: unknown): unknown;
+export function displayValue(node: unknown, value: unknown, refs?: Record<string, unknown>, names?: Record<string, NameEntry[]>): unknown;
+export function nameEntries(resolved: unknown, set: string, reply: unknown): NameEntry[] | undefined;
+export function classifyReply(plan: ToolPlan, reply: unknown): { cls: string; path: string[]; node: unknown; value: unknown };
+export type CallResult =
+  | { status: "replied"; reply: unknown }
+  | { status: "rejected"; reject_code: number; message: string }
+  | { status: "unknown"; message: string };
+export type Outcome =
+  | "declined"
+  | "success"
+  | "already_done"
+  | "retry_same"
+  | "retry_new"
+  | "fix_input"
+  | "fail"
+  | "not_executed"
+  | "unknown"
+  | "reconcile";
+export interface ToolLayerConfig {
+  resolved: ResolvedForm | ResolvedForm[];
+  canisters: Canister[];
+  encode(method: string, value: unknown, args: unknown[]): Uint8Array | Promise<Uint8Array>;
+  call(req: { canister: string; method: string; mode: string; arg: Uint8Array; value: unknown; args: unknown[] }): Promise<CallResult>;
+  now(o: { canister: string }): Promise<bigint>;
+  confirm?(preview: Preview): Promise<boolean | { approved: boolean }>;
+  reconcile?(o: { canister: string; method: string; value: unknown; stamp: bigint; preview: Preview }): Promise<ReconcileFinding>;
+}
+export interface ToolLayer {
+  listTools(): ToolDefinition[];
+  skipped: { method: string; reason: string }[];
+  callTool(name: string, input: unknown): Promise<ToolResult>;
+}
+export function createToolLayer(config: ToolLayerConfig): ToolLayer;
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>createToolLayer(config)</code></td><td>The layer an agent host serves: <code>listTools()</code> and <code>callTool(name, input)</code>. <code>confirm</code> is awaited before every send and is required when the form has an update method; the model never confirms. <code>now</code> is the named canister's clock.</td></tr>
+    <tr><td><code>toolDefinitions(resolved, options?)</code></td><td>MCP tool definitions, sorted by name.</td></tr>
+    <tr><td><code>buildToolPlans</code>, <code>resolvedMethods</code>, <code>prepareToolName</code>, <code>caseToolName</code>, <code>COMMIT_TOOL</code></td><td>Which tools a form gives and what each one fills; <code>prepare_&lt;method&gt;</code>; a tool per case of a variant argument (D-053); <code>"commit"</code>.</td></tr>
+    <tr><td><code>readToolInput(plan, input, context?)</code></td><td>Reads a tool call's inputs in human units: <code>{ value, identity }</code> or <code>{ issues }</code> (<a href="reference-profile-diagnostics.html#meantjs-tools-input-issues">input issues</a>).</td></tr>
+    <tr><td><code>classifyReply(plan, reply)</code></td><td>The outcome class of a reply, by the method's <code>outcome</code> tag.</td></tr>
+    <tr><td><code>toCandid</code>, <code>displayValue</code>, <code>nameEntries</code></td><td>Converted values to candid-core shapes; values as a preview shows them; the entries of a <code>names</code> set in a reply.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="meantjs-reconcile"><code>@meantjs/reconcile</code></h2>
+
+<p>
+  Consumer rule 1 without a transport: after an unknown outcome, before any new attempt, is the original in the
+  ledger's ICRC-3 history? The caller reads the blocks (certified, archives followed) and passes them in.
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/reconcile/src/index.d.mts" data-partial>
+export const DEDUP_WINDOW_NS: bigint;
+export const U64_MAX: bigint;
+export const METHODS: readonly ["icrc1_transfer", "icrc2_approve", "icrc2_transfer_from"];
+export function expectedTransaction(
+  method: string,
+  arg: Record<string, unknown>,
+  caller: string,
+  options?: { minting?: Account | null },
+): ExpectedTransaction | undefined;
+export function blockMatches(block: Icrc3Value, expected: ExpectedTransaction | undefined): boolean;
+export interface MatchOptions {
+  logLength: bigint;
+  floor?: bigint;
+  inFlight: boolean;
+  stampExpired?: boolean;
+  ledgerTime?: bigint;
+  ledgerTimeAtLeast?: bigint;
+  windowNs?: bigint;
+  notOriginal?: bigint[];
+}
+export type MatchResult =
+  | { status: "found"; block: bigint }
+  | { status: "absent"; closedBy: "answered" | "too_old" | "window_passed"; clock?: ClockReading }
+  | { status: "not_yet"; openUntil?: bigint; reason?: string; clock?: ClockReading }
+  | { status: "unreadable"; reason: string; lookalike?: { block: bigint; op: string; capped: boolean } };
+export function matchBlocks(blocks: { id: bigint; block: Icrc3Value }[], expected: ExpectedTransaction | undefined, options: MatchOptions): MatchResult;
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>expectedTransaction(method, arg, caller, options?)</code></td><td>The ICRC-3 transaction a call leaves, or undefined for a method this module does not map, a call without a stamp, or an unreadable caller. <code>options.minting</code> is the ledger's <code>icrc1_minting_account</code>.</td></tr>
+    <tr><td><code>matchBlocks(blocks, expected, options)</code></td><td>Judges the blocks read since the first send: <code>found</code>, <code>absent</code>, <code>not_yet</code> or <code>unreadable</code>; never <code>absent</code> while a send may still land or a block in the range could not be read.</td></tr>
+    <tr><td><code>blockMatches(block, expected)</code></td><td>Whether one block carries exactly this transaction.</td></tr>
+    <tr><td><code>DEDUP_WINDOW_NS</code></td><td>ICRC-1 <code>TX_WINDOW</code> plus <code>PERMITTED_DRIFT</code> of the DFINITY ledger: 24 h 2 min, 86,520,000,000,000 ns. For a caller that has checked its ledger uses it.</td></tr>
+    <tr><td><code>U64_MAX</code>, <code>METHODS</code></td><td>Where the DFINITY ledger's u64 build caps an approval; the three methods mapped to a block.</td></tr>
+  </tbody>
+</table>

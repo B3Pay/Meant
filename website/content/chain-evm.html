@@ -1,1 +1,395 @@
-<p>This page is being written.</p>
+<callout type="warn" title="Experimental: spec §15, phase 1">
+  <p>
+    A profile can describe an EVM contract's functions. From it come consent text for a call's calldata and an
+    ERC-7730 clear-signing file with its ERC-8176 <code>descriptorHash</code>. Agent tools, <code>outcome</code> classes
+    over reverts, <code>idempotency</code> by nonce, EIP-712 messages and ERC-7730 import are later phases, each its own
+    decision. The preregistered eval uses none of it. Decision D-054; the text is
+    <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>.
+  </p>
+</callout>
+
+<p>
+  The same resolver reads an ABI where it would read a <code>.did</code>, so addresses, tags, layers and the resolved
+  form work as they do for a canister. This resolves a token's ABI on a local chain with the standard packs, encodes a
+  transfer, and turns the calldata into the text a person confirms:
+</p>
+
+<pre data-lang="js" data-check="evm">
+import { createSchemaValidator, loadPacks, resolveService } from "@meantjs/profile";
+import { parseAbi, encodeCall } from "@meantjs/profile/evm";
+import { evmConsent } from "@meantjs/consent/evm";
+
+const abi = [
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function balanceOf(address owner) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function transfer(address to, uint256 value) returns (bool)",
+  "function approve(address spender, uint256 value) returns (bool)",
+  "function transferFrom(address from, address to, uint256 value) returns (bool)",
+];
+const validateSchema = await createSchemaValidator();
+const packs = (await loadPacks()).map(({ doc }) => ({ doc }));
+const { resolved } = await resolveService({ abi, validateSchema, packs }); // the erc20 pack matches
+if (resolved === null) throw new Error("the ABI cannot be read");
+
+const transfer = parseAbi(abi).functions.find((f) => f.name === "transfer");
+if (transfer === undefined) throw new Error("no transfer function");
+const calldata = encodeCall(transfer, { to: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8", value: "1500000" });
+
+const consent = evmConsent({
+  resolved,
+  calldata,
+  to: "0x5fbdb2315678afecb367f032d93f642f64180aa3", // the token, on a local Anvil chain
+  chainId: 31337,
+  refs: { "query:decimals": 6, "query:symbol": "TKA" }, // read by the caller with eth_call
+});
+console.log(consent.message);
+</pre>
+
+<pre data-lang="text">
+# Send tokens
+
+Send `1.5 TKA` to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+
+- **Amount:** `1.5 TKA`
+- **Recipient:** `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+
+**Contract:** `0x5FbDB2315678afecb367f032d93F642f64180aa3` on chain 31337
+</pre>
+
+<h2>The ABI as an interface</h2>
+
+<p>
+  <claim>fact</claim> A function is matched by its selector, the first 4 bytes of Keccak-256 (Ethereum's, not NIST
+  SHA3-256) of its type-only signature: <code>transfer(address,uint256)</code> is <code>0xa9059cbb</code>. Parameter
+  names are not part of it; ERC-7730 files carry them in their keys (<code>transfer(address to,uint256 value)</code>),
+  and so does a profile, in <code>binds.abi</code> (<a href="https://eips.ethereum.org/EIPS/eip-7730">ERC-7730</a>).
+</p>
+
+<ul>
+  <li><code>binds.abi</code> is an array of human-readable fragments (<code>function transfer(address to, uint256 value) returns (bool)</code>) or JSON ABI entries. Only functions are read: events, errors, the constructor, <code>fallback</code> and <code>receive</code> are skipped.</li>
+  <li>Aliases read as their canonical types (<code>uint</code> is <code>uint256</code>, <code>constant</code> is <code>view</code>). A function's canonical fragment is <code>function NAME(type name,…) [view|pure|payable] returns (…)</code>.</li>
+  <li>Overloaded names are refused (<diag>E_ABI</diag>; <claim>open</claim> O1): an address names a function by its name alone.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr><th>ABI</th><th>As a profile sees it</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>a function</td><td>a method: <code>view</code> and <code>pure</code> are queries, <code>nonpayable</code> and <code>payable</code> updates</td></tr>
+    <tr><td>its parameters</td><td>one record at argument index 0: <code>transfer(0).to</code>; a function without parameters has no argument</td></tr>
+    <tr><td>its outputs</td><td>the result tuple: <code>balanceOf-&gt;(0)</code></td></tr>
+    <tr><td>a tuple</td><td>a record, its components in ABI order. A named component's id is the Candid hash of its name; an unnamed one's is its position, addressed <code>#i</code></td></tr>
+    <tr><td><code>T[]</code>, <code>T[k]</code></td><td>a vector, <code>[]</code>; <code>T[k]</code> keeps its length</td></tr>
+    <tr><td>anything else</td><td>a primitive named by its canonical type: <code>uint256</code>, <code>int64</code>, <code>address</code>, <code>bool</code>, <code>string</code>, <code>bytes</code>, <code>bytes32</code></td></tr>
+  </tbody>
+</table>
+
+<p>Template placeholders read <code>{to}</code> and <code>{value}</code>, as ERC-7730's do. See <a href="addresses.html">Addresses</a>.</p>
+
+<h2>Identity</h2>
+
+<p>
+  An ABI's identity is <code>candid-profile:evm-abi:v0:sha256:&lt;hex&gt;</code>: SHA-256 over the RFC 8785 (JCS) form of
+  the sorted canonical fragments. It is the resolved form's <code>interface_id</code>, and what a contract profile binds
+  to. Because the fragments are sorted, the order of <code>binds.abi</code> does not move it. The ERC-20 pack's seven
+  functions:
+</p>
+
+<id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b</id-chip>
+
+<h2>Values</h2>
+
+<ul>
+  <li><strong>Integers</strong> are <code>uintN</code> and <code>intN</code> for N = 8, 16, …, 256, with the bounds of their N bits. <code>amount</code> input and display are the same as on a canister, with no rounding: <diag>E_EXCESS_PRECISION</diag>, never a rounded value.</li>
+  <li><strong>Addresses</strong> have one text form, <code>0x</code> and 40 hex digits, shown with their EIP-55 checksum. On input, an address in mixed case must match its checksum; an address in one case carries no checksum and is accepted (<claim>open</claim> O3).</li>
+  <li><strong>Calldata</strong> is decoded strictly: bytes that are not the canonical ABI encoding of the values read (dirty padding, an offset that does not point where the encoder would write, bytes left over) are refused. The consent text re-encodes the values it read and compares the bytes.</li>
+</ul>
+
+<p>How a recipient is written differs by chain:</p>
+
+<chain-switch chains="icp evm" selected="evm"></chain-switch>
+
+<div data-chain-panel="icp">
+  <p>
+    An ICRC-1 account: the <code>account</code> tag reads the textual encoding (<code>principal-checksum.subaccounthex</code>,
+    or a bare principal for the default subaccount) and verifies its checksum. See <a href="chain-icp.html">Internet Computer</a>.
+  </p>
+</div>
+
+<div data-chain-panel="evm">
+  <p>
+    An <code>address</code> needs no tag. It is read as <code>0x</code> and 40 hex digits and shown in its EIP-55 form,
+    <code>0x7099…79C8</code>. The <code>account</code> and <code>subaccount</code> tags do not apply
+    (<diag>E_TAG_NOT_APPLICABLE</diag>).
+  </p>
+</div>
+
+<h2>Contract profiles and EVM packs</h2>
+
+<p>
+  A contract profile has <code>kind: "contract"</code>, an <code>origin</code> of <code>author</code>,
+  <code>third_party</code> or <code>inferred</code>, its ABI in <code>binds.abi</code> and, optionally, the contracts it
+  describes in <code>binds.deployments</code>, as ERC-7730's <code>context.contract.deployments</code> does. A
+  mixed-case address that fails its EIP-55 checksum is <diag>E_ADDRESS_CHECKSUM</diag>; a deployment listed twice is
+  <diag>W_DUPLICATE</diag>. An example, written for this page, for a token on a local chain:
+</p>
+
+<pre data-lang="json">
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "contract",
+  "name": "tka-token",
+  "origin": "author",
+  "binds": {
+    "abi": [
+      "function decimals() view returns (uint8)",
+      "function transfer(address to, uint256 value) returns (bool)"
+    ],
+    "deployments": [{ "chain_id": 31337, "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3" }]
+  },
+  "annotations": [
+    { "at": "transfer", "tag": "intent", "args": { "title": "Send TKA", "template": "Send {value} to {to}" } },
+    { "at": "transfer", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+    { "at": "transfer(0).value", "tag": "amount", "args": { "decimals": 6, "symbol": "TKA" } },
+    { "at": "transfer(0).to", "tag": "describe", "args": { "label": "Recipient" } }
+  ]
+}
+</pre>
+
+<pre data-lang="bash">
+node profile/scripts/validate.mjs tka.profile.json
+</pre>
+
+<pre data-lang="text">
+PASS tka.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:9c0218adc5b268dedaa8cab3e6352f01d6b3ec67db2a2e784eaddc49f809e774
+     interface_id candid-profile:evm-abi:v0:sha256:b48b7f710812dc95d11fda7e3e24f467f6f0fecdfb201006067b290a92483017  [2 methods, 4 annotations]
+</pre>
+
+<ul>
+  <li>A contract profile is checked against its own <code>binds.abi</code>. Resolved against another ABI (<code>candid-profile resolve --abi</code>), it is rebound or stale by the same rules as a canister profile.</li>
+  <li><strong>An EVM pack</strong> has <code>kind: "pack"</code> and <code>binds.abi</code> instead of <code>binds.requires</code>. It applies to a contract that has every function of the pack with the same selector (so the same name and parameter types), the same output types and the same kind of call: a query, or an update that is payable exactly when the pack's is. There is no subtyping.</li>
+  <li>A pack's addresses and placeholders use the pack's parameter names; when it applies, they are rewritten to the contract's, component by component, by position. EIP-20 names them <code>_to</code> and <code>_value</code>, WETH <code>dst</code> and <code>wad</code>: on an ABI with <code>transfer(address dst, uint256 wad)</code>, the ERC-20 pack's template reads <code>Send {wad} to {dst}</code>.</li>
+  <li>A profile or pack for the other kind of interface is <diag>E_CHAIN</diag> when given explicitly, and skipped in a pack search.</li>
+  <li>The standard pack is <a href="reference-packs.html#erc20">ERC-20</a>: <code>transfer</code>, <code>approve</code>, <code>transferFrom</code>, <code>balanceOf</code>, <code>allowance</code>, <code>decimals</code> and <code>symbol</code>. <claim>fact</claim> <code>decimals()</code> and <code>symbol()</code> are optional in <a href="https://eips.ethereum.org/EIPS/eip-20">EIP-20</a>, so a token without them matches no pack and needs a contract profile with literal values, like the one above.</li>
+</ul>
+
+<callout type="danger" title="A pack matches any contract with the right functions">
+  <p>
+    A hostile contract can match ERC-20, call its drain "Send tokens" and answer "USDT" to <code>symbol()</code>. A
+    consumer must show the contract's address, with its EIP-55 checksum, whenever it asks a person to confirm a call
+    matched by a pack; the consent text ends with it. <claim>fact</claim> ERC-7730's Security Considerations name the
+    same risk, "parameter injection using legitimate, high-profile contract formats". <code>query:</code> refs on an EVM
+    contract are <code>eth_call</code>s answered by one RPC node. See <a href="security-model.html">Security model</a>.
+  </p>
+</callout>
+
+<h2>Tags on EVM</h2>
+
+<table>
+  <thead>
+    <tr><th>Tag</th><th>On an EVM contract</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>amount</code></td><td><code>uint8</code>…<code>uint256</code>, <code>int8</code>…<code>int256</code>. <code>query:</code> refs are <code>eth_call</code>s of a <code>view</code> or <code>pure</code> function of the same contract with no argument and one result.</td></tr>
+    <tr><td><code>timestamp</code>, <code>duration</code></td><td><code>uint32</code>…<code>uint256</code>, <code>int64</code>…<code>int256</code></td></tr>
+    <tr><td><code>bytes</code></td><td><code>bytes</code>, <code>bytes1</code>…<code>bytes32</code></td></tr>
+    <tr><td><code>text</code></td><td><code>string</code></td></tr>
+    <tr><td><code>range</code></td><td>an integer type, <code>string</code>, an array</td></tr>
+    <tr><td><code>describe</code>, <code>default</code>, <code>ui</code>, <code>intent</code>, <code>effect</code></td><td>as on a canister</td></tr>
+    <tr><td><code>account</code>, <code>subaccount</code></td><td>none (<diag>E_TAG_NOT_APPLICABLE</diag>): an address needs no tag</td></tr>
+    <tr><td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code>, <code>named</code></td><td>not yet (<diag>E_TAG_TARGET</diag>): they need nonces, receipts and reads that a later phase adds</td></tr>
+  </tbody>
+</table>
+
+<p>
+  An ABI value is never absent, so an EVM template has no <code>[ ]</code> segments (<diag>E_TEMPLATE</diag>); the
+  escapes <code>{{ }} [[ ]]</code> are unchanged. <code>effect</code> defaults as on a canister: a <code>view</code> or
+  <code>pure</code> function is <effect>read</effect>, any other <effect>write</effect> and irreversible. The native value
+  a <code>payable</code> function receives has no position yet (<claim>open</claim> O2). Every tag:
+  <a href="reference-tags.html">Tags</a>.
+</p>
+
+<h2>The resolved form: chain evm</h2>
+
+<p>
+  An EVM contract's resolved form has <code>"chain": "evm"</code> at the top. Its nodes carry <code>abi</code> where a
+  Candid form's carry <code>candid</code>: the canonical type of a primitive, <code>"tuple"</code> with
+  <code>fields</code>, or <code>"array"</code> with <code>element</code> and, for <code>T[k]</code>,
+  <code>length</code>. Each method also has <code>selector</code>, <code>signature</code> and
+  <code>state_mutability</code>, and each entry of <code>profiles</code> that binds deployments lists them. A consumer
+  must refuse a resolved form whose <code>chain</code> it does not know rather than read it as Candid;
+  <code>@meantjs/consent</code> (main entry) and <code>@meantjs/tools</code> do.
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/erc20.resolved.json">
+"transfer": {
+  "mode": "update",
+  "selector": "0xa9059cbb",
+  "signature": "transfer(address to,uint256 value)",
+  "state_mutability": "nonpayable",
+</pre>
+
+<p>Field by field: <a href="reference-profile-format.html">Profile and resolved form</a>.</p>
+
+<h2>Consent text for a call</h2>
+
+<p>
+  ICRC-21 is the Internet Computer's, so an EVM call gets the same model and the same two layouts without the ICRC-21
+  envelope: <code>evmConsent</code> in <code>@meantjs/consent/evm</code>. The selector picks the function, the calldata
+  is decoded strictly, and the text ends with the contract's address and chain. The generic form is Markdown, as in the
+  first example; the fields form is an intent line and <code>[label, text]</code> rows:
+</p>
+
+<consent standard="Consent text · EVM (experimental)" title="Send tokens" effects="transfer irreversible">
+<field name="Amount" amount>1.5 TKA</field>
+<field name="Recipient">0x7099…79C8</field>
+<field name="Contract">0x5FbD…0aa3 on chain 31337</field>
+</consent>
+
+<table>
+  <thead>
+    <tr><th>Case</th><th>Result</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A profile lists deployments, and the call's contract and chain are not among them</td><td><diag>E_DEPLOYMENT</diag></td></tr>
+    <tr><td>A <code>payable</code> function (its value has no position yet, O2)</td><td><diag>E_UNSUPPORTED_TYPE</diag></td></tr>
+    <tr><td>Calldata that is not the canonical encoding of its values</td><td><diag>E_DECODE</diag></td></tr>
+    <tr><td>A selector the resolved form does not have</td><td><diag>E_METHOD_UNKNOWN</diag></td></tr>
+    <tr><td>A Candid resolved form given to <code>@meantjs/consent/evm</code>, or an EVM one to the main entry</td><td><diag>E_RESOLVED_FORM</diag></td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>decodeCalldata(resolved, calldata)</code> alone returns the function and its arguments keyed by parameter name.
+  The API: <a href="reference-profile-api.html#consent-evm"><code>@meantjs/consent/evm</code></a>.
+</p>
+
+<h2>ERC-7730 files and ERC-8176 attestations</h2>
+
+<p>
+  <claim>fact</claim> An ERC-8176 attestation is an EAS attestation, under the schema <code>bytes32 descriptorHash</code>
+  (UID <code>0xe023eef1…b5c2</code>), that a party reviewed the ERC-7730 file whose RFC 8785 serialization has that
+  Keccak-256. It describes no call; it vouches for a file (<a href="https://eips.ethereum.org/EIPS/eip-8176">ERC-8176</a>,
+  Draft).
+</p>
+
+<p>
+  <code>erc7730Descriptor</code> writes that file from an EVM contract's resolved form. The same resolved form always
+  gives the same bytes, so the same <code>descriptorHash</code>. <code>$schema</code> names the exact version
+  <code>erc7730-v2.1.0.schema.json</code>, so a new release of the <code>v2</code> alias cannot move the hash. There is
+  one entry per function a transaction calls (an update), keyed by its <code>signature</code>.
+</p>
+
+<pre data-lang="js" data-check="evm">
+import { erc7730Descriptor, erc8176Attestation } from "@meantjs/consent/erc7730";
+
+const { descriptor, descriptorHash } = erc7730Descriptor(resolved, {
+  deployments: [{ chainId: 31337, address: "0x5FbDB2315678afecb367f032d93F642f64180aa3" }],
+});
+const { typedData, digest } = erc8176Attestation({
+  descriptorHash,
+  time: 1777630591,
+  expirationTime: 1785406591,
+  salt: "0x" + "11".repeat(32), // 32 random bytes, chosen by the caller
+});
+// A reviewer signs `digest` with their own key. Nothing here signs or sends it.
+console.log(descriptor.display.formats["transfer(address to,uint256 value)"], typedData.message.data);
+</pre>
+
+<pre data-lang="json">
+{
+  "intent": "Send tokens",
+  "interpolatedIntent": "Send {value} to {to}",
+  "fields": [
+    {
+      "path": "to",
+      "label": "Recipient",
+      "format": "addressName"
+    },
+    {
+      "path": "value",
+      "label": "Amount",
+      "format": "tokenAmount",
+      "params": {
+        "tokenPath": "@.to"
+      }
+    }
+  ]
+}
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Profile</th><th>ERC-7730</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>intent.title</code> (else <code>describe.label</code> of the method, else <code>Call &lt;name&gt;</code>)</td><td><code>intent</code></td></tr>
+    <tr><td><code>intent.template</code></td><td><code>interpolatedIntent</code>: <code>{(0).to}</code> reads <code>{to}</code>, <code>[[</code> and <code>]]</code> are plain brackets, <code>{{</code> and <code>}}</code> stay</td></tr>
+    <tr><td>each leaf of the parameters, in ABI order</td><td>one entry of <code>fields</code>; <code>path</code> in the parameter names, <code>name.[]</code> through an array; <code>label</code> is <code>describe.label</code>, else the name</td></tr>
+    <tr><td><code>amount</code> with <code>query:decimals</code> and <code>query:symbol</code> (the ERC-20 functions)</td><td><code>tokenAmount</code>, <code>tokenPath: "@.to"</code></td></tr>
+    <tr><td><code>amount</code> with literal <code>decimals</code> and <code>symbol</code></td><td>the same, with <code>metadata.token</code> (only when the caller says the contract is that token)</td></tr>
+    <tr><td><code>threshold</code>, <code>message</code></td><td><code>threshold</code> (<code>0x</code> hex), <code>message</code></td></tr>
+    <tr><td><code>timestamp</code> in <code>s</code></td><td><code>date</code>, <code>encoding: "timestamp"</code></td></tr>
+    <tr><td><code>duration</code> in <code>s</code></td><td><code>duration</code></td></tr>
+    <tr><td><code>bytes</code> in <code>hex</code>, untagged <code>bytes</code></td><td><code>raw</code></td></tr>
+    <tr><td>an untagged <code>address</code></td><td><code>addressName</code></td></tr>
+    <tr><td>anything else</td><td><code>raw</code></td></tr>
+    <tr><td>a <code>payable</code> function</td><td>one more field, <code>@.value</code> as <code>amount</code> (the native value, which an ERC-7730 wallet knows)</td></tr>
+    <tr><td><code>binds.deployments</code></td><td><code>context.contract.deployments</code> (the caller may pick a subset; a file needs at least one, else <diag>E_DEPLOYMENT</diag>)</td></tr>
+  </tbody>
+</table>
+
+<p>
+  What a profile says that an ERC-7730 file cannot say is refused (<diag>E_EXPORT</diag>), never written as something
+  near it: a time in another unit, <code>utf8</code> or <code>base64</code> bytes, an amount whose decimals and symbol
+  are not the contract's own, an unnamed parameter, a placeholder over an array or a whole tuple. <code>effect</code>
+  and the agent tags have no ERC-7730 form: the file carries what a call says, not what it does.
+</p>
+
+<p>
+  <code>erc8176Attestation</code> gives the unsigned offchain attestation (EAS offchain v2 typed data: domain
+  <code>EAS Attestation</code>, version <code>0.26</code>, chain 1, the canonical EAS contract; <code>data</code> is the
+  hash) and its EIP-712 digest. A reviewer signs it with their own key. This repository never signs or posts one: it
+  holds no reviewer's key, and an onchain attestation spends mainnet ETH. Checking attestations is a later phase
+  (<claim>open</claim> OQ-7, OQ-9).
+</p>
+
+<h2>Local tests</h2>
+
+<p>
+  The repository runs no EVM node: none of its tests starts Anvil or calls a deployed contract. What is tested runs in
+  Node against fixed vectors:
+</p>
+
+<ul>
+  <li>Keccak-256 against an independent implementation (and the block boundary), the ERC-20 selectors, the ERC-8176 schema UID, EIP-55's examples and EIP-712's Mail example (<code>profile/packages/resolver/test/evm.test.mjs</code>).</li>
+  <li>Every exported ERC-7730 file in the consent tests is checked against the ERC-7730 2.1.0 JSON Schema (vendored, with its sha256), and the hashes and digests the tests pin were computed by an independent implementation.</li>
+</ul>
+
+<p>
+  A test against a contract would run on a local Anvil chain, as the examples on this page assume, never on mainnet.
+</p>
+
+<h2>Open items</h2>
+
+<table>
+  <thead>
+    <tr><th>Item</th><th>Status</th><th>Question</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>O1</td><td><claim>open</claim></td><td>Overloaded function names (ERC-721 <code>safeTransferFrom</code>). Candidate: <code>name@0x&lt;selector&gt;</code>.</td></tr>
+    <tr><td>O2</td><td><claim>open</claim></td><td>The native value of a <code>payable</code> call as a position, with the chain's native decimals and symbol.</td></tr>
+    <tr><td>O3</td><td><claim>open</claim></td><td>Whether a transfer recipient typed in one case (no checksum) is accepted everywhere.</td></tr>
+    <tr><td>O4</td><td><claim>open</claim></td><td>Whether EVM packs should apply only to deployments a consumer lists (meanwhile the consent text shows the address).</td></tr>
+    <tr><td>O5, O6</td><td>settled</td><td><code>abi</code> beside <code>candid</code> with a top-level <code>chain</code>; an export that refuses what it cannot express.</td></tr>
+    <tr><td>O7</td><td><claim>open</claim></td><td><claim>fact</claim> (ERC-7730): a wallet that finds no ticker "SHOULD display the raw value instead with an 'Unknown token' warning", where spec §12 rule 10 produces no message. An exported file cannot make a wallet refuse.</td></tr>
+    <tr><td>O8</td><td><claim>assumption</claim></td><td>A wallet reads <code>metadata.token</code> as the token at <code>@.to</code>. ERC-7730 calls it the token "exported by this format"; the export writes it only when the caller says the contract is that token.</td></tr>
+  </tbody>
+</table>
+
+<p>All open questions, the profile spec's and these: <a href="open-questions.html">Open questions</a>.</p>

@@ -1,1 +1,91 @@
-<p>This page is being written.</p>
+<callout type="warn" title="Planned, not supported">
+  <p>
+    Nothing in the profile spec covers Solana, and no package reads an Anchor IDL. There is no Solana profile, pack,
+    resolved form or consent text today. This page records what a binding would need, so the gaps are visible; none of
+    it is implemented.
+  </p>
+</callout>
+
+<h2>What is decided</h2>
+
+<p>
+  The order: EVM first, then Solana. The EVM binding (<a href="chain-evm.html">EVM contracts</a>, experimental) tests
+  whether the split between the interface layer and the profile layer holds on a chain that is not Candid. Solana work
+  starts only after it shows that it does.
+</p>
+
+<h2>What a binding would need</h2>
+
+<p>
+  The Solana column below comes from a design proposal, not from the spec. Every entry in it is an assumption to check
+  or an open question; nothing in it is a commitment. The ICP and EVM columns describe what exists, for comparison.
+</p>
+
+<table>
+  <thead>
+    <tr><th></th><th>ICP</th><th>EVM (experimental)</th><th>SOL (planned)</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Interface file</td>
+      <td>Candid <code>.did</code>, compiled to a Contract graph</td>
+      <td>the ABI, in <code>binds.abi</code></td>
+      <td><claim>assumption</claim> the Anchor IDL; Codama converts Anchor and Shank IDLs</td>
+    </tr>
+    <tr>
+      <td>A call</td>
+      <td>a method with an argument tuple</td>
+      <td>a function, matched by selector; its parameters are one record at argument 0</td>
+      <td><claim>assumption</claim> an instruction with named arguments and an ordered list of accounts</td>
+    </tr>
+    <tr>
+      <td>Where decimals live</td>
+      <td>the ledger: <code>query:icrc1_decimals</code></td>
+      <td>the token: <code>query:decimals</code>, an <code>eth_call</code></td>
+      <td><claim>open</claim> in the mint account, which no dynamic value can read today: a new source would be needed</td>
+    </tr>
+    <tr>
+      <td>Addresses</td>
+      <td>principals and ICRC-1 account text</td>
+      <td><code>0x</code> and 40 hex digits, EIP-55</td>
+      <td><claim>assumption</claim> 32-byte keys written in base58; a token transfer goes to a derived token account, not to the owner's key</td>
+    </tr>
+    <tr>
+      <td>Retry safety</td>
+      <td><code>created_at_time</code>, deduplicated inside the ledger's window</td>
+      <td>not yet: idempotency by nonce is a later phase</td>
+      <td><claim>assumption</claim> a transaction lands at most once while its blockhash is valid, about 150 blocks by Solana's documentation</td>
+    </tr>
+    <tr>
+      <td>Settling an unknown outcome</td>
+      <td>the ledger's ICRC-3 blocks</td>
+      <td>not yet: receipts are a later phase</td>
+      <td><claim>assumption</claim> the status of the transaction's signature</td>
+    </tr>
+    <tr>
+      <td>Errors</td>
+      <td>result variant cases, each with an outcome class</td>
+      <td>not yet: outcome classes over reverts are a later phase</td>
+      <td><claim>assumption</claim> program error codes</td>
+    </tr>
+    <tr>
+      <td>Consent standard</td>
+      <td>ICRC-21</td>
+      <td>consent text without an envelope, and ERC-7730 files</td>
+      <td><claim>open</claim> none found</td>
+    </tr>
+    <tr>
+      <td>Local tests</td>
+      <td>PocketIC</td>
+      <td>none run yet; Anvil would be the local chain</td>
+      <td><claim>assumption</claim> <code>solana-test-validator</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Each row is a place where the profile layer would have to grow: a new interface reader, a new kind of address, a new
+  source of dynamic values, and new rules for retries and reconciliation. Where the spec stands on each chain today:
+  <a href="chain-icp.html">Internet Computer</a>, <a href="chain-evm.html">EVM contracts</a> and
+  <a href="open-questions.html">Open questions</a>.
+</p>
