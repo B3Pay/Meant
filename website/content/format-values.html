@@ -9,7 +9,7 @@
 <h2>Build a formatter for a position</h2>
 
 <pre data-lang="bash">
-npm install --save-exact @meantjs/format@0.2.0 @meantjs/profile@0.2.0
+npm install --save-exact @meantjs/format@0.3.0 @meantjs/profile@0.3.0
 npx candid-profile resolve ledger.did --packs > ledger.resolved.json
 </pre>
 
@@ -351,7 +351,7 @@ assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
   <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-format/tests/parity.rs"><code>tests/parity.rs</code></a>
   checks that against the vectors in <code>crates/meant-format/tests/vectors/amount.json</code>, which
   <code>generate-amount.mjs</code> writes from the JavaScript package and never by hand. The file records
-  where it came from: <code>@meantjs/format@0.2.0</code> at commit
+  where it came from: <code>@meantjs/format@0.3.0</code> at commit
   <code>b6059abce12dc1b241a48deddc801db47d860b4d</code>, Node v22.22.0, Unicode 16.0. It holds 3,412
   cases, the number the crate's README states and the test pins (<code>DOCUMENTED_CASES</code>): 1,994
   <code>parse</code> cases, 1,331 <code>display</code> cases, 24 symbol cases, 27 type-name cases and 36
