@@ -2,6 +2,21 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.3.0 — 2026-10-29
+
+- EIP-712 typed messages, experimental (spec §15.9, D-055). A contract profile or EVM pack may carry
+  `binds.eip712: { domain?, types }`, and a contract profile may have it instead of `binds.abi`. A message is a type
+  the same document tags with `intent`, addressed like a function (`PermitSingle(0).details.amount`); the resolved form
+  lists messages under a new `messages` map (`encode_type`, `type_hash`, `tags`, `args`) and the bound domain as
+  `profiles[].eip712_domain`. Without types, the resolved form and the interface id are unchanged.
+- `amount` takes `token`, a relative path to the `address` field that names its token (EVM only); `timestamp` takes
+  `threshold` with `message`, and `labels` (display only). New errors `E_EIP712` and `E_TOKEN_PATH`.
+- `@meantjs/profile/evm` exports `encodeType`, `eip712TypeHash` and `parseEip712Types`; `abiInterfaceId` takes the
+  struct types as a second argument.
+- New standard files: the `erc2612` pack (in `STANDARD_PACKS` and `loadPacks()`), and the `permit2` and `dai-permit`
+  contract profiles, shipped beside the packs (`@meantjs/profile/packs/permit2.profile.json`); `loadPacks()` returns
+  packs only, as before.
+
 ## 0.2.0 — 2026-10-28
 
 - `intent` and `effect` may sit on a case of a variant in a method's arguments, such as `propose(0).Transfer`

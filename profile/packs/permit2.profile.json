@@ -1,0 +1,436 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "contract",
+  "name": "permit2",
+  "origin": "third_party",
+  "language": "en",
+  "description": "Uniswap's Permit2 (spec section 15.9, experimental): its AllowanceTransfer messages (PermitSingle, PermitBatch), which set allowances, and its SignatureTransfer messages (PermitTransferFrom, PermitBatchTransferFrom), which authorize one transfer. Witness messages (PermitWitnessTransferFrom) are left out: each protocol adds its own witness type (O1). Bound to the deployments ERC-7730's own Permit2 example lists, so a look-alike contract named \"Permit2\" gets none of these words. Amounts are in the token the message names: a consumer supplies that token's decimals() and symbol(), and shows its address beside the symbol.",
+  "binds": {
+    "eip712": {
+      "domain": {
+        "name": "Permit2"
+      },
+      "types": {
+        "PermitBatch": [
+          {
+            "name": "details",
+            "type": "PermitDetails[]"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "sigDeadline",
+            "type": "uint256"
+          }
+        ],
+        "PermitBatchTransferFrom": [
+          {
+            "name": "permitted",
+            "type": "TokenPermissions[]"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "PermitDetails": [
+          {
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint160"
+          },
+          {
+            "name": "expiration",
+            "type": "uint48"
+          },
+          {
+            "name": "nonce",
+            "type": "uint48"
+          }
+        ],
+        "PermitSingle": [
+          {
+            "name": "details",
+            "type": "PermitDetails"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "sigDeadline",
+            "type": "uint256"
+          }
+        ],
+        "PermitTransferFrom": [
+          {
+            "name": "permitted",
+            "type": "TokenPermissions"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "TokenPermissions": [
+          {
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          }
+        ]
+      }
+    },
+    "deployments": [
+      {
+        "chain_id": 1,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 42161,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      }
+    ]
+  },
+  "annotations": [
+    {
+      "at": "PermitSingle",
+      "tag": "intent",
+      "args": {
+        "title": "Permit2: allow token spending",
+        "template": "Let {spender} spend up to {details.amount}. Allowance expires: {details.expiration}. Signature expires: {sigDeadline}."
+      }
+    },
+    {
+      "at": "PermitSingle",
+      "tag": "effect",
+      "args": {
+        "kind": "approve",
+        "irreversible": false
+      }
+    },
+    {
+      "at": "PermitSingle(0).details.token",
+      "tag": "describe",
+      "args": {
+        "label": "Token"
+      }
+    },
+    {
+      "at": "PermitSingle(0).details.amount",
+      "tag": "amount",
+      "args": {
+        "token": "details.token",
+        "threshold": "1461501637330902918203684832716283019655932542975"
+      }
+    },
+    {
+      "at": "PermitSingle(0).details.amount",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "PermitSingle(0).details.expiration",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "281474976710655",
+        "message": "Never",
+        "labels": {
+          "0": "Only in the block it is used"
+        }
+      }
+    },
+    {
+      "at": "PermitSingle(0).details.expiration",
+      "tag": "describe",
+      "args": {
+        "label": "Allowance expires"
+      }
+    },
+    {
+      "at": "PermitSingle(0).details.nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "PermitSingle(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "PermitSingle(0).sigDeadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "PermitSingle(0).sigDeadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    },
+    {
+      "at": "PermitBatch",
+      "tag": "intent",
+      "args": {
+        "title": "Permit2: allow spending of several tokens",
+        "template": "Let {spender} spend up to {details[].amount}. Allowances expire, in the same order: {details[].expiration}. Signature expires: {sigDeadline}."
+      }
+    },
+    {
+      "at": "PermitBatch",
+      "tag": "effect",
+      "args": {
+        "kind": "approve",
+        "irreversible": false
+      }
+    },
+    {
+      "at": "PermitBatch(0).details[].token",
+      "tag": "describe",
+      "args": {
+        "label": "Token"
+      }
+    },
+    {
+      "at": "PermitBatch(0).details[].amount",
+      "tag": "amount",
+      "args": {
+        "token": "details[].token",
+        "threshold": "1461501637330902918203684832716283019655932542975"
+      }
+    },
+    {
+      "at": "PermitBatch(0).details[].amount",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "PermitBatch(0).details[].expiration",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "281474976710655",
+        "message": "Never",
+        "labels": {
+          "0": "Only in the block it is used"
+        }
+      }
+    },
+    {
+      "at": "PermitBatch(0).details[].expiration",
+      "tag": "describe",
+      "args": {
+        "label": "Allowance expires"
+      }
+    },
+    {
+      "at": "PermitBatch(0).details[].nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "PermitBatch(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "PermitBatch(0).sigDeadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "PermitBatch(0).sigDeadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    },
+    {
+      "at": "PermitTransferFrom",
+      "tag": "intent",
+      "args": {
+        "title": "Permit2: allow one transfer",
+        "template": "Let {spender} transfer up to {permitted.amount} from you, once. Signature expires: {deadline}."
+      }
+    },
+    {
+      "at": "PermitTransferFrom",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true
+      }
+    },
+    {
+      "at": "PermitTransferFrom(0).permitted.token",
+      "tag": "describe",
+      "args": {
+        "label": "Token"
+      }
+    },
+    {
+      "at": "PermitTransferFrom(0).permitted.amount",
+      "tag": "amount",
+      "args": {
+        "token": "permitted.token"
+      }
+    },
+    {
+      "at": "PermitTransferFrom(0).permitted.amount",
+      "tag": "describe",
+      "args": {
+        "label": "Up to"
+      }
+    },
+    {
+      "at": "PermitTransferFrom(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "PermitTransferFrom(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "PermitTransferFrom(0).deadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "PermitTransferFrom(0).deadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom",
+      "tag": "intent",
+      "args": {
+        "title": "Permit2: allow one transfer of several tokens",
+        "template": "Let {spender} transfer up to {permitted[].amount} from you, once. Signature expires: {deadline}."
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom(0).permitted[].token",
+      "tag": "describe",
+      "args": {
+        "label": "Token"
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom(0).permitted[].amount",
+      "tag": "amount",
+      "args": {
+        "token": "permitted[].token"
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom(0).permitted[].amount",
+      "tag": "describe",
+      "args": {
+        "label": "Up to"
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom(0).deadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "PermitBatchTransferFrom(0).deadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    }
+  ]
+}

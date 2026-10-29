@@ -189,8 +189,7 @@ test("what an ERC-7730 file cannot say is refused, every reason at once, never w
     [[{ at: "lock(0).until", tag: "timestamp", args: { unit: "ms" } }], /^E_EXPORT: no ERC-7730 file: lock\(0\)\.until: timestamp in ms: ERC-7730 dates are in seconds$/],
     [[{ at: "lock(0).legs[].period", tag: "duration", args: { unit: "ns" } }], /lock\(0\)\.legs\[\]\.period: duration in ns: ERC-7730 durations are in seconds/],
     [[{ at: "lock(0).memo", tag: "bytes", args: { encoding: "utf8" } }], /lock\(0\)\.memo: bytes as utf8: ERC-7730 shows bytes as hex only/],
-    [[{ at: "lock", tag: "intent", args: { title: "Lock", template: "Lock for {legs[].to}" } }], /lock: intent template: \{legs\[\]\.to\} reads every element of an array/],
-    [[{ at: "lock", tag: "intent", args: { title: "Lock", template: "Lock {legs}" } }], /\{legs\} is a whole array; an ERC-7730 interpolation shows one formatted field/],
+    [[{ at: "lock", tag: "intent", args: { title: "Lock", template: "Lock for {nope}" } }], /lock: intent template: \{nope\}: /],
     [[{ at: "lock(0).amount", tag: "amount", args: { decimals: 6 } }], /lock\(0\)\.amount: amount without the contract's own decimals and symbol/],
     [[LOCK[2], { at: "lock(0).until", tag: "amount", args: { decimals: 8, symbol: "TKN" } }], /lock\(0\)\.until: amount in TKN with 8 decimals, where another is in TKN with 6: an ERC-7730 file has one metadata.token/],
     [[{ at: "lock(0).until", tag: "timestamp", args: { unit: "ms" } }, { at: "lock(0).memo", tag: "bytes", args: { encoding: "base64" } }], /^E_EXPORT: no ERC-7730 file: lock\(0\)\.until: timestamp in ms[^;]*; lock\(0\)\.memo: bytes as base64/],
@@ -207,6 +206,147 @@ test("what an ERC-7730 file cannot say is refused, every reason at once, never w
   assert.match(codeOf(() => erc7730Descriptor(unnamed, { deployments: [{ chainId: 1, address: CONTRACT }] })), /f: parameter #0 has no name/);
   const nested = await resolveAbi(["function g((uint256, address) pair)"], {});
   assert.match(codeOf(() => erc7730Descriptor(nested, { deployments: [{ chainId: 1, address: CONTRACT }] })), /g: parameter pair\.#0 has no name/);
+});
+
+test("what has no ERC-7730 form but changes no value is left out, with a note: an interpolation, a timestamp's words", async () => {
+  const leftOut = async (annotations) => {
+    const { descriptor, notes } = erc7730Descriptor(await resolveLocker(annotations), { token: { name: "Token" } });
+    assertValid(descriptor);
+    return { entry: descriptor.display.formats["lock(uint256 amount,uint64 until,(address to,uint32 period)[] legs,bytes memo)"], notes };
+  };
+  for (const [template, why] of [
+    ["Lock for {legs[].to}", "{legs[].to} reads every element of an array; an ERC-7730 interpolation shows one value"],
+    ["Lock {legs}", "{legs} is a whole array; an ERC-7730 interpolation shows one formatted field"],
+    ["Lock {amount}[ until {until}]", "an optional [ ] segment has no ERC-7730 form"],
+  ]) {
+    const { entry, notes } = await leftOut([{ at: "lock", tag: "intent", args: { title: "Lock", template } }]);
+    assert.equal(entry.intent, "Lock");
+    assert.equal(Object.hasOwn(entry, "interpolatedIntent"), false);
+    assert.deepEqual(notes, [`lock: intent template: ${why}; interpolatedIntent is left out`]);
+  }
+  const { entry, notes } = await leftOut([{ at: "lock(0).until", tag: "timestamp", args: { unit: "s", threshold: "18446744073709551615", message: "Never", labels: { 0: "Now" } } }]);
+  assert.deepEqual(entry.fields[1], { path: "until", label: "until", format: "date", params: { encoding: "timestamp" } });
+  assert.deepEqual(notes, ["lock(0).until: the timestamp's threshold and labels have no ERC-7730 date form and are left out; the file shows the date"]);
+  // the contract-bound files above have no notes
+  assert.deepEqual(erc7730Descriptor(await resolveLocker(LOCK), { token: { name: "Token" } }).notes, []);
+});
+
+const pack = (name) => JSON.parse(readFileSync(new URL(`../../../packs/${name}.profile.json`, import.meta.url), "utf8"));
+const PERMIT2 = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
+
+test("EIP-712 messages: Permit2 as ERC-7730 writes it, a field group per array, formats keyed by encodeType", async () => {
+  const resolved = (await validateProfile(pack("permit2"), { validateSchema, resolved: true })).resolved;
+  const { descriptor, descriptorHash: hash, notes } = erc7730Descriptor(resolved, { context: "eip712" });
+  assertValid(descriptor);
+  assert.deepEqual(descriptor.context, { eip712: { domain: { name: "Permit2" }, deployments: [{ chainId: 1, address: PERMIT2 }, { chainId: 42161, address: PERMIT2 }] } });
+  const formats = descriptor.display.formats;
+  assert.deepEqual(Object.keys(formats), [
+    "PermitBatch(PermitDetails[] details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)",
+    "PermitBatchTransferFrom(TokenPermissions[] permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)",
+    "PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)",
+    "PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)",
+  ]);
+  for (const [key, m] of Object.entries(resolved.messages)) assert.ok(Object.hasOwn(formats, m.encode_type), key);
+  const date = (path, label) => ({ path, label, format: "date", params: { encoding: "timestamp" } });
+  const unlimited = { threshold: "0xffffffffffffffffffffffffffffffffffffffff", message: "Unlimited" };
+  // the shape of ERC-7730's own PermitBatch example: the token path relative to the group
+  assert.deepEqual(formats[Object.keys(formats)[0]], {
+    intent: "Permit2: allow spending of several tokens",
+    fields: [
+      {
+        path: "details.[]",
+        fields: [
+          { path: "token", label: "Token", format: "addressName" },
+          { path: "amount", label: "Amount", format: "tokenAmount", params: { tokenPath: "token", ...unlimited } },
+          date("expiration", "Allowance expires"),
+          { path: "nonce", label: "Nonce", format: "raw" },
+        ],
+      },
+      { path: "spender", label: "Spender", format: "addressName" },
+      date("sigDeadline", "Signature expires"),
+    ],
+  });
+  assert.deepEqual(formats[Object.keys(formats)[2]], {
+    intent: "Permit2: allow token spending",
+    interpolatedIntent: "Let {spender} spend up to {details.amount}. Allowance expires: {details.expiration}. Signature expires: {sigDeadline}.",
+    fields: [
+      { path: "details.token", label: "Token", format: "addressName" },
+      { path: "details.amount", label: "Amount", format: "tokenAmount", params: { tokenPath: "details.token", ...unlimited } },
+      date("details.expiration", "Allowance expires"),
+      { path: "details.nonce", label: "Nonce", format: "raw" },
+      { path: "spender", label: "Spender", format: "addressName" },
+      date("sigDeadline", "Signature expires"),
+    ],
+  });
+  // what the file cannot say but changes no value: two interpolations of arrays, six timestamps' words
+  assert.equal(notes.length, 8);
+  assert.deepEqual(notes.filter((n) => n.includes("interpolatedIntent")), [
+    "PermitBatch: intent template: {details[].amount} reads every element of an array; an ERC-7730 interpolation shows one value; interpolatedIntent is left out",
+    "PermitBatchTransferFrom: intent template: {permitted[].amount} reads every element of an array; an ERC-7730 interpolation shows one value; interpolatedIntent is left out",
+  ]);
+  assert.equal(hash, "0xc7ba76d19c1dcdfdac877f67bdd4e9057b3570c89c9787b28e9bfd3bd6fb628f");
+  // a resolved form whose encode_type does not hash to its type_hash is not trusted
+  const forged = structuredClone(resolved);
+  forged.messages.PermitSingle.encode_type = forged.messages.PermitSingle.encode_type.replace("uint160 amount", "uint256 amount");
+  assert.match(codeOf(() => erc7730Descriptor(forged, { context: "eip712" })), /^E_RESOLVED_FORM: messages\.PermitSingle/);
+  // the contract context of a profile with messages only has nothing to describe
+  assert.match(codeOf(() => erc7730Descriptor(resolved)), /^E_EXPORT: no ERC-7730 file: functions: the contract has no function a transaction calls/);
+});
+
+test("EIP-712 messages: DAI's domain with its version; EIP-2612 on a token, whose amounts are in the verifying contract", async () => {
+  const dai = (await validateProfile(pack("dai-permit"), { validateSchema, resolved: true })).resolved;
+  const d = erc7730Descriptor(dai, { context: "eip712" });
+  assertValid(d.descriptor);
+  assert.deepEqual(d.descriptor.context.eip712.domain, { name: "Dai Stablecoin", version: "1" });
+  assert.equal(d.descriptorHash, "0xe44ae7e666128fa37dd8480cdf594112575481145fbb92a51af90dc1170daac1");
+  const USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+  const abi = [...WETH.filter((f) => !/deposit|withdraw/.test(f)), "function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)", "function nonces(address owner) view returns (uint256)", "function DOMAIN_SEPARATOR() view returns (bytes32)"].map((f) => f.replace("dst", "to").replace("guy", "spender").replace("src", "from").replaceAll("wad", "value").replace("uint value", "uint256 value"));
+  const usdc = await resolveAbi(abi, { packs: [{ doc: erc20 }, { doc: pack("erc2612") }] });
+  const e = erc7730Descriptor(usdc, { context: "eip712", deployments: [{ chainId: 1, address: USDC }] });
+  assertValid(e.descriptor);
+  assert.deepEqual(e.descriptor.context, { eip712: { deployments: [{ chainId: 1, address: USDC }] } }); // the domain is each token's own
+  const permit = e.descriptor.display.formats["Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"];
+  // for a message, ERC-7730's @.to is the verifying contract: here the token itself
+  assert.deepEqual(permit.fields.find((f) => f.path === "value"), { path: "value", label: "Amount", format: "tokenAmount", params: { tokenPath: "@.to", threshold: MAX, message: "Unlimited" } });
+  assert.equal(e.descriptorHash, "0x69ea623b5fe133c5f656cde05da8e6f90e381f5bb9655682c6d8a0db54661223");
+  // the same resolved form's functions are a file of their own, with permit() among them
+  const c = erc7730Descriptor(usdc, { deployments: [{ chainId: 1, address: USDC }] });
+  assertValid(c.descriptor);
+  assert.ok(Object.hasOwn(c.descriptor.display.formats, "permit(address owner,address spender,uint256 value,uint256 deadline,uint8 v,bytes32 r,bytes32 s)"));
+  const weth = await resolveAbi(WETH, { packs: [{ doc: erc20 }] });
+  assert.match(codeOf(() => erc7730Descriptor(weth, { context: "eip712", deployments: [{ chainId: 1, address: CONTRACT }] })), /^E_EXPORT: no ERC-7730 file: messages: the resolved form describes no EIP-712 message/);
+  assert.match(codeOf(() => erc7730Descriptor(dai, { context: "both" })), /^E_REQUEST: options\.context must be "contract" or "eip712"/);
+});
+
+test("EIP-712 messages: an amount in a group whose token is outside it has no path ERC-7730 can write", async () => {
+  const doc = {
+    format: "candid-profile",
+    format_version: 0,
+    kind: "contract",
+    name: "orders",
+    origin: "author",
+    binds: {
+      eip712: {
+        types: {
+          Order: [{ name: "fee", type: "address" }, { name: "legs", type: "Leg[]" }],
+          Leg: [{ name: "token", type: "address" }, { name: "amount", type: "uint256" }, { name: "cut", type: "uint256" }],
+        },
+      },
+      deployments: [{ chain_id: 1, address: CONTRACT }],
+    },
+    annotations: [
+      { at: "Order", tag: "intent", args: { title: "Order", template: "An order" } },
+      { at: "Order(0).legs[].amount", tag: "amount", args: { token: "legs[].token" } },
+      { at: "Order(0).legs[].cut", tag: "amount", args: { token: "fee" } },
+    ],
+  };
+  const resolved = (await validateProfile(doc, { validateSchema, resolved: true })).resolved;
+  assert.match(codeOf(() => erc7730Descriptor(resolved, { context: "eip712" })), /^E_EXPORT: no ERC-7730 file: Order\(0\)\.legs\[\]\.cut: the amount is in an array group and its token is outside it/);
+  // without the in-element amount there is no group, and the path from the root is fine
+  doc.annotations.splice(1, 1);
+  const flat = erc7730Descriptor((await validateProfile(doc, { validateSchema, resolved: true })).resolved, { context: "eip712" });
+  assertValid(flat.descriptor);
+  assert.deepEqual(flat.descriptor.display.formats["Order(address fee,Leg[] legs)Leg(address token,uint256 amount,uint256 cut)"].fields.at(-1), { path: "legs.[].cut", label: "cut", format: "tokenAmount", params: { tokenPath: "fee" } });
 });
 
 test("the export needs an EVM form, deployments and a function to describe; options are checked", async () => {

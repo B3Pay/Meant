@@ -18,7 +18,7 @@ export const CASE_TAGS = new Set(["intent", "effect"]);
 export const CONFIRM_KINDS = new Set(["transfer", "approve", "admin", "destroy"]);
 /** Tags that convert a value between its wire form and a human form; a stale profile must not supply them (spec section 7). */
 export const VALUE_CONVERSION_TAGS = new Set(["amount", "timestamp", "duration", "account", "subaccount", "bytes", "named"]);
-export const STALE_CODES = new Set(["E_ADDR_UNRESOLVED", "E_TYPE_NODE", "E_TAG_NOT_APPLICABLE", "E_REF_UNRESOLVED", "E_REF_NOT_QUERY", "E_REF_SHAPE", "E_REF_TYPE", "E_STAMP_UNTAGGED", "E_OUTCOME_NOT_CASE", "E_TEMPLATE_PATH", "E_TAG_TARGET", "E_NAMES_MODE", "E_NAMES_SHAPE", "E_NAMES_FIELD", "E_NAMED_SET", "E_NAMED_TYPE", "E_CASE_OVERLAP", "E_CASE_EFFECT"]);
+export const STALE_CODES = new Set(["E_ADDR_UNRESOLVED", "E_TYPE_NODE", "E_TAG_NOT_APPLICABLE", "E_REF_UNRESOLVED", "E_REF_NOT_QUERY", "E_REF_SHAPE", "E_REF_TYPE", "E_STAMP_UNTAGGED", "E_OUTCOME_NOT_CASE", "E_TEMPLATE_PATH", "E_TAG_TARGET", "E_NAMES_MODE", "E_NAMES_SHAPE", "E_NAMES_FIELD", "E_NAMED_SET", "E_NAMED_TYPE", "E_CASE_OVERLAP", "E_CASE_EFFECT", "E_TOKEN_PATH"]);
 
 export function checkApplicability(iface, tag, ref) {
   const { ref: r } = iface.unwrapOpt(ref);
@@ -35,6 +35,26 @@ export function checkApplicability(iface, tag, ref) {
     case "range": return NUMERIC.has(p) || TEXT.has(p) || iface.node(r).kind === "vec" ? null : `range needs numeric, text or vec, found ${iface.describeType(ref)}`;
     default: return null;
   }
+}
+
+/**
+ * An amount's `token` (spec section 15.9): a path from the arguments of the same function or message to the `address`
+ * of the token the amount is in, through the same array elements as the amount. The reason it is wrong, or null.
+ */
+export function tokenPathError(iface, addr, token) {
+  if (iface.chain !== "evm") return "token names the address of an EVM token; a Candid amount's ledger cannot be named by a field yet (OQ-6)";
+  if (addr.kind !== "arg") return "an amount with a token sits in the arguments of a function or message, where the token's address is";
+  const p = parseRelPath(token);
+  const r = iface.resolveRel(addr.method, "args", token);
+  if (!p || r.error) return `token ${JSON.stringify(token)}: ${r.error ?? "not a relative path"}`;
+  if ((p.index ?? 0) !== addr.index) return `token ${JSON.stringify(token)} is in another argument than the amount`;
+  if (iface.prim(r.ref) !== "address") return `token ${JSON.stringify(token)} is ${iface.describeType(r.ref)}, not an address`;
+  const last = p.segs.findLastIndex((s) => s.kind === "elem");
+  const same = (a, b) => a.kind === b.kind && (a.kind === "elem" || a.id === b.id);
+  if (last >= 0 && (addr.segs.length <= last || !p.segs.slice(0, last + 1).every((s, i) => same(s, addr.segs[i])))) {
+    return `token ${JSON.stringify(token)} must be in the same array element as the amount: its path up to its last [] must be the amount's`;
+  }
+  return null;
 }
 
 export function checkDynamic(iface, value, want, diag, at) {

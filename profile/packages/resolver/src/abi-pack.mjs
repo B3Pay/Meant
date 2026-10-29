@@ -5,7 +5,8 @@
  *
  * Parameter names are not part of a selector, and contracts name the parameters of one standard differently (EIP-20
  * says `_to`, OpenZeppelin `to`, WETH `dst`). A pack's addresses and template placeholders use the pack's own names;
- * when the pack applies, they are rewritten to the contract's names, component by component, by position.
+ * when the pack applies, they are rewritten to the contract's names, component by component, by position. So is an
+ * amount's `token` path (spec section 15.9).
  */
 import { parseAddress, parseRelPath } from "./address.mjs";
 import { componentKey, parseAbi, typeString } from "./abi.mjs";
@@ -107,7 +108,9 @@ export function translatePack(pack, functions, iface) {
   };
   const annotations = pack.annotations.map((a) => {
     const method = parseAddress(a.at)?.method;
-    const args = a.tag === "intent" && typeof a.args?.template === "string" && method ? { ...a.args, template: mapTemplate(a.args.template, placeholder(method)) } : a.args;
+    let args = a.args;
+    if (a.tag === "intent" && typeof a.args?.template === "string" && method) args = { ...a.args, template: mapTemplate(a.args.template, placeholder(method)) };
+    if (a.tag === "amount" && typeof a.args?.token === "string" && method) args = { ...a.args, token: placeholder(method)(a.args.token) ?? a.args.token };
     return { ...a, at: at(a.at), args };
   });
   return { ...pack, annotations };

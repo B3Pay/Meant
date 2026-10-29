@@ -164,7 +164,7 @@ const r = await resolveService({ did: serviceText, profiles: served.ok ? [{ doc:
   serves, so a profile for another interface is `rebound` or `stale` as any other.
 - Tests: `test/served.test.mjs`; end to end on PocketIC in `packages/kit/pocketic/`.
 
-## EVM contracts (experimental, spec section 15, D-054)
+## EVM contracts (experimental, spec section 15, D-054 and D-055)
 
 A third input, `abi`: an EVM contract's ABI as human-readable fragments or JSON ABI entries. The resolver reads it as
 the graph a `.did` compiles to (a function is a method, its parameters one record at argument 0, a tuple a record in
@@ -181,15 +181,23 @@ r.resolved.methods.transfer.tags.intent.args.template; // "Send {wad} to {dst}":
   that has every one of their functions, by selector, output types and kind of call (no subtyping); their addresses
   and placeholders are rewritten to the contract's parameter names by position. A pack or profile for the other kind
   of interface is `E_CHAIN` when given, and skipped in a pack search, so `loadPacks()` serves both kinds.
+- **EIP-712 messages** (spec §15.9, D-055): `binds.eip712: { domain?, types }` in a contract profile (with or without
+  `binds.abi`) or an EVM pack. A type the same document tags with `intent` is a message, addressed like a function
+  (`PermitSingle(0).details.amount`) and listed under the resolved form's `messages` with its `encode_type` and
+  `type_hash`. `amount.token` names an amount's token by an `address` field (`E_TOKEN_PATH` otherwise). Bad types, a
+  message named like a function and two meanings for one type name are `E_EIP712`. Standard files: the `erc2612`
+  pack, and the `permit2` and `dai-permit` contract profiles shipped beside the packs
+  (`@meantjs/profile/packs/permit2.profile.json`); `loadPacks()` returns the packs only.
 - **Refused for now:** overloaded function names and unreadable fragments (`E_ABI`); `idempotency`, `outcome`, `list`,
   `names` and `named` on a contract (`E_TAG_TARGET`); `account` and `subaccount` (`E_TAG_NOT_APPLICABLE`); `[ ]`
   template segments (`E_TEMPLATE`).
 - **`@meantjs/profile/evm`** is the toolkit underneath, browser-safe and without dependencies: `keccak256`, `parseAbi`,
   `parseSignature`, `canonicalFragment`, `selectorOf`, `abiInterfaceId`, a strict codec (`encodeParams`, `encodeCall`,
   `decodeParams`: a value read from anything but its canonical encoding is refused), `toChecksumAddress`,
-  `readAddress` and `typedDataDigest` (EIP-712). `test/evm.test.mjs` checks Keccak against an independent
-  implementation (and the block boundary), the ERC-20 selectors, the ERC-8176 schema UID, EIP-55's examples and
-  EIP-712's Mail example.
+  `readAddress`, `typedDataDigest` (EIP-712), `encodeType`, `eip712TypeHash` and `parseEip712Types`.
+  `test/evm.test.mjs` checks Keccak against an independent implementation (and the block boundary), the ERC-20
+  selectors, the ERC-8176 schema UID, EIP-55's examples and EIP-712's Mail example; `test/eip712.test.mjs` the type
+  hashes of the standard messages (DAI's equals `dai.sol`'s constant).
 
 ## CLI
 

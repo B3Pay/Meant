@@ -65,7 +65,10 @@ test("sha256 agrees with node:crypto", () => {
 test("the browser entry carries the schema and every standard pack in data/", async () => {
   assert.deepEqual(browser.PROFILE_SCHEMA, await readJson("data/profile-v0.schema.json"));
   const files = (await readdir(path.join(PKG, "data/packs"))).filter((f) => f.endsWith(".profile.json")).sort();
-  assert.deepEqual(browser.STANDARD_PACKS.map((p) => p.file), files);
+  const packs = [];
+  for (const f of files) if ((await readJson(`data/packs/${f}`)).kind === "pack") packs.push(f);
+  assert.deepEqual(browser.STANDARD_PACKS.map((p) => p.file), packs);
+  assert.ok(packs.length < files.length, "the standard contract profiles (Permit2, DAI) are in data/packs but are no packs");
   for (const { file, doc } of browser.STANDARD_PACKS) assert.deepEqual(doc, await readJson(`data/packs/${file}`), file);
   const loaded = await barrel.loadPacks();
   assert.deepEqual(browser.STANDARD_PACKS.map((p) => p.doc), loaded.map((p) => p.doc));

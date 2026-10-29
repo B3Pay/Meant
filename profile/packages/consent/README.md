@@ -63,26 +63,31 @@ bundles it with esbuild for the browser platform). The three SNS rows below are 
 
 ## EVM contracts (experimental: `src/evm.mjs`, `src/erc7730.mjs`)
 
-Spec section 15, D-054. An EVM contract's resolved form (`"chain": "evm"`, from `resolveService({ abi })` of
+Spec section 15, D-054 and D-055 (EIP-712 messages, §15.9). An EVM contract's resolved form (`"chain": "evm"`, from `resolveService({ abi })` of
 `@meantjs/profile`) is read by two subpaths; the main entry refuses it with `E_RESOLVED_FORM`, and `evmConsent` refuses
 a Candid one.
 
 | Function | Does |
 |---|---|
 | `decodeCalldata(resolved, calldata, limits)` (`/evm`) | The function a selector names and its arguments, keyed by parameter name. Strict: values read from anything but their canonical ABI encoding are `E_DECODE`. |
-| `evmConsent({ resolved, calldata, to, chainId, refs, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of a call: the same model and the same two forms as ICRC-21, without its envelope (`"generic"` Markdown, or `"fields"` as an intent line and `[label, text]` rows), ending with the contract's address and chain, which a person must see because a pack matches any contract with the right functions. A call to a contract its profiles do not list is `E_DEPLOYMENT`; a payable function is `E_UNSUPPORTED_TYPE` (its native value has no position yet). |
-| `erc7730Descriptor(resolved, { deployments, owner, contractName, info, token })` (`/erc7730`) | The contract's ERC-7730 clear-signing file and its ERC-8176 `descriptorHash`: deterministic, `$schema` pinned to the exact 2.1.0 file, one entry per function a transaction calls. What an ERC-7730 file cannot say (a time in ms, `utf8` bytes, an amount in another token, an unnamed parameter, a placeholder over an array) is `E_EXPORT`, never written as something near it; no deployment is `E_DEPLOYMENT`. The mapping is the table in spec §15.7. |
+| `evmConsent({ resolved, calldata, to, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of a call: the same model and the same two forms as ICRC-21, without its envelope (`"generic"` Markdown, or `"fields"` as an intent line and `[label, text]` rows), ending with the contract's address and chain, which a person must see because a pack matches any contract with the right functions. A call to a contract its profiles do not list is `E_DEPLOYMENT`; a payable function is `E_UNSUPPORTED_TYPE` (its native value has no position yet). `tokens`: the decimals and symbol of each token an amount's `token` field names, by address; the address is shown beside the symbol. |
+| `eip712Consent({ resolved, typedData, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of an EIP-712 signing request (`eth_signTypedData_v4`'s JSON), matched to a message of the resolved form by its type hash, never its name. Refused before anything is shown: a domain for another chain than the wallet's, without `chainId` or `verifyingContract`, with a salt, or whose name or version is not its profiles' (`E_DOMAIN`); a contract its profiles do not list (`E_DEPLOYMENT`); no message with the type hash (`E_TYPE_HASH`); values that are not exactly the members, canonically written (`E_DECODE`); a token not in `tokens` (`E_REF_UNRESOLVED`). Ends with the verifying contract, the EIP-712 digest and "This is a signature, not a transaction: whoever holds it can submit it." Returns `typeHash`, `digest`, `verifyingContract` and `chainId` with the text. |
+| `erc7730Descriptor(resolved, { context, deployments, owner, contractName, info, token })` (`/erc7730`) | The contract's ERC-7730 clear-signing file and its ERC-8176 `descriptorHash`: deterministic, `$schema` pinned to the exact 2.1.0 file, one entry per function a transaction calls, or with `context: "eip712"` one per message, keyed by its `encodeType`. What an ERC-7730 file cannot say (a time in ms, `utf8` bytes, an amount in another token, an unnamed parameter) is `E_EXPORT`, never written as something near it; no deployment is `E_DEPLOYMENT`. What it cannot say but changes no value (a timestamp's "Never", a template over an array) is left out and listed in `notes`. The mapping is spec §15.7 and §15.9. |
 | `descriptorHash(descriptor)` (`/erc7730`) | Keccak-256 of the RFC 8785 form: the hash of a file someone edited. |
 | `erc8176Attestation({ descriptorHash, time, expirationTime, salt, refUID })` (`/erc7730`) | The unsigned ERC-8176 attestation (EAS offchain v2 typed data) and its EIP-712 digest, for a reviewer to sign with their own key. Nothing is signed or sent. |
 
 ```js
-import { evmConsent } from "@meantjs/consent/evm";
+import { eip712Consent, evmConsent } from "@meantjs/consent/evm";
 import { erc7730Descriptor, erc8176Attestation } from "@meantjs/consent/erc7730";
 
 evmConsent({ resolved, calldata, to: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", refs: { "query:decimals": 18, "query:symbol": "WETH" } }).message;
 // # Send tokens\n\nSend `1.5 WETH` to `0xfB69…d359`\n\n- **Amount:** `1.5 WETH`\n- **Recipient:** `0xfB69…d359`\n\n**Contract:** `0xC02a…6Cc2`
 const { descriptor, descriptorHash } = erc7730Descriptor(resolved, { deployments: [{ chainId: 1, address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" }] });
 const { typedData, digest } = erc8176Attestation({ descriptorHash, time: 1777630591, expirationTime: 1785406591, salt });
+
+// A Permit2 signing request, with the profile in @meantjs/profile/packs/permit2.profile.json
+eip712Consent({ resolved: permit2, typedData, chainId: 1, tokens: { "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": { decimals: 6, symbol: "USDC" } } }).message;
+// # Permit2: allow token spending\n\nLet `0x66a9…A8Af` spend up to `Unlimited USDC (0xA0b8…eB48)`. Allowance expires: …
 ```
 
 Every exported file in the tests is checked against the ERC-7730 2.1.0 JSON Schema (vendored in
@@ -243,5 +248,6 @@ Untrusted third-party data lives in `test/upstream/icrc21/` (the standard, commi
 - The caller's account (`From`) and a fee line: see `docs/oisy-comparison.md` for why they are absent.
 - Other languages; `device_spec` hints beyond the two forms.
 - Recursive and `func`/`service` positions (need a richer resolved form, or the Contract).
-- EVM: payable functions in the consent text, EIP-712 messages, ERC-7730 import, checking attestations, and the Rust
+- EVM: payable functions in the consent text, EIP-712 witness messages and the signer check (spec §15.9 O9, O13),
+  ERC-7730 import, checking attestations, and the Rust
   version.

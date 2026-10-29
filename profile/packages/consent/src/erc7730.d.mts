@@ -19,20 +19,30 @@ export interface Erc7730Field {
   path: string;
   label: string;
   format: "tokenAmount" | "amount" | "date" | "duration" | "addressName" | "raw";
+  /** `tokenPath`: `@.to` (the contract, or a message's verifying contract) or a path to the token's address field. */
   params?: Record<string, unknown>;
+}
+/** The fields of each element of an array whose elements carry their own token (`path: "details.[]"`); paths relative. */
+export interface Erc7730FieldGroup {
+  path: string;
+  fields: (Erc7730Field | Erc7730FieldGroup)[];
 }
 export interface Erc7730Descriptor {
   $schema: typeof ERC7730_SCHEMA_URL;
-  context: { contract: { deployments: Erc7730Deployment[] } };
+  /** `contract` for a file of functions; `eip712` for a file of messages, with the domain name and version its profiles give. */
+  context: { contract: { deployments: Erc7730Deployment[] } } | { eip712: { domain?: { name?: string; version?: string }; deployments: Erc7730Deployment[] } };
   metadata?: {
     owner?: string;
     contractName?: string;
     info?: { url: string; deploymentDate?: string };
     token?: { name: string; ticker: string; decimals: number };
   };
-  display: { formats: Record<string, { intent: string; interpolatedIntent?: string; fields?: Erc7730Field[] }> };
+  /** Keyed by named signature (functions) or by encodeType (messages). */
+  display: { formats: Record<string, { intent: string; interpolatedIntent?: string; fields?: (Erc7730Field | Erc7730FieldGroup)[] }> };
 }
 export interface Erc7730Options {
+  /** "contract" (default): the functions a transaction calls. "eip712": the EIP-712 messages (spec section 15.9). */
+  context?: "contract" | "eip712";
   /** Default: the deployments every profile that lists deployments lists. Given, each must be listed by those profiles. */
   deployments?: Erc7730Deployment[];
   owner?: string;
@@ -43,9 +53,10 @@ export interface Erc7730Options {
 }
 /**
  * The ERC-7730 file of an EVM contract's resolved form and its ERC-8176 `descriptorHash`. What the profile says that an
- * ERC-7730 file cannot say is refused (E_EXPORT); no deployments is E_DEPLOYMENT.
+ * ERC-7730 file cannot say is refused (E_EXPORT); no deployments is E_DEPLOYMENT. What it cannot say but changes no
+ * value (a timestamp's words, an interpolation of an array) is left out and listed in `notes`.
  */
-export function erc7730Descriptor(resolved: ResolvedForm, options?: Erc7730Options): { descriptor: Erc7730Descriptor; descriptorHash: string };
+export function erc7730Descriptor(resolved: ResolvedForm, options?: Erc7730Options): { descriptor: Erc7730Descriptor; descriptorHash: string; notes: string[] };
 /** ERC-8176 `descriptorHash`: `0x` and the Keccak-256 of the RFC 8785 (JCS) form, for a descriptor without `includes`. */
 export function descriptorHash(descriptor: object): string;
 

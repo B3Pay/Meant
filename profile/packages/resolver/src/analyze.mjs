@@ -9,6 +9,7 @@ import { TagIndex, LayeredTags, positions } from "./tags.mjs";
 import {
   NUMERIC, METHOD_TAGS, CASE_TAGS, CONFIRM_KINDS, STALE_CODES, VALUE_CONVERSION_TAGS, EVM_LATER_TAGS,
   checkApplicability, checkDynamic, parseTemplate, outcomeCoverage, caseTargetError, otherCase, overlap, defaultEffect,
+  tokenPathError,
 } from "./checks.mjs";
 
 /** Spec section 8, highest precedence first. */
@@ -111,6 +112,11 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
 
   /** An effect against the method's mode (spec 5.3); for a case effect, the mode of the method it sits in. */
   const checkEffectMode = (m, { kind, irreversible, replicated }, diag, at) => {
+    // A signed EIP-712 message (spec section 15.9) runs nothing when it is signed: any kind describes what it allows.
+    if (m.mode === "message") {
+      if (replicated === true) diag("error", "E_EFFECT_MODE", at, "replicated: true applies to update methods, not to a message");
+      return;
+    }
     if (m.mode !== "update" && m.mode !== "oneway" && kind !== "read") diag("error", "E_EFFECT_MODE", at, `${m.mode} method cannot have effect kind "${kind}"`);
     // A read-only update (D-038): a read sent as an update so that its answer goes through consensus.
     if (replicated === true) {
@@ -234,7 +240,10 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
     const err = checkApplicability(iface, a.tag, res.ref);
     if (err) diag("error", "E_TAG_NOT_APPLICABLE", at, err);
     if (a.tag === "named") named.push({ a, res, diag, at });
-    if (a.tag === "amount") {
+    if (a.tag === "amount" && a.args.token !== undefined) {
+      const why = tokenPathError(iface, addr, a.args.token);
+      if (why) diag("error", "E_TOKEN_PATH", at, why);
+    } else if (a.tag === "amount") {
       checkDynamic(iface, a.args.decimals, "numeric", diag, at);
       checkDynamic(iface, a.args.symbol, "text", diag, at);
     }
@@ -326,10 +335,11 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
     }
   }
 
-  // Coverage hint: numeric positions in update-method arguments with no meaning attached (merged view).
+  // Coverage hint: numeric positions in the arguments of update methods and EIP-712 messages with no meaning attached
+  // (merged view).
   const MEANING = ["amount", "timestamp", "duration", "describe", "range"];
   for (const [name, m] of iface.methods) {
-    if (m.mode !== "update") continue;
+    if (m.mode !== "update" && m.mode !== "message") continue;
     for (const pos of positions(iface, name, "args")) {
       const p = iface.prim(iface.unwrapOpt(pos.ref).ref);
       const t = final.at(pos, iface);

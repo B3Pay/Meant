@@ -1,0 +1,344 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "chain": "evm",
+  "interface_id": "candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee",
+  "profiles": [
+    {
+      "name": "erc2612",
+      "origin": "pack",
+      "profile_id": "candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810"
+    }
+  ],
+  "methods": {
+    "DOMAIN_SEPARATOR": {
+      "mode": "query",
+      "selector": "0x3644e515",
+      "signature": "DOMAIN_SEPARATOR()",
+      "state_mutability": "view",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "abi": "bytes32"
+        }
+      ]
+    },
+    "decimals": {
+      "mode": "query",
+      "selector": "0x313ce567",
+      "signature": "decimals()",
+      "state_mutability": "view",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "abi": "uint8"
+        }
+      ]
+    },
+    "nonces": {
+      "mode": "query",
+      "selector": "0x7ecebe00",
+      "signature": "nonces(address owner)",
+      "state_mutability": "view",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "owner": {
+              "abi": "address"
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "abi": "uint256"
+        }
+      ]
+    },
+    "permit": {
+      "mode": "update",
+      "selector": "0xd505accf",
+      "signature": "permit(address owner,address spender,uint256 value,uint256 deadline,uint8 v,bytes32 r,bytes32 s)",
+      "state_mutability": "nonpayable",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Submit a token permit",
+            "template": "Set {spender}'s allowance from {owner} to {value} with {owner}'s signature. Signature expires: {deadline}."
+          },
+          "origin": "pack",
+          "profile": "erc2612"
+        },
+        "effect": {
+          "args": {
+            "kind": "approve",
+            "irreversible": false
+          },
+          "origin": "pack",
+          "profile": "erc2612"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "owner": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Owner"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "spender": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Spender"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "value": {
+              "abi": "uint256",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:decimals"
+                    },
+                    "symbol": {
+                      "from": "query:symbol"
+                    },
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "deadline": {
+              "abi": "uint256",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix",
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                    "message": "Never"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Signature expires"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "v": {
+              "abi": "uint8",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Signature v"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "r": {
+              "abi": "bytes32"
+            },
+            "s": {
+              "abi": "bytes32"
+            }
+          }
+        }
+      ],
+      "results": []
+    },
+    "symbol": {
+      "mode": "query",
+      "selector": "0x95d89b41",
+      "signature": "symbol()",
+      "state_mutability": "view",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "abi": "string"
+        }
+      ]
+    }
+  },
+  "messages": {
+    "Permit": {
+      "encode_type": "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)",
+      "type_hash": "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Permit token spending",
+            "template": "Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."
+          },
+          "origin": "pack",
+          "profile": "erc2612"
+        },
+        "effect": {
+          "args": {
+            "kind": "approve",
+            "irreversible": false
+          },
+          "origin": "pack",
+          "profile": "erc2612"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "owner": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Owner"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "spender": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Spender"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "value": {
+              "abi": "uint256",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": {
+                      "from": "query:decimals"
+                    },
+                    "symbol": {
+                      "from": "query:symbol"
+                    },
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "nonce": {
+              "abi": "uint256",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Nonce"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            },
+            "deadline": {
+              "abi": "uint256",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix",
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                    "message": "Never"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Signature expires"
+                  },
+                  "origin": "pack",
+                  "profile": "erc2612"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": []
+}

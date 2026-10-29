@@ -2,6 +2,21 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.3.0 — 2026-10-29
+
+- `@meantjs/consent/evm`: `eip712Consent`, the consent text of an EIP-712 signing request (spec §15.9, D-055),
+  matched to a message of the resolved form by its type hash and refused before anything is shown when its domain,
+  contract, type hash or values do not match (new codes `E_DOMAIN` and `E_TYPE_HASH`). The text ends with the
+  verifying contract, the EIP-712 digest and the note that a signature is not a transaction. `evmConsent` and
+  `eip712Consent` take `tokens`, the decimals and symbol of each token an amount's `token` field names; the token's
+  address is shown beside its symbol.
+- `@meantjs/consent/erc7730`: `erc7730Descriptor(resolved, { context: "eip712" })` writes the ERC-7730 file of the
+  messages (formats keyed by `encode_type`, field groups for arrays of tokens). It returns `notes`: a timestamp's
+  words and a template ERC-7730 cannot interpolate are left out with a note instead of refusing the file, for
+  functions as well. Every file 0.2.0 writes is written the same.
+- ICRC-21 fields: an amount at or above its threshold, and a timestamp shown as words, are `Text`, never a
+  `TokenAmount` or `TimestampSeconds` of the raw number.
+
 ## 0.2.0 — 2026-10-28
 
 - A call takes the `intent` and `effect` of the deepest tagged variant case its arguments hold, else the method's

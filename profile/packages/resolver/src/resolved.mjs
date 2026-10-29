@@ -41,24 +41,36 @@ export function buildTree(iface, methodName, side, tags) {
  */
 export function resolvedForm(iface, profiles, tags, diagnostics) {
   const methods = {};
+  const messages = {};
   for (const [name, m] of [...iface.methods.entries()].sort(([a], [b]) => (a < b ? -1 : 1))) {
     const mt = { ...tags.methodTags(name) };
     if (!mt.effect) {
-      mt.effect = m.mode === "update" || m.mode === "oneway"
+      // A signed message authorizes what someone else submits later (spec section 15.9): as conservative as an update.
+      mt.effect = m.mode === "update" || m.mode === "oneway" || m.mode === "message"
         ? { args: { kind: "write", irreversible: true }, origin: "default" }
         : { args: { kind: "read", irreversible: false }, origin: "default" };
+    }
+    if (m.mode === "message") {
+      const { encodeType, typeHash } = iface.messages.get(name); // an EIP-712 message: what a consumer matches a request by
+      messages[name] = { encode_type: encodeType, type_hash: typeHash, tags: mt, args: buildTree(iface, name, "args", tags) };
+      continue;
     }
     const f = iface.functions?.get(name); // an EVM function: what a consumer needs to match and decode calldata
     const abi = f ? { selector: f.selector, signature: f.signature, state_mutability: f.stateMutability } : {};
     methods[name] = { mode: m.mode, ...abi, tags: mt, args: buildTree(iface, name, "args", tags), results: buildTree(iface, name, "results", tags) };
   }
+  const bound = (doc) => ({
+    ...(doc.binds?.deployments ? { deployments: doc.binds.deployments } : {}),
+    ...(doc.binds?.eip712?.domain ? { eip712_domain: doc.binds.eip712.domain } : {}),
+  });
   return {
     format: "candid-profile-resolved",
     format_version: 0,
     ...(iface.chain === "evm" ? { chain: "evm" } : {}),
     interface_id: iface.contract.identities.interface ?? null,
-    profiles: profiles.map(({ doc, pid }) => ({ name: doc.name, origin: doc.origin, profile_id: pid, ...(doc.binds?.deployments ? { deployments: doc.binds.deployments } : {}) })),
+    profiles: profiles.map(({ doc, pid }) => ({ name: doc.name, origin: doc.origin, profile_id: pid, ...bound(doc) })),
     methods,
+    ...(Object.keys(messages).length ? { messages } : {}),
     diagnostics,
   };
 }

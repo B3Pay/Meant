@@ -11,6 +11,7 @@ import schema from "../data/profile-v0.schema.json" with { type: "json" };
 import icrc1 from "../data/packs/icrc1.profile.json" with { type: "json" };
 import icrc2 from "../data/packs/icrc2.profile.json" with { type: "json" };
 import erc20 from "../data/packs/erc20.profile.json" with { type: "json" };
+import erc2612 from "../data/packs/erc2612.profile.json" with { type: "json" };
 import { compileSchema } from "./schema-core.mjs";
 
 export { init as initCompiler } from "@candid-core/cli";
@@ -32,9 +33,13 @@ export { readServedProfile, SERVED_SECTION, SERVED_METADATA, SERVED_MAX_BYTES } 
 /** The profile schema (a copy of spec/profile-v0.schema.json). */
 export const PROFILE_SCHEMA = schema;
 
-/** The standard packs (copies of packs/*.profile.json), sorted by file name, in the shape `loadPacks` returns. */
+/**
+ * The standard packs (copies of packs/*.profile.json whose kind is "pack"), sorted by file name, in the shape
+ * `loadPacks` returns. The standard contract profiles there (Permit2, DAI's permit) are under `./packs/*` too.
+ */
 export const STANDARD_PACKS = Object.freeze([
   { file: "erc20.profile.json", doc: erc20 },
+  { file: "erc2612.profile.json", doc: erc2612 },
   { file: "icrc1.profile.json", doc: icrc1 },
   { file: "icrc2.profile.json", doc: icrc2 },
 ]);

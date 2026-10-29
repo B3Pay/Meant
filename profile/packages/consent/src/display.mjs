@@ -20,6 +20,23 @@ const CONFIG_CODES = new Set(["E_REF_UNRESOLVED", "E_ARG", "E_TAG_TYPE", "E_TAG_
 /** Budget for the text of one message: a consent message is read by a person (ICRC-21: short and concise). */
 export const MAX_MESSAGE_CHARS = 32 * 1024;
 
+/**
+ * An amount in the token a field of the same value names (spec section 15.9): the base units, the token's EIP-55
+ * address, and its decimals and symbol as the caller supplied them. evm.mjs puts one in place of each such amount of a
+ * decoded value; its text is the base units, so a view without formatters shows those.
+ */
+export class TokenAmount {
+  constructor(value, token, metadata) {
+    this.value = value;
+    this.token = token;
+    this.metadata = metadata;
+    Object.freeze(this);
+  }
+  toString() {
+    return this.value;
+  }
+}
+
 export class Renderer {
   /** Set while `plainTupleText` runs: no formatter applies. */
   #plain = false;
@@ -39,17 +56,24 @@ export class Renderer {
     this.usedZone = false;
   }
 
-  /** @returns {import("@meantjs/format").Formatter | null} */
-  formatter(node) {
-    if (this.formatters.has(node)) return this.formatters.get(node);
+  /**
+   * @param {object} node
+   * @param {TokenAmount} [amount]  a value whose token a field names: the formatter takes that token's metadata
+   * @returns {import("@meantjs/format").Formatter | null}
+   */
+  formatter(node, amount) {
+    const key = amount === undefined ? "" : amount.token;
+    if (!this.formatters.has(node)) this.formatters.set(node, new Map());
+    const cache = this.formatters.get(node);
+    if (cache.has(key)) return cache.get(key);
     let f;
     try {
-      f = formatterFor(node, { refs: this.refs });
+      f = formatterFor(node, { refs: this.refs, token: amount?.metadata });
     } catch (e) {
       if (e instanceof FormatError && CONFIG_CODES.has(e.code)) throw new ConsentError(e.code, e.message, { cause: e });
       throw e;
     }
-    this.formatters.set(node, f);
+    cache.set(key, f);
     return f;
   }
 
@@ -98,15 +122,33 @@ export class Renderer {
   /** The formatter's text, or null when the position has no value tag or the formatter refuses the value. */
   #formatted(node, value, where) {
     if (this.#plain) return null;
+    if (value instanceof TokenAmount) {
+      // The token's own symbol is its claim, so its address is always shown beside it (spec section 15.9).
+      const f = this.formatter(node, value);
+      try {
+        return `${f.display(value.value)} (${value.token})`;
+      } catch (e) {
+        if (!(e instanceof FormatError)) throw e;
+        this.diagnostics.push({ code: "W_FORMAT_FALLBACK", at: where, message: `the ${f.tag} formatter refused the value (${e.code}: ${e.message}); it is shown in base units` });
+        return `${value.value} (${value.token})`;
+      }
+    }
     const f = this.formatter(node);
     if (f === null) return null;
     try {
-      return f.tag === "timestamp" && this.utcOffsetMinutes !== null ? this.#zoned(f, value) : f.display(value);
+      return f.tag === "timestamp" && this.utcOffsetMinutes !== null && !this.#worded(f, value) ? this.#zoned(f, value) : f.display(value);
     } catch (e) {
       if (!(e instanceof FormatError)) throw e;
       this.diagnostics.push({ code: "W_FORMAT_FALLBACK", at: where, message: `the ${f.tag} formatter refused the value (${e.code}: ${e.message}); it is shown as raw Candid text` });
       return null;
     }
+  }
+
+  /** Whether a timestamp shows words instead of a time: a label for its value, or its threshold's message (spec section 15.9). */
+  #worded(f, value) {
+    if (typeof value !== "bigint" && !(typeof value === "string" && /^-?[0-9]+$/.test(value))) return false; // the formatter refuses it anyway
+    const v = BigInt(value);
+    return (f.args.labels !== undefined && Object.hasOwn(f.args.labels, v.toString())) || (f.args.threshold !== undefined && v >= BigInt(f.args.threshold));
   }
 
   /** A timestamp in the requested zone: the instant shifted by whole minutes, then shown with the library's calendar code. */
@@ -205,12 +247,14 @@ export class Renderer {
     try {
       if (f.tag === "amount") {
         const amount = BigInt(value);
-        const { decimals, symbol } = f.args;
+        const { decimals, symbol, threshold } = f.args;
         if (amount < 0n || amount > U64_MAX || typeof symbol !== "string") return null;
+        if (threshold !== undefined && amount >= BigInt(threshold)) return null; // shown as its message ("Unlimited ICP"), not a number
         f.display(value); // the library must accept the value too (type range), or it is shown as raw text
         return { TokenAmount: { decimals, amount, symbol } };
       }
       if (f.tag === "timestamp" || f.tag === "duration") {
+        if (f.tag === "timestamp" && this.#worded(f, value)) return null; // shown as its words ("Never"), not a time
         const seconds = BigInt(convertUnit(value, f.args.unit, "s")); // throws E_INEXACT when not whole seconds
         if (seconds < 0n || seconds > U64_MAX) return null;
         f.display(value);

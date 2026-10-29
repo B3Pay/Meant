@@ -29,7 +29,7 @@ const validateSchema = await createSchemaValidator();
 const fromDocument = await createSchemaValidator(schema);
 check(fromDocument(icrc1) && validateSchema(icrc1), "the shipped schema validates the shipped pack");
 const packs: Pack[] = await loadPacks();
-check(packs.map((p) => p.doc.name).join() === "erc20,icrc1,icrc2" && DEFAULT_PACKS_DIR.length > 0, "the shipped packs");
+check(packs.map((p) => p.doc.name).join() === "erc20,erc2612,icrc1,icrc2" && DEFAULT_PACKS_DIR.length > 0, "the shipped packs");
 
 const r: ResolveResult = await resolveService({ did: LEDGER_DID, validateSchema, packs: packs.map(({ doc }) => ({ doc })) });
 check(r.ok && r.resolved !== null && r.resolved.format === "candid-profile-resolved", "resolved");

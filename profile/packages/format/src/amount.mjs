@@ -30,23 +30,29 @@ export function checkSymbol(symbol) {
   return symbol;
 }
 
-/** @returns {bigint | undefined} a validated threshold: a canonical decimal integer string or a bigint, not negative */
-export function checkThreshold(threshold) {
+/**
+ * @param {string} [what]  how errors name the argument: "amount" (base units), or "timestamp" (the tagged unit)
+ * @returns {bigint | undefined} a validated threshold: a canonical decimal integer string or a bigint, not negative
+ */
+export function checkThreshold(threshold, what = "amount") {
   if (threshold === undefined || threshold === null) return undefined;
   if (typeof threshold === "bigint" ? threshold < 0n : typeof threshold !== "string" || !/^(?:0|[1-9][0-9]{0,77})$/.test(threshold)) {
-    fail(CODES.ARG, `amount threshold must be a decimal string of base units (0 or more, at most 78 digits) or a bigint, got ${typeof threshold === "string" ? JSON.stringify(threshold) : String(threshold)}`);
+    fail(CODES.ARG, `${what} threshold must be a decimal string of ${what === "amount" ? "base units" : "the tagged unit"} (0 or more, at most 78 digits) or a bigint, got ${typeof threshold === "string" ? JSON.stringify(threshold) : String(threshold)}`);
   }
   return BigInt(threshold);
 }
 
-/** @returns {string | undefined} a validated threshold message: 1 to 32 characters, nothing invisible */
-export function checkMessage(message) {
+/**
+ * @param {string} [what]  how errors name the text: "amount message", "timestamp message", a timestamp label
+ * @returns {string | undefined} a validated threshold message: 1 to 32 characters, nothing invisible
+ */
+export function checkMessage(message, what = "amount message") {
   if (message === undefined || message === null) return undefined;
-  if (typeof message !== "string") fail(CODES.ARG, `amount message must be a string, got ${typeof message}`);
+  if (typeof message !== "string") fail(CODES.ARG, `${what} must be a string, got ${typeof message}`);
   const n = [...message].length;
-  if (n < 1 || n > 32) fail(CODES.ARG, `amount message must be 1 to 32 characters, got ${n}`);
+  if (n < 1 || n > 32) fail(CODES.ARG, `${what} must be 1 to 32 characters, got ${n}`);
   if (message !== message.trim() || UNSAFE_DISPLAY_CHAR.test(message) || !message.isWellFormed()) {
-    fail(CODES.ARG, `amount message ${JSON.stringify(message)} has surrounding whitespace, control or invisible characters`);
+    fail(CODES.ARG, `${what} ${JSON.stringify(message)} has surrounding whitespace, control or invisible characters`);
   }
   return message;
 }

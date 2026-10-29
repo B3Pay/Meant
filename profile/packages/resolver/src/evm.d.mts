@@ -38,7 +38,7 @@ export interface AbiLimits {
   maxDepth?: number;
   maxElements?: number;
 }
-/** Every failure of the ABI helpers: E_ABI (a fragment), E_ABI_ENCODE, E_ABI_DECODE, E_ADDRESS or E_ADDRESS_CHECKSUM. */
+/** Every failure of the ABI helpers: E_ABI (a fragment), E_ABI_ENCODE, E_ABI_DECODE, E_EIP712, E_ADDRESS or E_ADDRESS_CHECKSUM. */
 export declare class AbiError extends Error {
   constructor(code: string, message: string);
   name: "AbiError";
@@ -62,8 +62,11 @@ export const DEFAULT_ABI_LIMITS: Readonly<Required<AbiLimits>>;
 export function parseAbi(entries: unknown, label?: string): { functions: AbiFunction[]; errors: { at: string; message: string }[] };
 /** One function from its named signature, as a resolved form carries it. Throws AbiError. */
 export function parseSignature(signature: string, where?: string): AbiFunction;
-/** `candid-profile:evm-abi:v0:sha256:…`: SHA-256 over the JCS array of the canonical fragments, sorted. */
-export function abiInterfaceId(functions: readonly AbiFunction[]): string;
+/**
+ * `candid-profile:evm-abi:v0:sha256:…`: SHA-256 over the JCS array of the canonical fragments and, when given EIP-712
+ * types, one `struct Name(type member,…)` line per type, sorted.
+ */
+export function abiInterfaceId(functions: readonly AbiFunction[], types?: Eip712Types): string;
 export function canonicalFragment(f: Pick<AbiFunction, "name" | "inputs" | "outputs" | "stateMutability">): string;
 export function namedSignature(f: Pick<AbiFunction, "name" | "inputs">): string;
 export function typeSignature(f: Pick<AbiFunction, "name" | "inputs">): string;
@@ -84,3 +87,15 @@ export function toChecksumAddress(address: string): string;
 export function readAddress(text: string): string;
 /** The EIP-712 digest a signer signs, as `0x` and 64 hex digits. */
 export function typedDataDigest(typed: TypedData): string;
+/** EIP-712 struct types: struct name to its members, in order. */
+export type Eip712Types = Record<string, { name: string; type: string }[]>;
+/**
+ * Read EIP-712 struct types (spec section 15.9): identifier names that are not ABI types, unique member names,
+ * canonical member types (`uint256`, never `uint`) or structs of the same map, and no struct that contains itself.
+ * Problems are listed, not thrown; `types` keeps the structs that read.
+ */
+export function parseEip712Types(types: unknown, label?: string): { types: Eip712Types; errors: { at: string; message: string }[] };
+/** EIP-712 `encodeType`: the struct with its members, then the structs it refers to, sorted by name. Throws AbiError (E_EIP712). */
+export function encodeType(types: Eip712Types, primary: string): string;
+/** EIP-712 `typeHash`: the Keccak-256 of `encodeType`, as `0x` and 64 hex digits. */
+export function eip712TypeHash(types: Eip712Types, primary: string): string;

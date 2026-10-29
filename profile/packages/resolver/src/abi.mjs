@@ -320,9 +320,13 @@ export function parseAbi(entries, label = "abi") {
   return { functions: kept.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), errors };
 }
 
-/** The identity of an EVM interface: SHA-256 over the JCS array of its canonical fragments, sorted (spec section 15). */
-export function abiInterfaceId(functions) {
-  return `candid-profile:evm-abi:v0:sha256:${sha256Hex(jcs(functions.map((f) => f.canonical).sort()))}`;
+/**
+ * The identity of an EVM interface: SHA-256 over the JCS array of its canonical fragments and, when it has EIP-712
+ * types (spec section 15.9), one `struct Name(type member,…)` line per type, sorted (spec section 15).
+ */
+export function abiInterfaceId(functions, types = {}) {
+  const structs = Object.keys(types).map((n) => `struct ${structText(types, n)}`);
+  return `candid-profile:evm-abi:v0:sha256:${sha256Hex(jcs([...functions.map((f) => f.canonical), ...structs].sort()))}`;
 }
 
 /** Read one function from its named signature (`transfer(address to,uint256 value)`), as a resolved form carries it. */
@@ -610,6 +614,8 @@ const EIP712_DOMAIN = [
   ["salt", "bytes32"],
 ];
 
+const structText = (types, name) => `${name}(${types[name].map((f) => `${f.type} ${f.name}`).join(",")})`;
+
 function typeEncoding(types, primary) {
   const deps = new Set();
   const visit = (name) => {
@@ -619,7 +625,108 @@ function typeEncoding(types, primary) {
   };
   visit(primary);
   deps.delete(primary);
-  return [primary, ...[...deps].sort()].map((n) => `${n}(${types[n].map((f) => `${f.type} ${f.name}`).join(",")})`).join("");
+  return [primary, ...[...deps].sort()].map((n) => structText(types, n)).join("");
+}
+
+/**
+ * EIP-712 `encodeType` of a struct type: the type with its members, then every struct type it refers to, sorted by
+ * name (`Mail(Person from,Person to,string contents)Person(string name,address wallet)`).
+ *
+ * @param {Record<string, { name: string, type: string }[]>} types
+ * @param {string} primary
+ */
+export function encodeType(types, primary) {
+  if (!Object.hasOwn(types, primary)) fail("E_EIP712", `no type ${primary}`);
+  return typeEncoding(types, primary);
+}
+
+/** EIP-712 `typeHash`: the Keccak-256 of `encodeType`, as `0x` and 64 hex digits. */
+export const eip712TypeHash = (types, primary) => `0x${keccak256Hex(encodeType(types, primary))}`;
+
+const EIP712_MEMBER = /^([A-Za-z_][A-Za-z0-9_]*)((?:\[\d*\])*)$/;
+/** Names a struct may not take: they read as ABI types, or are the domain's own type. */
+const RESERVED_STRUCT = /^(?:u?int\d*|u?fixed.*|address|bool|string|bytes\d*|byte|function|tuple|EIP712Domain)$/;
+
+/**
+ * Read the EIP-712 types of a profile (`binds.eip712.types`, spec section 15.9): struct names that are identifiers and
+ * not ABI type names, members with unique names, member types that are canonical ABI types (`uint256`, never `uint`:
+ * the type hash hashes the text as written) or struct types of the same map, with array suffixes, and no struct that
+ * contains itself. Every problem is reported, none thrown.
+ *
+ * @param {unknown} types
+ * @param {string} [label]  how diagnostics name the map (`binds.eip712.types`)
+ * @returns {{ types: Record<string, { name: string, type: string }[]>, errors: { at: string, message: string }[] }}
+ */
+export function parseEip712Types(types, label = "types") {
+  const errors = [];
+  const err = (at, message) => void errors.push({ at, message });
+  if (types === null || typeof types !== "object" || Array.isArray(types)) return { types: {}, errors: [{ at: label, message: "EIP-712 types are an object of struct name to members" }] };
+  const out = {};
+  for (const [name, members] of Object.entries(types)) {
+    const at = `${label}.${name}`;
+    if (!IDENT.test(name)) { err(at, `the struct name ${JSON.stringify(name)} is not an identifier (letters, digits and _)`); continue; }
+    if (RESERVED_STRUCT.test(name)) { err(at, `a struct cannot be named ${name}: the name reads as an ABI type or the domain's type`); continue; }
+    if (!Array.isArray(members) || members.length === 0) { err(at, "a struct has at least one member, each { name, type }"); continue; }
+    const seen = new Set();
+    let ok = true;
+    members.forEach((m, i) => {
+      const where = `${at}[${i}]`;
+      if (m === null || typeof m !== "object" || typeof m.name !== "string" || typeof m.type !== "string") { ok = false; return err(where, "a member is { name, type } with two strings"); }
+      if (!IDENT.test(m.name)) { ok = false; return err(where, `the member name ${JSON.stringify(m.name)} is not an identifier`); }
+      if (seen.has(m.name)) { ok = false; return err(where, `two members are named ${m.name}`); }
+      seen.add(m.name);
+      const t = EIP712_MEMBER.exec(m.type);
+      if (!t) { ok = false; return err(where, `${JSON.stringify(m.type)} is not a type`); }
+      for (const d of t[2].matchAll(/\[(\d*)\]/g)) if (d[1] !== "" && !/^[1-9]\d{0,5}$/.test(d[1])) { ok = false; return err(where, `array length [${d[1]}] must be a positive integer`); }
+      if (Object.hasOwn(types, t[1])) return;
+      try {
+        const e = elementary(t[1], where);
+        if (typeString(e) !== t[1]) { ok = false; err(where, `write ${typeString(e)}, not ${t[1]}: the type hash hashes the type as written`); }
+      } catch (e) {
+        if (!(e instanceof AbiError)) throw e;
+        ok = false;
+        err(where, `${t[1]} is neither an ABI type nor a struct of these types`);
+      }
+    });
+    if (ok) out[name] = members.map((m) => ({ name: m.name, type: m.type }));
+  }
+  // A struct that contains itself, directly or not, has no finite value to sign.
+  const state = new Map(); // name -> 1 on the walk, 2 done
+  const cyclic = new Set();
+  const visit = (name, trail) => {
+    if (state.get(name) === 2 || !Object.hasOwn(out, name)) return;
+    if (state.get(name) === 1) {
+      const loop = trail.slice(trail.indexOf(name));
+      for (const n of loop) cyclic.add(n);
+      err(`${label}.${name}`, `${[...loop, name].join(" -> ")}: a struct cannot contain itself`);
+      return;
+    }
+    state.set(name, 1);
+    for (const m of out[name]) visit(m.type.replace(/(\[\d*\])+$/, ""), [...trail, name]);
+    state.set(name, 2);
+  };
+  for (const name of Object.keys(out).sort()) visit(name, []);
+  for (const n of cyclic) delete out[n];
+  // A struct that refers to one refused above cannot be encoded either.
+  for (let dropped = true; dropped; ) {
+    dropped = false;
+    for (const name of Object.keys(out).sort()) {
+      const bad = out[name].map((m) => m.type.replace(/(\[\d*\])+$/, "")).find((t) => Object.hasOwn(types, t) && !Object.hasOwn(out, t));
+      if (bad === undefined) continue;
+      err(`${label}.${name}`, `refers to ${bad}, which is refused above`);
+      delete out[name];
+      dropped = true;
+    }
+  }
+  return { types: out, errors };
+}
+
+/** The ABI type tree of an EIP-712 member type: a struct is a tuple of its members, in order. */
+export function eip712AbiType(types, text) {
+  const m = EIP712_MEMBER.exec(text);
+  if (!m) fail("E_EIP712", `${JSON.stringify(text)} is not a type`);
+  const base = Object.hasOwn(types, m[1]) ? { kind: "tuple", components: types[m[1]].map((f) => ({ name: f.name, type: eip712AbiType(types, f.type) })) } : elementary(m[1], text);
+  return withDims(base, [...m[2].matchAll(/\[(\d*)\]/g)].map((d) => d[1]), text);
 }
 
 function encodeField(types, type, value, where) {

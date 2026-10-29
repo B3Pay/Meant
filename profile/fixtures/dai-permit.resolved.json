@@ -1,0 +1,129 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "chain": "evm",
+  "interface_id": "candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46",
+  "profiles": [
+    {
+      "name": "dai-permit",
+      "origin": "third_party",
+      "profile_id": "candid-profile:v0:sha256:5fe7bd66c0a15a1b370d279be2aedba80f539b0c1e195f7b22ef33ff94540f5e",
+      "deployments": [
+        {
+          "chain_id": 1,
+          "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+        }
+      ],
+      "eip712_domain": {
+        "name": "Dai Stablecoin",
+        "version": "1"
+      }
+    }
+  ],
+  "methods": {},
+  "messages": {
+    "Permit": {
+      "encode_type": "Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)",
+      "type_hash": "0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Permit DAI spending",
+            "template": "Set the DAI allowance {holder} gives {spender} to all of it if allowed is true, to none if false (allowed: {allowed}). Signature expires: {expiry}."
+          },
+          "origin": "third_party",
+          "profile": "dai-permit"
+        },
+        "effect": {
+          "args": {
+            "kind": "approve",
+            "irreversible": false
+          },
+          "origin": "third_party",
+          "profile": "dai-permit"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "holder": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Holder"
+                  },
+                  "origin": "third_party",
+                  "profile": "dai-permit"
+                }
+              }
+            },
+            "spender": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Spender"
+                  },
+                  "origin": "third_party",
+                  "profile": "dai-permit"
+                }
+              }
+            },
+            "nonce": {
+              "abi": "uint256",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Nonce"
+                  },
+                  "origin": "third_party",
+                  "profile": "dai-permit"
+                }
+              }
+            },
+            "expiry": {
+              "abi": "uint256",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix",
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                    "message": "Never",
+                    "labels": {
+                      "0": "Never"
+                    }
+                  },
+                  "origin": "third_party",
+                  "profile": "dai-permit"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Signature expires"
+                  },
+                  "origin": "third_party",
+                  "profile": "dai-permit"
+                }
+              }
+            },
+            "allowed": {
+              "abi": "bool",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Allowed (true: all, false: none)"
+                  },
+                  "origin": "third_party",
+                  "profile": "dai-permit"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": []
+}
