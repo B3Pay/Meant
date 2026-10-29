@@ -1,0 +1,328 @@
+<tool-view bridge="exact, no rounding">
+<sees value="1.5 ICP">prepare_icrc1_transfer({ amount: "1.5 ICP", to: "efadq-…-kjy554y" })</sees>
+<sends value="150000000">icrc1_transfer(record { amount = 150_000_000 : nat; … })</sends>
+</tool-view>
+
+<p>
+  The model writes <code>"1.5 ICP"</code>. The ledger takes a <code>nat</code> in units of
+  10<sup>-8</sup>. Between the two sits one tag on one position:
+</p>
+
+<annotation at="icrc1_transfer(0).amount" tag="amount">
+decimals: query:icrc1_decimals
+symbol: query:icrc1_symbol
+</annotation>
+
+<p>
+  A value tag says what the number, the bytes or the record at a position <em>is</em>: a token
+  amount, a point in time, a span of time, an account, a subaccount, a byte string in some
+  encoding. From that, every consumer parses what a person types and shows what a call carries by
+  the same rules (spec §5.3). <code>@meantjs/format</code> implements them, and the agent tools
+  and the consent generator both use it, so they cannot disagree about what a value means:
+</p>
+
+<pre data-lang="js" data-check>
+import { formatterFor } from "@meantjs/format";
+
+// The resolved form's node for icrc1_transfer(0).amount, as the ICRC-1 pack tags it.
+const node = {
+  candid: "nat",
+  tags: { amount: { args: { decimals: { from: "query:icrc1_decimals" }, symbol: { from: "query:icrc1_symbol" } } } },
+};
+const amount = formatterFor(node, { refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "ICP" } });
+
+amount?.parse("1.5 ICP"); // "150000000"
+amount?.display("150000000"); // "1.5 ICP"
+amount?.safeParse("1.500000000"); // { ok: false, error: { code: "E_EXCESS_PRECISION", … } }
+</pre>
+
+<p>
+  The functions, their options and their error codes are on
+  <a href="format-values.html">Parse and display values</a>; every tag's arguments in one table are
+  on <a href="reference-tags.html">Tags</a>.
+</p>
+
+<h2>Why nothing is rounded</h2>
+
+<p>
+  Every rule below comes back to one: a conversion is exact, or it is refused. Input with more
+  fractional digits than the token has is rejected, even when the extra digits are zeros. A
+  value outside the range of its Candid type is rejected, never wrapped or clamped. A time that
+  does not fit the tagged unit exactly is rejected. An integer is a decimal string or a
+  <code>bigint</code>, never a JavaScript number, which cannot hold a nanosecond timestamp
+  (about 1.8&nbsp;×&nbsp;10<sup>18</sup>) or an 18-decimal amount exactly.
+</p>
+
+<p>
+  Rounding would be friendlier, and it would move money. "0.000000005 ICP" rounded to 8 decimals
+  is either nothing or one base unit, and neither is what the person wrote. A refusal costs one
+  correction; a silent rounding costs a wrong transfer that nobody sees until the balance is
+  wrong. The format library's message says how to fix the input:
+</p>
+
+<pre data-lang="text">
+E_EXCESS_PRECISION "1.500000000" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8
+</pre>
+
+<h2>amount</h2>
+
+<p>
+  <code>amount</code> applies to <code>nat</code>, <code>int</code> and the sized integers
+  <code>nat8</code> to <code>int64</code>. <code>decimals</code> (0 to 255, or a dynamic value)
+  is required; <code>symbol</code> is optional. A base-unit integer <code>v</code> with
+  <code>d</code> decimals is shown as a decimal with trailing fractional zeros removed, a space and
+  the symbol: <code>150000000</code> with <code>d = 8</code> is <code>1.5 ICP</code>, and
+  <code>100000000</code> is <code>1 ICP</code>.
+</p>
+
+<p>
+  Input is an optionally negative decimal number, with digits on both sides of the point if it
+  has one, optionally followed by whitespace and the symbol. With <code>decimals: 8</code> and
+  <code>symbol: "ICP"</code>, on a <code>nat</code>:
+</p>
+
+<table>
+  <thead><tr><th>Input</th><th>Result</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>1.5 ICP</code></td><td><code>"150000000"</code></td><td></td></tr>
+    <tr><td><code>1.5 icp</code></td><td><code>"150000000"</code></td><td>The symbol matches case-insensitively, for ASCII letters only</td></tr>
+    <tr><td><code>1.5</code></td><td><code>"150000000"</code></td><td>The symbol is optional</td></tr>
+    <tr><td><code>1.500000000</code></td><td><diag>E_EXCESS_PRECISION</diag></td><td>Nine fractional digits, even though the ninth is a zero</td></tr>
+    <tr><td><code>1,000</code> · <code>1e3</code> · <code>+1</code> · <code>.5</code></td><td><diag>E_SYNTAX</diag></td><td>No thousands separators, exponents, leading <code>+</code> or bare point</td></tr>
+    <tr><td><code>-1</code></td><td><diag>E_NEGATIVE</diag></td><td><code>nat</code> is unsigned</td></tr>
+    <tr><td><code>1.5 ckBTC</code></td><td><diag>E_SYMBOL_MISMATCH</diag></td><td>Not this token's symbol</td></tr>
+    <tr><td><code>300</code> on a <code>nat8</code> with <code>decimals: 0</code></td><td><diag>E_RANGE</diag></td><td>Above 255, the type's maximum</td></tr>
+  </tbody>
+</table>
+
+<p>
+  The symbol in the input is a check, not a conversion: "1.5 ckBTC" on an ICP ledger is refused
+  rather than read as 1.5 of whatever this ledger holds. Bounds in a <code>range</code> tag on the
+  same position are always in base units, so they never depend on the decimals.
+</p>
+
+<h2>timestamp</h2>
+
+<p>
+  <code>timestamp</code> applies to <code>nat</code>, <code>int</code>, <code>nat32</code>,
+  <code>nat64</code> and <code>int64</code>. Its <code>unit</code> (<code>ns</code>,
+  <code>us</code>, <code>ms</code> or <code>s</code>) is required, and <code>epoch</code> is
+  <code>unix</code>. The ICRC-1 pack tags <code>created_at_time</code> as nanoseconds since the
+  Unix epoch.
+</p>
+
+<ul>
+  <li>
+    <strong>Display</strong> is canonical RFC 3339 in UTC, with trailing zeros of the fraction
+    removed: <code>1791547200000000000</code> ns is <code>2026-10-09T12:00:00Z</code>. A human
+    renderer localizes it, using ICRC-21's <code>utc_offset_minutes</code> when the request has
+    one.
+  </li>
+  <li>
+    <strong>Input</strong> is an absolute RFC 3339 time with an explicit zone (leap seconds are
+    rejected), or a relative ISO 8601 duration with a <code>+</code>: <code>+PT24H</code>,
+    <code>+P7D</code>. A relative time is resolved when the call is prepared, against
+    <code>now</code> floored to the tagged unit, so <code>+PT24H</code> on a seconds field is
+    exactly 86,400 seconds after the current second.
+  </li>
+  <li>
+    <strong>Conversion</strong> to the unit is exact. <code>2026-10-09T12:00:00.5Z</code> on a
+    seconds field is <diag>E_INEXACT</diag>: half a second is not a whole number of seconds.
+  </li>
+</ul>
+
+<h2>duration</h2>
+
+<p>
+  <code>duration</code> applies to the same types, with a required <code>unit</code>, and uses ISO
+  8601 durations for input and display. Only <code>W</code>, <code>D</code>, <code>H</code>,
+  <code>M</code> (after <code>T</code>) and <code>S</code> are allowed, because each has a fixed
+  length: <code>P1D</code> is exactly 86,400 seconds. A year or a month has no fixed length, so
+  <code>P1Y</code> and <code>P1M</code> are <diag>E_CALENDAR_UNIT</diag>, and so is
+  <code>+P1M</code> as a relative timestamp.
+</p>
+
+<table>
+  <thead><tr><th>Seconds</th><th>Display</th></tr></thead>
+  <tbody>
+    <tr><td><code>86400</code></td><td><code>P1D</code></td></tr>
+    <tr><td><code>5400</code></td><td><code>PT1H30M</code></td></tr>
+    <tr><td><code>0</code></td><td><code>PT0S</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  Display never uses <code>W</code> and leaves out zero components. A fraction is allowed on the
+  seconds only and must convert exactly: <code>PT0.5S</code> is <code>500</code> on a
+  milliseconds field and <diag>E_INEXACT</diag> on a seconds field. A leading <code>-</code> is
+  allowed only when the Candid type is signed.
+</p>
+
+<h2>account</h2>
+
+<p>
+  <code>account</code> applies to the ICRC-1 account record,
+  <code>record { owner : principal; subaccount : opt blob }</code>, and turns the whole record into
+  one piece of text: the ICRC-1 textual encoding, which is a principal alone for the default
+  subaccount and <code>principal-checksum.subaccount</code> otherwise. Input is case-insensitive,
+  and the checksum is verified. Non-canonical text is refused, as the ICRC-1 standard specifies,
+  because two spellings of one account are two chances for a person to compare the wrong one.
+  These are the standard's own examples, shortened in the middle:
+</p>
+
+<table>
+  <thead><tr><th>Input</th><th>Result</th></tr></thead>
+  <tbody>
+    <tr><td><code>k2t6j-…-teztq-6ae</code></td><td>The principal's default subaccount</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae-6cc627i.1</code></td><td>Subaccount 1</td></tr>
+    <tr><td><code>K2T6J-…-TEZTQ-6AE-6CC627I.1</code></td><td>The same account; displayed in lowercase</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae-6cc627i.01</code></td><td><diag>E_NOT_CANONICAL</diag>: leading zeros in the subaccount</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae-q6bn32y.</code></td><td><diag>E_NOT_CANONICAL</diag>: the default subaccount written out</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae.1</code></td><td><diag>E_CHECKSUM_MISSING</diag></td></tr>
+  </tbody>
+</table>
+
+<h2>subaccount</h2>
+
+<p>
+  <code>subaccount</code> applies to a <code>blob</code> of 32 bytes. Input is <code>#n</code> or a
+  plain decimal <code>n</code> with 0 ≤ n &lt; 2<sup>64</sup>, encoded big-endian into 32 bytes,
+  or exactly 64 hex characters, with or without <code>0x</code>. A string of 64 hex digits is
+  read as hex even when every digit is a decimal digit, and a decimal has no leading zeros, so no
+  input has two readings.
+</p>
+
+<p>
+  Display is <code>#n</code> when the first 24 bytes are zero, and 64 lowercase hex characters
+  otherwise: <code>#7</code> parses to 31 zero bytes and a 7, and displays as <code>#7</code>.
+  <code>parse(display(x)) = x</code> must hold for every 32-byte value, and the format library
+  checks it on 20,000 random values in its tests.
+</p>
+
+<h2>bytes</h2>
+
+<p>
+  <code>bytes</code> applies to a <code>blob</code>, with a required <code>encoding</code>
+  (<code>utf8</code>, <code>hex</code> or <code>base64</code>) and an optional
+  <code>max_len</code>, which counts bytes after encoding. The ICRC-1 pack tags
+  <code>memo</code> as <code>utf8</code>.
+</p>
+
+<ul>
+  <li>
+    <strong><code>utf8</code></strong>: input is plain text, encoded as UTF-8; input that starts
+    with <code>0x</code> is read as hex, so any bytes can still be entered. Display shows the
+    text when the bytes are valid UTF-8 with no control, format or line-separator characters and
+    the text does not start with <code>0x</code>; otherwise it shows <code>0x</code> and lowercase
+    hex. A memo of <code>68 0a</code> ("h" and a newline) displays as <code>0x680a</code>, so a
+    line break cannot hide the rest of a message.
+  </li>
+  <li>
+    <strong><code>hex</code></strong> accepts an optional <code>0x</code> and either case, and
+    always displays <code>0x</code> and lowercase. <strong><code>base64</code></strong> uses the
+    standard alphabet, with padding optional on input and always written on display.
+  </li>
+  <li>
+    <strong><code>max_len</code></strong> is a byte count: <code>héllo</code> is six bytes, so a
+    <code>max_len</code> of 5 refuses it with <diag>E_MAX_LEN</diag>.
+  </li>
+</ul>
+
+<h2>default</h2>
+
+<p>
+  <code>default</code> fills a position the person need not think about. Its <code>value</code> is
+  a Candid literal or a dynamic value, and its <code>mode</code> says who sees it:
+</p>
+
+<ul>
+  <li><code>auto</code>: the tool layer fills the value, and the position is left out of the agent's tool schema altogether. The ICRC-1 pack sets <code>fee</code> to <code>null</code> this way, so the ledger charges its current fee and the model is never asked to guess one.</li>
+  <li><code>suggest</code>: the position is shown, with the default filled in. The pack suggests <code>null</code> for <code>memo</code>.</li>
+</ul>
+
+<p>
+  <code>null</code> is allowed only on an <code>opt</code> position (<diag>E_DEFAULT_NULL</diag>).
+  The v0 validator does not check that other literals type-check against their position, so a
+  consumer checks a default before it uses one.
+</p>
+
+<h2>describe, text, range and ui</h2>
+
+<ul>
+  <li>
+    <strong><code>describe</code></strong> gives any position, or a method, a <code>label</code>
+    and <code>help</code>. The ICRC-1 pack labels <code>fee</code> "Fee", with the help "Leave
+    empty to pay the ledger's current default fee. A wrong explicit fee fails with BadFee." Labels
+    become the rows of a consent message and the names of form fields.
+  </li>
+  <li>
+    <strong><code>text</code></strong> (experimental) applies to <code>text</code>:
+    <code>format</code> (<code>plain</code>, <code>markdown</code>, <code>email</code>,
+    <code>url</code>), <code>max_len</code> and a <code>pattern</code>.
+  </li>
+  <li>
+    <strong><code>range</code></strong> (experimental) bounds a number with <code>min</code> and
+    <code>max</code>, as decimal strings in base units, or a <code>text</code> or <code>vec</code>
+    with <code>min_len</code> and <code>max_len</code>.
+  </li>
+  <li>
+    <strong><code>ui</code></strong> (experimental) is for user interfaces only:
+    <code>order</code>, <code>group</code>, <code>hidden</code> and <code>widget</code>. Agents
+    ignore it. The ICRC-1 pack hides <code>created_at_time</code>, which the tool layer fills.
+  </li>
+</ul>
+
+<p>
+  A numeric argument of an update method with none of <code>amount</code>,
+  <code>timestamp</code>, <code>duration</code> or <code>describe</code> gets the info
+  <diag>I_UNTAGGED_NUMERIC</diag>: a bare number is the kind of position where an agent guesses.
+</p>
+
+<h2>named</h2>
+
+<p>
+  <code>named</code> (experimental) marks a position where a name from a <code>names</code> set
+  can stand in for the value: "Savings" for an account id, "Alice" for a principal. It stacks with
+  the position's other tags, and a name is tried only when the input is not already a valid value.
+  The matching rule, and why a name can never redirect a transfer, are on
+  <a href="names.html">Names</a>.
+</p>
+
+<h2>On an EVM contract</h2>
+
+<p>
+  Profiles for EVM contracts are experimental (spec §15). The rules above carry over unchanged
+  for <code>amount</code>, <code>timestamp</code>, <code>duration</code> and <code>bytes</code>,
+  with ABI types in place of Candid ones: <code>amount</code> applies to <code>uint8</code> to
+  <code>uint256</code> and <code>int8</code> to <code>int256</code>, each with the bounds of its
+  bits; <code>timestamp</code> and <code>duration</code> to <code>uint32</code> to
+  <code>uint256</code> and <code>int64</code> to <code>int256</code>; and <code>bytes</code> to
+  <code>bytes</code> and <code>bytes1</code> to <code>bytes32</code>.
+</p>
+
+<ul>
+  <li>An address has one text form, <code>0x</code> and 40 hex digits, shown with its EIP-55 checksum. It needs no tag, so <code>account</code> and <code>subaccount</code> on an EVM contract are <diag>E_TAG_NOT_APPLICABLE</diag>.</li>
+  <li>The ERC-20 pack gives <code>amount</code> a display-only <code>threshold</code> and <code>message</code>, so that an approval of the largest <code>uint256</code> shows as <code>Unlimited USDC</code> rather than a 78-digit number.</li>
+</ul>
+
+<p><a href="chain-evm.html">EVM contracts</a> has the rest.</p>
+
+<h2>Next</h2>
+
+<div class="card-grid">
+  <a class="card" href="format-values.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Parse and display values</span>
+    <p>The <code>@meantjs/format</code> API: formatters, safe results and error codes.</p>
+  </a>
+  <a class="card" href="reference-tags.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">Tags</span>
+    <p>All 18 tags in one table: where each applies, its arguments, core or experimental.</p>
+  </a>
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>How these values become the line a person reads before a call is sent.</p>
+  </a>
+</div>

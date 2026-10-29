@@ -1,0 +1,494 @@
+<p>
+  Two JSON documents carry the profile layer. The <strong>profile</strong> is what an author, a reviewer or a pack
+  writes: annotations bound to an interface. The <strong>resolved form</strong> is what the resolver writes for
+  consumers: one tree per method, with the effective tags at every position. Both are format version 0. The structure
+  of the profile is <a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/profile-v0.schema.json"><code>profile/spec/profile-v0.schema.json</code></a>;
+  the resolved form is spec <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#10-resolved-form-consumer-interchange">§10</a>
+  and, for EVM contracts, §15.5. Excerpts below are the generated fixtures in
+  <a href="https://github.com/B3Pay/Meant/tree/main/profile/fixtures"><code>profile/fixtures/</code></a>, quoted unchanged
+  apart from indentation.
+</p>
+
+<h2>The profile document</h2>
+
+<pre data-lang="json" data-file="profile/examples/tokens.profile.json">
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "canister",
+  "name": "tokens-example",
+  "origin": "author",
+  "language": "en",
+  "description": "Example author profile for examples/tokens.did. Shows type: addresses (one tag on Tokens.e8s reaches every Tokens position), a method-address override, and the idempotency stamp.",
+  "binds": {
+    "interface_id": "candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c"
+  },
+  "annotations": [
+    { "at": "type:Tokens.e8s", "tag": "amount", "args": { "decimals": 8, "symbol": "TOK" } },
+    { "at": "type:Tokens.e8s", "tag": "describe", "args": { "label": "Amount" } },
+    { "at": "balance->(0).e8s", "tag": "describe", "args": { "label": "Balance" } },
+    { "at": "send", "tag": "intent", "args": { "title": "Send TOK", "template": "Send {amount.e8s} to {to}[ with memo {memo}]" } },
+    { "at": "send", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+    { "at": "send", "tag": "idempotency", "args": { "mode": "replay_same_payload", "stamp": "created_at" } },
+    { "at": "send", "tag": "outcome", "args": { "classes": { "Ok": "success", "Err.Duplicate": "already_done", "Err.Insufficient": "fail", "Err.Other": "fail" } } },
+    { "at": "send(0).created_at", "tag": "timestamp", "args": { "unit": "ns", "epoch": "unix" } },
+    { "at": "send(0).memo", "tag": "bytes", "args": { "encoding": "utf8" } },
+    { "at": "send(0).memo", "tag": "default", "args": { "value": "null", "mode": "suggest" } }
+  ]
+}
+</pre>
+
+<p>Top-level fields. No other field is allowed (<code>additionalProperties: false</code>; anything else is <diag>E_SCHEMA</diag>).</p>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Required</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>format</code></td><td>yes</td><td><code>"candid-profile"</code></td></tr>
+    <tr><td><code>format_version</code></td><td>yes</td><td><code>0</code></td></tr>
+    <tr><td><code>kind</code></td><td>yes</td><td><code>"canister"</code>, <code>"pack"</code> or <code>"contract"</code> (an EVM contract, experimental)</td></tr>
+    <tr><td><code>name</code></td><td>yes</td><td>matches <code>^[a-z0-9][a-z0-9_.-]{0,63}$</code></td></tr>
+    <tr><td><code>origin</code></td><td>yes</td><td><code>"author"</code>, <code>"third_party"</code>, <code>"pack"</code> or <code>"inferred"</code>; which ones a kind allows is below</td></tr>
+    <tr><td><code>language</code></td><td>no</td><td>a language tag matching <code>^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$</code>; default <code>"en"</code></td></tr>
+    <tr><td><code>description</code></td><td>no</td><td>text</td></tr>
+    <tr><td><code>binds</code></td><td>yes</td><td>an object whose shape depends on <code>kind</code> (below)</td></tr>
+    <tr><td><code>annotations</code></td><td>yes</td><td>an array of at least one annotation</td></tr>
+  </tbody>
+</table>
+
+<h3>Kinds and origins</h3>
+
+<table>
+  <thead>
+    <tr><th><code>kind</code></th><th>Allowed <code>origin</code></th><th><code>binds</code></th><th>Binds by</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>canister</code></td><td><code>author</code>, <code>third_party</code>, <code>inferred</code></td><td>canister binds</td><td>the interface's <code>interface_id</code></td></tr>
+    <tr><td><code>pack</code></td><td><code>pack</code> only</td><td>pack binds</td><td>structure: Candid subtyping of <code>binds.requires</code>, or an EVM contract's selectors for <code>binds.abi</code></td></tr>
+    <tr><td><code>contract</code></td><td><code>author</code>, <code>third_party</code>, <code>inferred</code></td><td>contract binds</td><td>the identity of its own <code>binds.abi</code> (spec §15.3)</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>origin</code> is also the profile's layer when profiles are merged, highest first: <code>author</code>,
+  <code>third_party</code>, <code>pack</code>, <code>inferred</code>. An <code>inferred</code> profile must be approved by
+  a person before it is active. See <a href="profiles.html">Profiles, layers and binding</a>.
+</p>
+
+<h2>binds</h2>
+
+<h3>Canister binds</h3>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Required</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>interface_id</code></td><td>yes</td><td><code>candid-core:interface:v1:sha256:</code> and 64 lowercase hex digits (<a href="identities.html">Content-addressed identities</a>)</td></tr>
+    <tr><td><code>contract_id</code></td><td>no</td><td><code>candid-core:contract:v1:sha256:</code> and 64 lowercase hex digits</td></tr>
+    <tr><td><code>canister_id</code></td><td>no</td><td>principal text of the canister (<code>^[a-z0-9]{5}(-[a-z0-9]{5})*(-[a-z0-9]{1,5})?$</code>); for a served profile it must be the serving canister (<diag>E_SERVED</diag>)</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Against an interface with another <code>interface_id</code>, every address is resolved again: a profile that still
+  holds is <code>rebound</code> (<diag>W_REBOUND</diag>), one that does not is <code>stale</code>
+  (<diag>E_STALE</diag>), and a stale profile's value-conversion tags (<code>amount</code>, <code>timestamp</code>,
+  <code>duration</code>, <code>account</code>, <code>subaccount</code>, <code>bytes</code>) are left out of the resolved form.
+</p>
+
+<h3>Pack binds</h3>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Required</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>standard</code></td><td>yes</td><td>matches <code>^[A-Z]+-[0-9]+$</code>: <code>"ICRC-1"</code>, <code>"ERC-20"</code></td></tr>
+    <tr><td><code>spec_url</code></td><td>no</td><td>an <code>https://</code> URL</td></tr>
+    <tr><td><code>requires</code></td><td>exactly one of the two</td><td>a Candid service fragment (at least 10 characters). The pack applies to a canister whose service type is a subtype of it.</td></tr>
+    <tr><td><code>abi</code></td><td>exactly one of the two</td><td>an EVM ABI (as for a contract, below). The pack applies to a contract that has each function with the same selector, outputs and kind of call.</td></tr>
+  </tbody>
+</table>
+
+<p>A pack may not use <code>type:</code> addresses (<diag>E_PACK_TYPE_REF</diag>). The standard packs are on <a href="reference-packs.html">Standard packs</a>.</p>
+
+<h3>Contract binds</h3>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Required</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>abi</code></td><td>yes</td><td>an array of at least one entry: a human-readable fragment starting with <code>function</code>, <code>event</code>, <code>error</code>, <code>constructor</code>, <code>fallback</code> or <code>receive</code>, or a JSON ABI entry with one of those as <code>type</code>. Only functions are read.</td></tr>
+    <tr><td><code>deployments</code></td><td>no</td><td>an array of at least one <code>{ "chain_id": integer ≥ 1, "address": "0x" and 40 hex digits }</code>. A mixed-case address that fails its EIP-55 checksum is <diag>E_ADDRESS_CHECKSUM</diag>; a deployment listed twice is <diag>W_DUPLICATE</diag>.</td></tr>
+  </tbody>
+</table>
+
+<h2>annotations</h2>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Required</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>at</code></td><td>yes</td><td>an address (spec §3, <a href="addresses.html">Addresses</a>); which kind depends on the tag (below)</td></tr>
+    <tr><td><code>tag</code></td><td>yes</td><td>one of the 18 tags (<a href="reference-tags.html">Tags</a>)</td></tr>
+    <tr><td><code>args</code></td><td>yes</td><td>an object, checked against the tag's <code>args_*</code> definition; <code>subaccount</code> takes <code>{}</code></td></tr>
+    <tr><td><code>note</code></td><td>no</td><td>text</td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th>Tags</th><th><code>at</code> must be</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code></td><td>a method address: <code>^[A-Za-z_][A-Za-z0-9_]*$</code></td></tr>
+    <tr><td><code>intent</code>, <code>effect</code></td><td>a method address, or a value address (a case of a variant in the arguments, D-053)</td></tr>
+    <tr><td><code>describe</code></td><td>a value address or a method address</td></tr>
+    <tr><td><code>amount</code>, <code>timestamp</code>, <code>duration</code>, <code>account</code>, <code>subaccount</code>, <code>bytes</code>, <code>text</code>, <code>range</code>, <code>default</code>, <code>ui</code>, <code>named</code></td><td>a value address: <code>METHOD(i)path</code>, <code>METHOD-&gt;(i)path</code> or <code>type:DECL path</code></td></tr>
+  </tbody>
+</table>
+
+<pre data-lang="text" data-file="profile/docs/profile-v0.md">
+address      = value-address / method-address
+method-address = METHOD                                   ; the method itself
+value-address  = METHOD "(" INDEX ")" path                ; argument INDEX
+               / METHOD "->(" INDEX ")" path              ; result INDEX
+               / "type:" DECL path                         ; canister profiles only
+path         = *( "." label / "[]" )
+label        = IDENT / "#" U32                             ; field/case name, or raw Candid id
+relpath      = [ "(" INDEX ")" ] [ [ "." ] label / "[]" ] *( "." label / "[]" )   ; non-empty
+METHOD, DECL, IDENT = [A-Za-z_][A-Za-z0-9_]*
+U32          = decimal integer, 0 … 4294967295
+</pre>
+
+<h2>profile_id</h2>
+
+<p>
+  A profile's identity is <code>candid-profile:v0:sha256:</code> and the SHA-256 of the RFC 8785 (JCS) canonical JSON of
+  the whole document, in lowercase hex. Any edit changes it, a change to <code>description</code> included; reordering
+  keys does not, because JCS sorts them. The validator prints it:
+</p>
+
+<pre data-lang="bash">
+cd profile
+node scripts/validate.mjs packs/icrc1.profile.json
+</pre>
+
+<pre data-lang="text">
+PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
+     interface_id candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689  [5 methods, 29 annotations]
+</pre>
+
+<p><code>@meantjs/profile</code> exports the same computation, and the canonical JSON it hashes:</p>
+
+<pre data-lang="js" data-check>
+import { profileId, jcs } from "@meantjs/profile";
+import { readFileSync } from "node:fs";
+
+const doc = JSON.parse(readFileSync("packs/icrc1.profile.json", "utf8"));
+profileId(doc); // "candid-profile:v0:sha256:e5b16b51…"
+jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
+</pre>
+
+<p>
+  A profile never changes <code>interface_id</code> or <code>contract_id</code>: it is a separate document bound to
+  them. The resolved form's <code>profiles</code> list carries each applied profile's <code>profile_id</code>, so a
+  consumer can say which document wrote the words it shows.
+</p>
+
+<h2>The resolved form</h2>
+
+<p>
+  Consumers do not resolve addresses. They read this form, which <code>candid-profile resolve</code>,
+  <code>resolveService</code> and <code>validateProfile(…, { resolved: true })</code> write
+  (<a href="resolve-profiles.html">Validate and resolve profiles</a>). Its top level:
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/icrc1.resolved.json">
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "interface_id": "candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689",
+  "profiles": [
+    {
+      "name": "icrc1",
+      "origin": "pack",
+      "profile_id": "candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b"
+    }
+  ],
+  "methods": {
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>format</code></td><td><code>"candid-profile-resolved"</code></td></tr>
+    <tr><td><code>format_version</code></td><td><code>0</code></td></tr>
+    <tr><td><code>chain</code></td><td><code>"evm"</code> for an EVM contract's form; absent for a Candid service's. A consumer MUST refuse a form whose <code>chain</code> it does not know rather than read it as Candid.</td></tr>
+    <tr><td><code>interface_id</code></td><td>the service's <code>candid-core:interface:v1:sha256:…</code> (from the compiled <code>.did</code>, or the envelope's <code>contract.identities.interface</code>), or an ABI's <code>candid-profile:evm-abi:v0:sha256:…</code></td></tr>
+    <tr><td><code>profiles</code></td><td>every applied profile, highest layer first: <code>{ name, origin, profile_id }</code>, plus <code>deployments</code> when the profile binds them</td></tr>
+    <tr><td><code>methods</code></td><td>one entry per method, keyed by name, in sorted order</td></tr>
+    <tr><td><code>diagnostics</code></td><td>the diagnostics of the resolve (<a href="reference-profile-diagnostics.html">Profile diagnostics</a>); a diagnostic from a multi-profile resolve may carry <code>profile</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Method entries</h3>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>mode</code></td><td><code>query</code>, <code>composite_query</code>, <code>update</code> or <code>oneway</code>. An EVM <code>view</code> or <code>pure</code> function is a <code>query</code>, <code>nonpayable</code> and <code>payable</code> an <code>update</code>.</td></tr>
+    <tr><td><code>tags</code></td><td>the method tags. <code>effect</code> is always present: when no profile sets it, the resolver writes the §5.3 default with <code>"origin": "default"</code>.</td></tr>
+    <tr><td><code>args</code></td><td>one node per argument</td></tr>
+    <tr><td><code>results</code></td><td>one node per result</td></tr>
+    <tr><td><code>selector</code>, <code>signature</code>, <code>state_mutability</code></td><td>EVM only: <code>"0xa9059cbb"</code>, <code>"transfer(address to,uint256 value)"</code>, <code>"nonpayable"</code></td></tr>
+  </tbody>
+</table>
+
+<pre data-lang="json" data-file="profile/fixtures/icrc1.resolved.json">
+"icrc1_decimals": {
+  "mode": "query",
+  "tags": {
+    "effect": {
+      "args": {
+        "kind": "read",
+        "irreversible": false
+      },
+      "origin": "default"
+    }
+  },
+  "args": [],
+  "results": [
+    {
+      "candid": "nat8"
+    }
+  ]
+},
+</pre>
+
+<h3>Node fields</h3>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Present when</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>candid</code></td><td>a Candid service's form</td><td>a primitive name (<code>nat</code>, <code>nat64</code>, <code>text</code>, <code>principal</code>, …), or <code>record</code>, <code>variant</code>, <code>vec</code>, <code>blob</code>, <code>func</code>, <code>service</code></td></tr>
+    <tr><td><code>abi</code></td><td>an EVM contract's form</td><td>the canonical type of a primitive (<code>uint256</code>, <code>address</code>, <code>bytes32</code>), <code>"tuple"</code> or <code>"array"</code></td></tr>
+    <tr><td><code>optional</code></td><td>the position passes through an <code>opt</code></td><td><code>true</code></td></tr>
+    <tr><td><code>fields</code></td><td>a record, or an ABI tuple</td><td><code>{ name → node }</code></td></tr>
+    <tr><td><code>cases</code></td><td>a variant</td><td><code>{ name → node }</code></td></tr>
+    <tr><td><code>element</code></td><td>a <code>vec</code>, or an ABI array</td><td>the element's node</td></tr>
+    <tr><td><code>length</code></td><td>an ABI fixed-size array <code>T[k]</code></td><td><code>k</code></td></tr>
+    <tr><td><code>recursive</code></td><td>the walk cut a cycle (or reached the depth bound) here</td><td><code>true</code></td></tr>
+    <tr><td><code>tags</code></td><td>the position has tags</td><td><code>{ tag → { args, origin, profile } }</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Tags and their provenance</h3>
+
+<p>
+  Every tag carries where it came from: <code>origin</code> is the layer of the profile that supplied it, and
+  <code>profile</code> that profile's <code>name</code>. The one tag with <code>"origin": "default"</code> and no
+  <code>profile</code> is an <code>effect</code> the resolver supplied. This is the idempotency stamp of
+  <code>icrc1_transfer</code>, which the tool layer fills and <code>ui.hidden</code> keeps out of forms:
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/icrc1.resolved.json">
+"created_at_time": {
+  "candid": "nat64",
+  "optional": true,
+  "tags": {
+    "timestamp": {
+      "args": {
+        "unit": "ns",
+        "epoch": "unix"
+      },
+      "origin": "pack",
+      "profile": "icrc1"
+    },
+    "describe": {
+      "args": {
+        "label": "Created at",
+        "help": "Set once per intent by the tool layer; enables the ledger's duplicate protection."
+      },
+      "origin": "pack",
+      "profile": "icrc1"
+    },
+    "ui": {
+      "args": {
+        "hidden": true
+      },
+      "origin": "pack",
+      "profile": "icrc1"
+    }
+  }
+},
+</pre>
+
+<p>Where a node's tags come from:</p>
+
+<ul>
+  <li>Tags from <code>type:</code> addresses appear at every position reached through that edge.</li>
+  <li>A method-address tag at the same position wins (§8). In the tokens example, <code>type:Tokens.e8s</code> gives every <code>e8s</code> the label <code>Amount</code>, and <code>balance-&gt;(0).e8s</code> overrides it with <code>Balance</code> in <code>balance</code>'s result.</li>
+  <li>A case node's <code>tags</code> may hold <code>intent</code> and <code>effect</code> (D-053). A consumer that does not read them uses the method's.</li>
+  <li>A stale profile supplies no value-conversion tag; its other tags stay.</li>
+</ul>
+
+<pre data-lang="json" data-file="profile/fixtures/tokens-example.resolved.json">
+"e8s": {
+  "candid": "nat64",
+  "tags": {
+    "amount": {
+      "args": {
+        "decimals": 8,
+        "symbol": "TOK"
+      },
+      "origin": "author",
+      "profile": "tokens-example"
+    },
+    "describe": {
+      "args": {
+        "label": "Balance"
+      },
+      "origin": "author",
+      "profile": "tokens-example"
+    }
+  }
+}
+</pre>
+
+<h3>Ordering</h3>
+
+<ul>
+  <li>Methods are sorted by name.</li>
+  <li>Record fields and variant cases follow canonical id order (the Candid field hash), not source order. <code>icrc1_transfer</code>'s argument lists <code>to</code>, <code>fee</code>, <code>memo</code>, <code>from_subaccount</code>, <code>created_at_time</code>, <code>amount</code>. Use <code>ui.order</code> for presentation.</li>
+  <li><code>profiles</code> is highest layer first.</li>
+</ul>
+
+<h3>Unresolved dynamic values</h3>
+
+<p>
+  A dynamic value stays as written, <code>{ "from": "query:icrc1_decimals" }</code>: resolving it needs the network, so
+  it is the consumer's job. The packages take the resolved values as <code>refs</code>, keyed by their
+  <code>from</code> (<code>{ "query:icrc1_decimals": 8 }</code>). <claim>open</claim> OQ-10 (owner W1/W3): should the
+  resolved form carry resolved dynamic values with their provenance, certified or not?
+</p>
+
+<h2>EVM contracts: chain evm</h2>
+
+<callout type="warn" title="Experimental">
+  <p>Spec §15, phase 1. See <a href="chain-evm.html">EVM contracts</a>.</p>
+</callout>
+
+<p>
+  The resolved form of an EVM contract has <code>"chain": "evm"</code> at the top, an ABI identity as its
+  <code>interface_id</code>, and nodes with <code>abi</code> where a Candid form's have <code>candid</code>. Each method
+  adds <code>selector</code>, <code>signature</code> (the ERC-7730 key form, with names) and
+  <code>state_mutability</code>. Its parameters are one tuple at argument index 0. From the ERC-20 pack's fixture:
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/erc20.resolved.json">
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "chain": "evm",
+  "interface_id": "candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b",
+  "profiles": [
+    {
+      "name": "erc20",
+      "origin": "pack",
+      "profile_id": "candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186"
+    }
+  ],
+</pre>
+
+<pre data-lang="json" data-file="profile/fixtures/erc20.resolved.json">
+"transfer": {
+  "mode": "update",
+  "selector": "0xa9059cbb",
+  "signature": "transfer(address to,uint256 value)",
+  "state_mutability": "nonpayable",
+  "tags": {
+    "intent": {
+      "args": {
+        "title": "Send tokens",
+        "template": "Send {value} to {to}"
+      },
+      "origin": "pack",
+      "profile": "erc20"
+    },
+    "effect": {
+      "args": {
+        "kind": "transfer",
+        "irreversible": true
+      },
+      "origin": "pack",
+      "profile": "erc20"
+    }
+  },
+  "args": [
+    {
+      "abi": "tuple",
+      "fields": {
+        "to": {
+          "abi": "address",
+          "tags": {
+            "describe": {
+              "args": {
+                "label": "Recipient"
+              },
+              "origin": "pack",
+              "profile": "erc20"
+            }
+          }
+        },
+        "value": {
+          "abi": "uint256",
+          "tags": {
+            "amount": {
+              "args": {
+                "decimals": {
+                  "from": "query:decimals"
+                },
+                "symbol": {
+                  "from": "query:symbol"
+                }
+              },
+              "origin": "pack",
+              "profile": "erc20"
+            },
+            "describe": {
+              "args": {
+                "label": "Amount"
+              },
+              "origin": "pack",
+              "profile": "erc20"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "results": [
+    {
+      "abi": "bool"
+    }
+  ]
+},
+</pre>
+
+<p>
+  The ABI identity is <code>candid-profile:evm-abi:v0:sha256:</code> and the SHA-256 of the JCS array of the
+  functions' canonical fragments, sorted (spec §15.1). <code>@meantjs/consent</code> refuses this form at its main
+  entry, and <code>@meantjs/tools</code> refuses it outright: EVM tools are a later phase.
+</p>

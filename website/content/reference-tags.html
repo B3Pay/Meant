@@ -1,0 +1,346 @@
+<p>
+  A tag gives one position of an interface a meaning. Twelve tags are <span class="pill ok">core</span>: the
+  preregistered eval depends on them, so they are stable within v0. Six are
+  <span class="pill warn">experimental</span> and may change. The tables below are checked against
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#5-tags">spec §5</a>, the JSON Schema
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/profile-v0.schema.json"><code>profile/spec/profile-v0.schema.json</code></a>,
+  the <code>args_*</code> definitions) and the resolver's applicability checks
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/resolver/src/checks.mjs"><code>checks.mjs</code></a>).
+  Each tag links to the concept page that explains it.
+</p>
+
+<p>A tag is one annotation: an address, the tag's name and its arguments. This one is from the ICRC-1 pack:</p>
+
+<annotation at="icrc1_transfer(0).amount" tag="amount">
+decimals: { "from": "query:icrc1_decimals" }
+symbol: { "from": "query:icrc1_symbol" }
+</annotation>
+
+<h2>Value tags</h2>
+
+<p>
+  A value tag sits at a value address (<code>method(i).path</code>, <code>method-&gt;(i).path</code> or, in a canister
+  profile, <code>type:Decl.path</code>; see <a href="addresses.html">Addresses</a>). <code>opt</code> is transparent: a
+  tag on <code>fee : opt nat</code> applies to the <code>nat</code>. A tag on a type it does not fit is
+  <diag>E_TAG_NOT_APPLICABLE</diag>; a value tag at a bare method name is <diag>E_TAG_TARGET</diag>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Tag</th><th>Status</th><th>Applies to</th><th>Arguments</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="value-tags.html"><code>amount</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>nat</code>, <code>int</code>, <code>nat8</code>, <code>nat16</code>, <code>nat32</code>, <code>nat64</code>, <code>int8</code>, <code>int16</code>, <code>int32</code>, <code>int64</code></td>
+      <td>
+        <code>decimals</code>, required: an integer 0–255, or <code>{ "from": "query:&lt;method&gt;" }</code>.<br>
+        <code>symbol</code>, optional: text of 1–32 characters, or a <code>query:</code> value.<br>
+        <code>threshold</code>, optional, display only: a decimal string in base units; a value at or above it displays as <code>message</code> and the symbol.<br>
+        <code>message</code>, optional: 1–32 characters, default <code>"Unlimited"</code>; needs <code>threshold</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>timestamp</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>nat</code>, <code>int</code>, <code>nat32</code>, <code>nat64</code>, <code>int64</code></td>
+      <td>
+        <code>unit</code>, required: <code>ns</code>, <code>us</code>, <code>ms</code> or <code>s</code>.<br>
+        <code>epoch</code>, optional: <code>unix</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>duration</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>as <code>timestamp</code></td>
+      <td><code>unit</code>, required: <code>ns</code>, <code>us</code>, <code>ms</code> or <code>s</code>.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>account</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>record { owner : principal; subaccount : opt blob }</code></td>
+      <td><code>encoding</code>, optional: <code>icrc1</code>.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>subaccount</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>blob</code></td>
+      <td>none: <code>args</code> is <code>{}</code>.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>bytes</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>blob</code></td>
+      <td>
+        <code>encoding</code>, required: <code>utf8</code>, <code>hex</code> or <code>base64</code>.<br>
+        <code>max_len</code>, optional: an integer ≥ 0, counted in bytes after encoding.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>default</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>any position; the value <code>null</code> only on an <code>opt</code> (<diag>E_DEFAULT_NULL</diag>)</td>
+      <td>
+        <code>value</code>, required: a Candid textual literal (<code>"null"</code>, <code>"opt 0"</code>), or a dynamic value (<code>query:</code>, <code>now</code>, <code>caller</code>).<br>
+        <code>mode</code>, required: <code>auto</code> (filled by the tool layer, never exposed) or <code>suggest</code> (exposed, pre-filled).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>describe</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>any position, or a method</td>
+      <td>
+        <code>label</code>: 1–80 characters.<br>
+        <code>help</code>: 1–2000 characters.<br>
+        At least one of the two.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>text</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td><code>text</code></td>
+      <td>
+        <code>format</code>: <code>plain</code>, <code>markdown</code>, <code>email</code> or <code>url</code>.<br>
+        <code>max_len</code>: an integer ≥ 0.<br>
+        <code>pattern</code>: a regular expression.<br>
+        At least one of the three.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>range</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a numeric type, <code>text</code>, a <code>vec</code></td>
+      <td>
+        <code>min</code>, <code>max</code>: decimal strings, in base units.<br>
+        <code>min_len</code>, <code>max_len</code>: integers ≥ 0.<br>
+        At least one of the four.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>ui</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>any position</td>
+      <td>
+        <code>order</code> (integer), <code>group</code> (text), <code>hidden</code> (boolean), <code>widget</code> (text); at least one. UI only: agents ignore it.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="names.html"><code>named</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a position a name from a <code>names</code> set can stand for; its Candid type equals the set's field (<diag>E_NAMED_TYPE</diag>)</td>
+      <td>
+        <code>set</code>, required: a declared set (<diag>E_NAMED_SET</diag>), matching <code>^[a-z][a-z0-9_]*$</code>, at most 64 characters.<br>
+        <code>by</code>, optional: <code>value</code> (default) or <code>show</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Dynamic values</h3>
+
+<table>
+  <thead>
+    <tr><th>Value</th><th>Allowed in</th><th>Rule</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>{ "from": "query:&lt;method&gt;" }</code></td>
+      <td><code>amount.decimals</code> (a number), <code>amount.symbol</code> (text), <code>default.value</code></td>
+      <td>A query or composite query of the same canister, with no arguments and one result of the expected kind: <diag>E_REF_UNRESOLVED</diag>, <diag>E_REF_NOT_QUERY</diag>, <diag>E_REF_SHAPE</diag>, <diag>E_REF_TYPE</diag>.</td>
+    </tr>
+    <tr>
+      <td><code>{ "from": "now" }</code>, <code>{ "from": "caller" }</code></td>
+      <td><code>default.value</code> only</td>
+      <td>Anywhere else is <diag>E_DYNAMIC_KIND</diag>. <code>now</code> is the canister's clock, never the host's.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Integers that can exceed 2<sup>53</sup> (amounts, bounds) are decimal strings, such as <code>"100000000"</code>. The
+  resolver leaves dynamic values unresolved in the resolved form: resolving them needs the network, so it is the
+  consumer's job (<a href="reference-profile-format.html">Profile and resolved form</a>).
+</p>
+
+<callout type="note" title="Not checked by the v0 validator">
+  <p>
+    Whether a <code>default.value</code> literal other than <code>null</code> type-checks against its position. The
+    spec requires consumers to check it before they use a default.
+  </p>
+</callout>
+
+<h2>Method tags</h2>
+
+<p>
+  A method tag sits at a bare method name. <code>intent</code> and <code>effect</code> may also sit at a case address,
+  an argument address whose last step selects a case of a variant (<code>propose(0).Transfer</code>, D-053); a
+  result address, a <code>type:</code> address or a path through <code>[]</code> is <diag>E_TAG_TARGET</diag>, and two
+  tagged cases one value can take both are <diag>E_CASE_OVERLAP</diag>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Tag</th><th>Status</th><th>Address</th><th>Arguments</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>intent</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>a method, or a case of a variant in its arguments</td>
+      <td>
+        <code>title</code>, required: 1–60 characters.<br>
+        <code>template</code>, required: 1–500 characters, the grammar of spec §6 (<code>{relpath}</code> placeholders, <code>[ … ]</code> optional segments, escapes <code>{{ }} [[ ]]</code>).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>effect</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>a method, or a case of a variant in its arguments</td>
+      <td>
+        <code>kind</code>, required: <effect>read</effect> <effect>write</effect> <effect>transfer</effect> <effect>approve</effect> <effect>admin</effect> <effect>destroy</effect><br>
+        <code>irreversible</code>, required: boolean.<br>
+        <code>replicated</code>, optional: boolean; <code>true</code> only with <code>kind: "read"</code> and <code>irreversible: false</code> on an update method (a read-only update, D-038).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="outcomes-and-retries.html"><code>idempotency</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>an update method (<diag>E_IDEMPOTENCY_MODE</diag>)</td>
+      <td>
+        <code>mode</code>, required: <code>replay_same_payload</code>.<br>
+        <code>stamp</code>, required: an argument relpath to the field filled once per intent; it carries a <code>timestamp</code> tag (<diag>E_STAMP_UNTAGGED</diag>).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="outcomes-and-retries.html"><code>outcome</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>a method</td>
+      <td>
+        <code>classes</code>: <code>{ result relpath → class }</code>; every key selects a variant case (<diag>E_OUTCOME_NOT_CASE</diag>).<br>
+        <code>default</code>: a class.<br>
+        At least one of the two. Classes: <outcome>success</outcome> <outcome>already_done</outcome> <outcome>retry_same</outcome> <outcome>retry_new</outcome> <outcome>fix_input</outcome> <outcome>fail</outcome>
+      </td>
+    </tr>
+    <tr>
+      <td><code>list</code></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a method</td>
+      <td>
+        <code>cursor</code>, required: an argument relpath.<br>
+        <code>next</code>, <code>items</code>, required: result relpaths.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="names.html"><code>names</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a query, composite query or read-only update that takes no arguments (<diag>E_NAMES_MODE</diag>, <diag>E_NAMES_SHAPE</diag>)</td>
+      <td>
+        <code>set</code>, required: the set's name, declared once (<diag>E_NAMES_SET_DUPLICATE</diag>).<br>
+        <code>items</code>, required: a result relpath to a <code>vec</code> of records.<br>
+        <code>name</code>, required: a path inside one item, of type <code>text</code> (<diag>E_NAMES_FIELD</diag>).<br>
+        <code>value</code>, required; <code>show</code>, <code>kind</code>, optional: paths inside one item.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Defaults and bounds</h3>
+
+<table>
+  <thead>
+    <tr><th>Rule</th><th>Spec</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Without an <code>effect</code> tag, a query or composite query is <effect>read</effect>; an update is <effect>write</effect> with <code>irreversible: true</code>. The resolved form records these with <code>"origin": "default"</code>.</td>
+      <td>§5.3</td>
+    </tr>
+    <tr>
+      <td>A query declared as anything but <code>read</code> is <diag>E_EFFECT_MODE</diag>; a <code>read</code> on an update or oneway method is <diag>W_EFFECT_MODE</diag>, except the read-only update form.</td>
+      <td>§5.3</td>
+    </tr>
+    <tr>
+      <td>A method's effect bounds its cases': when a case effect is <code>transfer</code>, <code>approve</code>, <code>admin</code> or <code>destroy</code>, the method's effect is one of these four, and when a case effect is irreversible, so is the method's (<diag>E_CASE_EFFECT</diag>).</td>
+      <td>§5.3, D-053</td>
+    </tr>
+    <tr>
+      <td>A result case with no class falls back to <code>default</code> (<diag>W_OUTCOME_UNCLASSIFIED</diag> at info level), and is a warning when there is no default. Consumers treat a case with no class and no default as <outcome>fail</outcome>.</td>
+      <td>§5.3</td>
+    </tr>
+    <tr>
+      <td><code>classes</code> may be left out when the result has no variant to select; <code>default</code> is then required and classes every reply.</td>
+      <td>§5.3, D-049</td>
+    </tr>
+    <tr>
+      <td>Overlapping <code>outcome</code> keys: the most specific (longest path) wins.</td>
+      <td>§5.3</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Tags on an EVM contract</h2>
+
+<callout type="warn" title="Experimental">
+  <p>
+    EVM support is spec §15, phase 1: profiles, consent text for calldata and ERC-7730 export. Agent tools, outcome
+    classes over reverts and idempotency by nonce are later phases. See <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</callout>
+
+<p>An ABI is read as the graph a <code>.did</code> compiles to, so the same tags apply, with these types (spec §15.4):</p>
+
+<table>
+  <thead>
+    <tr><th>Tag</th><th>On an EVM contract</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="value-tags.html"><code>amount</code></a></td>
+      <td><code>uint8</code>…<code>uint256</code>, <code>int8</code>…<code>int256</code>. <code>query:</code> refs are <code>eth_call</code>s of a <code>view</code> or <code>pure</code> function of the same contract with no argument and one result.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>timestamp</code></a>, <a href="value-tags.html"><code>duration</code></a></td>
+      <td><code>uint32</code>…<code>uint256</code>, <code>int64</code>…<code>int256</code></td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>bytes</code></a></td>
+      <td><code>bytes</code>, <code>bytes1</code>…<code>bytes32</code></td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>text</code></a></td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>range</code></a></td>
+      <td>an integer type, <code>string</code>, an array</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>describe</code></a>, <a href="value-tags.html"><code>default</code></a>, <a href="value-tags.html"><code>ui</code></a>, <a href="intent-and-effects.html"><code>intent</code></a>, <a href="intent-and-effects.html"><code>effect</code></a></td>
+      <td>as on a canister. A template has no <code>[ ]</code> segments (<diag>E_TEMPLATE</diag>): an ABI value is never absent. <code>effect</code> defaults as in §5.3.</td>
+    </tr>
+    <tr>
+      <td><code>account</code>, <code>subaccount</code></td>
+      <td>none (<diag>E_TAG_NOT_APPLICABLE</diag>): an address needs no tag; it is shown with its EIP-55 checksum.</td>
+    </tr>
+    <tr>
+      <td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code>, <code>named</code></td>
+      <td>not yet (<diag>E_TAG_TARGET</diag>): they need nonces, receipts and reads that a later phase adds.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  The native value a <code>payable</code> function receives has no position yet (<claim>open</claim> O2, on
+  <a href="open-questions.html">Open questions</a>).
+</p>
+
+<h2>Where to read more</h2>
+
+<div class="card-grid">
+  <a class="card" href="value-tags.html"><span class="card-title">Values and exact conversion</span><p>How each value tag parses input and displays output, without rounding.</p></a>
+  <a class="card" href="intent-and-effects.html"><span class="card-title">Intent, effects and confirmation</span><p>The line a person reads, and which calls need their confirmation.</p></a>
+  <a class="card" href="outcomes-and-retries.html"><span class="card-title">Outcomes and retries</span><p>Outcome classes, the idempotency stamp and the consumer's retry rules.</p></a>
+  <a class="card" href="names.html"><span class="card-title">Names</span><p>The <code>names</code> and <code>named</code> tags and the one matching rule.</p></a>
+  <a class="card" href="reference-profile-diagnostics.html"><span class="card-title">Profile diagnostics</span><p>Every code a misplaced or misapplied tag produces.</p></a>
+</div>

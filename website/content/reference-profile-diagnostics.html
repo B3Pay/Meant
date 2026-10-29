@@ -1,0 +1,356 @@
+<p>
+  The resolver and the validator report problems as a list of diagnostics; the formatters and the consent generator
+  throw an error that carries a <code>code</code>. Either way, match on the code: the <code>message</code> is written
+  for a person or a model to read. Codes are grouped below by the package that returns them,
+  with the spec's §13 table first. Every code here is copied from
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#13-diagnostics">spec §13</a> or from the
+  package's source under <a href="https://github.com/B3Pay/Meant/tree/main/profile/packages"><code>profile/packages</code></a>.
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts">
+export interface Diagnostic {
+  severity: "error" | "warning" | "info";
+  code: string;
+  /** A JSON pointer for E_SCHEMA, an address (`send(0).to`, `type:Tokens.e8s`) or a document path (`binds.interface_id`). */
+  at: string;
+  message: string;
+  /** The profile's name, when the diagnostic comes from one. */
+  profile?: string;
+}
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Where</th><th>How a failure arrives</th><th>Codes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>@meantjs/profile</code> (<code>resolveService</code>, <code>validateProfile</code>, the <code>candid-profile</code> CLI)</td><td><code>diagnostics: Diagnostic[]</code>; <code>ok</code> is false when one is an error</td><td><a href="#resolver-and-validator-spec-13">§13</a>, <a href="#resolver-doc-annotations">doc annotations</a></td></tr>
+    <tr><td><code>@meantjs/profile/evm</code></td><td>throws <code>AbiError</code> with <code>code</code></td><td><a href="#meantjs-profile-evm-abierror">AbiError</a></td></tr>
+    <tr><td><code>@meantjs/format</code></td><td>throws <code>FormatError</code> with <code>code</code>; <code>safeParse</code> and <code>safeDisplay</code> return it</td><td><a href="#meantjs-format-formaterror">FormatError</a></td></tr>
+    <tr><td><code>@meantjs/consent</code> and its subpaths</td><td>throws <code>ConsentError</code>; <code>icrc21ConsentMessage</code> maps it to an ICRC-21 error; adjustments go to <code>diagnostics</code></td><td><a href="#meantjs-consent-consenterror">ConsentError</a>, <a href="#meantjs-consent-diagnostics">diagnostics</a></td></tr>
+    <tr><td><code>@meantjs/tools</code></td><td><code>readToolInput</code> returns <code>{ issues }</code></td><td><a href="#meantjs-tools-input-issues">input issues</a></td></tr>
+    <tr><td><code>@meantjs/reconcile</code></td><td>no codes: <code>matchBlocks</code> returns a status</td><td><a href="#meantjs-reconcile-statuses">statuses</a></td></tr>
+  </tbody>
+</table>
+
+<p>
+  The <code>candid-profile</code> CLI exits with 0 when no diagnostic is an error, 1 when one is (the resolved form is
+  still printed when the service compiles), and 2 for a usage or I/O problem
+  (<a href="cli-profile.html">The candid-profile command</a>).
+</p>
+
+<h2 id="resolver-and-validator-spec-13">Resolver and validator: spec §13</h2>
+
+<p>
+  Returned by <code>@meantjs/profile</code>. Rows that §13 groups (<code>E_ADDR_SYNTAX / E_ADDR_UNRESOLVED</code>) are
+  split here, one code a row, with the meaning that half of the §13 row gives.
+</p>
+
+<h3>Schema, interface and input</h3>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_SCHEMA</diag></td><td>error</td><td>Fails the JSON Schema. <code>at</code> is a JSON pointer.</td></tr>
+    <tr><td><diag>E_CANDID</diag></td><td>error</td><td>The interface (<code>requires</code> or <code>--did</code>) does not compile.</td></tr>
+    <tr><td><diag>E_ENVELOPE</diag></td><td>error</td><td>The interface was given as a candid-core <code>ContractEnvelope</code> (<code>--envelope</code>) that the resolver cannot read: not an object, no <code>contract</code>, a <code>contract.format</code> other than <code>candid-core</code>, a <code>format_version</code> other than 1, no <code>contract.identities.interface</code>, a type reference outside <code>contract.types</code>, or any other failure of candid-core's own structural or canonical checks. No resolved form is produced.</td></tr>
+    <tr><td><diag>E_SERVED</diag></td><td>error</td><td>A profile a canister serves (§8.1) that cannot be used: its bytes are not UTF-8 JSON (or start with a byte order mark), it is over 1 MiB, it is not one JSON object of <code>kind: "canister"</code> and <code>origin: "author"</code>, or its <code>binds.canister_id</code> names another canister. The profile is not applied; the rest of the service resolves without it.</td></tr>
+    <tr><td><diag>E_ABI</diag></td><td>error</td><td>An EVM ABI (<code>binds.abi</code>, or the contract's given as the interface) that cannot be read: a fragment that does not parse, a type that does not exist, an overloaded function name (O1), two components with one field id, or no function at all (§15.1).</td></tr>
+    <tr><td><diag>E_CHAIN</diag></td><td>error</td><td>A profile or pack for an EVM contract given for a Candid service, or the other way round (§15.3).</td></tr>
+    <tr><td><diag>E_ADDRESS_CHECKSUM</diag></td><td>error</td><td>A deployment address in mixed case that does not match its EIP-55 checksum (§15.3).</td></tr>
+    <tr><td><diag>W_NO_INTERFACE</diag></td><td>warning</td><td>Canister profile checked without its <code>.did</code>; semantic checks skipped.</td></tr>
+  </tbody>
+</table>
+
+<h3>Addresses and tags</h3>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_ADDR_SYNTAX</diag></td><td>error</td><td>Address does not parse.</td></tr>
+    <tr><td><diag>E_ADDR_UNRESOLVED</diag></td><td>error</td><td>Address does not resolve.</td></tr>
+    <tr><td><diag>E_PACK_TYPE_REF</diag></td><td>error</td><td><code>type:</code> address in a pack.</td></tr>
+    <tr><td><diag>E_TYPE_NODE</diag></td><td>error</td><td>Pathless <code>type:</code> address on a declaration that is not a record or a variant.</td></tr>
+    <tr><td><diag>E_TAG_TARGET</diag></td><td>error</td><td>Wrong kind of target. Includes an <code>intent</code> or <code>effect</code> at a value address that is not a case of a variant in the arguments, or that steps into <code>[]</code> (§5.2), and on an EVM contract <code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code> and <code>named</code> (not yet) (§15.4).</td></tr>
+    <tr><td><diag>E_TAG_NOT_APPLICABLE</diag></td><td>error</td><td>Wrong Candid type. Includes <code>account</code> and <code>subaccount</code> on an EVM contract (no ABI type) (§15.4).</td></tr>
+    <tr><td><diag>E_REF_UNRESOLVED</diag></td><td>error</td><td>Bad dynamic value: the <code>query:</code> method is not in the interface.</td></tr>
+    <tr><td><diag>E_REF_NOT_QUERY</diag></td><td>error</td><td>Bad dynamic value: the <code>query:</code> method is not a query.</td></tr>
+    <tr><td><diag>E_REF_SHAPE</diag></td><td>error</td><td>Bad dynamic value: the method does not take no arguments and return one value.</td></tr>
+    <tr><td><diag>E_REF_TYPE</diag></td><td>error</td><td>Bad dynamic value: the method returns the wrong kind (a number expected, or text).</td></tr>
+    <tr><td><diag>E_DYNAMIC_KIND</diag></td><td>error</td><td>Bad dynamic value: <code>now</code> or <code>caller</code> where only <code>query:</code> is valid.</td></tr>
+    <tr><td><diag>E_DEFAULT_NULL</diag></td><td>error</td><td><code>null</code> default on a non-optional position.</td></tr>
+    <tr><td><diag>W_STRUCTURAL_ALIAS</diag></td><td>warning</td><td>A <code>type:</code> address starts from a declaration whose type another declaration also names; the tag reaches both (§3.2 rule 7).</td></tr>
+    <tr><td><diag>I_UNTAGGED_NUMERIC</diag></td><td>info</td><td>A numeric update argument has no meaning attached.</td></tr>
+  </tbody>
+</table>
+
+<h3>Methods: effect, idempotency, outcome, templates</h3>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_EFFECT_MODE</diag></td><td>error</td><td>An effect that does not fit the method: a query or composite query declared as something other than <code>read</code>, or <code>replicated: true</code> anywhere but on an update method with <code>kind: "read"</code> and <code>irreversible: false</code> (§5.3).</td></tr>
+    <tr><td><diag>W_EFFECT_MODE</diag></td><td>warning</td><td>A <code>read</code> on an update or a oneway method, except the read-only update form (§5.3).</td></tr>
+    <tr><td><diag>E_CASE_OVERLAP</diag></td><td>error</td><td>Two tagged cases of one method, for the same tag, that one value can take both (§5.2).</td></tr>
+    <tr><td><diag>E_CASE_EFFECT</diag></td><td>error</td><td>A case effect that needs confirmation, or is irreversible, under a method effect that does not or is not (§5.3).</td></tr>
+    <tr><td><diag>E_IDEMPOTENCY_MODE</diag></td><td>error</td><td>Idempotency on a query.</td></tr>
+    <tr><td><diag>E_STAMP_UNTAGGED</diag></td><td>error</td><td>Stamp without a <code>timestamp</code> tag.</td></tr>
+    <tr><td><diag>W_STAMP_REQUIRED</diag></td><td>warning</td><td>The stamp field is not optional; the tool layer must always fill it.</td></tr>
+    <tr><td><diag>E_OUTCOME_NOT_CASE</diag></td><td>error</td><td>Outcome key is not a variant case.</td></tr>
+    <tr><td><diag>W_OUTCOME_UNCLASSIFIED</diag></td><td>warning, or info when <code>default</code> is set</td><td>A result case without a class.</td></tr>
+    <tr><td><diag>E_TEMPLATE</diag></td><td>error</td><td>Template syntax, or a <code>[ ]</code> segment on an EVM contract (§15.4).</td></tr>
+    <tr><td><diag>E_TEMPLATE_PATH</diag></td><td>error</td><td>Unknown placeholder, or one through another case of a variant on a case intent's path (§6).</td></tr>
+    <tr><td><diag>W_TEMPLATE_OPTIONAL</diag></td><td>warning</td><td>A placeholder that resolves to an <code>opt</code> position outside <code>[ … ]</code> (§6).</td></tr>
+  </tbody>
+</table>
+
+<h3>Names</h3>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_NAMES_MODE</diag></td><td>error</td><td>A <code>names</code> set on a method that is not a query or a read-only update.</td></tr>
+    <tr><td><diag>E_NAMES_SHAPE</diag></td><td>error</td><td>A <code>names</code> set on a method that takes arguments, or whose <code>items</code> is not a <code>vec</code> of records.</td></tr>
+    <tr><td><diag>E_NAMES_FIELD</diag></td><td>error</td><td>A <code>names</code> set whose <code>name</code> is not <code>text</code>.</td></tr>
+    <tr><td><diag>E_NAMES_SET_DUPLICATE</diag></td><td>error</td><td>A <code>names</code> set declared twice.</td></tr>
+    <tr><td><diag>E_NAMED_SET</diag></td><td>error</td><td>A <code>named</code> position whose set is not declared (or has no <code>show</code> for <code>by: "show"</code>).</td></tr>
+    <tr><td><diag>E_NAMED_TYPE</diag></td><td>error</td><td>A <code>named</code> position whose type differs from the set's field.</td></tr>
+    <tr><td><diag>W_NAMED_UNPATTERNED</diag></td><td>warning</td><td>A <code>named</code> <code>text</code> position without a <code>text.pattern</code>: names are looked up before values.</td></tr>
+  </tbody>
+</table>
+
+<h3>Layers, binding and packs</h3>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_CONFLICT</diag></td><td>error</td><td>Two different values for one tag at one position (within one layer, at one specificity; the first one given is kept).</td></tr>
+    <tr><td><diag>W_DUPLICATE</diag></td><td>warning</td><td>Equal values for one tag at one position and specificity (§8); a deployment listed twice (§15.3).</td></tr>
+    <tr><td><diag>W_OVERRIDDEN</diag></td><td>warning</td><td>The same tag at the same position in a lower layer, dropped (§8).</td></tr>
+    <tr><td><diag>W_REBOUND</diag></td><td>warning</td><td>Interface changed; reported first, then either confirmed or followed by <diag>E_STALE</diag>.</td></tr>
+    <tr><td><diag>E_STALE</diag></td><td>error</td><td>Bound interface changed and some address or tag no longer holds.</td></tr>
+    <tr><td><diag>E_PACK_NOT_MATCHED</diag></td><td>error</td><td>A pack the caller asked for explicitly does not apply to the service.</td></tr>
+    <tr><td><diag>W_PACK_NO_DEFAULT</diag></td><td>warning</td><td>A pack <code>outcome</code> tag without a <code>default</code> (§7).</td></tr>
+    <tr><td><diag>I_PACK_MATCHED</diag></td><td>info</td><td>A pack applies; the message lists every result variant wider than the fragment (D-019) and its extra cases.</td></tr>
+    <tr><td><diag>I_PACK_NOT_MATCHED</diag></td><td>info</td><td>A candidate pack from the pack search does not apply; the message gives the first reasons.</td></tr>
+    <tr><td><diag>I_PACK_ANNOTATION_SKIPPED</diag></td><td>info</td><td>A matched pack names a position the service lacks, which subtyping allows; the annotation is dropped.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A stale canister profile loses its value-conversion tags in the resolved form and keeps the rest; see
+  <a href="profiles.html">Profiles, layers and binding</a>. The codes that make a profile stale when they appear after
+  a rebind are listed in <code>STALE_CODES</code> in
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/resolver/src/checks.mjs"><code>checks.mjs</code></a>.
+</p>
+
+<h2 id="resolver-doc-annotations">Resolver: doc annotations</h2>
+
+<p>
+  Returned by <code>profileFromDocAttributes</code> when it turns the tags written as doc comments in a
+  <code>.did</code> into an author profile (spec §9, <a href="annotate-a-did.html">Annotate a .did file</a>). Not in
+  §13. On an error the profile is still returned with what could be placed. Meanings are those of the package's
+  README and <code>src/doc-annotations.mjs</code>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_DOC_INPUT</diag></td><td>error</td><td>Not a doc attributes v1 response.</td></tr>
+    <tr><td><diag>E_DOC_SYNTAX</diag></td><td>error</td><td>candid-core refused the comment. candid-core's compile failures pass through as <diag>E_CANDID</diag>.</td></tr>
+    <tr><td><diag>E_DOC_TARGET</diag></td><td>error</td><td>A tag no v0 address reaches, such as inside a func value or a callback service, or one in the wrong place.</td></tr>
+    <tr><td><diag>E_DOC_VALUE</diag></td><td>error</td><td>A value that cannot be read: a fraction, an unknown call.</td></tr>
+    <tr><td><diag>W_DOC_UNKNOWN_TAG</diag></td><td>warning</td><td>A bare name one or two letters from a tag (<code>@amout</code>): not a profile tag.</td></tr>
+    <tr><td><diag>I_DOC_IGNORED</diag></td><td>info</td><td>The doc comments hold no profile tag, so there is no profile; or a name that is not a profile tag (a dotted name such as <code>@ui.hidden</code> belongs to another tool).</td></tr>
+    <tr><td><diag>I_DOC_PROSE</diag></td><td>info</td><td>Prose not attached as <code>describe.help</code>: on an integer the same doc gives no value tag, prose would make it an agent input without a unit (D-044).</td></tr>
+  </tbody>
+</table>
+
+<h2 id="meantjs-profile-evm-abierror"><code>@meantjs/profile/evm</code>: AbiError</h2>
+
+<p>
+  The EVM helpers throw <code>AbiError</code> (<code>name: "AbiError"</code>, <code>code</code>). Experimental, spec §15;
+  see <a href="chain-evm.html">EVM contracts</a>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_ABI</diag></td><td>error, thrown</td><td>A fragment that cannot be read (<code>parseSignature</code>). <code>parseAbi</code> lists its problems instead of throwing.</td></tr>
+    <tr><td><diag>E_ABI_ENCODE</diag></td><td>error, thrown</td><td>A value <code>encodeParams</code>, <code>encodeCall</code> or <code>typedDataDigest</code> cannot encode: an integer that is not a decimal string or a bigint, or outside its type; the wrong number of array elements; a missing or unknown tuple component; text that is not well formed.</td></tr>
+    <tr><td><diag>E_ABI_DECODE</diag></td><td>error, thrown</td><td><code>decodeParams</code>: the data is not the canonical ABI encoding of its values (dirty padding, a non-canonical offset or trailing bytes), ends early, or is over the limits.</td></tr>
+    <tr><td><diag>E_ADDRESS</diag></td><td>error, thrown</td><td>Not an address (<code>0x</code> and 40 hex digits).</td></tr>
+    <tr><td><diag>E_ADDRESS_CHECKSUM</diag></td><td>error, thrown</td><td><code>readAddress</code>: an address in mixed case that does not match its EIP-55 checksum.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="meantjs-format-formaterror"><code>@meantjs/format</code>: FormatError</h2>
+
+<p>
+  Every rejection of the format library is a <code>FormatError</code> with a stable <code>code</code>, one of
+  <code>CODES</code>. The meanings are the comments in
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/format/src/errors.mjs"><code>src/errors.mjs</code></a>
+  where it has one, and otherwise the messages the code is thrown with. See
+  <a href="format-values.html">Parse and display values</a>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Group</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_TYPE</diag></td><td>shared</td><td>Wrong JavaScript type for an input, for example a number where a decimal string is required.</td></tr>
+    <tr><td><diag>E_SYNTAX</diag></td><td>shared</td><td>The text does not match the grammar.</td></tr>
+    <tr><td><diag>E_RANGE</diag></td><td>shared</td><td>Outside the range of the Candid type or of the representable calendar.</td></tr>
+    <tr><td><diag>E_TOO_LONG</diag></td><td>shared</td><td>Input longer than the bound on work.</td></tr>
+    <tr><td><diag>E_ARG</diag></td><td>shared</td><td>A tag argument is missing or invalid.</td></tr>
+    <tr><td><diag>E_TAG_TYPE</diag></td><td>shared</td><td>The tag does not apply to this Candid type.</td></tr>
+    <tr><td><diag>E_TAG_CONFLICT</diag></td><td>shared</td><td>Two formatting tags at one position.</td></tr>
+    <tr><td><diag>E_REF_UNRESOLVED</diag></td><td>shared</td><td>A dynamic value was not supplied by the caller.</td></tr>
+    <tr><td><diag>E_EXCESS_PRECISION</diag></td><td>amount</td><td>More fractional digits than decimals (never rounded).</td></tr>
+    <tr><td><diag>E_NEGATIVE</diag></td><td>amount</td><td>Negative input for an unsigned Candid type.</td></tr>
+    <tr><td><diag>E_SYMBOL_MISMATCH</diag></td><td>amount</td><td>The symbol in the input is not the token's symbol.</td></tr>
+    <tr><td><diag>E_INEXACT</diag></td><td>time</td><td>The value cannot be represented exactly in the requested unit.</td></tr>
+    <tr><td><diag>E_CALENDAR_UNIT</diag></td><td>time</td><td>Years and months have no fixed length.</td></tr>
+    <tr><td><diag>E_NEEDS_NOW</diag></td><td>time</td><td>Relative time without a <code>now</code>.</td></tr>
+    <tr><td><diag>E_CHECKSUM</diag></td><td>account, subaccount, bytes</td><td>Checksum does not match.</td></tr>
+    <tr><td><diag>E_CHECKSUM_MISSING</diag></td><td>account, subaccount, bytes</td><td>An account text with a subaccount but no checksum (the form is <code>&lt;principal&gt;-&lt;checksum&gt;.&lt;subaccount&gt;</code>).</td></tr>
+    <tr><td><diag>E_NOT_CANONICAL</diag></td><td>account, subaccount, bytes</td><td>A valid value written in a non-canonical way.</td></tr>
+    <tr><td><diag>E_PRINCIPAL</diag></td><td>account, subaccount, bytes</td><td>Invalid principal text.</td></tr>
+    <tr><td><diag>E_HEX</diag></td><td>account, subaccount, bytes</td><td>Text that is not hexadecimal.</td></tr>
+    <tr><td><diag>E_BASE64</diag></td><td>account, subaccount, bytes</td><td>Not base64: outside the standard alphabet, an impossible length, wrong <code>=</code> padding, or unused trailing bits that are not zero.</td></tr>
+    <tr><td><diag>E_UTF8</diag></td><td>account, subaccount, bytes</td><td>Text that cannot be encoded as UTF-8 (lone surrogate).</td></tr>
+    <tr><td><diag>E_LENGTH</diag></td><td>account, subaccount, bytes</td><td>Wrong length in bytes.</td></tr>
+    <tr><td><diag>E_MAX_LEN</diag></td><td>account, subaccount, bytes</td><td>Longer than the tag's <code>max_len</code>.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>formatterFor</code> throws <diag>E_REF_UNRESOLVED</diag>, <diag>E_ARG</diag>, <diag>E_TAG_TYPE</diag> or
+  <diag>E_TAG_CONFLICT</diag> rather than return a formatter that half works. The Rust crate <code>meant-format</code>
+  returns eight of these codes for the <code>amount</code> tag, matched case by case against this package:
+  <a href="reference-meant-format.html">meant-format (Rust)</a>.
+</p>
+
+<h2 id="meantjs-consent-consenterror"><code>@meantjs/consent</code>: ConsentError</h2>
+
+<p>
+  Every failure of the consent package is a <code>ConsentError</code> with a stable <code>code</code>.
+  <code>icrc21ConsentMessage</code> maps it to an ICRC-21 error variant whose <code>description</code> starts with the
+  code; the lower-level functions throw it. Meanings are the comments in
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/consent/src/errors.mjs"><code>src/errors.mjs</code></a>.
+  See <a href="consent-messages.html">Generate consent messages</a>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>ICRC-21 error</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_METHOD_UNKNOWN</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The resolved form has no such method.</td></tr>
+    <tr><td><diag>E_DECODE</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The argument bytes do not decode against the method's signature (for an EVM call: calldata that is not the canonical encoding of its values).</td></tr>
+    <tr><td><diag>E_TOO_LARGE</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The arguments exceed the bounds of a consent message (never truncated).</td></tr>
+    <tr><td><diag>E_LANGUAGE</diag></td><td><code>UnsupportedCanisterCall</code></td><td>Only with <code>languagePolicy: "error"</code>: the requested language is not supported.</td></tr>
+    <tr><td><diag>E_REQUEST</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The ICRC-21 request itself is malformed.</td></tr>
+    <tr><td><diag>E_DEPLOYMENT</diag></td><td>(EVM only)</td><td>An EVM call's target is not a deployment its profile lists (spec §15). From <code>erc7730Descriptor</code>: no deployment to bind the file to.</td></tr>
+    <tr><td><diag>E_UNSUPPORTED_TYPE</diag></td><td><code>ConsentMessageUnavailable</code></td><td>A position the resolved form cannot type (recursive cut, func, service). On an EVM contract also a payable function, whose native value has no position yet.</td></tr>
+    <tr><td><diag>E_RESOLVED_FORM</diag></td><td><code>GenericError</code> 1000</td><td>The resolved form is malformed. Also an EVM resolved form given to the main entry, and a Candid one given to <code>@meantjs/consent/evm</code>.</td></tr>
+    <tr><td><diag>E_TEMPLATE</diag></td><td><code>GenericError</code> 1001</td><td>The intent template does not parse.</td></tr>
+    <tr><td><diag>E_TEMPLATE_PATH</diag></td><td><code>GenericError</code> 1002</td><td>A placeholder names a position the method does not have.</td></tr>
+    <tr><td><diag>E_REF_UNRESOLVED</diag></td><td><code>GenericError</code> 1100</td><td>Pass-through of the format library: a dynamic ref the caller did not supply.</td></tr>
+    <tr><td><diag>E_ARG</diag></td><td><code>GenericError</code> 1101</td><td>Pass-through of the format library: a bad tag argument.</td></tr>
+    <tr><td><diag>E_TAG_TYPE</diag></td><td><code>GenericError</code> 1102</td><td>Pass-through of the format library: the tag does not apply to the type.</td></tr>
+    <tr><td><diag>E_TAG_CONFLICT</diag></td><td><code>GenericError</code> 1103</td><td>Pass-through of the format library: two formatting tags at one position.</td></tr>
+    <tr><td><diag>E_EXPORT</diag></td><td>(EVM only)</td><td>The ERC-7730 export: the resolved form says something an ERC-7730 file cannot say (spec §15).</td></tr>
+    <tr><td><diag>E_INTERNAL</diag></td><td><code>GenericError</code> 1999</td><td>Not a <code>ConsentError</code>: any other thrown value, reported with this code in <code>diagnostics</code>.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A formatter that cannot be built stops the message (rule 10 of spec §12): a number is never shown without its
+  decimals.
+</p>
+
+<h2 id="meantjs-consent-diagnostics"><code>@meantjs/consent</code>: diagnostics</h2>
+
+<p>
+  What the generator adjusted, in the non-enumerable <code>diagnostics</code> of a result
+  (<code>{ code, at, message }</code>, no severity field). The message is still produced.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>W_TEMPLATE_FALLBACK</diag></td><td>warning</td><td>A template that fails at consent time; the generic intent is used instead (spec §12 rule 12).</td></tr>
+    <tr><td><diag>W_FORMAT_FALLBACK</diag></td><td>warning</td><td>A formatter refused the value; it is shown as raw Candid text (spec §12 rule 10).</td></tr>
+    <tr><td><diag>W_UTC_OFFSET_IGNORED</diag></td><td>warning</td><td><code>utc_offset_minutes</code> outside ±24 h; UTC is used (spec §12 rule 6).</td></tr>
+    <tr><td><diag>I_LANGUAGE_FALLBACK</diag></td><td>info</td><td>The requested language is not supported; the message is in <code>"en"</code> and the metadata says so (spec §12 rule 9).</td></tr>
+  </tbody>
+</table>
+
+<h2 id="meantjs-tools-input-issues"><code>@meantjs/tools</code>: input issues</h2>
+
+<p>
+  <code>readToolInput</code> returns <code>{ issues: [{ param, path, code, message }] }</code> instead of a value when the
+  inputs cannot be read. The codes are the format library's, above, plus these (from the function's documentation in
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/tools/src/input.mjs"><code>src/input.mjs</code></a>).
+  Inside a JSON input, <code>path</code> names the place (<code>$args[0].command.Follow.followees[1].id</code>). See
+  <a href="agent-tools.html">Give an agent tools</a>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><diag>E_INPUT</diag></td><td>error</td><td>The inputs are not an object.</td></tr>
+    <tr><td><diag>E_UNKNOWN_PARAM</diag></td><td>error</td><td>An input the tool does not have, or a key a JSON input does not have.</td></tr>
+    <tr><td><diag>E_MISSING</diag></td><td>error</td><td>A required input is missing.</td></tr>
+    <tr><td><diag>E_TYPE</diag></td><td>error</td><td>An input that is not text, or JSON of the wrong shape for a record, variant or vec input.</td></tr>
+    <tr><td><diag>E_NAMES_UNREAD</diag></td><td>error</td><td>A <code>named</code> input whose set's names were not read.</td></tr>
+    <tr><td><diag>E_NAME_NOT_FOUND</diag></td><td>error</td><td>The text is not a value at the position, and no entry of the set has that name.</td></tr>
+    <tr><td><diag>E_NAME_AMBIGUOUS</diag></td><td>error</td><td>Several entries have the name: ask the person which.</td></tr>
+    <tr><td><diag>E_ARG</diag></td><td>error</td><td>A tag argument the layer cannot use, such as a <code>text.pattern</code> it does not run.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  An EVM contract's resolved form (<code>"chain": "evm"</code>) is refused by the tool layer with a
+  <code>TypeError</code>, not a code: EVM tools are a later phase.
+</p>
+
+<h2 id="meantjs-reconcile-statuses"><code>@meantjs/reconcile</code>: statuses</h2>
+
+<p>
+  <code>@meantjs/reconcile</code> returns no diagnostic codes. <code>matchBlocks</code> judges the ICRC-3 blocks read
+  since the first send and returns one of four statuses (<a href="reconcile-outcomes.html">Settle an unknown
+  outcome</a>):
+</p>
+
+<table>
+  <thead>
+    <tr><th>Status</th><th>Fields</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>found</code></td><td><code>block</code></td><td>A block carries exactly this transaction.</td></tr>
+    <tr><td><code>absent</code></td><td><code>closedBy</code>: <code>answered</code>, <code>too_old</code> or <code>window_passed</code>; <code>clock?</code></td><td>Nothing can still land: every send was answered, a send was answered TooOld, or the ledger's clock is past the stamp's window.</td></tr>
+    <tr><td><code>not_yet</code></td><td><code>openUntil?</code>, <code>reason?</code>, <code>clock?</code></td><td>No match, but a send may still land.</td></tr>
+    <tr><td><code>unreadable</code></td><td><code>reason</code>, <code>lookalike?</code></td><td>The range was not fully read, a block in it cannot be read, or a lookalike block carries the call's stamp and amount in another shape. Never <code>absent</code>.</td></tr>
+  </tbody>
+</table>
