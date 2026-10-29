@@ -1,9 +1,10 @@
 <p>
   A pack is a profile of <code>kind: "pack"</code> that describes a standard rather than one canister or contract.
-  <code>@meantjs/profile</code> ships three, copies of
-  <a href="https://github.com/B3Pay/Meant/tree/main/profile/packs"><code>profile/packs/</code></a>, and every
-  annotation they carry is listed below. <code>profile_id</code> and the checked interface are the real output of the
-  validator, run from <code>profile/</code>:
+  <code>@meantjs/profile</code> ships four packs and, beside them, two EVM contract profiles for well-known signing
+  contracts, all copies of
+  <a href="https://github.com/B3Pay/Meant/tree/main/profile/packs"><code>profile/packs/</code></a>. Every annotation
+  they carry is listed below. <code>profile_id</code> and the checked interface are the real output of the validator,
+  run from <code>profile/</code>:
 </p>
 
 <pre data-lang="bash">
@@ -12,33 +13,48 @@ node scripts/validate.mjs
 </pre>
 
 <pre data-lang="text">
+PASS packs/dai-permit.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:5fe7bd66c0a15a1b370d279be2aedba80f539b0c1e195f7b22ef33ff94540f5e
+     interface_id candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46  [1 methods, 8 annotations]
 PASS packs/erc20.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186
      interface_id candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b  [7 methods, 23 annotations]
+PASS packs/erc2612.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810
+     interface_id candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee  [6 methods, 18 annotations]
 PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
      interface_id candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689  [5 methods, 29 annotations]
 PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
      interface_id candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f  [5 methods, 56 annotations]
+PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a
+     interface_id candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [4 methods, 40 annotations]
 </pre>
+
+<p>The validator's <code>methods</code> count takes an EIP-712 message as a method; the table splits them.</p>
 
 <table>
   <thead>
-    <tr><th>Pack</th><th>Standard</th><th>Methods</th><th>Annotations</th></tr>
+    <tr><th>File</th><th>Kind</th><th>Standard or contract</th><th>Functions</th><th>Messages</th><th>Annotations</th></tr>
   </thead>
   <tbody>
-    <tr><td><a href="#icrc1"><code>icrc1</code></a></td><td>ICRC-1</td><td>5</td><td>29</td></tr>
-    <tr><td><a href="#icrc2"><code>icrc2</code></a></td><td>ICRC-2</td><td>5</td><td>56</td></tr>
-    <tr><td><a href="#erc20"><code>erc20</code></a></td><td>ERC-20 <span class="pill warn">experimental</span></td><td>7</td><td>23</td></tr>
+    <tr><td><a href="#icrc1"><code>icrc1</code></a></td><td>pack</td><td>ICRC-1</td><td>5</td><td>0</td><td>29</td></tr>
+    <tr><td><a href="#icrc2"><code>icrc2</code></a></td><td>pack</td><td>ICRC-2</td><td>5</td><td>0</td><td>56</td></tr>
+    <tr><td><a href="#erc20"><code>erc20</code></a></td><td>pack</td><td>ERC-20 <span class="pill warn">experimental</span></td><td>7</td><td>0</td><td>23</td></tr>
+    <tr><td><a href="#erc2612"><code>erc2612</code></a></td><td>pack</td><td>ERC-2612 <span class="pill warn">experimental</span></td><td>5</td><td>1</td><td>18</td></tr>
+    <tr><td><a href="#permit2"><code>permit2</code></a></td><td>contract profile</td><td>Uniswap's Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>4</td><td>40</td></tr>
+    <tr><td><a href="#dai-permit"><code>dai-permit</code></a></td><td>contract profile</td><td>DAI's permit <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>8</td></tr>
   </tbody>
 </table>
 
 <p>
   The <code>interface_id</code> a pack is checked against is the identity of its own fragment: the validator compiles
-  <code>binds.requires</code> (or reads <code>binds.abi</code>) and resolves every annotation against it. It is not the
-  identity of any ledger. A ledger that matches has its own <code>interface_id</code>, and the pack is applied to the
-  ledger's types.
+  <code>binds.requires</code> (or reads <code>binds.abi</code>, with the struct types of <code>binds.eip712</code>) and
+  resolves every annotation against it. It is not the identity of any ledger or token. A ledger that matches has its
+  own <code>interface_id</code>, and the pack is applied to the ledger's types. A contract profile is checked against
+  its own <code>binds</code> in the same way; the two shipped here bind EIP-712 types and no function.
 </p>
 
 <h2>How a pack matches</h2>
@@ -50,6 +66,13 @@ PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
   applied to the service's own types, so a position the pack names that the service lacks is skipped
   (<diag>I_PACK_ANNOTATION_SKIPPED</diag>); the full rules are on <a href="profiles.html">Profiles, layers and
   binding</a>.
+</p>
+
+<p>
+  An EVM pack may also carry EIP-712 messages (<code>binds.eip712</code>, spec §15.9). It still matches by its
+  <code>binds.abi</code>, and its messages then join the contract's resolved form under <code>messages</code>. The
+  contract profiles <code>permit2</code> and <code>dai-permit</code> are not packs: no pack search tries them, and they
+  apply when given as profiles (<code>--profile</code>, or <code>profiles</code> in <code>resolveService</code>).
 </p>
 
 <h2>Using the packs</h2>
@@ -77,23 +100,26 @@ candid-profile: packages/resolver/test/fixtures/ledger.did  candid-core:interfac
     <tr><th>Way</th><th>What it does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>--packs</code></td><td>Tries every pack in the packs directory and applies those that match; the others get <diag>I_PACK_NOT_MATCHED</diag> (info). A pack for the other kind of interface is skipped: the ERC-20 pack is never tried on a <code>.did</code>, nor the ICRC packs on an ABI.</td></tr>
+    <tr><td><code>--packs</code></td><td>Tries every pack in the packs directory and applies those that match; the others get <diag>I_PACK_NOT_MATCHED</diag> (info). A pack for the other kind of interface is skipped: the EVM packs are never tried on a <code>.did</code>, nor the ICRC packs on an ABI. The contract profiles in the same directory are not packs and are never tried.</td></tr>
     <tr><td><code>--packs-dir &lt;dir&gt;</code></td><td>The packs directory (default: the standard packs the package ships).</td></tr>
-    <tr><td><code>--profile pack.json</code></td><td>Applies the pack as given: it must match, or the resolve fails with <diag>E_PACK_NOT_MATCHED</diag>.</td></tr>
-    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name; by default <code>DEFAULT_PACKS_DIR</code>, the shipped packs. Node entry.</td></tr>
-    <tr><td><code>STANDARD_PACKS</code></td><td>The same packs as data, from <code>@meantjs/profile/browser</code>, for a bundle that cannot read files.</td></tr>
-    <tr><td><code>@meantjs/profile/packs/*</code></td><td>The pack files themselves, as a package export (<code>./packs/*</code> maps to the package's <code>data/packs/*</code>).</td></tr>
+    <tr><td><code>--profile pack.json</code></td><td>Applies the pack as given: it must match, or the resolve fails with <diag>E_PACK_NOT_MATCHED</diag>. A contract profile, such as <code>permit2.profile.json</code>, is applied this way too.</td></tr>
+    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name; by default <code>DEFAULT_PACKS_DIR</code>, the shipped packs. Packs only: <code>erc20</code>, <code>erc2612</code>, <code>icrc1</code> and <code>icrc2</code>, never the two contract profiles. Node entry.</td></tr>
+    <tr><td><code>STANDARD_PACKS</code></td><td>The same four packs as data, from <code>@meantjs/profile/browser</code>, for a bundle that cannot read files.</td></tr>
+    <tr><td><code>@meantjs/profile/packs/*</code></td><td>The six files themselves, as a package export (<code>./packs/*</code> maps to the package's <code>data/packs/*</code>): the four packs, and the contract profiles <code>@meantjs/profile/packs/permit2.profile.json</code> and <code>@meantjs/profile/packs/dai-permit.profile.json</code>.</td></tr>
   </tbody>
 </table>
 
-<pre data-lang="js" data-file="profile/packages/resolver/README.md">
-const validateSchema = await createSchemaValidator();                 // the schema this package ships
-const packs = await loadPacks();                                      // the standard packs it ships (ERC-20, ICRC-1, ICRC-2)
+<pre data-lang="js" data-check>
+import { createSchemaValidator, loadPacks, resolveService } from "@meantjs/profile";
+import { readFileSync } from "node:fs";
+
+const validateSchema = await createSchemaValidator(); // the schema this package ships
+const packs = await loadPacks(); // the packs it ships, never its contract profiles
+packs.map((p) => p.doc.name); // ["erc20", "erc2612", "icrc1", "icrc2"]
 const r = await resolveService({
-  did: await readFile("ledger.did", "utf8"),
+  did: readFileSync("ledger.did", "utf8"),
   validateSchema,
-  profiles: [{ doc: authorProfile }],                                  // applied as given (a pack here must match)
-  packs: packs.map(({ doc }) => ({ doc })),                            // tried; applied only if they match
+  packs: packs.map(({ doc }) => ({ doc })), // tried; applied only if they match
 });
 </pre>
 
@@ -101,6 +127,40 @@ const r = await resolveService({
 import icrc1 from "@meantjs/profile/packs/icrc1.profile.json" with { type: "json" };
 const validateSchema = await createSchemaValidator(schema);                            // a document, not a path
 const r = await resolveService({ did, validateSchema, packs: [{ doc: icrc1 }] });
+</pre>
+
+<p>
+  On an EVM token with <code>permit</code>, the pack search applies both EVM packs, and the EIP-2612
+  <code>Permit</code> message joins the token's resolved form. <code>token.abi.json</code> here is a JSON array of the
+  ten functions of a local test token: the seven of ERC-20 and <code>permit</code>, <code>nonces</code> and
+  <code>DOMAIN_SEPARATOR</code>, as human-readable fragments.
+</p>
+
+<pre data-lang="bash">
+npx candid-profile resolve --abi token.abi.json --packs > token.resolved.json
+</pre>
+
+<pre data-lang="text">
+candid-profile: token.abi.json  candid-profile:evm-abi:v0:sha256:adaf687bca6190caca23583655028c78a0ad4d9fca99fe1f1efdf96758b910eb  [10 methods]
+  applied     erc20            pack         candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186
+  applied     erc2612          pack         candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810
+  0 error, 0 warning, 2 info
+</pre>
+
+<p>
+  The <code>interface_id</code> printed is the merged form's: the ten functions and the <code>Permit</code> struct the
+  EIP-2612 pack adds. A contract profile is given with <code>--profile</code>. The Permit2 profile binds no function, so
+  from <code>profile/</code> it resolves against an empty ABI (<code>empty.abi.json</code> holds <code>[]</code>):
+</p>
+
+<pre data-lang="bash">
+npx candid-profile resolve --abi empty.abi.json --profile packs/permit2.profile.json > permit2.resolved.json
+</pre>
+
+<pre data-lang="text">
+candid-profile: empty.abi.json  candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [0 methods]
+  applied     permit2          third_party  candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a
+  0 error, 0 warning, 0 info
 </pre>
 
 <h2 id="icrc1">ICRC-1</h2>
@@ -326,8 +386,8 @@ service : {
 
 <callout type="warn" title="Experimental">
   <p>
-    EVM support is spec §15, phase 1: profiles, consent text for calldata and ERC-7730 export. See
-    <a href="chain-evm.html">EVM contracts</a>.
+    EVM support is spec §15, phase 1 and the first part of phase 2: profiles, consent text for calldata and for
+    EIP-712 signing requests, and ERC-7730 export. See <a href="chain-evm.html">EVM contracts</a>.
   </p>
 </callout>
 
@@ -397,3 +457,305 @@ service : {
   The <code>threshold</code> on <code>approve(0).value</code> and <code>allowance-&gt;(0)</code> is 2<sup>256</sup> − 1,
   the largest <code>uint256</code>: an approval of that value displays as <code>Unlimited</code> and the symbol.
 </p>
+
+<h2 id="erc2612">ERC-2612</h2>
+
+<callout type="warn" title="Experimental">
+  <p>
+    EIP-712 messages are spec §15.9 (D-055), the first part of the EVM binding's phase 2: profiles, consent text for a
+    signing request and an ERC-7730 file of the messages. Signing and checking signatures are not in it. See
+    <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</callout>
+
+<p>
+  EIP-2612 permits on EVM chains: the signed <code>Permit</code> message that sets an ERC-20 allowance, and the
+  <code>permit</code> function that submits one. Spec: <a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612</a>.
+  File: <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/erc2612.profile.json"><code>profile/packs/erc2612.profile.json</code></a>.
+  It applies to a token that has every function of its <code>binds.abi</code> with the same selector, outputs and kind
+  of call, <code>decimals()</code> and <code>symbol()</code> included, since the amounts read them. A signing request
+  matches <code>Permit</code> by its type hash, and its verifying contract is the token, so the <code>query:</code>
+  refs are calls to that token. The pack binds no domain: each token's name and version are its own.
+  <claim>fact</claim> (<a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612</a>) "The <code>deadline</code>
+  argument can be set to <code>uint(-1)</code> to create <code>Permit</code>s that effectively never expire", so a
+  deadline of 2<sup>256</sup> − 1 reads <code>Never</code>.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810</id-chip></li>
+  <li>checked against (the ABI and the struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee</id-chip></li>
+  <li>validator: 0 error, 0 warning, 0 info; 6 methods (5 functions and 1 message), 18 annotations</li>
+</ul>
+
+<h3>Required functions and types</h3>
+
+<pre data-lang="json" data-file="profile/packs/erc2612.profile.json">
+"abi": [
+  "function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+  "function nonces(address owner) view returns (uint256)",
+  "function DOMAIN_SEPARATOR() view returns (bytes32)",
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)"
+],
+"eip712": {
+  "types": {
+    "Permit": [
+      {
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "name": "nonce",
+        "type": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ]
+  }
+}
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Permit</code><br><effect>approve</effect></td><td><code class="wrap">Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)</code><br><code class="wrap">0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Annotations</h3>
+
+<table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">Permit</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Permit token spending"</code><br><code>template</code>: "Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">Permit</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>owner</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Owner"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">permit</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Submit a token permit"</code><br><code>template</code>: "Set {spender}'s allowance from {owner} to {value} with {owner}'s signature. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">permit</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>owner</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Owner"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>v</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature v"</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  The <code>threshold</code> on both <code>value</code>s and both <code>deadline</code>s is 2<sup>256</sup> − 1: an
+  amount of that value displays as <code>Unlimited</code> and the symbol (the default <code>message</code>), and a
+  deadline of that value as <code>Never</code>.
+</p>
+
+<h2 id="permit2">Permit2</h2>
+
+<p>
+  <span class="pill warn">experimental</span> Uniswap's Permit2, as a contract profile (<code>kind: "contract"</code>,
+  <code>origin: "third_party"</code>), not a pack. File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/permit2.profile.json"><code>profile/packs/permit2.profile.json</code></a>.
+  It describes four messages and no function: the AllowanceTransfer messages <code>PermitSingle</code> and
+  <code>PermitBatch</code>, which set allowances (<effect>approve</effect>), and the SignatureTransfer messages
+  <code>PermitTransferFrom</code> and <code>PermitBatchTransferFrom</code>, which authorize one transfer
+  (<effect>transfer</effect> <effect>irreversible</effect>). Each amount is in the token its message names
+  (<code>amount.token</code>): a consumer supplies that token's <code>decimals()</code> and <code>symbol()</code>, and
+  shows its address beside the symbol.
+</p>
+
+<p>
+  It is bound to the domain named <code>Permit2</code>, with no version, and to <code>0x0000…8BA3</code> on chains 1
+  and 42161, so a look-alike contract named "Permit2" gets none of these words (<diag>E_DEPLOYMENT</diag>).
+  <claim>fact</claim> ERC-7730's own Permit2 example lists these deployments (spec §15.9); its other chains are open
+  item O10. <claim>fact</claim> (Uniswap <code>permit2</code>, <code>Allowance.sol</code> and
+  <code>AllowanceTransfer.sol</code>) "If the inputted expiration is 0, the allowance only lasts the duration of the
+  block", so an expiration of 0 reads <code>Only in the block it is used</code>; an allowance of
+  <code>type(uint160).max</code> is never decremented, so it reads <code>Unlimited</code>. Witness messages
+  (<code>PermitWitnessTransferFrom</code>) are left out: each protocol adds its own witness type
+  (<claim>open</claim> O9, on <a href="open-questions.html">Open questions</a>).
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a</id-chip></li>
+  <li>checked against (its struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646</id-chip></li>
+  <li>validator: 0 error, 0 warning, 0 info; 4 methods (4 messages), 40 annotations</li>
+</ul>
+
+<h3>Domain and deployments</h3>
+
+<pre data-lang="json" data-file="profile/packs/permit2.profile.json">
+"eip712": {
+  "domain": {
+    "name": "Permit2"
+  },
+  "types": {
+    …
+  }
+},
+"deployments": [
+  {
+    "chain_id": 1,
+    "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+  },
+  {
+    "chain_id": 42161,
+    "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+  }
+]
+</pre>
+
+<h3>Messages</h3>
+
+<p>
+  Six struct types; the four that the profile tags with <code>intent</code> are messages, and
+  <code>PermitDetails</code> and <code>TokenPermissions</code> are types inside them. Each <code>encode_type</code> lists
+  the primary type, then the structs it refers to:
+</p>
+
+<table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PermitSingle</code><br><effect>approve</effect></td><td><code class="wrap">PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)</code><br><code class="wrap">0xf3841cd1ff0085026a6327b620b67997ce40f282c88a8e905a7a5626e310f3d0</code></td></tr>
+    <tr><td><code>PermitBatch</code><br><effect>approve</effect></td><td><code class="wrap">PermitBatch(PermitDetails[] details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)</code><br><code class="wrap">0xaf1b0d30d2cab0380e68f0689007e3254993c596f2fdd0aaa7f4d04f79440863</code></td></tr>
+    <tr><td><code>PermitTransferFrom</code><br><effect>transfer</effect> <effect>irreversible</effect></td><td><code class="wrap">PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)</code><br><code class="wrap">0x939c21a48a8dbe3a9a2404a1d46691e4d39f6583d6ec6b35714604c986d80106</code></td></tr>
+    <tr><td><code>PermitBatchTransferFrom</code><br><effect>transfer</effect> <effect>irreversible</effect></td><td><code class="wrap">PermitBatchTransferFrom(TokenPermissions[] permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)</code><br><code class="wrap">0xfcf35f5ac6a2c28868dc44c302166470266239195f02b0ee408334829333b766</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Annotations</h3>
+
+<table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">PermitSingle</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow token spending"<br><code>template</code>: "Let {spender} spend up to {details.amount}. Allowance expires: {details.expiration}. Signature expires: {sigDeadline}."</td></tr>
+    <tr><td><code class="wrap">PermitSingle</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"details.token"</code><br><code>threshold</code>: <code class="wrap">"1461501637330902918203684832716283019655932542975"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>expiration</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code>"281474976710655"</code><br><code>message</code>: <code>"Never"</code><br><code>labels</code>: <code class="wrap">{ "0": "Only in the block it is used" }</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>expiration</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Allowance expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>sigDeadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>sigDeadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow spending of several tokens"<br><code>template</code>: "Let {spender} spend up to {details[].amount}. Allowances expire, in the same order: {details[].expiration}. Signature expires: {sigDeadline}."</td></tr>
+    <tr><td><code class="wrap">PermitBatch</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"details[].token"</code><br><code>threshold</code>: <code class="wrap">"1461501637330902918203684832716283019655932542975"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>expiration</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code>"281474976710655"</code><br><code>message</code>: <code>"Never"</code><br><code>labels</code>: <code class="wrap">{ "0": "Only in the block it is used" }</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>expiration</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Allowance expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>sigDeadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>sigDeadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow one transfer"<br><code>template</code>: "Let {spender} transfer up to {permitted.amount} from you, once. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>permitted.<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"permitted.token"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Up to"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow one transfer of several tokens"<br><code>template</code>: "Let {spender} transfer up to {permitted[].amount} from you, once. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>permitted[].<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>permitted[].<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"permitted[].token"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>permitted[].<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Up to"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  The thresholds are the largest value of each type: 2<sup>160</sup> − 1 for an allowance (<code>uint160</code>),
+  2<sup>48</sup> − 1 for an expiration (<code>uint48</code>) and 2<sup>256</sup> − 1 for a signature deadline
+  (<code>uint256</code>). The two SignatureTransfer amounts have no threshold.
+</p>
+
+<h2 id="dai-permit">DAI permit</h2>
+
+<p>
+  <span class="pill warn">experimental</span> DAI's <code>permit</code> on Ethereum mainnet, older than EIP-2612 and
+  different from it, as a contract profile (<code>origin: "third_party"</code>). File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/dai-permit.profile.json"><code>profile/packs/dai-permit.profile.json</code></a>.
+  Only the message is described: DAI's functions are ERC-20's, and the <a href="#erc20">ERC-20 pack</a> covers them. It
+  is bound to the domain <code>Dai Stablecoin</code> version <code>1</code> and to <code>0x6B17…1d0F</code> on chain 1
+  (<claim>fact</claim> <code>MCD_DAI</code> in the Sky chainlog, read 2026-10-28, as spec §15.9 records).
+</p>
+
+<p>
+  <claim>fact</claim> (MakerDAO <code>dss/src/dai.sol</code>, as spec §15.9 records) An <code>expiry</code> of 0 never
+  expires, <code>allowed</code> sets the allowance to <code>uint(-1)</code> or 0, and <code>PERMIT_TYPEHASH</code> is
+  <code class="wrap">0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb</code>, which the resolver's
+  hash matches. So <code>expiry</code> reads <code>Never</code> at 0 (a label) and at 2<sup>256</sup> − 1 (the
+  threshold). DAI's <code>Permit</code> shares its name with EIP-2612's and not its type hash, and a request is matched
+  by the hash. <code>allowed</code> reads through the template; a case-like reading of <code>true</code> and
+  <code>false</code> is open item O12.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:5fe7bd66c0a15a1b370d279be2aedba80f539b0c1e195f7b22ef33ff94540f5e</id-chip></li>
+  <li>checked against (its struct type): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46</id-chip></li>
+  <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 8 annotations</li>
+</ul>
+
+<h3>Message</h3>
+
+<table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Permit</code><br><effect>approve</effect></td><td><code class="wrap">Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)</code><br><code class="wrap">0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  Its <code>binds</code> is quoted whole on <a href="reference-profile-format.html">Profile and resolved form</a>, under
+  <code>binds.eip712</code>.
+</p>
+
+<h3>Annotations</h3>
+
+<table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">Permit</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Permit DAI spending"</code><br><code>template</code>: "Set the DAI allowance {holder} gives {spender} to all of it if allowed is true, to none if false (allowed: {allowed}). Signature expires: {expiry}."</td></tr>
+    <tr><td><code class="wrap">Permit</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>holder</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Holder"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>allowed</code></td><td><code>describe</code></td><td><code>label</code>: "Allowed (true: all, false: none)"</td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>expiry</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code><br><code>labels</code>: <code>{ "0": "Never" }</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>expiry</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+  </tbody>
+</table>

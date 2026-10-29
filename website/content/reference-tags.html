@@ -35,8 +35,9 @@ symbol: { "from": "query:icrc1_symbol" }
       <td><span class="pill ok">core</span></td>
       <td><code>nat</code>, <code>int</code>, <code>nat8</code>, <code>nat16</code>, <code>nat32</code>, <code>nat64</code>, <code>int8</code>, <code>int16</code>, <code>int32</code>, <code>int64</code></td>
       <td>
-        <code>decimals</code>, required: an integer 0–255, or <code class="wrap">{ "from": "query:&lt;method&gt;" }</code>.<br>
+        <code>decimals</code>, required unless <code>token</code> is given: an integer 0–255, or <code class="wrap">{ "from": "query:&lt;method&gt;" }</code>.<br>
         <code>symbol</code>, optional: text of 1–32 characters, or a <code>query:</code> value.<br>
+        <code>token</code>, EVM only: a relative path to the <code>address</code> field that names the amount's token; <code>decimals</code> and <code>symbol</code> are then left out (<a href="#an-amount-in-the-token-a-field-names">below</a>).<br>
         <code>threshold</code>, optional, display only: a decimal string in base units; a value at or above it displays as <code>message</code> and the symbol.<br>
         <code>message</code>, optional: 1–32 characters, default <code>"Unlimited"</code>; needs <code>threshold</code>.
       </td>
@@ -47,7 +48,9 @@ symbol: { "from": "query:icrc1_symbol" }
       <td><code>nat</code>, <code>int</code>, <code>nat32</code>, <code>nat64</code>, <code>int64</code></td>
       <td>
         <code>unit</code>, required: <code>ns</code>, <code>us</code>, <code>ms</code> or <code>s</code>.<br>
-        <code>epoch</code>, optional: <code>unix</code>.
+        <code>epoch</code>, optional: <code>unix</code>.<br>
+        <code>threshold</code> with <code>message</code>, optional, display only, always together: a value at or above <code>threshold</code> (a decimal string of the tagged unit) displays as <code>message</code> (1–32 characters, no default).<br>
+        <code>labels</code>, optional, display only: 1–16 exact values (decimal strings of the tagged unit) mapped to words of 1–32 characters.
       </td>
     </tr>
     <tr>
@@ -170,6 +173,49 @@ symbol: { "from": "query:icrc1_symbol" }
   </p>
 </callout>
 
+<h3>Words for extreme values</h3>
+
+<p>
+  <code>threshold</code>, <code>message</code> and <code>labels</code> change what a value displays as, never what it
+  is: input is unchanged, a number at the threshold still parses to that number, and a word is never parsed back
+  (spec §5.3, D-054 for <code>amount</code>, D-055 for <code>timestamp</code>). On a <code>timestamp</code> a label is
+  checked first, then the threshold, then the time. A timestamp shown as words is never read as a time: it is not localized, and in an ICRC-21 <code>fields</code> message it is <code>Text</code>, never
+  <code>TimestampSeconds</code>; an amount at or above its threshold is <code>Text</code>, never a
+  <code>TokenAmount</code>. The words exist for deadlines whose extreme values are not dates: <code>uint256</code> max
+  for "never", which is otherwise out of range, and Permit2's expiration 0 for "this block only", which otherwise reads
+  as 1970. From the Permit2 profile:
+</p>
+
+<annotation at="PermitSingle(0).details.expiration" tag="timestamp">
+unit: "s"
+epoch: "unix"
+threshold: "281474976710655"
+message: "Never"
+labels: { "0": "Only in the block it is used" }
+</annotation>
+
+<h3>An amount in the token a field names</h3>
+
+<p>
+  <span class="pill warn">experimental</span> EVM only (spec §15.9). <code>amount.token</code> is a relative path from
+  the argument to an <code>address</code> field of the same argument whose path up to its last <code>[]</code> is the
+  amount's own: the token is in the same array element as the amount, or outside every array
+  (<code>"token": "details[].token"</code> for <code>details[].amount</code>). <code>decimals</code> and
+  <code>symbol</code> are not given (the schema refuses them): they are that token's <code>decimals()</code> and
+  <code>symbol()</code>, which the consumer reads and passes per token address
+  (<code>tokens: { "0xA0b8…eB48": { "decimals": 6, "symbol": "USDC" } }</code>); the libraries do no I/O. Without an
+  entry there is no text (<diag>E_REF_UNRESOLVED</diag>; §12 rule 10), never a number read in the wrong decimals. A
+  token's <code>symbol()</code> is its own claim, so its address is always shown beside it. A path that breaks these
+  rules is <diag>E_TOKEN_PATH</diag>, and so is <code>token</code> on a Candid service, whose ledger a field cannot name
+  yet (<claim>open</claim> OQ-6, on <a href="open-questions.html">Open questions</a>). <code>token</code> works on
+  functions too.
+</p>
+
+<annotation at="PermitBatch(0).details[].amount" tag="amount">
+token: "details[].token"
+threshold: "1461501637330902918203684832716283019655932542975"
+</annotation>
+
 <h2>Method tags</h2>
 
 <p>
@@ -283,8 +329,9 @@ symbol: { "from": "query:icrc1_symbol" }
 
 <callout type="warn" title="Experimental">
   <p>
-    EVM support is spec §15, phase 1: profiles, consent text for calldata and ERC-7730 export. Agent tools, outcome
-    classes over reverts and idempotency by nonce are later phases. See <a href="chain-evm.html">EVM contracts</a>.
+    EVM support is spec §15, phase 1 and the first part of phase 2: profiles, consent text for calldata and for EIP-712
+    signing requests, and ERC-7730 export. Agent tools, outcome classes over reverts and idempotency by nonce are later
+    phases. See <a href="chain-evm.html">EVM contracts</a>.
   </p>
 </callout>
 
@@ -297,11 +344,11 @@ symbol: { "from": "query:icrc1_symbol" }
   <tbody>
     <tr>
       <td><a href="value-tags.html"><code>amount</code></a></td>
-      <td><code>uint8</code>…<code>uint256</code>, <code>int8</code>…<code>int256</code>. <code>query:</code> refs are <code>eth_call</code>s of a <code>view</code> or <code>pure</code> function of the same contract with no argument and one result.</td>
+      <td><code>uint8</code>…<code>uint256</code>, <code>int8</code>…<code>int256</code>. <code>query:</code> refs are <code>eth_call</code>s of a <code>view</code> or <code>pure</code> function of the same contract with no argument and one result. <code>token</code> names the token by an <code>address</code> field instead (§15.9).</td>
     </tr>
     <tr>
       <td><a href="value-tags.html"><code>timestamp</code></a>, <a href="value-tags.html"><code>duration</code></a></td>
-      <td><code>uint32</code>…<code>uint256</code>, <code>int64</code>…<code>int256</code></td>
+      <td><code>uint32</code>…<code>uint256</code>, <code>int64</code>…<code>int256</code>. <code>timestamp</code> words (§5.3) are for EVM deadlines first.</td>
     </tr>
     <tr>
       <td><a href="value-tags.html"><code>bytes</code></a></td>
@@ -335,6 +382,47 @@ symbol: { "from": "query:icrc1_symbol" }
   <a href="open-questions.html">Open questions</a>).
 </p>
 
+<h2>Tags on EIP-712 messages</h2>
+
+<p>
+  <span class="pill warn">experimental</span> Spec §15.9, D-055. A contract profile or an EVM pack may bind EIP-712
+  struct types in <code>binds.eip712.types</code> (<a href="reference-profile-format.html">Profile and resolved
+  form</a>). A <strong>message</strong> is a type the same document tags with <code>intent</code> at its bare name; its
+  struct is argument 0, as a function's parameters are, so its members are addressed like a function's:
+</p>
+
+<annotation at="PermitSingle" tag="intent">
+title: "Permit2: allow token spending"
+template: "Let {spender} spend up to {details.amount}. Allowance expires: {details.expiration}. Signature expires: {sigDeadline}."
+</annotation>
+
+<table>
+  <thead>
+    <tr><th>Tag</th><th>On an EIP-712 message</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>intent</code></a></td>
+      <td>At the type's bare name (<code>PermitSingle</code>): this is what makes the type a message. A type without an intent is a type only, and an address that names it is <diag>E_ADDR_UNRESOLVED</diag>; its members are reached through a message that contains it (<code>PermitSingle(0).details.amount</code>).</td>
+    </tr>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>effect</code></a></td>
+      <td>A signature runs nothing when it is signed, so <code>effect</code> says what it allows, of any kind: <effect>approve</effect> for an allowance, <effect>transfer</effect> for a one-time transfer. Default <effect>write</effect>, irreversible. <code>replicated</code> does not apply (<diag>E_EFFECT_MODE</diag>).</td>
+    </tr>
+    <tr>
+      <td>every other tag</td>
+      <td>As on an EVM contract, in the table above (§15.4), at the message's member addresses: the value tags and <code>describe</code> apply, and the tags not yet defined for EVM are refused the same way. <code>amount.token</code> names the token a member holds (<code>"token": "details.token"</code>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  A message may not share its name with a function, and two profiles may not give one type name different members (the
+  later profile is invalid): each is <diag>E_EIP712</diag>. A signing request matches a message by its type hash, never
+  by its name: DAI's <code>Permit</code> and EIP-2612's share a name and not a hash. The standard messages are on
+  <a href="reference-packs.html">Standard packs</a>.
+</p>
+
 <h2>Where to read more</h2>
 
 <div class="card-grid">
@@ -342,5 +430,6 @@ symbol: { "from": "query:icrc1_symbol" }
   <a class="card" href="intent-and-effects.html"><span class="card-title">Intent, effects and confirmation</span><p>The line a person reads, and which calls need their confirmation.</p></a>
   <a class="card" href="outcomes-and-retries.html"><span class="card-title">Outcomes and retries</span><p>Outcome classes, the idempotency stamp and the consumer's retry rules.</p></a>
   <a class="card" href="names.html"><span class="card-title">Names</span><p>The <code>names</code> and <code>named</code> tags and the one matching rule.</p></a>
+  <a class="card" href="chain-evm.html"><span class="card-title">EVM contracts</span><p>The experimental binding: ABIs, calldata, EIP-712 messages and ERC-7730.</p></a>
   <a class="card" href="reference-profile-diagnostics.html"><span class="card-title">Profile diagnostics</span><p>Every code a misplaced or misapplied tag produces.</p></a>
 </div>

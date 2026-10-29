@@ -53,7 +53,12 @@ symbol: query:icrc1_symbol
   them through an update call or a certified path (<a href="security-model.html">security model</a>).
 </p>
 
-<p><code>formatterFor(node, { refs, now })</code> returns:</p>
+<p>
+  <code>formatterFor(node, { refs, now, token })</code> takes the position's node, the resolved refs, a default clock
+  for relative times (nanoseconds since the Unix epoch), and, for an EVM <code>amount</code> whose
+  <code>token</code> names its token by a field, that token's <code>{ decimals, symbol }</code>
+  (<a href="#accounts-addresses-and-integer-types">below</a>). It returns:
+</p>
 <ul>
   <li><code>null</code> when the position has no value tag. Show it as Candid text.</li>
   <li>
@@ -161,6 +166,44 @@ convertUnit("1791633600000000000", "ns", "s"); // "1791633600"
   Gregorian calendar, not <code>Date</code>, which has millisecond precision.
 </p>
 
+<h3>Words for times</h3>
+
+<pre data-lang="js" data-check="words">
+import { displayTimestamp, formatterFor } from "@meantjs/format";
+
+// Permit2's allowance expiration: seconds in a uint48, where 0 and the largest value are not dates.
+const expiration = formatterFor({
+  abi: "uint48",
+  tags: {
+    timestamp: {
+      args: { unit: "s", epoch: "unix", threshold: "281474976710655", message: "Never", labels: { 0: "Only in the block it is used" } },
+    },
+  },
+});
+if (expiration === null) throw new Error("no value tag");
+
+expiration.display("0"); // "Only in the block it is used"
+expiration.display("281474976710655"); // "Never"
+expiration.display("1798761600"); // "2027-01-01T00:00:00Z"
+expiration.safeParse("Never").ok; // false: E_SYNTAX, a word is never read back
+
+const MAX = (2n ** 256n - 1n).toString();
+displayTimestamp(MAX, { unit: "s", candid: "uint256", threshold: MAX, message: "Never" }); // "Never"
+</pre>
+
+<p>
+  A <code>timestamp</code> tag may carry words for values that are not dates, display only. <code>labels</code> maps
+  exact values (decimal strings of the tag's unit, 1 to 16 entries) to words; a value at or above
+  <code>threshold</code> shows as <code>message</code>. A label is checked first, then the threshold, then the time.
+  <code>threshold</code> and <code>message</code> come together, with no default word: one without the other is
+  <diag>E_ARG</diag>, "a timestamp threshold and its message go together: give both or neither". Each word is 1 to 32
+  characters. Parsing is unchanged, so the formatter reads a date or a <code>+</code> duration and never a word.
+  <code>displayTimestamp(value, { unit, candid, threshold, message, labels })</code> does the same without a
+  formatter. Without the threshold, the largest <code>uint256</code> is no date: <diag>E_RANGE</diag>, "the time is
+  outside 0000-01-01T00:00:00Z to 9999-12-31T23:59:59Z". The words work on any timestamp position; EVM deadlines are
+  why they exist (<a href="value-tags.html">value tags</a>).
+</p>
+
 <h3>Bytes and memos</h3>
 
 <p>
@@ -225,10 +268,17 @@ usdc.display(MAX); // "Unlimited USDC"
 
 formatterFor({ abi: "address" }); // null: an address takes no value tag
 readAddress("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"); // "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+
+// Permit2's details.amount: its token is the one at details.token, whose metadata the caller reads and passes.
+const allowance = formatterFor(
+  { abi: "uint160", tags: { amount: { args: { token: "details.token" } } } },
+  { token: { decimals: 6, symbol: "USDC" } },
+);
+allowance?.display("1500000"); // "1.5 USDC"
 </pre>
   <p>
     <claim>fact</claim> EVM support is experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>,
-    phase 1). An EVM position is a node with <code>abi</code> where a Candid one has <code>candid</code>,
+    phase 1 and the first part of phase 2). An EVM position is a node with <code>abi</code> where a Candid one has <code>candid</code>,
     and it formats the same way. <code>amount</code> takes <code>uint8</code> to <code>uint256</code> and
     <code>int8</code> to <code>int256</code>, each with the bounds of its bits; <code>timestamp</code> and
     <code>duration</code> take <code>uint32</code> to <code>uint256</code> and <code>int64</code> to
@@ -236,6 +286,14 @@ readAddress("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"); // "0xf39Fd6e51aad88F
     exactly N bytes (<diag>E_LENGTH</diag>). <code>amount</code>'s <code>threshold</code> and
     <code>message</code> show a value at or above the threshold as the message and the symbol,
     <code>Unlimited USDC</code>; parsing is unchanged.
+  </p>
+  <p>
+    An <code>amount</code> with <code>token</code> takes no <code>decimals</code> or <code>symbol</code> of its own:
+    they are those of the token another field names, which you read with <code>eth_call</code> and pass as
+    <code>formatterFor(node, { token: { decimals, symbol } })</code>, one formatter per token. Called without that
+    option it is <diag>E_REF_UNRESOLVED</diag>; a tag that gives <code>decimals</code> beside
+    <code>token</code> is <diag>E_ARG</diag>. <code>display</code> shows <code>1.5 USDC</code>; the consent text adds
+    the token's address beside it, because a symbol is the token's own claim.
   </p>
   <p>
     <code>account</code> and <code>subaccount</code> do not apply to an ABI type. An address has one text
@@ -301,6 +359,8 @@ readAddress("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"); // "0xf39Fd6e51aad88F
     <tr><td><code>amount</code>: the symbol matches, ignoring ASCII case only</td><td><diag>E_SYMBOL_MISMATCH</diag></td><td></td></tr>
     <tr><td><code>timestamp</code>: conversion to the unit is exact</td><td><diag>E_INEXACT</diag></td><td>properties in <code>time.test.mjs</code></td></tr>
     <tr><td><code>timestamp</code>: relative input resolves against <code>now</code> floored to the unit</td><td></td><td></td></tr>
+    <tr><td><code>timestamp</code>: words are display only, never parsed back; a threshold and its message come together</td><td><diag>E_SYNTAX</diag>, <diag>E_ARG</diag></td><td><code>evm.test.mjs</code></td></tr>
+    <tr><td><code>amount</code>: with <code>token</code>, the decimals and symbol come from the caller, never a guess</td><td><diag>E_REF_UNRESOLVED</diag></td><td><code>evm.test.mjs</code></td></tr>
     <tr><td><code>duration</code>: <code>W</code>, <code>D</code>, <code>H</code>, <code>M</code>, <code>S</code> only; <code>P1Y</code> and <code>P1M</code> refused</td><td><diag>E_SYNTAX</diag>, <diag>E_CALENDAR_UNIT</diag></td><td></td></tr>
     <tr><td><code>account</code>: the checksum is verified on input</td><td><diag>E_CHECKSUM</diag>, <diag>E_CHECKSUM_MISSING</diag></td><td>the ICRC-1 vectors in <code>account.test.mjs</code></td></tr>
     <tr><td><code>subaccount</code>: <code>0 &lt;= n &lt; 2^64</code>; hex is exactly 64 characters</td><td><diag>E_RANGE</diag>, <diag>E_LENGTH</diag></td><td></td></tr>
@@ -327,6 +387,11 @@ readAddress("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"); // "0xf39Fd6e51aad88F
   without JavaScript. It has no dependencies and runs without the standard library:
 </p>
 
+<pre data-lang="toml" data-file="Cargo.toml">
+[dependencies]
+meant-format = "=0.2.0"
+</pre>
+
 <pre data-lang="rust" data-file="crates/meant-format/README.md">
 use meant_format::{AmountFormat, Code, IntType};
 
@@ -343,6 +408,14 @@ assert_eq!(icp.parse("1.5 ckBTC").unwrap_err().code(), Code::SymbolMismatch);
 // Outside the integer type: refused, never wrapped or clamped.
 let byte = AmountFormat::new(0).with_candid(IntType::Nat8);
 assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
+
+// An ERC-20 approval of 2^256 - 1, shown as what it means.
+let max = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+let usdc = AmountFormat::new(6)
+    .with_symbol("USDC").unwrap()
+    .with_candid(IntType::Uint256)
+    .with_threshold(max, None).unwrap();
+assert_eq!(usdc.display(max).unwrap(), "Unlimited USDC");
 </pre>
 
 <p>
@@ -351,7 +424,7 @@ assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
   <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-format/tests/parity.rs"><code>tests/parity.rs</code></a>
   checks that against the vectors in <code>crates/meant-format/tests/vectors/amount.json</code>, which
   <code>generate-amount.mjs</code> writes from the JavaScript package and never by hand. The file records
-  where it came from: <code>@meantjs/format@0.3.0</code> at commit
+  where it came from: <code>@meantjs/format</code> 0.2.0 at commit
   <code>b6059abce12dc1b241a48deddc801db47d860b4d</code>, Node v22.22.0, Unicode 16.0. It holds 3,412
   cases, the number the crate's README states and the test pins (<code>DOCUMENTED_CASES</code>): 1,994
   <code>parse</code> cases, 1,331 <code>display</code> cases, 24 symbol cases, 27 type-name cases and 36
@@ -365,11 +438,22 @@ assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
   units, as JavaScript's <code>length</code> does.
 </p>
 
-<callout type="note" title="0.2.0 is prepared, not published">
-  <p>
-    <claim>fact</claim> The crate's manifest in the repository holds 0.2.0, the version with the EVM
-    integer types and <code>with_threshold</code>. crates.io holds 0.1.0 only (observed on 2026-10-29),
-    which has the ten Candid integer types and no threshold. Until 0.2.0 is published, build against
-    the repository. Every item is on the <a href="reference-meant-format.html">meant-format reference</a>.
-  </p>
-</callout>
+<h3>Versions</h3>
+
+<p>
+  <claim>fact</claim> crates.io holds two versions: 0.1.0, published on 2026-10-27, with the ten Candid integer types
+  and no threshold, and 0.2.0, published on 2026-10-29, which adds the EVM ABI's integer types, up to
+  <code>uint256</code> and <code>int256</code>, and <code>with_threshold</code> (observed on the crates.io API on
+  2026-10-29). The manifest in the repository holds 0.2.0. Before 1.0 any 0.x release may change the
+  API or the text <code>display</code> produces, so pin it exactly:
+</p>
+
+<pre data-lang="bash">
+cargo add meant-format@=0.2.0
+</pre>
+
+<p>
+  The minimum supported Rust version is 1.78. The crate is the <code>amount</code> tag only: for an amount whose
+  <code>token</code> a field names, build the format from that token's decimals and symbol, and there are no
+  timestamps or timestamp words. Every item is on the <a href="reference-meant-format.html">meant-format reference</a>.
+</p>

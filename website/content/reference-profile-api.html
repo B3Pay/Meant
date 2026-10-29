@@ -19,20 +19,28 @@ npm install @meantjs/profile@0.3.0 @meantjs/format@0.3.0 \
     <tr><th>Package</th><th>Version</th><th>Depends on (exact pins)</th><th>Runs on</th></tr>
   </thead>
   <tbody>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver"><code>@meantjs/profile</code></a></td><td>0.2.0</td><td><code>@candid-core/cli</code> 0.4.0, <code>ajv</code> 8.18.0</td><td>Node 22 or later for the main entry and the CLI; <code>/browser</code> in a browser bundle; <code>/address</code> and <code>/evm</code> anywhere, with no dependency</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/format"><code>@meantjs/format</code></a></td><td>0.2.0</td><td>none</td><td>Node 22 or later and browsers</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent"><code>@meantjs/consent</code></a></td><td>0.2.0</td><td><code>@candid-core/schema</code> 0.5.0, <code>@meantjs/format</code> 0.2.0, <code>@meantjs/profile</code> 0.2.0</td><td>Node 22 or later and browsers; <code>/sns</code> is Node only (it hashes with <code>node:crypto</code>)</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/tools"><code>@meantjs/tools</code></a></td><td>0.2.0</td><td><code>@meantjs/format</code> 0.2.0</td><td>Node 22 or later and browsers</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile"><code>@meantjs/reconcile</code></a></td><td>0.2.0</td><td><code>@meantjs/format</code> 0.2.0</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver"><code>@meantjs/profile</code></a></td><td>0.3.0</td><td><code>@candid-core/cli</code> 0.4.0, <code>ajv</code> 8.18.0</td><td>Node 22 or later for the main entry and the CLI; <code>/browser</code> in a browser bundle; <code>/address</code> and <code>/evm</code> anywhere, with no dependency</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/format"><code>@meantjs/format</code></a></td><td>0.3.0</td><td>none</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent"><code>@meantjs/consent</code></a></td><td>0.3.0</td><td><code>@candid-core/schema</code> 0.5.0, <code>@meantjs/format</code> 0.3.0, <code>@meantjs/profile</code> 0.3.0</td><td>Node 22 or later and browsers; <code>/sns</code> is Node only (it hashes with <code>node:crypto</code>)</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/tools"><code>@meantjs/tools</code></a></td><td>0.3.0</td><td><code>@meantjs/format</code> 0.3.0</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile"><code>@meantjs/reconcile</code></a></td><td>0.3.0</td><td><code>@meantjs/format</code> 0.3.0</td><td>Node 22 or later and browsers</td></tr>
   </tbody>
 </table>
 
 <p>Each name links to its source under <code>profile/packages/</code>; <code>@meantjs/profile</code> is <code>packages/resolver</code>.</p>
 
+<p>
+  <claim>fact</claim> 0.3.0 was published to npm on 2026-10-29 (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md"><code>profile/docs/releasing.md</code></a>).
+  It adds EIP-712 typed messages (spec §15.9, D-055, experimental) to <code>@meantjs/profile</code>,
+  <code>@meantjs/format</code> and <code>@meantjs/consent</code>; the changelog of <code>@meantjs/tools</code> and of
+  <code>@meantjs/reconcile</code> says "No changes in this package". Each package's <code>CHANGELOG.md</code> lists what
+  changed.
+</p>
+
 <callout type="note" title="One version for all five">
   <p>
-    The five packages release together under one version and pin each other exactly (<code>"0.2.0"</code>, not
-    <code>"^0.2.0"</code>), so an install never mixes versions that were not tested together. A release bumps all five
+    The five packages release together under one version and pin each other exactly (<code>"0.3.0"</code>, not
+    <code>"^0.3.0"</code>), so an install never mixes versions that were not tested together. A release bumps all five
     even when only one changed. While the major is 0 the minor is the breaking digit, and any change to text the
     packages generate (consent messages, SNS renderings, tool names, descriptions, input schemas) is a breaking change.
     The procedure is <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md"><code>profile/docs/releasing.md</code></a>.
@@ -104,7 +112,7 @@ export function readServedProfile(
     <tr><td><code>createSchemaValidator(schema?)</code></td><td>The validate function for the profile schema: a path or a document, by default the schema the package ships. The shipped schema is compiled ahead of time; any other is compiled by <code>ajv</code> at run time with <code>new Function</code>.</td></tr>
     <tr><td><code>resolveService(opts)</code></td><td>Resolves one service (<code>did</code>, <code>envelope</code> or <code>abi</code>, exactly one) with <code>profiles</code> (applied as given; a pack here must match) and <code>packs</code> (tried; applied only if they match). Returns <code class="wrap">{ ok, resolved, diagnostics, profiles }</code>; <code>resolved</code> is null when the service does not compile.</td></tr>
     <tr><td><code class="wrap">validateProfile(doc, opts)</code></td><td>The single-profile validator that <code>scripts/validate.mjs</code> wraps: <code class="wrap">{ ok, profile_id, interface_id, methods, annotations, diagnostics, resolved? }</code>.</td></tr>
-    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name (default: the shipped packs, <code>DEFAULT_PACKS_DIR</code>).</td></tr>
+    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name (default: the shipped packs, <code>DEFAULT_PACKS_DIR</code>). Packs only: the two standard contract profiles shipped in the same directory, <code>permit2</code> and <code>dai-permit</code>, are not returned.</td></tr>
     <tr><td><code>profileId(doc)</code>, <code>jcs(value)</code></td><td><code>candid-profile:v0:sha256:&lt;hex&gt;</code> over the RFC 8785 (JCS) form; the JCS text itself.</td></tr>
     <tr><td><code class="wrap">profileFromDocAttributes(response, opts?)</code></td><td>An author canister profile from the tags written as doc comments in a <code>.did</code>; <code>response</code> is what <code>didToDocAttributes</code> of <code>@candid-core/cli</code> returns (<a href="annotate-a-did.html">Annotate a .did file</a>).</td></tr>
     <tr><td><code class="wrap">readServedProfile(bytes, opts)</code>, <code>SERVED_SECTION</code>, <code>SERVED_METADATA</code>, <code>SERVED_MAX_BYTES</code></td><td>Checks the bytes of a canister's <code>candid:profile</code> metadata; <diag>E_SERVED</diag> when they cannot be used (<a href="serve-a-profile.html">Serve a profile</a>).</td></tr>
@@ -233,7 +241,7 @@ export function schemaDiagnostics(validateSchema: SchemaValidator): Diagnostic[]
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>PROFILE_SCHEMA</code>, <code>STANDARD_PACKS</code></td><td>The profile schema and the standard packs, as data.</td></tr>
+    <tr><td><code>PROFILE_SCHEMA</code>, <code>STANDARD_PACKS</code></td><td>The profile schema and the four standard packs (<code>erc20</code>, <code>erc2612</code>, <code>icrc1</code>, <code>icrc2</code>), as data, in the shape <code>loadPacks</code> returns. The contract profiles are not in it; they are under <code>./packs/*</code>.</td></tr>
     <tr><td><code>initCompiler(input?)</code></td><td>Optional: initializes the cli's wasm compiler, for a bundler that moves the wasm file.</td></tr>
     <tr><td><code>createSchemaValidator(doc?)</code></td><td>A document, never a path; by default the shipped schema.</td></tr>
     <tr><td><code>schemaDiagnostics(validateSchema)</code></td><td>The last schema errors as <diag>E_SCHEMA</diag> diagnostics.</td></tr>
@@ -244,8 +252,9 @@ export function schemaDiagnostics(validateSchema: SchemaValidator): Diagnostic[]
 <h3 id="profile-evm"><code>@meantjs/profile/evm</code></h3>
 
 <p>
-  The EVM helpers of spec §15 (experimental), with no dependency. Every failure is an <code>AbiError</code>:
-  <diag>E_ABI</diag>, <diag>E_ABI_ENCODE</diag>, <diag>E_ABI_DECODE</diag>, <diag>E_ADDRESS</diag> or
+  The EVM helpers of spec §15 (experimental), with no dependency: ABI fragments, a strict codec, EIP-55 addresses, and
+  EIP-712 types, type hashes and digests (§15.9). Every failure is an <code>AbiError</code>: <diag>E_ABI</diag>,
+  <diag>E_ABI_ENCODE</diag>, <diag>E_ABI_DECODE</diag>, <diag>E_EIP712</diag>, <diag>E_ADDRESS</diag> or
   <diag>E_ADDRESS_CHECKSUM</diag>.
 </p>
 
@@ -269,7 +278,7 @@ export function jcs(value: unknown): string;
 export const DEFAULT_ABI_LIMITS: Readonly<Required<AbiLimits>>;
 export function parseAbi(entries: unknown, label?: string): { functions: AbiFunction[]; errors: { at: string; message: string }[] };
 export function parseSignature(signature: string, where?: string): AbiFunction;
-export function abiInterfaceId(functions: readonly AbiFunction[]): string;
+export function abiInterfaceId(functions: readonly AbiFunction[], types?: Eip712Types): string;
 export function canonicalFragment(f: Pick<AbiFunction, "name" | "inputs" | "outputs" | "stateMutability">): string;
 export function namedSignature(f: Pick<AbiFunction, "name" | "inputs">): string;
 export function typeSignature(f: Pick<AbiFunction, "name" | "inputs">): string;
@@ -282,6 +291,10 @@ export function decodeParams(params: readonly AbiParam[], data: Uint8Array, limi
 export function toChecksumAddress(address: string): string;
 export function readAddress(text: string): string;
 export function typedDataDigest(typed: TypedData): string;
+export type Eip712Types = Record<string, { name: string; type: string }[]>;
+export function parseEip712Types(types: unknown, label?: string): { types: Eip712Types; errors: { at: string; message: string }[] };
+export function encodeType(types: Eip712Types, primary: string): string;
+export function eip712TypeHash(types: Eip712Types, primary: string): string;
 </pre>
 
 <table>
@@ -291,7 +304,9 @@ export function typedDataDigest(typed: TypedData): string;
   <tbody>
     <tr><td><code class="wrap">parseAbi(entries, label?)</code></td><td>Reads an ABI (human-readable fragments or JSON ABI entries); only functions. Problems are listed, not thrown.</td></tr>
     <tr><td><code>parseSignature(signature)</code></td><td>One function from its named signature, as a resolved form carries it. Throws.</td></tr>
-    <tr><td><code>abiInterfaceId(functions)</code></td><td><code>candid-profile:evm-abi:v0:sha256:…</code>: SHA-256 over the JCS array of the canonical fragments, sorted.</td></tr>
+    <tr><td><code class="wrap">abiInterfaceId(functions, types?)</code></td><td><code>candid-profile:evm-abi:v0:sha256:…</code>: SHA-256 over the JCS array of the canonical fragments and, when given EIP-712 types, one <code>struct Name(type member,…)</code> line per type, sorted. Without types (or with <code>{}</code>) it is the phase 1 identity, unchanged.</td></tr>
+    <tr><td><code class="wrap">parseEip712Types(types, label?)</code></td><td>Reads EIP-712 struct types: identifier names that are not ABI types or <code>EIP712Domain</code>, unique member names, canonical member types (<code>uint256</code>, never <code>uint</code>) or structs of the same map, and no struct that contains itself. Problems are listed, not thrown; <code>types</code> keeps the structs that read.</td></tr>
+    <tr><td><code>encodeType</code>, <code>eip712TypeHash</code></td><td>EIP-712 <code>encodeType</code> (the struct with its members, then the structs it refers to, sorted by name) and its Keccak-256, as <code>0x</code> and 64 hex digits. A primary type not in the map throws <diag>E_EIP712</diag>.</td></tr>
     <tr><td><code>canonicalFragment</code>, <code>namedSignature</code>, <code>typeSignature</code>, <code>selectorOf</code>, <code>typeString</code>, <code>componentKey</code></td><td><code class="wrap">function transfer(address to,uint256 value) returns (bool)</code>; <code class="wrap">transfer(address to,uint256 value)</code>; <code>transfer(address,uint256)</code>; <code>0xa9059cbb</code>; a type's canonical text; a tuple component's key (its name, else <code>#</code> and its position).</td></tr>
     <tr><td><code>encodeParams</code>, <code>encodeCall</code>, <code>decodeParams</code></td><td>The strict codec: a value read from anything but its canonical encoding is refused.</td></tr>
     <tr><td><code>toChecksumAddress</code>, <code>readAddress</code></td><td>The EIP-55 form; reading an address whose mixed case must match it.</td></tr>
@@ -299,13 +314,39 @@ export function typedDataDigest(typed: TypedData): string;
   </tbody>
 </table>
 
+<p>EIP-712's own <code>Mail</code> example, read and hashed:</p>
+
+<pre data-lang="js" data-check>
+import { eip712TypeHash, encodeType, parseEip712Types } from "@meantjs/profile/evm";
+
+const { types, errors } = parseEip712Types({
+  Mail: [
+    { name: "from", type: "Person" },
+    { name: "to", type: "Person" },
+    { name: "contents", type: "string" },
+  ],
+  Person: [
+    { name: "name", type: "string" },
+    { name: "wallet", type: "address" },
+  ],
+});
+errors; // []
+encodeType(types, "Mail"); // "Mail(Person from,Person to,string contents)Person(string name,address wallet)"
+eip712TypeHash(types, "Mail"); // "0xa0cedeb2dc280ba39b857546d74f5549c3a1d7bdc2dd96bf881f76108e23dac2"
+parseEip712Types({ Short: [{ name: "x", type: "uint" }] }).errors;
+// [{ at: "types.Short[0]", message: "write uint256, not uint: the type hash hashes the type as written" }]
+</pre>
+
 <h3 id="profile-schema-json"><code>@meantjs/profile/schema.json</code> and <code>@meantjs/profile/packs/*</code></h3>
 
 <p>
   JSON documents, not modules: <code>./schema.json</code> is the package's copy of
-  <code>spec/profile-v0.schema.json</code>, and <code>./packs/*</code> its copies of the standard packs
-  (<code>icrc1.profile.json</code>, <code>icrc2.profile.json</code>, <code>erc20.profile.json</code>). Import them with an
-  import attribute, and pass them as documents:
+  <code>spec/profile-v0.schema.json</code>, and <code>./packs/*</code> its copies of the six standard files of
+  <code>profile/packs/</code>: the packs <code>icrc1.profile.json</code>, <code>icrc2.profile.json</code>,
+  <code>erc20.profile.json</code> and <code>erc2612.profile.json</code>, and the EVM contract profiles
+  <code>permit2.profile.json</code> and <code>dai-permit.profile.json</code> (experimental, §15.9). A contract profile is
+  never tried as a pack: pass it in <code>profiles</code>. Import them with an import attribute, and pass them as
+  documents:
 </p>
 
 <pre data-lang="js" data-file="profile/packages/resolver/README.md">
@@ -340,7 +381,14 @@ export function displayAmount(value: string | bigint, options: AmountOptions): s
 export function convertUnit(value: string | bigint, from: TimeUnit, to: TimeUnit): string;
 export function alignNow(nowNs: bigint, unit: TimeUnit): bigint;
 export function parseTimestamp(input: string, options: { unit: TimeUnit; candid?: string; now?: bigint }): string;
-export function displayTimestamp(value: string | bigint, options: { unit: TimeUnit; candid?: string }): string;
+export interface TimestampOptions {
+  unit: TimeUnit;
+  candid?: string;
+  threshold?: string | bigint;
+  message?: string;
+  labels?: Record<string, string>;
+}
+export function displayTimestamp(value: string | bigint, options: TimestampOptions): string;
 export function parseDuration(input: string, options: { unit: TimeUnit; candid?: string }): string;
 export function displayDuration(value: string | bigint, options: { unit: TimeUnit; candid?: string }): string;
 export function parseAccount(input: string): Account;
@@ -363,7 +411,7 @@ export interface Formatter {
   describe(): Description;
 }
 export const VALUE_TAGS: readonly ValueTag[];
-export function formatterFor(node: FormatNode, options?: { refs?: Record<string, unknown>; now?: bigint }): Formatter | null;
+export function formatterFor(node: FormatNode, options?: { refs?: Record<string, unknown>; now?: bigint; token?: { decimals: number | bigint | string; symbol?: string } }): Formatter | null;
 export function describeInput(tag: ValueTag, args: Readonly<Record<string, unknown>>, candid: string, options?: { accepts?: (input: string) => boolean }): Description;
 export function normalizeName(text: string): string;
 export function resolveName<V>(
@@ -380,9 +428,9 @@ export function nameOf<V>(entries: NameEntry<V>[], value: V, opts?: { by?: "valu
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code class="wrap">formatterFor(node, options?)</code></td><td>The formatter of a resolved-form position, or null when it has no value tag. Throws <diag>E_REF_UNRESOLVED</diag>, <diag>E_ARG</diag>, <diag>E_TAG_TYPE</diag> or <diag>E_TAG_CONFLICT</diag> rather than return one that half works. <code>refs</code> are keyed by <code>from</code>.</td></tr>
-    <tr><td><code>parseAmount</code>, <code>displayAmount</code></td><td><code>"1.5 ICP"</code> to base units as a decimal string, and back. A number is refused.</td></tr>
-    <tr><td><code>parseTimestamp</code>, <code>displayTimestamp</code>, <code>parseDuration</code>, <code>displayDuration</code>, <code>convertUnit</code>, <code>alignNow</code></td><td>RFC 3339 and ISO 8601 text to a count of the tag's unit, and back; exact unit conversion.</td></tr>
+    <tr><td><code class="wrap">formatterFor(node, options?)</code></td><td>The formatter of a resolved-form position, or null when it has no value tag. Throws <diag>E_REF_UNRESOLVED</diag>, <diag>E_ARG</diag>, <diag>E_TAG_TYPE</diag> or <diag>E_TAG_CONFLICT</diag> rather than return one that half works. <code>refs</code> are keyed by <code>from</code>. <code>token</code>: for an <code>amount</code> whose <code>token</code> argument names its token by a field (EVM, §15.9), that token's decimals and symbol, which the caller reads; without it the amount is <diag>E_REF_UNRESOLVED</diag>.</td></tr>
+    <tr><td><code>parseAmount</code>, <code>displayAmount</code></td><td><code>"1.5 ICP"</code> to base units as a decimal string, and back. A number is refused. <code>threshold</code> and <code>message</code> are display only: a value at or above the threshold displays as the message (default <code>Unlimited</code>) and the symbol.</td></tr>
+    <tr><td><code>parseTimestamp</code>, <code>displayTimestamp</code>, <code>parseDuration</code>, <code>displayDuration</code>, <code>convertUnit</code>, <code>alignNow</code></td><td>RFC 3339 and ISO 8601 text to a count of the tag's unit, and back; exact unit conversion. <code>TimestampOptions</code> adds words, display only: a value <code>labels</code> names shows its word, then a value at or above <code>threshold</code> shows <code>message</code>, so that it is never read as a date. <code>threshold</code> and <code>message</code> come together, with no default word (<diag>E_ARG</diag>). Parsing is unchanged; a word is never parsed back.</td></tr>
     <tr><td><code>parseAccount</code>, <code>displayAccount</code>, <code>principalFromText</code>, <code>principalToText</code></td><td>The ICRC-1 textual account encoding and principal text, checksums verified.</td></tr>
     <tr><td><code>parseSubaccount</code>, <code>displaySubaccount</code>, <code>parseBytes</code>, <code>displayBytes</code>, <code>asUint8Array</code></td><td>32-byte subaccounts (<code>#n</code> or 64 hex), bytes in the tag's encoding, and a realm-safe byte check.</td></tr>
     <tr><td><code>describeInput</code></td><td><code>Formatter.describe</code> without a formatter: the summary, examples and pattern of a position's input.</td></tr>
@@ -408,11 +456,29 @@ try {
 }
 </pre>
 
+<p>Words for a deadline, and an amount in the token a field names, as Permit2's profile tags them:</p>
+
+<pre data-lang="js" data-check>
+import { displayTimestamp, formatterFor } from "@meantjs/format";
+
+const expiration = { unit: /** @type {const} */ ("s"), candid: "uint48", threshold: "281474976710655", message: "Never", labels: { "0": "Only in the block it is used" } };
+displayTimestamp("0", expiration); // "Only in the block it is used"
+displayTimestamp("281474976710655", expiration); // "Never"
+displayTimestamp("1798761600", expiration); // "2027-01-01T00:00:00Z"
+
+const amount = { abi: "uint160", tags: { amount: { args: { token: "details.token", threshold: "1461501637330902918203684832716283019655932542975" } } } };
+const f = formatterFor(amount, { token: { decimals: 6, symbol: "USDC" } });
+f?.display("1500000"); // "1.5 USDC"
+f?.display("1461501637330902918203684832716283019655932542975"); // "Unlimited USDC"
+// formatterFor(amount) without `token` throws E_REF_UNRESOLVED
+</pre>
+
 <h2 id="meantjs-consent"><code>@meantjs/consent</code></h2>
 
 <p>
   ICRC-21 consent messages for any method, from a resolved form and the Candid-encoded argument bytes; the text an SNS
-  proposal's validator returns; and, experimental, consent text and ERC-7730 files for EVM calls. No network code.
+  proposal's validator returns; and, experimental, consent text and ERC-7730 files for EVM calls and EIP-712 signing
+  requests. No network code.
 </p>
 
 <h3 id="consent-main"><code>@meantjs/consent</code> (main entry)</h3>
@@ -478,10 +544,16 @@ export declare class ConsentError extends Error {
     <tr><td><code class="wrap">handleConsentRequest(requestBytes, context)</code></td><td>Candid bytes of <code>icrc21_consent_message_request</code> in, Candid bytes of the response out: what a canister endpoint returns.</td></tr>
     <tr><td><code>generateConsent(input)</code></td><td>One form without the ICRC-21 envelope: <code>"generic"</code> (Markdown, the default) or <code>"fields"</code>.</td></tr>
     <tr><td><code>encodeConsentRequest</code>, <code>decodeConsentRequest</code>, <code>encodeConsentResponse</code>, <code>decodeConsentResponse</code>, <code>toJson</code></td><td>The Candid codec for the ICRC-21 types, and a JSON-safe copy (bigint as a decimal string, <code>Uint8Array</code> as <code>{ hex }</code>).</td></tr>
-    <tr><td><code>toIcrc21Error</code>, <code>CODES</code>, <code>GENERIC_ERROR_CODES</code>, <code>ConsentError</code>, <code>SUPPORTED_LANGUAGE</code></td><td>Errors and their ICRC-21 mapping (<a href="reference-profile-diagnostics.html#meantjs-consent-consenterror">ConsentError</a>); <code>"en"</code>, the only language v0 emits.</td></tr>
+    <tr><td><code>toIcrc21Error</code>, <code>CODES</code>, <code>GENERIC_ERROR_CODES</code>, <code>ConsentError</code>, <code>SUPPORTED_LANGUAGE</code></td><td>Errors and their ICRC-21 mapping (<a href="reference-profile-diagnostics.html#meantjs-consent-consenterror">ConsentError</a>; 0.3.0 adds <code>DOMAIN</code> and <code>TYPE_HASH</code>, used by <code>/evm</code> only); <code>"en"</code>, the only language v0 emits.</td></tr>
     <tr><td><code>buildModel</code>, <code>decodeArguments</code>, <code>schemaFor</code>, <code>parseTemplate</code>, <code>resolvePath</code>, <code>valuesAt</code>, <code>Renderer</code>, <code>zoneName</code>, <code>renderFields</code>, <code>renderGeneric</code>, <code>codeSpan</code>, <code>escapeMarkdown</code>, <code>visible</code></td><td>The parts: decode, model, render and escape.</td></tr>
   </tbody>
 </table>
+
+<p>
+  Since 0.3.0, a <code>"fields"</code> message shows an amount at or above its <code>threshold</code>, and a timestamp
+  shown as words, as <code>Text</code>: never a <code>TokenAmount</code> or <code>TimestampSeconds</code> of the raw
+  number (the 0.3.0 changelog of <code>@meantjs/consent</code>).
+</p>
 
 <pre data-lang="js" data-file="profile/packages/consent/README.md">
 import { icrc21ConsentMessage, handleConsentRequest } from "@meantjs/consent";
@@ -542,7 +614,10 @@ export function verifySnsRendering(input: {
 
 <h3 id="consent-evm"><code>@meantjs/consent/evm</code></h3>
 
-<p>Experimental (spec §15.6): the consent text of an EVM call, from an EVM contract's resolved form and its calldata.</p>
+<p>
+  Experimental (spec §15.6 and §15.9): the consent text of an EVM call, from an EVM contract's resolved form and its
+  calldata, and of an EIP-712 signing request, from a resolved form with <code>messages</code> and the request's JSON.
+</p>
 
 <pre data-lang="ts" data-file="profile/packages/consent/src/evm.d.mts" data-partial>
 export type EvmResolvedForm = ResolvedForm & { chain: "evm" };
@@ -553,6 +628,7 @@ export interface EvmConsentInput {
   to: string;
   chainId?: number | bigint | string;
   refs?: Record<string, unknown>;
+  tokens?: Record<string, { decimals: number | bigint | string; symbol?: string }>;
   form?: "generic" | "fields";
   utcOffsetMinutes?: number | null;
   rawArguments?: boolean;
@@ -569,6 +645,35 @@ export function evmConsent(input: EvmConsentInput): {
   provenance: Provenance;
   model: Model;
 };
+export interface TypedData {
+  types: Record<string, { name: string; type: string }[]>;
+  primaryType: string;
+  domain: { name?: string; version?: string; chainId?: number | bigint | string; verifyingContract?: string; salt?: string };
+  message: Record<string, unknown>;
+}
+export interface Eip712ConsentInput {
+  resolved: ResolvedForm;
+  typedData: TypedData;
+  chainId: number | bigint | string;
+  refs?: Record<string, unknown>;
+  tokens?: Record<string, { decimals: number | bigint | string; symbol?: string }>;
+  form?: "generic" | "fields";
+  utcOffsetMinutes?: number | null;
+  rawArguments?: boolean;
+  limits?: { maxBytes?: number; maxElements?: number };
+}
+export function eip712Consent(input: Eip712ConsentInput): {
+  form: "generic" | "fields";
+  message: string | { intent: string; fields: [string, string][] };
+  primaryType: string;
+  typeHash: string;
+  digest: string;
+  verifyingContract: string;
+  chainId: string;
+  diagnostics: ConsentDiagnostic[];
+  provenance: Provenance;
+  model: Model;
+};
 </pre>
 
 <table>
@@ -578,25 +683,85 @@ export function evmConsent(input: EvmConsentInput): {
   <tbody>
     <tr><td><code class="wrap">decodeCalldata(resolved, calldata, limits?)</code></td><td>The function a selector names and its arguments, keyed by parameter name. Strict: <diag>E_DECODE</diag> on anything but the canonical encoding; <diag>E_RESOLVED_FORM</diag> for a form that is not an EVM one; <diag>E_METHOD_UNKNOWN</diag> for an unknown selector.</td></tr>
     <tr><td><code>evmConsent(input)</code></td><td>The same model and two layouts as an ICRC-21 message, without its envelope, ending with the contract's address and chain. A call to a contract its profiles do not list is <diag>E_DEPLOYMENT</diag>; a payable function is <diag>E_UNSUPPORTED_TYPE</diag>.</td></tr>
+    <tr><td><code>tokens</code> (both functions)</td><td>For an amount whose <code>token</code> names its token by a field: each token's <code>decimals()</code> and <code>symbol()</code>, keyed by its address, which the caller reads. An amount in a token not listed is <diag>E_REF_UNRESOLVED</diag>; a listed one is shown with its token's address beside the symbol.</td></tr>
+    <tr><td><code>eip712Consent(input)</code></td><td>The consent text of a signing request (<code>eth_signTypedData_v4</code>'s JSON; <code>types.EIP712Domain</code> may be left out), matched to a message by its type hash, never its name. <code>chainId</code> is the wallet's active chain. Refused before anything is shown: a domain for another chain, without <code>chainId</code> or <code>verifyingContract</code>, with a <code>salt</code>, or whose name or version is not its profiles' (<diag>E_DOMAIN</diag>); a contract its profiles do not list (<diag>E_DEPLOYMENT</diag>); no message with the request's type hash (<diag>E_TYPE_HASH</diag>); values that are not exactly the members, canonically written (<diag>E_DECODE</diag>); a token not in <code>tokens</code> (<diag>E_REF_UNRESOLVED</diag>). The text ends with the verifying contract and its chain, the EIP-712 digest, and "This is a signature, not a transaction: whoever holds it can submit it." For a pack's message, <code>query:</code> refs are calls to the verifying contract.</td></tr>
   </tbody>
 </table>
 
+<p>
+  A request against the EIP-2612 pack, for a token deployed on a local Anvil chain (31337); the pack lists no
+  deployments, and the token's <code>decimals()</code> and <code>symbol()</code> come in as <code>refs</code>:
+</p>
+
+<pre data-lang="js" data-check>
+import { createSchemaValidator, loadPacks, validateProfile } from "@meantjs/profile";
+import { eip712Consent } from "@meantjs/consent/evm";
+
+const validateSchema = await createSchemaValidator();
+const erc2612 = (await loadPacks()).find((p) => p.doc.name === "erc2612");
+const v = erc2612 && (await validateProfile(erc2612.doc, { validateSchema, resolved: true }));
+if (!v?.resolved) throw new Error("the EIP-2612 pack did not resolve");
+
+const r = eip712Consent({
+  resolved: v.resolved,
+  typedData: {
+    types: {
+      Permit: [
+        { name: "owner", type: "address" },
+        { name: "spender", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
+      ],
+    },
+    primaryType: "Permit",
+    domain: { name: "Token A", version: "1", chainId: 31337, verifyingContract: "0x5FbDB2315678afecb367f032d93F642f64180aa3" },
+    message: {
+      owner: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      spender: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      value: "1500000000000000000",
+      nonce: 0,
+      deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+    },
+  },
+  chainId: 31337,
+  refs: { "query:decimals": 18, "query:symbol": "TKA" },
+});
+r.typeHash; // "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9": EIP-2612's Permit
+r.message; // "# Permit token spending\n\nAllow `0x3C44…93BC` to spend up to `1.5 TKA` from `0x7099…79C8`. Signature expires: `Never`. …"
+</pre>
+
+<p>
+  The message then names the contract and its chain (<code>0x5FbD…0aa3</code> on chain 31337), the EIP-712 digest and
+  the signature note; the comments above are its real output, with the addresses shortened here. The same request with
+  <code>chainId: 1</code> in its domain, to a wallet on chain 31337, is refused with <diag>E_DOMAIN</diag>: "the domain
+  is for chain 1, the wallet is on chain 31337".
+</p>
+
 <h3 id="consent-erc7730"><code>@meantjs/consent/erc7730</code></h3>
 
-<p>Experimental (spec §15.7): ERC-7730 clear-signing files and the unsigned ERC-8176 attestation a reviewer signs for one. Nothing is signed or sent.</p>
+<p>
+  Experimental (spec §15.7 and §15.9): ERC-7730 clear-signing files, of a contract's functions or of its EIP-712
+  messages, and the unsigned ERC-8176 attestation a reviewer signs for one. Nothing is signed or sent.
+</p>
 
 <pre data-lang="ts" data-file="profile/packages/consent/src/erc7730.d.mts" data-partial>
 export const ERC7730_SCHEMA_URL: "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.1.0.schema.json";
 export const ERC8176_SCHEMA_UID: "0xe023eef113c1670774801c34b377fdf612dd8a4d2fa92fe382e15bd91fafb5c2";
 export const EAS_ADDRESS: "0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587";
+export interface Erc7730FieldGroup {
+  path: string;
+  fields: (Erc7730Field | Erc7730FieldGroup)[];
+}
 export interface Erc7730Options {
+  context?: "contract" | "eip712";
   deployments?: Erc7730Deployment[];
   owner?: string;
   contractName?: string;
   info?: { url: string; deploymentDate?: string };
   token?: { name: string };
 }
-export function erc7730Descriptor(resolved: ResolvedForm, options?: Erc7730Options): { descriptor: Erc7730Descriptor; descriptorHash: string };
+export function erc7730Descriptor(resolved: ResolvedForm, options?: Erc7730Options): { descriptor: Erc7730Descriptor; descriptorHash: string; notes: string[] };
 export function descriptorHash(descriptor: object): string;
 export interface Erc8176Input {
   descriptorHash: string;
@@ -613,7 +778,7 @@ export function erc8176Attestation(input: Erc8176Input): { typedData: Erc8176Typ
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code class="wrap">erc7730Descriptor(resolved, options?)</code></td><td>The contract's ERC-7730 file and its ERC-8176 <code>descriptorHash</code>; deterministic. What a file cannot say is <diag>E_EXPORT</diag>; no deployment is <diag>E_DEPLOYMENT</diag>.</td></tr>
+    <tr><td><code class="wrap">erc7730Descriptor(resolved, options?)</code></td><td>The contract's ERC-7730 file and its ERC-8176 <code>descriptorHash</code>; deterministic. <code>context: "contract"</code> (the default) writes one entry per function a transaction calls, keyed by its named signature; <code>context: "eip712"</code> writes the messages' own file, keyed by <code>encode_type</code>, with <code>context.eip712.domain</code> the name and version its profiles bind. An array whose elements carry their own token is an <code>Erc7730FieldGroup</code> (<code>"details.[]"</code>). What a file cannot say is <diag>E_EXPORT</diag>; no deployment is <diag>E_DEPLOYMENT</diag>. What it cannot say but changes no value (a timestamp's words, an interpolation over an array) is left out and listed in <code>notes</code>; every file 0.2.0 writes is written the same.</td></tr>
     <tr><td><code>descriptorHash(descriptor)</code></td><td><code>0x</code> and the Keccak-256 of the RFC 8785 form: the hash of a file someone edited.</td></tr>
     <tr><td><code>erc8176Attestation(input)</code></td><td>The unsigned offchain attestation (EAS offchain v2 typed data) and its EIP-712 digest, for a reviewer to sign with their own key.</td></tr>
     <tr><td><code>ERC7730_SCHEMA_URL</code>, <code>ERC8176_SCHEMA_UID</code>, <code>EAS_ADDRESS</code></td><td>The exact-version schema every file names; ERC-8176's schema UID; the canonical EAS contract.</td></tr>

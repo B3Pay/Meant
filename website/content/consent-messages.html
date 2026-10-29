@@ -169,8 +169,8 @@ const reply = decodeConsentResponse(replyBytes);
   <tbody>
     <tr><td><code>intent.title</code> and the rendered <code>template</code></td><td><code>intent</code></td></tr>
     <tr><td>each placeholder</td><td>one <code>(label, Value)</code> row; the label is <code>describe.label</code>, else the field name</td></tr>
-    <tr><td><code>amount</code></td><td><code>TokenAmount { decimals; amount; symbol }</code> when it fits <code>nat64</code>, else <code>Text</code></td></tr>
-    <tr><td><code>timestamp</code></td><td><code>TimestampSeconds { amount }</code> after unit conversion</td></tr>
+    <tr><td><code>amount</code></td><td><code>TokenAmount { decimals; amount; symbol }</code> when it fits <code>nat64</code>, else <code>Text</code>; <code>Text</code> at or above its <code>threshold</code></td></tr>
+    <tr><td><code>timestamp</code></td><td><code>TimestampSeconds { amount }</code> after unit conversion; <code>Text</code> when it is shown as words</td></tr>
     <tr><td><code>duration</code></td><td><code>DurationSeconds { amount }</code> after unit conversion</td></tr>
     <tr><td>everything else</td><td><code>Text { content }</code></td></tr>
   </tbody>
@@ -186,8 +186,8 @@ const reply = decodeConsentResponse(replyBytes);
   <li>Rows follow the order of first appearance in the template, one per distinct path. A placeholder in a dropped <code>[ ]</code> segment adds no row; an absent placeholder outside a segment renders as <code>(none)</code>.</li>
   <li>A placeholder whose path crosses a variant case is absent unless the value holds that case. A placeholder over <code>[]</code> joins its elements with <code>, </code>; more than 256 elements is refused.</li>
   <li>Untagged values render as Candid text, except that a principal on its own renders as its textual form.</li>
-  <li><code>TokenAmount</code> only when the amount is non-negative, fits <code>nat64</code> and the tag has a symbol; <code>TimestampSeconds</code> and <code>DurationSeconds</code> only when the conversion is exact and fits <code>nat64</code>. Otherwise <code>Text</code>, with every digit.</li>
-  <li>The generic form shows a time as <code>YYYY-MM-DD HH:MM:SS[.f] UTC+HH:MM</code> in the requested offset, and the response carries <code>utc_offset_minutes</code> exactly when it showed one. The fields form is UTC seconds and never depends on the zone. An offset outside ±24 h is ignored with a diagnostic.</li>
+  <li><code>TokenAmount</code> only when the amount is non-negative, fits <code>nat64</code> and the tag has a symbol; <code>TimestampSeconds</code> and <code>DurationSeconds</code> only when the conversion is exact and fits <code>nat64</code>. Otherwise <code>Text</code>, with every digit. An amount at or above its <code>threshold</code> and a timestamp shown as words are <code>Text</code> too, never a <code>TokenAmount</code> or <code>TimestampSeconds</code> of the raw number.</li>
+  <li>The generic form shows a time as <code>YYYY-MM-DD HH:MM:SS[.f] UTC+HH:MM</code> in the requested offset, and the response carries <code>utc_offset_minutes</code> exactly when it showed one. The fields form is UTC seconds and never depends on the zone. An offset outside ±24 h is ignored with a diagnostic. A timestamp shown as words is never zoned.</li>
   <li>The generic layout is <code># title</code>, the paragraph, then <code>- **label:** value</code> lines. Values from the call are Markdown code spans; an empty value is <code>*(empty)*</code>; text from the profile is backslash-escaped.</li>
   <li>A call without an intent is titled by <code>describe.label</code>, else <code>Call &lt;method&gt;</code>, with one row per leaf of the decoded arguments. More than 64 rows is refused, never truncated.</li>
   <li>A language the profile does not have is answered in the profile's language, and the metadata says which. An absent <code>device_spec</code> means <code>GenericDisplay</code>.</li>
@@ -208,6 +208,28 @@ const reply = decodeConsentResponse(replyBytes);
 …
 - Expires at: TimestampSeconds {"amount":"1791547200"}
 </pre>
+
+<p>
+  Rule 5 also keeps words as words. A profile's <code>threshold</code>, <code>message</code> and
+  <code>labels</code> (<a href="value-tags.html">value tags</a>) say what a value means when it is not a number or
+  a date, and a typed row would hand the signer the raw number to show instead. The package's test
+  (<code>test/icrc21.test.mjs</code>) has an amount with 2 decimals, symbol <code>EUR</code> and threshold
+  <code>1000</code>, and a <code>nat64</code> timestamp in seconds with threshold <code>4102444800</code>,
+  <code>message: "Never"</code> and the label <code>0</code> for <code>Now</code>:
+</p>
+
+<table>
+  <thead><tr><th>Value</th><th>Row</th></tr></thead>
+  <tbody>
+    <tr><td>amount <code>999</code></td><td><code>TokenAmount {"decimals":2,"amount":"999","symbol":"EUR"}</code></td></tr>
+    <tr><td>amount <code>1000</code></td><td><code>Text {"content":"Unlimited EUR"}</code></td></tr>
+    <tr><td>timestamp <code>1</code></td><td><code>TimestampSeconds {"amount":"1"}</code></td></tr>
+    <tr><td>timestamp <code>0</code></td><td><code>Text {"content":"Now"}</code></td></tr>
+    <tr><td>timestamp <code>4102444800</code></td><td><code>Text {"content":"Never"}</code></td></tr>
+  </tbody>
+</table>
+
+<p>In the generic form at UTC+02:00, the timestamp <code>0</code> is still shown as <code>Now</code>, not as a zoned time.</p>
 
 <h2>Escaping</h2>
 
@@ -377,12 +399,18 @@ pub fn generic_consent_message(
 </table>
 
 <p>
-  It reads the same resolved form and writes the same text, byte for byte. It decodes with the
-  <code>candid</code> crate against types built from the resolved form and ports the display side of
-  the format library; where JavaScript's strings show through (UTF-16 lengths for the 32 KiB budget,
-  <code>trim</code>) it counts the way JavaScript does. <code>tests/golden.rs</code> runs the package's
+  It reads the same resolved form and writes the same text, byte for byte, except for the display-only
+  words. It decodes with the <code>candid</code> crate against types built from the resolved form and ports
+  the display side of the format library; where JavaScript's strings show through (UTF-16 lengths for the
+  32 KiB budget, <code>trim</code>) it counts the way JavaScript does. <claim>fact</claim>
+  <code>rust/src/format.rs</code> reads an <code>amount</code>'s <code>decimals</code> and <code>symbol</code>
+  and a <code>timestamp</code>'s <code>unit</code> and <code>epoch</code> only, and ignores
+  <code>threshold</code>, <code>message</code> and <code>labels</code>, so for such a value it shows the number
+  or the date where the JavaScript package shows <code>Unlimited</code> or <code>Never</code>. No golden and no
+  vector of the differential corpus carries those arguments, and 0.3.0, which added the timestamp words,
+  changed no file of the Rust version. <code>tests/golden.rs</code> runs the package's
   13 SNS goldens and the generic message of its 20 ICRC-21 goldens, and <code>tests/differential.rs</code>
-  a corpus of 203 payloads, each answered alike. <code>rust-version</code> is 1.85.
+  the 233 vectors of <code>test/differential/corpus.json</code>, each answered alike. <code>rust-version</code> is 1.85.
 </p>
 
 <p>
@@ -424,14 +452,36 @@ Send `1.5 USDC` to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
 </pre>
 
 <p>
-  <claim>fact</claim> EVM support is experimental (spec §15, phase 1). ICRC-21 is the Internet
-  Computer's, so an EVM call gets the same model and the same two layouts without the ICRC-21 envelope:
-  <code>evmConsent</code> in <code>@meantjs/consent/evm</code> decodes the calldata strictly and ends the
-  text with the contract's address and chain, because a pack applies to any contract with matching
-  functions. <code>@meantjs/consent/erc7730</code> writes the contract's ERC-7730 clear-signing file and
-  its ERC-8176 <code>descriptorHash</code>. The main entry refuses an EVM resolved form with
-  <diag>E_RESOLVED_FORM</diag>, and the Rust version does not cover EVM. The mapping, the deployment check
-  and the export are on <a href="chain-evm.html">EVM contracts</a>.
+  <claim>fact</claim> EVM support is experimental (spec §15, phase 1 and the first part of phase 2).
+  ICRC-21 is the Internet Computer's, so an EVM call gets the same model and the same two layouts without
+  the ICRC-21 envelope: <code>evmConsent</code> in <code>@meantjs/consent/evm</code> decodes the calldata
+  strictly and ends the text with the contract's address and chain, because a pack applies to any contract
+  with matching functions. <code>@meantjs/consent/erc7730</code> writes the contract's ERC-7730
+  clear-signing file and its ERC-8176 <code>descriptorHash</code>. The main entry refuses an EVM resolved
+  form with <diag>E_RESOLVED_FORM</diag>, and the Rust version does not cover EVM.
+</p>
+
+<ul>
+  <li>
+    <code>eip712Consent({ resolved, typedData, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })</code>
+    is the consent text of an EIP-712 signing request, matched to a message of the profile by its type hash, never its
+    name. A domain for another chain than the wallet's, without <code>chainId</code> or
+    <code>verifyingContract</code>, with a salt, or whose name or version is not its profiles' is refused
+    before anything is shown (<diag>E_DOMAIN</diag>), and so is a request no message matches
+    (<diag>E_TYPE_HASH</diag>). The text ends with the verifying contract, the EIP-712 digest and "This is a
+    signature, not a transaction: whoever holds it can submit it."
+  </li>
+  <li>
+    <code>tokens</code>, taken by both functions, gives the decimals and symbol of each token an amount's
+    <code>token</code> names, keyed by its address. The address is shown beside the symbol:
+    <code>1.5 TKA (0x5FbDB2315678afecb367f032d93F642f64180aa3)</code>. A token not listed is
+    <diag>E_REF_UNRESOLVED</diag>.
+  </li>
+</ul>
+
+<p>
+  The mapping, the deployment check, typed messages, the standard Permit2, EIP-2612 and DAI files and the
+  export are on <a href="chain-evm.html">EVM contracts</a>.
 </p>
 
 <h2>What a consent message does not prove</h2>

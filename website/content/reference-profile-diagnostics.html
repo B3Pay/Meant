@@ -60,6 +60,7 @@ export interface Diagnostic {
     <tr><td><diag>E_ABI</diag></td><td>error</td><td>An EVM ABI (<code>binds.abi</code>, or the contract's given as the interface) that cannot be read: a fragment that does not parse, a type that does not exist, an overloaded function name (O1), two components with one field id, or no function at all (§15.1).</td></tr>
     <tr><td><diag>E_CHAIN</diag></td><td>error</td><td>A profile or pack for an EVM contract given for a Candid service, or the other way round (§15.3).</td></tr>
     <tr><td><diag>E_ADDRESS_CHECKSUM</diag></td><td>error</td><td>A deployment address in mixed case that does not match its EIP-55 checksum (§15.3).</td></tr>
+    <tr><td><diag>E_EIP712</diag></td><td>error</td><td><code>binds.eip712.types</code> that cannot be read (a struct name that is not an identifier or reads as an ABI type or <code>EIP712Domain</code>, a member type that is not canonical or not a type, a struct that contains itself or refers to a refused one), a message that shares its name with a function, two profiles that give one type name different members, or types with no message and no function (§15.9). Experimental.</td></tr>
     <tr><td><diag>W_NO_INTERFACE</diag></td><td>warning</td><td>Canister profile checked without its <code>.did</code>; semantic checks skipped.</td></tr>
   </tbody>
 </table>
@@ -83,6 +84,7 @@ export interface Diagnostic {
     <tr><td><diag>E_REF_TYPE</diag></td><td>error</td><td>Bad dynamic value: the method returns the wrong kind (a number expected, or text).</td></tr>
     <tr><td><diag>E_DYNAMIC_KIND</diag></td><td>error</td><td>Bad dynamic value: <code>now</code> or <code>caller</code> where only <code>query:</code> is valid.</td></tr>
     <tr><td><diag>E_DEFAULT_NULL</diag></td><td>error</td><td><code>null</code> default on a non-optional position.</td></tr>
+    <tr><td><diag>E_TOKEN_PATH</diag></td><td>error</td><td>An <code>amount.token</code> that is not a relative path to an <code>address</code> in the same argument and the same array element as the amount, or that is given on a Candid service (§15.9, OQ-6). Experimental.</td></tr>
     <tr><td><diag>W_STRUCTURAL_ALIAS</diag></td><td>warning</td><td>A <code>type:</code> address starts from a declaration whose type another declaration also names; the tag reaches both (§3.2 rule 7).</td></tr>
     <tr><td><diag>I_UNTAGGED_NUMERIC</diag></td><td>info</td><td>A numeric update argument has no meaning attached.</td></tr>
   </tbody>
@@ -195,6 +197,7 @@ export interface Diagnostic {
     <tr><td><diag>E_ABI_DECODE</diag></td><td>error, thrown</td><td><code>decodeParams</code>: the data is not the canonical ABI encoding of its values (dirty padding, a non-canonical offset or trailing bytes), ends early, or is over the limits.</td></tr>
     <tr><td><diag>E_ADDRESS</diag></td><td>error, thrown</td><td>Not an address (<code>0x</code> and 40 hex digits).</td></tr>
     <tr><td><diag>E_ADDRESS_CHECKSUM</diag></td><td>error, thrown</td><td><code>readAddress</code>: an address in mixed case that does not match its EIP-55 checksum.</td></tr>
+    <tr><td><diag>E_EIP712</diag></td><td>error, thrown</td><td><code>encodeType</code> and <code>eip712TypeHash</code>: a primary type that is not in the types (§15.9). <code>parseEip712Types</code> lists its problems instead of throwing; the resolver reports them as the <diag>E_EIP712</diag> diagnostic above.</td></tr>
   </tbody>
 </table>
 
@@ -241,7 +244,11 @@ export interface Diagnostic {
 
 <p>
   <code>formatterFor</code> throws <diag>E_REF_UNRESOLVED</diag>, <diag>E_ARG</diag>, <diag>E_TAG_TYPE</diag> or
-  <diag>E_TAG_CONFLICT</diag> rather than return a formatter that half works. The Rust crate <code>meant-format</code>
+  <diag>E_TAG_CONFLICT</diag> rather than return a formatter that half works. Since 0.3.0 that includes an
+  <code>amount</code> whose <code>token</code> names its token by a field when the caller passes no
+  <code>token</code> (<diag>E_REF_UNRESOLVED</diag>), and a <code>timestamp</code> <code>threshold</code> without its
+  <code>message</code>, or the other way round (<diag>E_ARG</diag>: "a timestamp threshold and its message go together:
+  give both or neither"). The Rust crate <code>meant-format</code>
   returns eight of these codes for the <code>amount</code> tag, matched case by case against this package:
   <a href="reference-meant-format.html">meant-format (Rust)</a>.
 </p>
@@ -262,20 +269,22 @@ export interface Diagnostic {
   </thead>
   <tbody>
     <tr><td><diag>E_METHOD_UNKNOWN</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The resolved form has no such method.</td></tr>
-    <tr><td><diag>E_DECODE</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The argument bytes do not decode against the method's signature (for an EVM call: calldata that is not the canonical encoding of its values).</td></tr>
+    <tr><td><diag>E_DECODE</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The argument bytes do not decode against the method's signature (for an EVM call: calldata that is not the canonical encoding of its values; for an EIP-712 request: values that are not exactly the message's members, canonically written).</td></tr>
     <tr><td><diag>E_TOO_LARGE</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The arguments exceed the bounds of a consent message (never truncated).</td></tr>
     <tr><td><diag>E_LANGUAGE</diag></td><td><code>UnsupportedCanisterCall</code></td><td>Only with <code>languagePolicy: "error"</code>: the requested language is not supported.</td></tr>
-    <tr><td><diag>E_REQUEST</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The ICRC-21 request itself is malformed.</td></tr>
-    <tr><td><diag>E_DEPLOYMENT</diag></td><td>(EVM only)</td><td>An EVM call's target is not a deployment its profile lists (spec §15). From <code>erc7730Descriptor</code>: no deployment to bind the file to.</td></tr>
+    <tr><td><diag>E_REQUEST</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The ICRC-21 request itself is malformed. From <code>@meantjs/consent/evm</code>: malformed input (the calldata, <code>to</code>, <code>chainId</code>, <code>form</code> or <code>tokens</code>, or a <code>typedData</code> whose shape or types cannot be read).</td></tr>
+    <tr><td><diag>E_DEPLOYMENT</diag></td><td>(EVM only)</td><td>An EVM call's target is not a deployment its profile lists (spec §15). From <code>eip712Consent</code>: the request's verifying contract on its chain is not one the profiles list. From <code>erc7730Descriptor</code>: no deployment to bind the file to.</td></tr>
+    <tr><td><diag>E_DOMAIN</diag></td><td>(EVM only)</td><td>An EIP-712 request's domain is for another chain, contract or name than its profile's (spec §15.9). <code>eip712Consent</code> also refuses a domain with a field EIP-712 does not define, a <code>salt</code>, no <code>chainId</code>, no <code>verifyingContract</code>, or a <code>types.EIP712Domain</code> that does not list the domain's fields in EIP-712 order. Experimental.</td></tr>
+    <tr><td><diag>E_TYPE_HASH</diag></td><td>(EVM only)</td><td>No message of the resolved form has the request's EIP-712 type hash (spec §15.9): a request is matched by its type hash, never by its name. Experimental.</td></tr>
     <tr><td><diag>E_UNSUPPORTED_TYPE</diag></td><td><code>ConsentMessageUnavailable</code></td><td>A position the resolved form cannot type (recursive cut, func, service). On an EVM contract also a payable function, whose native value has no position yet.</td></tr>
-    <tr><td><diag>E_RESOLVED_FORM</diag></td><td><code>GenericError</code> 1000</td><td>The resolved form is malformed. Also an EVM resolved form given to the main entry, and a Candid one given to <code>@meantjs/consent/evm</code>.</td></tr>
+    <tr><td><diag>E_RESOLVED_FORM</diag></td><td><code>GenericError</code> 1000</td><td>The resolved form is malformed. Also an EVM resolved form given to the main entry, and a Candid one given to <code>@meantjs/consent/evm</code>; for <code>eip712Consent</code>, a message whose <code>encode_type</code> does not hash to its <code>type_hash</code>.</td></tr>
     <tr><td><diag>E_TEMPLATE</diag></td><td><code>GenericError</code> 1001</td><td>The intent template does not parse.</td></tr>
     <tr><td><diag>E_TEMPLATE_PATH</diag></td><td><code>GenericError</code> 1002</td><td>A placeholder names a position the method does not have.</td></tr>
-    <tr><td><diag>E_REF_UNRESOLVED</diag></td><td><code>GenericError</code> 1100</td><td>Pass-through of the format library: a dynamic ref the caller did not supply.</td></tr>
+    <tr><td><diag>E_REF_UNRESOLVED</diag></td><td><code>GenericError</code> 1100</td><td>Pass-through of the format library: a dynamic ref the caller did not supply. On EVM also an amount in a token that is not in <code>tokens</code>.</td></tr>
     <tr><td><diag>E_ARG</diag></td><td><code>GenericError</code> 1101</td><td>Pass-through of the format library: a bad tag argument.</td></tr>
     <tr><td><diag>E_TAG_TYPE</diag></td><td><code>GenericError</code> 1102</td><td>Pass-through of the format library: the tag does not apply to the type.</td></tr>
     <tr><td><diag>E_TAG_CONFLICT</diag></td><td><code>GenericError</code> 1103</td><td>Pass-through of the format library: two formatting tags at one position.</td></tr>
-    <tr><td><diag>E_EXPORT</diag></td><td>(EVM only)</td><td>The ERC-7730 export: the resolved form says something an ERC-7730 file cannot say (spec §15).</td></tr>
+    <tr><td><diag>E_EXPORT</diag></td><td>(EVM only)</td><td>The ERC-7730 export: the resolved form says something an ERC-7730 file cannot say (spec §15). What a file cannot say but that changes no value (a timestamp's words, a template over an array) is not refused: it is left out and listed in the export's <code>notes</code>.</td></tr>
     <tr><td><diag>E_INTERNAL</diag></td><td><code>GenericError</code> 1999</td><td>Not a <code>ConsentError</code>: any other thrown value, reported with this code in <code>diagnostics</code>.</td></tr>
   </tbody>
 </table>

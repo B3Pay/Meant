@@ -69,7 +69,7 @@ E_EXCESS_PRECISION "1.500000000" has 9 fractional digits but this token has 8; a
 <p>
   <code>amount</code> applies to <code>nat</code>, <code>int</code> and the sized integers
   <code>nat8</code> to <code>int64</code>. <code>decimals</code> (0 to 255, or a dynamic value)
-  is required; <code>symbol</code> is optional. A base-unit integer <code>v</code> with
+  is required, unless <code>token</code> names the token (below); <code>symbol</code> is optional. A base-unit integer <code>v</code> with
   <code>d</code> decimals is shown as a decimal with trailing fractional zeros removed, a space and
   the symbol: <code>150000000</code> with <code>d = 8</code> is <code>1.5 ICP</code>, and
   <code>100000000</code> is <code>1 ICP</code>.
@@ -101,14 +101,51 @@ E_EXCESS_PRECISION "1.500000000" has 9 fractional digits but this token has 8; a
   same position are always in base units, so they never depend on the decimals.
 </p>
 
+<h3>Unlimited: threshold and message</h3>
+
+<p>
+  Two arguments change only what is shown. A value at or above <code>threshold</code>, a decimal
+  string of base units, is shown as <code>message</code> (default <code>Unlimited</code>) and the
+  symbol: an approval of the largest <code>uint256</code> is <code>Unlimited USDC</code>, not a
+  78-digit number. <code>message</code> needs <code>threshold</code>. Input is unchanged: a number at
+  the threshold still parses to its base units. In an ICRC-21 fields message such a value is
+  <code>Text</code>, never a <code>TokenAmount</code> of the raw number
+  (<a href="consent-messages.html">consent messages</a>).
+</p>
+
+<h3>An amount in another token: token</h3>
+
+<p>
+  On an EVM contract, <code>token</code> names the token by a field instead of giving its decimals
+  and symbol. It is a relative path to an <code>address</code> in the same argument, in the same
+  array element as the amount or outside every array. Permit2's allowance names its token beside the
+  amount:
+</p>
+
+<annotation at="PermitSingle(0).details.amount" tag="amount">
+token: details.token
+threshold: 1461501637330902918203684832716283019655932542975
+</annotation>
+
+<p>
+  <code>decimals</code> and <code>symbol</code> are then not given (the schema refuses them): they
+  are that token's <code>decimals()</code> and <code>symbol()</code>, which the consumer reads and
+  passes in per token address. Without them there is no text (<diag>E_REF_UNRESOLVED</diag>), never
+  a number read in the wrong decimals, and the token's address is shown beside its symbol, because a
+  symbol is the token's own claim. A path that breaks these rules is <diag>E_TOKEN_PATH</diag>, and
+  so is <code>token</code> on a Candid service, whose ledger a field cannot name yet (OQ-6).
+  <a href="chain-evm.html">EVM contracts</a> has the consent text this gives.
+</p>
+
 <h2>timestamp</h2>
 
 <p>
   <code>timestamp</code> applies to <code>nat</code>, <code>int</code>, <code>nat32</code>,
   <code>nat64</code> and <code>int64</code>. Its <code>unit</code> (<code>ns</code>,
   <code>us</code>, <code>ms</code> or <code>s</code>) is required, and <code>epoch</code> is
-  <code>unix</code>. The ICRC-1 pack tags <code>created_at_time</code> as nanoseconds since the
-  Unix epoch.
+  <code>unix</code>. <code>threshold</code>, <code>message</code> and <code>labels</code> are
+  optional and display only. The ICRC-1 pack tags <code>created_at_time</code> as nanoseconds since
+  the Unix epoch.
 </p>
 
 <ul>
@@ -130,6 +167,44 @@ E_EXCESS_PRECISION "1.500000000" has 9 fractional digits but this token has 8; a
     seconds field is <diag>E_INEXACT</diag>: half a second is not a whole number of seconds.
   </li>
 </ul>
+
+<h3>Words for values that are not dates</h3>
+
+<p>
+  Some deadlines have extreme values that mean something else. EIP-2612 uses the largest
+  <code>uint256</code> for a permit that never expires, which as a time is out of range; Permit2
+  uses an expiration of 0 for an allowance that lasts only the block it is used in, which as a time
+  reads 1970. Words say what those values mean:
+</p>
+
+<annotation at="PermitSingle(0).details.expiration" tag="timestamp">
+unit: s
+epoch: unix
+threshold: 281474976710655
+message: Never
+labels: { "0": "Only in the block it is used" }
+</annotation>
+
+<ul>
+  <li><code>labels</code> maps exact values, as decimal strings of the tagged unit, to words: 1 to 16 entries.</li>
+  <li>A value at or above <code>threshold</code> is shown as <code>message</code>. The two come together, and there is no default word.</li>
+  <li>A label is checked first, then the threshold, then the time.</li>
+  <li>A value shown as words is never read as a time: it is not localized, and it is <code>Text</code> in ICRC-21, never <code>TimestampSeconds</code>. Input is unchanged; a word is never parsed back, so typing <code>Never</code> is <diag>E_SYNTAX</diag>.</li>
+</ul>
+
+<table>
+  <thead><tr><th>Value of that <code>uint48</code></th><th>Display</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>0</code></td><td><code>Only in the block it is used</code></td><td>A label</td></tr>
+    <tr><td><code>281474976710655</code></td><td><code>Never</code></td><td>At the threshold, the type's maximum</td></tr>
+    <tr><td><code>1798761600</code></td><td><code>2027-01-01T00:00:00Z</code></td><td>A time</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Without a threshold, the largest <code>uint256</code> is no date at all:
+  <diag>E_RANGE</diag>, "the time is outside 0000-01-01T00:00:00Z to 9999-12-31T23:59:59Z".
+</p>
 
 <h2>duration</h2>
 
@@ -302,7 +377,9 @@ E_EXCESS_PRECISION "1.500000000" has 9 fractional digits but this token has 8; a
 
 <ul>
   <li>An address has one text form, <code>0x</code> and 40 hex digits, shown with its EIP-55 checksum. It needs no tag, so <code>account</code> and <code>subaccount</code> on an EVM contract are <diag>E_TAG_NOT_APPLICABLE</diag>.</li>
-  <li>The ERC-20 pack gives <code>amount</code> a display-only <code>threshold</code> and <code>message</code>, so that an approval of the largest <code>uint256</code> shows as <code>Unlimited USDC</code> rather than a 78-digit number.</li>
+  <li>The ERC-20 pack gives <code>amount</code> a <code>threshold</code> and <code>message</code>, so that an approval of the largest <code>uint256</code> shows as <code>Unlimited USDC</code> (<a href="#unlimited-threshold-and-message">above</a>).</li>
+  <li><code>amount</code>'s <code>token</code> is EVM only: an amount in the token an <code>address</code> field names, as in an EIP-712 message such as Permit2's (<a href="#an-amount-in-another-token-token">above</a>).</li>
+  <li><code>timestamp</code>'s words are for EVM deadlines first: the EIP-2612 pack shows a deadline of <code>uint256</code> max as "Never" (<a href="#words-for-values-that-are-not-dates">above</a>).</li>
 </ul>
 
 <p><a href="chain-evm.html">EVM contracts</a> has the rest.</p>

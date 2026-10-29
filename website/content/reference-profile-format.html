@@ -4,7 +4,7 @@
   consumers: one tree per method, with the effective tags at every position. Both are format version 0. The structure
   of the profile is <a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/profile-v0.schema.json"><code>profile/spec/profile-v0.schema.json</code></a>;
   the resolved form is spec <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#10-resolved-form-consumer-interchange">§10</a>
-  and, for EVM contracts, §15.5. Excerpts below are the generated fixtures in
+  and, for EVM contracts, §15.5 and §15.9. Excerpts below are the generated fixtures in
   <a href="https://github.com/B3Pay/Meant/tree/main/profile/fixtures"><code>profile/fixtures/</code></a>, quoted unchanged
   apart from indentation.
 </p>
@@ -66,7 +66,7 @@
   <tbody>
     <tr><td><code>canister</code></td><td><code>author</code>, <code>third_party</code>, <code>inferred</code></td><td>canister binds</td><td>the interface's <code>interface_id</code></td></tr>
     <tr><td><code>pack</code></td><td><code>pack</code> only</td><td>pack binds</td><td>structure: Candid subtyping of <code>binds.requires</code>, or an EVM contract's selectors for <code>binds.abi</code></td></tr>
-    <tr><td><code>contract</code></td><td><code>author</code>, <code>third_party</code>, <code>inferred</code></td><td>contract binds</td><td>the identity of its own <code>binds.abi</code> (spec §15.3)</td></tr>
+    <tr><td><code>contract</code></td><td><code>author</code>, <code>third_party</code>, <code>inferred</code></td><td>contract binds</td><td>the identity of its own <code>binds.abi</code> (spec §15.3). Whether it is rebound or stale is decided by its functions alone (§15.9), so one with only <code>binds.eip712</code> binds no function and is never rebound.</td></tr>
   </tbody>
 </table>
 
@@ -109,6 +109,7 @@
     <tr><td><code>spec_url</code></td><td>no</td><td>an <code>https://</code> URL</td></tr>
     <tr><td><code>requires</code></td><td>exactly one of the two</td><td>a Candid service fragment (at least 10 characters). The pack applies to a canister whose service type is a subtype of it.</td></tr>
     <tr><td><code>abi</code></td><td>exactly one of the two</td><td>an EVM ABI (as for a contract, below). The pack applies to a contract that has each function with the same selector, outputs and kind of call.</td></tr>
+    <tr><td><code>eip712</code></td><td>no; only beside <code>abi</code></td><td>the EIP-712 messages of an EVM pack (<a href="#binds-eip712">below</a>), experimental. The pack still matches by its <code>binds.abi</code>, and has no domain (spec §15.9: each token's is its own).</td></tr>
   </tbody>
 </table>
 
@@ -121,10 +122,78 @@
     <tr><th>Field</th><th>Required</th><th>Value</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>abi</code></td><td>yes</td><td>an array of at least one entry: a human-readable fragment starting with <code>function</code>, <code>event</code>, <code>error</code>, <code>constructor</code>, <code>fallback</code> or <code>receive</code>, or a JSON ABI entry with one of those as <code>type</code>. Only functions are read.</td></tr>
-    <tr><td><code>deployments</code></td><td>no</td><td>an array of at least one <code>{ "chain_id": integer ≥ 1, "address": "0x" and 40 hex digits }</code>. A mixed-case address that fails its EIP-55 checksum is <diag>E_ADDRESS_CHECKSUM</diag>; a deployment listed twice is <diag>W_DUPLICATE</diag>.</td></tr>
+    <tr><td><code>abi</code></td><td>at least one of <code>abi</code> and <code>eip712</code></td><td>an array of at least one entry: a human-readable fragment starting with <code>function</code>, <code>event</code>, <code>error</code>, <code>constructor</code>, <code>fallback</code> or <code>receive</code>, or a JSON ABI entry with one of those as <code>type</code>. Only functions are read.</td></tr>
+    <tr><td><code>eip712</code></td><td>at least one of <code>abi</code> and <code>eip712</code></td><td>the EIP-712 messages the contract verifies, with its domain's name and version (<a href="#binds-eip712">below</a>), experimental.</td></tr>
+    <tr><td><code>deployments</code></td><td>no</td><td>an array of at least one <code>{ "chain_id": integer ≥ 1, "address": "0x" and 40 hex digits }</code>. A mixed-case address that fails its EIP-55 checksum is <diag>E_ADDRESS_CHECKSUM</diag>; a deployment listed twice is <diag>W_DUPLICATE</diag>. For messages, it gives the domain's <code>chainId</code> and <code>verifyingContract</code>.</td></tr>
   </tbody>
 </table>
+
+<h3 id="binds-eip712">binds.eip712</h3>
+
+<callout type="warn" title="Experimental">
+  <p>Spec §15.9, D-055: EIP-712 typed messages, the first part of the EVM binding's phase 2. See <a href="chain-evm.html">EVM contracts</a>.</p>
+</callout>
+
+<pre data-lang="json" data-file="profile/packs/dai-permit.profile.json">
+"binds": {
+  "eip712": {
+    "domain": {
+      "name": "Dai Stablecoin",
+      "version": "1"
+    },
+    "types": {
+      "Permit": [
+        {
+          "name": "holder",
+          "type": "address"
+        },
+        {
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "name": "expiry",
+          "type": "uint256"
+        },
+        {
+          "name": "allowed",
+          "type": "bool"
+        }
+      ]
+    }
+  },
+  "deployments": [
+    {
+      "chain_id": 1,
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    }
+  ]
+},
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Required</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>types</code></td><td>yes</td><td>an object of at least one struct, in the JSON shape of an <code>eth_signTypedData</code> request without <code>EIP712Domain</code>: a struct name (<code>^[A-Za-z_][A-Za-z0-9_]*$</code>) to an array of at least one <code>{ "name", "type" }</code>. A member type matches <code>^[A-Za-z_][A-Za-z0-9_]*(\[([1-9][0-9]*)?\])*$</code>: a canonical ABI type as written (<code>uint256</code>, never <code>uint</code>: the type hash hashes the text) or a struct of the same map, either with array suffixes <code>T[]</code> or <code>T[k]</code>.</td></tr>
+    <tr><td><code>domain</code></td><td>no</td><td>at least one of <code>name</code> and <code>version</code>, non-empty strings. Each must equal the request's domain value of the same name; a request with a value where the profile has none is refused too (Permit2's domain has no version). <code>chainId</code> and <code>verifyingContract</code> come from <code>binds.deployments</code>.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A struct name is not an ABI type (<code>uint256</code>, <code>bytes32</code>, <code>tuple</code>, …) and not
+  <code>EIP712Domain</code>, members have unique names, and no struct contains itself. Anything else is
+  <diag>E_EIP712</diag> at its place, and a struct that refers to a refused one is refused too. A type is a
+  <strong>message</strong> when the same document tags its bare name with <code>intent</code>; its struct is argument 0,
+  so its members are addressed as <code>Permit(0).expiry</code> (<a href="reference-tags.html">Tags</a>). A type without
+  an intent is a type only. A message may not share its name with a function, two profiles may not give one type name
+  different members, and types with no message and no function describe nothing: each is <diag>E_EIP712</diag>.
+</p>
 
 <h2>annotations</h2>
 
@@ -146,7 +215,7 @@
   </thead>
   <tbody>
     <tr><td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code></td><td>a method address: <code>^[A-Za-z_][A-Za-z0-9_]*$</code></td></tr>
-    <tr><td><code>intent</code>, <code>effect</code></td><td>a method address, or a value address (a case of a variant in the arguments, D-053)</td></tr>
+    <tr><td><code>intent</code>, <code>effect</code></td><td>a method address, or a value address (a case of a variant in the arguments, D-053). On an EVM contract the method address may be an EIP-712 type's name, which <code>intent</code> makes a message (§15.9).</td></tr>
     <tr><td><code>describe</code></td><td>a value address or a method address</td></tr>
     <tr><td><code>amount</code>, <code>timestamp</code>, <code>duration</code>, <code>account</code>, <code>subaccount</code>, <code>bytes</code>, <code>text</code>, <code>range</code>, <code>default</code>, <code>ui</code>, <code>named</code></td><td>a value address: <code>METHOD(i)path</code>, <code>METHOD-&gt;(i)path</code> or <code>type:DECL path</code></td></tr>
   </tbody>
@@ -233,8 +302,9 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
     <tr><td><code>format_version</code></td><td><code>0</code></td></tr>
     <tr><td><code>chain</code></td><td><code>"evm"</code> for an EVM contract's form; absent for a Candid service's. A consumer MUST refuse a form whose <code>chain</code> it does not know rather than read it as Candid.</td></tr>
     <tr><td><code>interface_id</code></td><td>the service's <code>candid-core:interface:v1:sha256:…</code> (from the compiled <code>.did</code>, or the envelope's <code>contract.identities.interface</code>), or an ABI's <code>candid-profile:evm-abi:v0:sha256:…</code></td></tr>
-    <tr><td><code>profiles</code></td><td>every applied profile, highest layer first: <code>{ name, origin, profile_id }</code>, plus <code>deployments</code> when the profile binds them</td></tr>
-    <tr><td><code>methods</code></td><td>one entry per method, keyed by name, in sorted order</td></tr>
+    <tr><td><code>profiles</code></td><td>every applied profile, highest layer first: <code>{ name, origin, profile_id }</code>, plus <code>deployments</code> when the profile binds them and <code>eip712_domain</code> (the domain's <code>name</code> and <code>version</code>) when it binds a domain</td></tr>
+    <tr><td><code>methods</code></td><td>one entry per method, keyed by name, in sorted order. An EIP-712 message is never here.</td></tr>
+    <tr><td><code>messages</code></td><td>EVM only, experimental: one entry per EIP-712 message, keyed by name, in sorted order (<a href="#eip-712-messages">below</a>). Absent when there is none, so a form without messages is unchanged.</td></tr>
     <tr><td><code>diagnostics</code></td><td>the diagnostics of the resolve (<a href="reference-profile-diagnostics.html">Profile diagnostics</a>); a diagnostic from a multi-profile resolve may carry <code>profile</code></td></tr>
   </tbody>
 </table>
@@ -380,14 +450,17 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
 <p>
   A dynamic value stays as written, <code>{ "from": "query:icrc1_decimals" }</code>: resolving it needs the network, so
   it is the consumer's job. The packages take the resolved values as <code>refs</code>, keyed by their
-  <code>from</code> (<code>{ "query:icrc1_decimals": 8 }</code>). <claim>open</claim> OQ-10 (owner W1/W3): should the
+  <code>from</code> (<code>{ "query:icrc1_decimals": 8 }</code>). An EVM <code>amount</code> whose <code>token</code> names
+  its token by a field stays as that path too; the consumer reads the token's decimals and symbol and passes them per
+  token address (<code>tokens</code> in <code>@meantjs/consent/evm</code>, <code>token</code> in
+  <code>formatterFor</code>). <claim>open</claim> OQ-10 (owner W1/W3): should the
   resolved form carry resolved dynamic values with their provenance, certified or not?
 </p>
 
 <h2>EVM contracts: chain evm</h2>
 
 <callout type="warn" title="Experimental">
-  <p>Spec §15, phase 1. See <a href="chain-evm.html">EVM contracts</a>.</p>
+  <p>Spec §15, phase 1 and the first part of phase 2 (EIP-712 messages). See <a href="chain-evm.html">EVM contracts</a>.</p>
 </callout>
 
 <p>
@@ -488,7 +561,152 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
 </pre>
 
 <p>
+  <code>@meantjs/consent</code> refuses this form at its main entry, and <code>@meantjs/tools</code> refuses it
+  outright: EVM tools are a later phase.
+</p>
+
+<h3>EIP-712 messages</h3>
+
+<p>
+  A form whose profiles bind EIP-712 messages lists them under a top-level <code>messages</code> map, never under
+  <code>methods</code> (spec §15.5, §15.9). Each entry has <code>encode_type</code> (EIP-712's
+  <code>encodeType</code>), <code>type_hash</code> (its Keccak-256), <code>tags</code> (<code>intent</code> and
+  <code>effect</code>) and <code>args</code>: one tuple node, the struct, with the same node fields as a function's
+  argument. It has no <code>results</code>, <code>mode</code> or <code>selector</code>. A consumer matches a signing
+  request to a message by <code>type_hash</code>, never by its name. Without an <code>effect</code> tag, a message's
+  default is <code>write</code>, irreversible, as for an update. From the EIP-2612 pack's fixture, with three of its
+  five members left out:
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/erc2612.resolved.json">
+"messages": {
+  "Permit": {
+    "encode_type": "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)",
+    "type_hash": "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9",
+    "tags": {
+      "intent": {
+        "args": {
+          "title": "Permit token spending",
+          "template": "Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."
+        },
+        "origin": "pack",
+        "profile": "erc2612"
+      },
+      "effect": {
+        "args": {
+          "kind": "approve",
+          "irreversible": false
+        },
+        "origin": "pack",
+        "profile": "erc2612"
+      }
+    },
+    "args": [
+      {
+        "abi": "tuple",
+        "fields": {
+          …
+          "value": {
+            "abi": "uint256",
+            "tags": {
+              "amount": {
+                "args": {
+                  "decimals": {
+                    "from": "query:decimals"
+                  },
+                  "symbol": {
+                    "from": "query:symbol"
+                  },
+                  "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                },
+                "origin": "pack",
+                "profile": "erc2612"
+              },
+              …
+            }
+          },
+          …
+          "deadline": {
+            "abi": "uint256",
+            "tags": {
+              "timestamp": {
+                "args": {
+                  "unit": "s",
+                  "epoch": "unix",
+                  "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                  "message": "Never"
+                },
+                "origin": "pack",
+                "profile": "erc2612"
+              },
+              …
+</pre>
+
+<p>
+  Each entry of <code>profiles</code> that binds a domain lists its name and version as <code>eip712_domain</code>,
+  beside its <code>deployments</code>. From the Permit2 profile's fixture, whose domain has a name and no version:
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/permit2.resolved.json">
+"profiles": [
+  {
+    "name": "permit2",
+    "origin": "third_party",
+    "profile_id": "candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a",
+    "deployments": [
+      {
+        "chain_id": 1,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 42161,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      }
+    ],
+    "eip712_domain": {
+      "name": "Permit2"
+    }
+  }
+],
+"methods": {},
+"messages": {
+  "PermitBatch": {
+    "encode_type": "PermitBatch(PermitDetails[] details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)",
+    "type_hash": "0xaf1b0d30d2cab0380e68f0689007e3254993c596f2fdd0aaa7f4d04f79440863",
+</pre>
+
+<p>
+  Permit2's profile binds no function, so its <code>methods</code> is empty. A struct a message refers to
+  (<code>PermitDetails</code>) is part of its <code>encode_type</code>, after the primary type, sorted by name; it is no
+  message of its own, because nothing tags its name with <code>intent</code>.
+</p>
+
+<h3>The interface identity</h3>
+
+<p>
   The ABI identity is <code>candid-profile:evm-abi:v0:sha256:</code> and the SHA-256 of the JCS array of the
-  functions' canonical fragments, sorted (spec §15.1). <code>@meantjs/consent</code> refuses this form at its main
-  entry, and <code>@meantjs/tools</code> refuses it outright: EVM tools are a later phase.
+  functions' canonical fragments and, when the form has EIP-712 types, one <code>struct &lt;Name&gt;(&lt;type&gt;
+  &lt;name&gt;,…)</code> line per type, sorted (spec §15.1, §15.9). With no types it is §15.1's, so the ERC-20 pack's
+  form keeps its identity. The array hashed for the EIP-2612 pack, five functions and one struct:
+</p>
+
+<pre data-lang="json">
+[
+ "function DOMAIN_SEPARATOR() view returns (bytes32)",
+ "function decimals() view returns (uint8)",
+ "function nonces(address owner) view returns (uint256)",
+ "function permit(address owner,address spender,uint256 value,uint256 deadline,uint8 v,bytes32 r,bytes32 s)",
+ "function symbol() view returns (string)",
+ "struct Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+]
+</pre>
+
+<p>
+  Its SHA-256 gives the fixture's
+  <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee</id-chip>;
+  the five functions alone give
+  <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:caf7f6c5bf79a00460009c26ebb9b4169ae67841375e1658fbb3ff456e65f4e5</id-chip>
+  (both computed with <code>abiInterfaceId</code> of <code>@meantjs/profile/evm</code>, with and without the types). A
+  pack's messages join the contract it matches, so they are part of the merged form's identity; whether a contract
+  profile is rebound or stale is decided by its functions alone, so the messages a pack adds never make it stale.
 </p>

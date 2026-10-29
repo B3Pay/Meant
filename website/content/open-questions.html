@@ -1,7 +1,8 @@
 <p>
   This page mirrors <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/open-questions.md"><code>profile/docs/open-questions.md</code></a>
   and the open items of the EVM binding, spec
-  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#158-open-items">§15.8</a>. Ids and
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#158-open-items">§15.8</a> and, for
+  EIP-712 messages, <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#159-typed-messages-eip-712-d-055">§15.9</a>. Ids and
   owners are as written there. An owner is one of the project's workstreams (W0, W1, …); "Blocks" says what waits on
   the answer. When a question is answered it moves to the answered list with its date and evidence, and a decision is
   recorded when the answer changes the spec. Some questions name files of the project's working repository that are not
@@ -29,7 +30,7 @@
     </tr>
     <tr>
       <td style="white-space:nowrap">OQ-6</td>
-      <td><claim>open</claim> <strong>Cross-canister refs</strong>, for example a DEX record holding <code>amount</code> plus the token's ledger principal in a sibling field. Planned for v1.</td>
+      <td><claim>open</claim> <strong>Cross-canister refs</strong>, for example a DEX record holding <code>amount</code> plus the token's ledger principal in a sibling field. Planned for v1. Partly answered for EVM (spec §15.9, D-055): <code>amount.token</code> names the token by an <code>address</code> field of the same argument, and the consumer passes that token's decimals and symbol per address (<a href="reference-tags.html#an-amount-in-the-token-a-field-names">An amount in the token a field names</a>). A Candid amount whose ledger a field names, and refs to a contract no field names, stay open (<diag>E_TOKEN_PATH</diag> on a Candid service).</td>
       <td>W0</td>
       <td>DeFi coverage</td>
     </tr>
@@ -133,8 +134,8 @@
 <h2>Open items of the EVM binding</h2>
 
 <p>
-  Spec §15.8, for the experimental EVM binding (<a href="chain-evm.html">EVM contracts</a>). These have no owner column
-  in the spec.
+  Spec §15.8, for the experimental EVM binding (<a href="chain-evm.html">EVM contracts</a>), and §15.9 for its EIP-712
+  messages (O9 to O14). These have no owner column in the spec.
 </p>
 
 <table>
@@ -150,6 +151,12 @@
     <tr><td>O6</td><td>settled</td><td>The export refuses what it cannot express (§15.7, <diag>E_EXPORT</diag>).</td></tr>
     <tr><td>O7</td><td><claim>open</claim></td><td><claim>fact</claim> (ERC-7730): a wallet that finds no ticker "SHOULD display the raw value instead with an 'Unknown token' warning", where spec §12 rule 10 produces no message. An exported file cannot make a wallet refuse.</td></tr>
     <tr><td>O8</td><td><claim>assumption</claim></td><td>A wallet reads <code>metadata.token</code> as the token at <code>@.to</code>. ERC-7730 calls it the token "exported by this format"; the export writes it only when the caller says the contract is that token.</td></tr>
+    <tr><td>O9</td><td><claim>open</claim></td><td>Permit2 witness messages (<code>PermitWitnessTransferFrom</code> with a protocol's own witness type). Each needs its own profile; until then a request with a witness matches nothing and gets no text.</td></tr>
+    <tr><td>O10</td><td><claim>open</claim></td><td>Permit2's deployments beyond chains 1 and 42161: its address is the same on many chains, and each is added after checking Uniswap's list, never assumed.</td></tr>
+    <tr><td>O11</td><td><claim>open</claim></td><td>Domains with a <code>salt</code>, and contracts whose domain name or version changes after deployment: refused for now (<diag>E_DOMAIN</diag> for a salt).</td></tr>
+    <tr><td>O12</td><td><claim>open</claim></td><td>DAI's <code>allowed</code> bool reads through its template ("to all of it if allowed is true, to none if false"); a case-like reading of <code>true</code> and <code>false</code> would need D-053 for <code>bool</code>.</td></tr>
+    <tr><td>O13</td><td><claim>open</claim></td><td>The signer against an <code>owner</code> or <code>holder</code> member: whether the text should say so, or refuse, when they differ. The consent function does not take the signer yet.</td></tr>
+    <tr><td>O14</td><td><claim>open</claim></td><td>Permits that differ from EIP-2612 by a member match nothing and get no text; a pack per variant is added only when one is seen.</td></tr>
   </tbody>
 </table>
 
