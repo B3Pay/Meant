@@ -9,17 +9,33 @@
  *                    an unnamed one's is its position (`#1`)
  *   T[] and T[k]     a vector (`[]`); T[k] keeps its length
  *   anything else    a primitive named by its canonical ABI type (`uint256`, `address`, `bytes32`, `string`)
+ *   an EIP-712       a method of mode "message" (spec section 15.9) whose one argument is the struct, a record of its
+ *   message          members in order (`PermitSingle(0).details.amount`); it has no results
  */
 import { Iface } from "./iface.mjs";
 import { idlHash } from "./idl.mjs";
-import { AbiError, abiInterfaceId, componentKey, parseAbi, readAddress } from "./abi.mjs";
+import { AbiError, abiInterfaceId, componentKey, eip712AbiType, eip712TypeHash, encodeType, parseAbi, parseEip712Types, readAddress } from "./abi.mjs";
 
 export class AbiIface extends Iface {
-  /** @param functions from parseAbi */
-  constructor(envelope, functions, label) {
+  /**
+   * @param functions from parseAbi
+   * @param eip712  { types, messages } (spec section 15.9): the struct types, and which of them are messages
+   */
+  constructor(envelope, functions, label, eip712 = { types: {}, messages: [] }) {
     super(envelope, label);
     this.chain = "evm";
     this.functions = new Map(functions.map((f) => [f.name, f]));
+    /** The identity of the functions alone: what a contract profile's `binds.abi` binds to (spec section 15.1). */
+    this.abiId = abiInterfaceId(functions);
+    this.structs = eip712.types;
+    this.messages = new Map(eip712.messages.map((name) => [name, { encodeType: encodeType(eip712.types, name), typeHash: eip712TypeHash(eip712.types, name) }]));
+  }
+  resolve(addr) {
+    const r = super.resolve(addr);
+    if (r.error && addr.kind !== "type" && !this.methods.has(addr.method) && Object.hasOwn(this.structs, addr.method)) {
+      return { error: `${addr.method} is an EIP-712 type but not a message: tag its name with intent to make it one, or address it through a message that contains it` };
+    }
+    return r;
   }
   isBlob(ref) {
     const p = this.prim(ref);
@@ -43,12 +59,17 @@ export class AbiIface extends Iface {
 /**
  * @param entries  an ABI: human-readable fragments or JSON ABI entries (parseAbi)
  * @param label    how diagnostics name it (`binds.abi`, `abi`)
+ * @param eip712   { types, messages, label } (spec section 15.9): struct types already read by parseEip712Types, the
+ *                 names of those that are messages, and how diagnostics name the types; null for none
+ * @param opts.allowEmpty  an interface with no function and no message is not refused (resolveService adds the
+ *                 messages of its profiles later)
  * @returns {{ iface: AbiIface } | { failure: { at: string, message: string }[] }}
  */
-export function abiInterface(entries, label = "abi", ifaceLabel = "contract") {
+export function abiInterface(entries, label = "abi", ifaceLabel = "contract", eip712 = null, { allowEmpty = false } = {}) {
   const { functions, errors } = parseAbi(entries, label);
   if (errors.length) return { failure: errors };
-  if (functions.length === 0) return { failure: [{ at: label, message: "the ABI has no functions" }] };
+  const messages = eip712?.messages ?? [];
+  if (functions.length === 0 && messages.length === 0 && !allowEmpty) return { failure: [eip712 ? { at: eip712.label, message: "the ABI has no functions and no type is a message (tag a type's name with intent)" } : { at: label, message: "the ABI has no functions" }] };
   const types = [];
   const names = [];
   const failure = [];
@@ -81,13 +102,34 @@ export function abiInterface(entries, label = "abi", ifaceLabel = "contract") {
     const mode = f.stateMutability === "view" || f.stateMutability === "pure" ? "query" : "update";
     return { name: f.name, function: add({ kind: "func", mode, args, results }) };
   });
+  for (const name of messages) {
+    const at = `${eip712.label}.${name}`;
+    if (functions.some((f) => f.name === name)) {
+      failure.push({ at, message: `a function and a message are both named ${name}; an address names one of them` });
+      continue;
+    }
+    methods.push({ name, function: add({ kind: "func", mode: "message", args: [build(eip712AbiType(eip712.types, name), `${name}(0)`)], results: [] }) });
+  }
   if (failure.length) return { failure };
   const service = add({ kind: "service", methods });
+  const structs = eip712?.types ?? {};
   const envelope = {
-    contract: { types, declarations: [], actor: { kind: "service", service }, identities: { interface: abiInterfaceId(functions) } },
+    contract: { types, declarations: [], actor: { kind: "service", service }, identities: { interface: abiInterfaceId(functions, structs) } },
     extensions: { "org.candid-core.field-names/v1": names },
   };
-  return { iface: new AbiIface(envelope, functions, ifaceLabel) };
+  return { iface: new AbiIface(envelope, functions, ifaceLabel, { types: structs, messages }) };
+}
+
+/**
+ * The messages a profile or pack declares (spec section 15.9): the types of `binds.eip712` whose name the same
+ * document tags with `intent`. Returns { types, messages, errors }.
+ */
+export function eip712Of(doc, label = "binds.eip712.types") {
+  const spec = doc.binds?.eip712;
+  if (spec === undefined) return { types: {}, messages: [], errors: [] };
+  const { types, errors } = parseEip712Types(spec.types, label);
+  const messages = [...new Set(doc.annotations.filter((a) => a.tag === "intent" && Object.hasOwn(types, a.at)).map((a) => a.at))].sort();
+  return { types, messages, errors };
 }
 
 /**

@@ -7,7 +7,7 @@
 
 import { CODES, FormatError, fail } from "./errors.mjs";
 import { AMOUNT_TYPES, DEFAULT_THRESHOLD_MESSAGE, checkDecimals, checkMessage, checkSymbol, checkThreshold, displayAmount, parseAmount } from "./amount.mjs";
-import { TIME_TYPES, displayDuration, displayTimestamp, parseDuration, parseTimestamp, unitFactor } from "./time.mjs";
+import { TIME_TYPES, checkTimeLabels, displayDuration, displayTimestamp, parseDuration, parseTimestamp, unitFactor } from "./time.mjs";
 import { displayAccount, parseAccount } from "./account.mjs";
 import { displaySubaccount, parseSubaccount } from "./subaccount.mjs";
 import { BYTES_ENCODINGS, checkMaxLen, displayBytes, parseBytes } from "./bytes.mjs";
@@ -65,13 +65,15 @@ function requireUnit(unit, tag) {
 
 /**
  * @param {{ candid: string, tags?: Record<string, { args?: Record<string, unknown> }> }} node
- * @param {{ refs?: Record<string, unknown>, now?: bigint }} [options]
+ * @param {{ refs?: Record<string, unknown>, now?: bigint, token?: { decimals: number | bigint | string, symbol?: string } }} [options]
  *   `refs`: resolved dynamic values keyed by their `from` string, for example
  *   `{ "query:icrc1_decimals": 8, "query:icrc1_symbol": "ICP" }`.
  *   `now`: default clock (nanoseconds, bigint) for relative timestamps; `parse(input, { now })` overrides it.
+ *   `token`: for an amount whose `token` argument names the token by a field (spec section 15.9), the decimals and
+ *   symbol of the token that field holds in this value; the caller reads them, as it resolves `refs`.
  * @returns {Formatter | null}  null when the position has no value tag (render it as Candid text, spec §6)
  */
-export function formatterFor(node, { refs = {}, now: defaultNow } = {}) {
+export function formatterFor(node, { refs = {}, now: defaultNow, token } = {}) {
   if (node !== null && typeof node === "object" && node.candid === undefined && typeof node.abi === "string") node = { ...node, candid: node.abi }; // an EVM position (spec section 15)
   if (node === null || typeof node !== "object" || typeof node.candid !== "string") fail(CODES.TYPE, "node must be a resolved-form position with a `candid` type (or an EVM position's `abi` type)");
   const tags = node.tags ?? {};
@@ -88,14 +90,27 @@ export function formatterFor(node, { refs = {}, now: defaultNow } = {}) {
   switch (tag) {
     case "amount": {
       requireCandid(node, AMOUNT_TYPES, tag);
-      if (raw.decimals === undefined) fail(CODES.ARG, "the amount tag needs decimals");
-      const decimals = checkDecimals(arg("decimals"));
-      const symbol = checkSymbol(arg("symbol"));
+      let decimals;
+      let symbol;
+      if (raw.token !== undefined) {
+        // The token is the one a field of the value names (spec section 15.9): its metadata comes with the value.
+        if (typeof raw.token !== "string" || raw.token === "") fail(CODES.ARG, "amount token must be a relative path to an address");
+        if (raw.decimals !== undefined || raw.symbol !== undefined) fail(CODES.ARG, "an amount with a token takes that token's decimals and symbol, not its own");
+        if (token === undefined || token === null || typeof token !== "object") {
+          fail(CODES.REF_UNRESOLVED, `amount.token: the amount is in the token at ${JSON.stringify(raw.token)}; pass that token's decimals and symbol as \`token\``);
+        }
+        decimals = checkDecimals(token.decimals);
+        symbol = checkSymbol(token.symbol);
+      } else {
+        if (raw.decimals === undefined) fail(CODES.ARG, "the amount tag needs decimals");
+        decimals = checkDecimals(arg("decimals"));
+        symbol = checkSymbol(arg("symbol"));
+      }
       const threshold = checkThreshold(raw.threshold);
       const message = checkMessage(raw.message);
       if (message !== undefined && threshold === undefined) fail(CODES.ARG, "amount message needs a threshold");
       const o = { decimals, symbol, candid: node.candid, threshold, message };
-      args = { decimals, symbol, ...(threshold === undefined ? {} : { threshold: threshold.toString(), message: message ?? DEFAULT_THRESHOLD_MESSAGE }) };
+      args = { decimals, symbol, ...(raw.token === undefined ? {} : { token: raw.token }), ...(threshold === undefined ? {} : { threshold: threshold.toString(), message: message ?? DEFAULT_THRESHOLD_MESSAGE }) };
       parse = (input) => parseAmount(input, o);
       display = (value) => displayAmount(value, o);
       break;
@@ -104,10 +119,20 @@ export function formatterFor(node, { refs = {}, now: defaultNow } = {}) {
       requireCandid(node, TIME_TYPES, tag);
       if (raw.epoch !== undefined && raw.epoch !== "unix") fail(CODES.ARG, `timestamp epoch must be "unix", got ${JSON.stringify(raw.epoch)}`);
       const unit = requireUnit(arg("unit"), tag);
+      const threshold = checkThreshold(raw.threshold, "timestamp");
+      const message = checkMessage(raw.message, "timestamp message");
+      if ((threshold === undefined) !== (message === undefined)) fail(CODES.ARG, "a timestamp threshold and its message go together: give both or neither");
+      const labels = checkTimeLabels(raw.labels);
       const o = { unit, candid: node.candid };
-      args = { unit, epoch: "unix" };
+      const shown = { ...o, threshold, message, labels: raw.labels };
+      args = {
+        unit,
+        epoch: "unix",
+        ...(threshold === undefined ? {} : { threshold: threshold.toString(), message }),
+        ...(labels === undefined ? {} : { labels: Object.fromEntries([...labels].map(([k, v]) => [k.toString(), v])) }),
+      };
       parse = (input, ctx = {}) => parseTimestamp(input, { ...o, now: ctx.now ?? defaultNow });
-      display = (value) => displayTimestamp(value, o);
+      display = (value) => displayTimestamp(value, shown);
       break;
     }
     case "duration": {

@@ -70,8 +70,21 @@ export function convertUnit(value: string | bigint, from: TimeUnit, to: TimeUnit
 export function alignNow(nowNs: bigint, unit: TimeUnit): bigint;
 /** An RFC 3339 time, or "+" and an ISO 8601 duration from `now` (ns, required then). Returns the count of `unit`. */
 export function parseTimestamp(input: string, options: { unit: TimeUnit; candid?: string; now?: bigint }): string;
-/** Canonical RFC 3339 UTC, for example "2026-10-09T12:00:00.5Z". */
-export function displayTimestamp(value: string | bigint, options: { unit: TimeUnit; candid?: string }): string;
+export interface TimestampOptions {
+  unit: TimeUnit;
+  candid?: string;
+  /** Display only (spec section 15.9): a value at or above it (in `unit`) displays as `message`; needs `message`. */
+  threshold?: string | bigint;
+  /** What a value at or above `threshold` displays as ("Never"); needs `threshold`. */
+  message?: string;
+  /** Display only: exact values (decimal strings of `unit`) shown as words, `{ "0": "Only in the block it is used" }`. */
+  labels?: Record<string, string>;
+}
+/**
+ * Canonical RFC 3339 UTC, for example "2026-10-09T12:00:00.5Z"; a value `labels` names, or at or above `threshold`,
+ * displays as its words instead, so that it is never read as a date.
+ */
+export function displayTimestamp(value: string | bigint, options: TimestampOptions): string;
 /** An ISO 8601 duration of W, D, H, M and S ("PT24H"); returns the count of `unit`. */
 export function parseDuration(input: string, options: { unit: TimeUnit; candid?: string }): string;
 /** Canonical ISO 8601: "P1D", "PT1H30M", "PT0S". */
@@ -142,8 +155,10 @@ export const VALUE_TAGS: readonly ValueTag[];
  *
  * @param options.refs dynamic tag values keyed by their `from`: `{ "query:icrc1_decimals": 8 }`
  * @param options.now default clock for relative timestamps, ns since the Unix epoch
+ * @param options.token for an amount whose `token` names its token by a field (spec section 15.9): the decimals and
+ *   symbol of the token that field holds in this value, which the caller reads as it resolves `refs`
  */
-export function formatterFor(node: FormatNode, options?: { refs?: Record<string, unknown>; now?: bigint }): Formatter | null;
+export function formatterFor(node: FormatNode, options?: { refs?: Record<string, unknown>; now?: bigint; token?: { decimals: number | bigint | string; symbol?: string } }): Formatter | null;
 /** `Formatter.describe` without a formatter; `accepts` keeps only the examples it returns true for. */
 export function describeInput(tag: ValueTag, args: Readonly<Record<string, unknown>>, candid: string, options?: { accepts?: (input: string) => boolean }): Description;
 

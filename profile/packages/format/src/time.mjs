@@ -10,6 +10,7 @@
 // millisecond precision.
 
 import { CODES, fail } from "./errors.mjs";
+import { checkMessage, checkThreshold } from "./amount.mjs";
 import { ABI_INT_TYPES, checkRange, intType, requireString, toBigInt, typeWord } from "./util.mjs";
 
 export const TIME_TYPES = ["nat", "int", "nat32", "nat64", "int64", ...ABI_INT_TYPES.filter((t) => (t.startsWith("u") ? Number(t.slice(4)) >= 32 : Number(t.slice(3)) > 64))];
@@ -203,15 +204,43 @@ export function parseTimestamp(input, { unit, candid = "nat64", now } = {}) {
 }
 
 /**
- * Display a timestamp as canonical RFC 3339 UTC, for example "2026-10-09T12:00:00.5Z".
+ * A timestamp's `labels` (spec section 15.9): words for exact values, keyed by the value in the tagged unit as a
+ * canonical decimal string. At most 16, each 1 to 32 characters with nothing invisible.
+ *
+ * @returns {Map<bigint, string> | undefined}
+ */
+export function checkTimeLabels(labels) {
+  if (labels === undefined || labels === null) return undefined;
+  if (typeof labels !== "object" || Array.isArray(labels)) fail(CODES.ARG, "timestamp labels must be an object of value to words");
+  const entries = Object.entries(labels);
+  if (entries.length < 1 || entries.length > 16) fail(CODES.ARG, `timestamp labels must have 1 to 16 entries, got ${entries.length}`);
+  const out = new Map();
+  for (const [k, v] of entries) {
+    if (!/^(?:0|[1-9][0-9]{0,77})$/.test(k)) fail(CODES.ARG, `a timestamp label's value must be a decimal string of the tagged unit (0 or more, at most 78 digits), got ${JSON.stringify(k)}`);
+    out.set(BigInt(k), checkMessage(v, `timestamp label of ${k}`));
+  }
+  return out;
+}
+
+/**
+ * Display a timestamp as canonical RFC 3339 UTC, for example "2026-10-09T12:00:00.5Z". Display only (spec section
+ * 15.9): a value that `labels` names shows its words, and a value at or above `threshold` shows `message` ("Never"
+ * for a deadline of uint256 max), so that such a value is never read as a date.
  *
  * @param {string | bigint} value integer count of `unit` since the Unix epoch
+ * @param {{ unit: string, candid?: string, threshold?: string | bigint, message?: string, labels?: Record<string, string> }} opts
  */
-export function displayTimestamp(value, { unit, candid = "nat64" } = {}) {
+export function displayTimestamp(value, { unit, candid = "nat64", threshold, message, labels } = {}) {
   const f = unitFactor(unit);
   const type = intType(candid, TIME_TYPES, "timestamp");
+  const limit = checkThreshold(threshold, "timestamp");
+  const text = checkMessage(message, "timestamp message");
+  if ((limit === undefined) !== (text === undefined)) fail(CODES.ARG, "a timestamp threshold and its message go together: give both or neither");
+  const words = checkTimeLabels(labels);
   const v = toBigInt(value, "timestamp");
   checkRange(v, type, "timestamp");
+  if (words?.has(v)) return words.get(v);
+  if (limit !== undefined && v >= limit) return text;
   return rfc3339FromNs(v * f);
 }
 

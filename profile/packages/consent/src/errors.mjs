@@ -22,6 +22,8 @@ export const CODES = Object.freeze({
   LANGUAGE: "E_LANGUAGE", // only with languagePolicy "error": the requested language is not supported
   REQUEST: "E_REQUEST", // the ICRC-21 request itself is malformed
   DEPLOYMENT: "E_DEPLOYMENT", // an EVM call's target is not a deployment its profile lists (spec section 15)
+  DOMAIN: "E_DOMAIN", // an EIP-712 request's domain is for another chain, contract or name than its profile's (spec section 15.9)
+  TYPE_HASH: "E_TYPE_HASH", // no message of the resolved form has the request's EIP-712 type hash (spec section 15.9)
   // this generator cannot describe the call (ICRC-21 ConsentMessageUnavailable)
   UNSUPPORTED_TYPE: "E_UNSUPPORTED_TYPE", // a position the resolved form cannot type (recursive cut, func, service)
   // the profile or the caller's context is wrong (ICRC-21 GenericError)
