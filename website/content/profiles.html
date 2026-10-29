@@ -189,7 +189,7 @@ candid-profile: tokens-memo.did  candid-core:interface:v1:sha256:7cb0945a805c17a
   <code>duration</code>, <code>account</code>, <code>subaccount</code> and <code>bytes</code>) and
   keeps the rest: <code>intent</code>, <code>effect</code>, <code>describe</code>,
   <code>default</code> and the others. The spec lists those six; the reference resolver in
-  <code>@meantjs/profile</code> 0.2.0 also leaves out a stale profile's <code>named</code> tags,
+  <code>@meantjs/profile</code> 0.3.0 also leaves out a stale profile's <code>named</code> tags,
   since a name stands in for a value. In the stale resolve above, <code>send(0).amount.e8s</code>
   still has its <code>describe</code> label and no longer has its <code>amount</code> tag, and
   <code>send</code> keeps its intent, effect, idempotency and outcome tags. Agent tools fall back to
@@ -372,6 +372,6 @@ candid-profile: ledger.did  candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e
   <a class="card" href="reference-packs.html">
     <span class="card-kicker">Reference</span>
     <span class="card-title">Standard packs</span>
-    <p>The ICRC-1, ICRC-2 and ERC-20 packs: what each matches and every annotation it carries.</p>
+    <p>The ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2 and DAI permit profiles.</p>
   </a>
 </div>

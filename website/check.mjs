@@ -63,7 +63,9 @@ for (const crate of CRATES) {
  * prepared on main before its publish. A dependency line or a `cargo add` for
  * one cannot resolve, so it is refused in a code block, as UNPUBLISHED_NPM_SPECS
  * refuses the npm equivalent. The publish removes the entry. */
-const UNPUBLISHED_CRATES = ["meant-format@0.2.0"];
+// Emptied when meant-format 0.2.0 was published on 2026-10-29. The rule
+// stays, so the next prepared crate version is one entry away.
+const UNPUBLISHED_CRATES = [];
 
 /* The @meantjs packages and the one version they release under together, read
  * from their package.json files: an install line naming another version would

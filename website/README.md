@@ -209,8 +209,8 @@ broken spellings, and a copyable line is the thing that must work:
   version than the manifest's;
 - a dependency line or `cargo add` for a crate version in
   `UNPUBLISHED_CRATES` in `check.mjs`: a version a manifest holds that
-  crates.io does not yet (`meant-format@0.2.0` today). The publish removes
-  the entry.
+  crates.io does not yet. The list is empty today; the version-bump pull
+  request adds an entry and the publish removes it.
 
 `cargo install meant --version 0.1.0` is deliberately **not** flagged as a
 caret requirement. Cargo's manual states that a `--version` without a

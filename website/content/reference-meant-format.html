@@ -19,16 +19,20 @@ assert_eq!(usdc.display_u128(1_500_000)?, "1.5 USDC");
   reference.
 </p>
 
-<callout type="warn" title="Which version this page describes">
+<callout type="note" title="Which version this page describes">
   <p>
-    <claim>fact</claim> This page describes 0.2.0, the version in the repository's manifest
-    (<code>crates/meant-format/Cargo.toml</code>, and the 0.2.0 entry of its
-    <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-format/CHANGELOG.md">CHANGELOG</a>).
-    crates.io holds 0.1.0 only (observed through the crates.io API on 2026-10-29), so 0.2.0 is prepared,
-    not published, and a project that takes the crate from crates.io gets 0.1.0. 0.1.0 has the ten
-    Candid integer types, an <code>IntType</code> that is not <code>#[non_exhaustive]</code> with
-    <code>ALL</code> as an array, and no threshold. 0.2.0 is breaking, as a 0.x release may be: it adds
-    the EVM ABI integer types and <code>with_threshold</code>.
+    This page describes <code>0.2.0</code>, published on crates.io on 2026-10-29 and the version in
+    the repository's manifest. Depend on it exactly, as on every pre-1.0 crate here:
+  </p>
+  <pre data-lang="toml" data-file="Cargo.toml">
+[dependencies]
+meant-format = "=0.2.0"
+</pre>
+  <p>
+    <code>0.1.0</code> (2026-10-27) has the ten Candid integer types, an <code>IntType</code> that is
+    not <code>#[non_exhaustive]</code> with <code>ALL</code> as an array, and no threshold.
+    <code>0.2.0</code> is breaking, as a 0.x release may be: it adds the EVM ABI integer types and
+    <code>with_threshold</code> (<a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-format/CHANGELOG.md">CHANGELOG</a>).
   </p>
 </callout>
 
@@ -358,7 +362,7 @@ pub const MAX_INPUT_UTF16_LEN: usize = 1024;
 
 <p>
   <code>tests/parity.rs</code> runs every case of <code>tests/vectors/amount.json</code>, generated from
-  <code>@meantjs/format@0.2.0</code>, and requires the same value, or the same code and the same message:
+  <code>@meantjs/format@0.3.0</code>, and requires the same value, or the same code and the same message:
   3,412 cases, the count the README states and the test pins. The vectors are regenerated with
   <code>node crates/meant-format/tests/vectors/generate-amount.mjs &lt;candid-profile checkout&gt;</code>,
   never edited by hand. Where the two APIs differ in shape:

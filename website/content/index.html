@@ -1,5 +1,5 @@
 <section class="hero">
-  <a class="hero-eyebrow" href="status.html">meant 0.1.0 · @meantjs 0.2.0 · pre-1.0</a>
+  <a class="hero-eyebrow" href="status.html">meant 0.1.0 · @meantjs 0.3.0 · pre-1.0</a>
   <h1>What you meant is what runs</h1>
   <p class="hero-sub">
     Meant is the meaning layer for contract calls. It compiles a Candid interface into a canonical
@@ -234,13 +234,13 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
       <p>The TypeScript schema runtime, and the compiler and generator as WebAssembly.</p>
     </a>
     <a class="card" href="reference-profile-api.html">
-      <span class="card-kicker">npm · 0.2.0</span>
+      <span class="card-kicker">npm · 0.3.0</span>
       <span class="card-title">@meantjs/*</span>
       <p><code>profile</code>, <code>format</code>, <code>consent</code>, <code>tools</code> and
       <code>reconcile</code>: five packages released together.</p>
     </a>
     <a class="card" href="reference-meant-format.html">
-      <span class="card-kicker">crates.io · 0.1.0</span>
+      <span class="card-kicker">crates.io · 0.2.0</span>
       <span class="card-title">meant-format</span>
       <p>The <code>amount</code> tag in Rust, with no dependencies and <code>no_std</code>.</p>
     </a>
@@ -267,7 +267,7 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
     <a class="card" href="chain-evm.html">
       <span class="card-kicker">EVM · experimental</span>
       <span class="card-title">EVM contracts</span>
-      <p>Profiles for Solidity ABIs, consent text for calldata, and ERC-7730 clear-signing files.</p>
+      <p>Profiles for Solidity ABIs and EIP-712 messages, consent text for calls and signatures, and ERC-7730 files.</p>
     </a>
     <a class="card" href="chain-solana.html">
       <span class="card-kicker">SOL · planned</span>
@@ -320,9 +320,9 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
   <callout type="warn" title="Pre-1.0, and it says so">
     <p>
       The crates are <code>meant</code> <code>0.1.0</code> and <code>meant-format</code>
-      <code>0.1.0</code>; the npm packages are <code>@candid-core/schema</code> <code>0.5.0</code>,
+      <code>0.2.0</code>; the npm packages are <code>@candid-core/schema</code> <code>0.5.0</code>,
       <code>@candid-core/cli</code> <code>0.4.0</code> and the five <code>@meantjs</code> packages at
-      <code>0.2.0</code>; the profile spec is Draft 0.2. Any release before 1.0 may change the public
+      <code>0.3.0</code>; the profile spec is Draft 0.2. Any release before 1.0 may change the public
       API, the serialized shapes, the canonical bytes and every identity computed over them, so pin
       exact versions: <code>meant = "=0.1.0"</code>, <code>npm install --save-exact</code>.
       <a href="status.html">Versions, changes and release policy →</a>

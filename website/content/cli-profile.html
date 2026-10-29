@@ -1,4 +1,4 @@
-<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.2.0
+<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.3.0
 npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 
 <p>
@@ -60,7 +60,7 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
   <tbody>
     <tr><td><code>--profile &lt;file&gt;</code></td><td>A profile to apply, read as JSON. Repeat it for several; they merge by layer (<a href="profiles.html">Profiles, layers and binding</a>). A pack given this way has to match the service, or it is <diag>E_PACK_NOT_MATCHED</diag>. Diagnostics name the profile by its <code>name</code>.</td></tr>
     <tr><td><code>--packs</code></td><td>Try every pack in the packs directory and apply the ones that match. The others get <diag>I_PACK_NOT_MATCHED</diag>; a pack for the other kind of interface is skipped silently.</td></tr>
-    <tr><td><code>--packs-dir &lt;dir&gt;</code></td><td>Where <code>--packs</code> looks: every <code>*.profile.json</code> of <code>kind: "pack"</code> in the directory, sorted by file name. Default: the ICRC-1, ICRC-2 and ERC-20 packs the package ships. Without <code>--packs</code> it does nothing. A directory with no pack in it is a usage error.</td></tr>
+    <tr><td><code>--packs-dir &lt;dir&gt;</code></td><td>Where <code>--packs</code> looks: every <code>*.profile.json</code> of <code>kind: "pack"</code> in the directory, sorted by file name. Default: the ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs the package ships (the Permit2 and DAI permit files beside them are contract profiles, not packs). Without <code>--packs</code> it does nothing. A directory with no pack in it is a usage error.</td></tr>
     <tr><td><code>--verbose</code></td><td>List info diagnostics in the summary too. They are always in the resolved form's <code>diagnostics</code>.</td></tr>
     <tr><td><code>--quiet</code></td><td>Print no summary. Usage errors are still printed.</td></tr>
     <tr><td><code>-h</code>, <code>--help</code></td><td>Print the usage text and exit with status 0.</td></tr>

@@ -42,22 +42,22 @@
     <tr><td><code>meant</code> (binary)</td><td><layer>interfaces</layer></td><td>CLI, same crate</td><td><code>Cargo.toml</code> <code>[[bin]]</code></td><td>crates.io</td><td><code>0.1.0</code></td></tr>
     <tr><td><code>@candid-core/schema</code></td><td><layer>interfaces</layer></td><td>npm package</td><td><code>crates/candid-core-ts/ts/package.json</code></td><td>npm</td><td><code>0.5.0</code>; <code>beta</code>: <code>0.3.0-beta.1</code></td></tr>
     <tr><td><code>@candid-core/cli</code></td><td><layer>interfaces</layer></td><td>npm package</td><td><code>crates/candid-core-wasm/npm/package.json</code></td><td>npm</td><td><code>0.4.0</code>; <code>beta</code>: <code>0.2.0-beta.1</code></td></tr>
-    <tr><td><code>@meantjs/profile</code></td><td><layer>profiles</layer></td><td>npm package, and the <code>candid-profile</code> CLI</td><td><code>profile/packages/resolver/package.json</code></td><td>npm</td><td><code>0.2.0</code></td></tr>
-    <tr><td><code>@meantjs/format</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/format/package.json</code></td><td>npm</td><td><code>0.2.0</code></td></tr>
-    <tr><td><code>@meantjs/consent</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/consent/package.json</code></td><td>npm</td><td><code>0.2.0</code></td></tr>
-    <tr><td><code>@meantjs/tools</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/tools/package.json</code></td><td>npm</td><td><code>0.2.0</code></td></tr>
-    <tr><td><code>@meantjs/reconcile</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/reconcile/package.json</code></td><td>npm</td><td><code>0.2.0</code></td></tr>
-    <tr><td><code>meant-format</code></td><td><layer>profiles</layer></td><td>Rust library</td><td><code>crates/meant-format/Cargo.toml</code></td><td>crates.io</td><td><code>0.1.0</code>; <code>0.2.0</code> prepared</td></tr>
+    <tr><td><code>@meantjs/profile</code></td><td><layer>profiles</layer></td><td>npm package, and the <code>candid-profile</code> CLI</td><td><code>profile/packages/resolver/package.json</code></td><td>npm</td><td><code>0.3.0</code></td></tr>
+    <tr><td><code>@meantjs/format</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/format/package.json</code></td><td>npm</td><td><code>0.3.0</code></td></tr>
+    <tr><td><code>@meantjs/consent</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/consent/package.json</code></td><td>npm</td><td><code>0.3.0</code></td></tr>
+    <tr><td><code>@meantjs/tools</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/tools/package.json</code></td><td>npm</td><td><code>0.3.0</code></td></tr>
+    <tr><td><code>@meantjs/reconcile</code></td><td><layer>profiles</layer></td><td>npm package</td><td><code>profile/packages/reconcile/package.json</code></td><td>npm</td><td><code>0.3.0</code></td></tr>
+    <tr><td><code>meant-format</code></td><td><layer>profiles</layer></td><td>Rust library</td><td><code>crates/meant-format/Cargo.toml</code></td><td>crates.io</td><td><code>0.2.0</code></td></tr>
     <tr><td><code>candid-core-ts</code></td><td><layer>interfaces</layer></td><td>Rust library</td><td><code>crates/candid-core-ts/Cargo.toml</code></td><td>none, by <code>publish = false</code></td><td><code>0.0.0</code></td></tr>
     <tr><td><code>candid-core-wasm</code></td><td><layer>interfaces</layer></td><td>Rust library</td><td><code>crates/candid-core-wasm/Cargo.toml</code></td><td>none, by <code>publish = false</code></td><td><code>0.1.0</code></td></tr>
     <tr><td><code>candid-core-fuzz</code></td><td><layer>interfaces</layer></td><td>Fuzz harness</td><td><code>fuzz/Cargo.toml</code></td><td>none, by <code>publish = false</code></td><td><code>0.0.0</code></td></tr>
   </tbody>
 </table>
 
-<p>Two families version independently. The <code>@candid-core</code> pair releases together, with the CLI peering the schema package at one exact version. The five <code>@meantjs</code> packages release together under one version and pin each other exactly. The crates each have their own version. The <code>meant-format</code> manifest in the repository holds <code>0.2.0</code>, which adds the EVM integer types and the display threshold; crates.io holds <code>0.1.0</code> until that release is published. The three units on no registry are tracked, buildable and gated, and each carries a deliberate <code>publish = false</code>.</p>
+<p>Two families version independently. The <code>@candid-core</code> pair releases together, with the CLI peering the schema package at one exact version. The five <code>@meantjs</code> packages release together under one version and pin each other exactly. The crates each have their own version. The three units on no registry are tracked, buildable and gated, and each carries a deliberate <code>publish = false</code>.</p>
 
 <callout type="warn" title="Everything here is pre-1.0">
-  <p>The crates are <code>meant</code> <code>0.1.0</code> and <code>meant-format</code> <code>0.1.0</code>; the npm packages are <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code> under <code>latest</code>, with the earlier betas <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> still under <code>beta</code>, and the five <code>@meantjs</code> packages at <code>0.2.0</code>. Until 1.0, any release may change the public API, the serialized document shapes, the canonical bytes and every identity computed over them, and for the <code>@meantjs</code> packages any change to generated text is breaking. Pin an exact version in both ecosystems. See <a href="status.html">Status, versions and releases</a>.</p>
+  <p>The crates are <code>meant</code> <code>0.1.0</code> and <code>meant-format</code> <code>0.2.0</code>; the npm packages are <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code> under <code>latest</code>, with the earlier betas <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> still under <code>beta</code>, and the five <code>@meantjs</code> packages at <code>0.3.0</code>. Until 1.0, any release may change the public API, the serialized document shapes, the canonical bytes and every identity computed over them, and for the <code>@meantjs</code> packages any change to generated text is breaking. Pin an exact version in both ecosystems. See <a href="status.html">Status, versions and releases</a>.</p>
 </callout>
 
 <callout type="note" title="Upgrading from an earlier release">
@@ -98,14 +98,14 @@
   <tbody>
     <tr><td><code>@meantjs/profile</code></td><td><code>resolver/</code></td><td>Validates profiles, matches packs to a service by subtyping, merges layers and emits the resolved form; serves the JSON Schema and the standard packs as subpaths; ships the <code>candid-profile</code> command</td><td><code>@candid-core/cli</code> <code>0.4.0</code>, <code>ajv</code> <code>8.18.0</code></td></tr>
     <tr><td><code>@meantjs/format</code></td><td><code>format/</code></td><td>Exact parse and display for the six value tags: <code>amount</code>, <code>timestamp</code>, <code>duration</code>, <code>account</code>, <code>subaccount</code> and <code>bytes</code>; names</td><td>nothing</td></tr>
-    <tr><td><code>@meantjs/consent</code></td><td><code>consent/</code></td><td>ICRC-21 consent messages for any method; SNS proposal validators; for EVM contracts, consent text for calldata and ERC-7730 files (experimental)</td><td><code>@candid-core/schema</code> <code>0.5.0</code>, <code>@meantjs/format</code>, <code>@meantjs/profile</code></td></tr>
+    <tr><td><code>@meantjs/consent</code></td><td><code>consent/</code></td><td>ICRC-21 consent messages for any method; SNS proposal validators; for EVM contracts, consent text for calldata and for EIP-712 signing requests, and ERC-7730 files (experimental)</td><td><code>@candid-core/schema</code> <code>0.5.0</code>, <code>@meantjs/format</code>, <code>@meantjs/profile</code></td></tr>
     <tr><td><code>@meantjs/tools</code></td><td><code>tools/</code></td><td>MCP tool definitions, input in human units, a preview the person confirms before every send, and the retry and reconcile rules</td><td><code>@meantjs/format</code></td></tr>
     <tr><td><code>@meantjs/reconcile</code></td><td><code>reconcile/</code></td><td>After an unknown outcome and before any new attempt: is the original already in the ledger's ICRC-3 history?</td><td><code>@meantjs/format</code></td></tr>
   </tbody>
 </table>
 
 <pre data-lang="bash">
-npm install --save-exact @meantjs/profile@0.2.0 @meantjs/format@0.2.0
+npm install --save-exact @meantjs/profile@0.3.0 @meantjs/format@0.3.0
 </pre>
 
 <p>Install the ones you use; each pins its <code>@meantjs</code> dependencies at the same version exactly. Releases are published from this repository with npm provenance, under the procedure in <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md"><code>profile/docs/releasing.md</code></a>. Every export, with its signature, is on <a href="reference-profile-api.html">JavaScript API</a>.</p>
@@ -116,9 +116,14 @@ npm install --save-exact @meantjs/profile@0.2.0 @meantjs/format@0.2.0
 
 <ul>
   <li><strong>Manifest:</strong> <code>crates/meant-format/Cargo.toml</code>, a member of the root workspace. Edition 2021, <code>rust-version = "1.78"</code>, Apache-2.0.</li>
-  <li><strong>Published:</strong> <code>0.1.0</code> on <a href="https://crates.io/crates/meant-format">crates.io</a>. The repository's manifest holds <code>0.2.0</code>, prepared and not yet published: it adds the EVM integer types <code>uint8</code> to <code>uint256</code> and <code>int8</code> to <code>int256</code>, and <code>with_threshold</code>. Pin an exact version, as for <code>meant</code>.</li>
+  <li><strong>Published:</strong> on <a href="https://crates.io/crates/meant-format">crates.io</a>: <code>0.1.0</code> (2026-10-27) and <code>0.2.0</code> (2026-10-29), which adds the EVM integer types <code>uint8</code> to <code>uint256</code> and <code>int8</code> to <code>int256</code>, and <code>with_threshold</code>. It is released by the same <code>Release</code> workflow as <code>meant</code>, dispatched with <code>crate: meant-format</code>. Pin an exact version, as for <code>meant</code>.</li>
   <li><strong>Features:</strong> the default <code>std</code> only implements <code>std::error::Error</code>.</li>
 </ul>
+
+<pre data-lang="toml" data-file="Cargo.toml">
+[dependencies]
+meant-format = "=0.2.0"
+</pre>
 
 <p>Its API is on <a href="reference-meant-format.html">meant-format (Rust)</a>.</p>
 

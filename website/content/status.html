@@ -6,10 +6,10 @@
   <thead><tr><th>Unit</th><th>Registry</th><th>Status</th></tr></thead>
   <tbody>
     <tr><td><code>meant</code></td><td>crates.io</td><td><span class="pill ok">Published</span> — <code>0.1.0</code>, published on 2026-10-27: <code>candid-core</code> <code>0.1.0</code> under its new name. The old name keeps its versions on the registry, <code>0.1.0-beta.1</code>, <code>0.1.0-beta.2</code>, <code>0.1.0-beta.3</code> and <code>0.1.0</code> (published on 2026-10-12), and takes no new ones. None yanked.</td></tr>
-    <tr><td><code>meant-format</code></td><td>crates.io</td><td><span class="pill ok">Published</span> — <code>0.1.0</code>, published on 2026-10-27. <span class="pill warn">Prepared</span> <code>0.2.0</code> in the repository's manifest, not yet on the registry.</td></tr>
+    <tr><td><code>meant-format</code></td><td>crates.io</td><td><span class="pill ok">Published</span> — latest <code>0.2.0</code>, published on 2026-10-29. Also on the registry: <code>0.1.0</code> (2026-10-27).</td></tr>
     <tr><td><code>@candid-core/schema</code></td><td>npm</td><td><span class="pill ok">Published</span> — latest <code>0.5.0</code>; beta <code>0.3.0-beta.1</code>. Also on the registry: <code>0.0.0-bootstrap</code>, <code>0.1.0</code>, <code>0.1.1</code>, <code>0.2.0</code>, <code>0.3.0</code>, <code>0.4.0</code>.</td></tr>
     <tr><td><code>@candid-core/cli</code></td><td>npm</td><td><span class="pill ok">Published</span> — latest <code>0.4.0</code>; beta <code>0.2.0-beta.1</code>. Also on the registry: <code>0.0.0-bootstrap</code>, <code>0.1.0</code>, <code>0.2.0</code>, <code>0.3.0</code>.</td></tr>
-    <tr><td><code>@meantjs/profile</code>, <code>@meantjs/format</code>, <code>@meantjs/consent</code>, <code>@meantjs/tools</code>, <code>@meantjs/reconcile</code></td><td>npm</td><td><span class="pill ok">Published</span> — latest <code>0.2.0</code>, all five published on 2026-10-28, with npm provenance. Also on the registry: <code>0.1.0</code> (the same day), and the placeholders <code>0.0.0-bootstrap</code> and <code>0.0.0-stage</code> that reserved the names.</td></tr>
+    <tr><td><code>@meantjs/profile</code>, <code>@meantjs/format</code>, <code>@meantjs/consent</code>, <code>@meantjs/tools</code>, <code>@meantjs/reconcile</code></td><td>npm</td><td><span class="pill ok">Published</span> — latest <code>0.3.0</code>, all five published on 2026-10-29, with npm provenance. Also on the registry: <code>0.1.0</code> and <code>0.2.0</code> (both 2026-10-28), and the placeholders <code>0.0.0-bootstrap</code> and <code>0.0.0-stage</code> that reserved the names.</td></tr>
     <tr><td>Candid Profile v0</td><td>—</td><td><span class="pill warn">Draft 0.2</span> — the spec, in <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md"><code>profile/docs/profile-v0.md</code></a>. Breaking changes are expected until the project's preregistered evaluation reports.</td></tr>
     <tr><td><code>candid-core-ts</code></td><td>—</td><td><code>publish = false</code> by design. Use it as a path or git dependency from this repository, or not at all.</td></tr>
     <tr><td><code>candid-core-wasm</code></td><td>—</td><td><code>publish = false</code>. Its own workspace root; its deliverable is the npm CLI package above.</td></tr>
@@ -26,15 +26,17 @@
 <pre data-lang="toml" data-file="Cargo.toml">
 # every feature on by default
 meant = "=0.1.0"
+# the amount tag, no dependencies
+meant-format = "=0.2.0"
 </pre>
 
 <pre data-lang="bash">
 npm install --save-exact @candid-core/schema
 npm install --save-dev --save-exact @candid-core/cli
-npm install --save-exact @meantjs/profile@0.2.0 @meantjs/format@0.2.0 @meantjs/consent@0.2.0 @meantjs/tools@0.2.0 @meantjs/reconcile@0.2.0
+npm install --save-exact @meantjs/profile@0.3.0 @meantjs/format@0.3.0 @meantjs/consent@0.3.0 @meantjs/tools@0.3.0 @meantjs/reconcile@0.3.0
 </pre>
 
-<p>Install only the <code>@meantjs</code> packages you use. A <code>meant-format</code> line is left out on purpose: crates.io holds <code>0.1.0</code>, which lacks the EVM integer types the repository's <code>0.2.0</code> adds, and this site describes <code>0.2.0</code>. Until it is published, depend on <code>0.1.0</code> with the exact requirement <code>=0.1.0</code> if the ten Candid integer types are enough.</p>
+<p>Install only the <code>@meantjs</code> packages you use.</p>
 
 <callout type="warn" title="Pin the exact version">
   <p>A bare <code>meant = "0.1"</code> is a caret requirement: it resolves to <code>0.1.0</code> and to any later <code>0.1.x</code>. Before 1.0 any release may change the API, the serialized shapes and the identities, so write the exact version: <code>meant = "=0.1.0"</code>, or <code>cargo install meant --version 0.1.0 --locked</code> for the binary. The same holds for <code>meant-format</code>, and for the npm packages, where <code>--save-exact</code> writes the exact version. Moving to the next release should be something you opt into.</p>
@@ -154,7 +156,7 @@ npm run build
 
 <p><strong><code>0.1.0</code></strong> — published on 2026-10-27, the first release: the <code>amount</code> tag of Candid Profile v0 (§5.3). <code>AmountFormat</code> parses <code>"1.5 ICP"</code> into the exact base-unit value and displays it back, with nothing rounded, wrapped or clamped; <code>IntType</code> names the ten Candid integer types an amount can have; <code>FormatError</code> carries a stable <code>Code</code> and the same message the JavaScript reference gives. <code>no_std</code> with <code>alloc</code>.</p>
 
-<p><strong><code>0.2.0</code></strong> — prepared in the repository, not yet published. It brings the crate level with <code>@meantjs/format</code> <code>0.2.0</code> and is breaking, as a 0.x minor may be: <code>IntType</code> gains the EVM ABI's <code>uint8</code> to <code>uint256</code> and <code>int8</code> to <code>int256</code> and becomes <code>#[non_exhaustive]</code>, <code>IntType::ALL</code> becomes a slice, and <code>with_threshold</code> displays a value at or above a threshold as a message such as <code>"Unlimited USDC"</code>. Its parity vectors, generated from the JavaScript reference, cover 3,412 cases. See <a href="reference-meant-format.html">meant-format (Rust)</a>.</p>
+<p><strong><code>0.2.0</code></strong> — published on 2026-10-29, the current version, the first released through the <code>Release</code> workflow dispatched with <code>crate: meant-format</code>, under the tag <code>meant-format-v0.2.0</code>. It brings the crate level with <code>@meantjs/format</code> <code>0.2.0</code> and is breaking, as a 0.x minor may be: <code>IntType</code> gains the EVM ABI's <code>uint8</code> to <code>uint256</code> and <code>int8</code> to <code>int256</code> and becomes <code>#[non_exhaustive]</code>, <code>IntType::ALL</code> becomes a slice, and <code>with_threshold</code> displays a value at or above a threshold as a message such as <code>"Unlimited USDC"</code>. Its parity vectors, generated from the JavaScript reference, cover 3,412 cases. See <a href="reference-meant-format.html">meant-format (Rust)</a>.</p>
 
 <h3>The <code>@meantjs</code> packages on npm</h3>
 
@@ -162,7 +164,9 @@ npm run build
 
 <p><strong><code>0.1.0</code></strong> — published on 2026-10-28, the first version, under the <code>@meantjs</code> scope; before any release the packages were named <code>@candid-core/profile</code>, <code>@candid-core/profile-format</code>, <code>@candid-core/profile-consent</code>, <code>@candid-core/profile-tools</code> and <code>@candid-core/profile-reconcile</code>, and none of those names was ever published. It validates Candid Profile v0 documents, matches packs by subtyping, merges layers and emits the resolved form, from <code>.did</code> source or a <code>ContractEnvelope</code>; ships the schema and the ICRC-1 and ICRC-2 packs; reads doc annotations and served profiles; and generates ICRC-21 consent messages, SNS validator renderings, agent tool definitions, value formatting and ICRC-3 reconciliation.</p>
 
-<p><strong><code>0.2.0</code></strong> — published on 2026-10-28, the current version. <code>intent</code> and <code>effect</code> may sit on a case of a variant in a method's arguments (spec §5.2, D-053), with new errors <code>E_CASE_OVERLAP</code> and <code>E_CASE_EFFECT</code>. EVM contracts, experimental (spec §15, D-054): contract profiles over an ABI, EVM packs and the <code>erc20</code> pack, <code>@meantjs/profile/evm</code> (Keccak-256, a strict ABI codec, EIP-55 addresses, EIP-712 digests), consent text for calldata and ERC-7730 files. <code>amount</code> takes a display <code>threshold</code> and <code>message</code>. See <a href="chain-evm.html">EVM contracts</a>.</p>
+<p><strong><code>0.2.0</code></strong> — published on 2026-10-28. <code>intent</code> and <code>effect</code> may sit on a case of a variant in a method's arguments (spec §5.2, D-053), with new errors <code>E_CASE_OVERLAP</code> and <code>E_CASE_EFFECT</code>. EVM contracts, experimental (spec §15, D-054): contract profiles over an ABI, EVM packs and the <code>erc20</code> pack, <code>@meantjs/profile/evm</code> (Keccak-256, a strict ABI codec, EIP-55 addresses, EIP-712 digests), consent text for calldata and ERC-7730 files. <code>amount</code> takes a display <code>threshold</code> and <code>message</code>. See <a href="chain-evm.html">EVM contracts</a>.</p>
+
+<p><strong><code>0.3.0</code></strong> — published on 2026-10-29, the current version. EIP-712 typed messages, experimental (spec §15.9, D-055): a contract profile or an EVM pack may carry <code>binds.eip712</code>, the resolved form lists the messages under <code>messages</code>, matched by type hash, and <code>@meantjs/consent/evm</code> writes the consent text of a signing request (<code>eip712Consent</code>), refused before anything is shown when its domain, contract, type hash or values do not match. <code>amount</code> takes <code>token</code>, an <code>address</code> field that names its token (EVM only), and <code>timestamp</code> takes display words (<code>threshold</code> with <code>message</code>, and <code>labels</code>). New standard files: the <code>erc2612</code> pack, and the <code>permit2</code> and <code>dai-permit</code> contract profiles. New codes <code>E_EIP712</code>, <code>E_TOKEN_PATH</code>, <code>E_DOMAIN</code> and <code>E_TYPE_HASH</code>. <code>@meantjs/tools</code> and <code>@meantjs/reconcile</code> do not change. See <a href="chain-evm.html">EVM contracts</a>.</p>
 
 <h2>Release mechanics a consumer should know</h2>
 

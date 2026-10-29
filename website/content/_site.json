@@ -389,7 +389,7 @@
           "slug": "reference-packs",
           "title": "Standard packs",
           "nav": "Standard packs",
-          "lead": "The ICRC-1, ICRC-2 and ERC-20 packs: what each matches and every annotation it carries.",
+          "lead": "The ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2 and DAI permit profiles: what each matches and every annotation it carries.",
           "wide": true
         },
         {
@@ -455,7 +455,7 @@
           "slug": "chain-evm",
           "title": "EVM contracts",
           "nav": "EVM (experimental)",
-          "lead": "Experimental: profiles for Solidity ABIs, consent text for calldata, and ERC-7730 clear-signing files."
+          "lead": "Experimental: profiles for Solidity ABIs and EIP-712 typed messages, consent text for a call or a signature, and ERC-7730 clear-signing files."
         },
         {
           "slug": "chain-solana",
