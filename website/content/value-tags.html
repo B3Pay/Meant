@@ -1,6 +1,6 @@
 <tool-view bridge="exact, no rounding">
-<sees value="1.5 ICP">prepare_icrc1_transfer({ amount: "1.5 ICP", to: "efadq-…-kjy554y" })</sees>
-<sends value="150000000">icrc1_transfer(record { amount = 150_000_000 : nat; … })</sends>
+<sees value="1.5 ICP">prepare_icrc1_transfer({ amount: "1.5 ICP", … })</sees>
+<sends value="150000000">record { amount = 150_000_000 : nat; … }</sends>
 </tool-view>
 
 <p>
@@ -17,7 +17,7 @@ symbol: query:icrc1_symbol
   A value tag says what the number, the bytes or the record at a position <em>is</em>: a token
   amount, a point in time, a span of time, an account, a subaccount, a byte string in some
   encoding. From that, every consumer parses what a person types and shows what a call carries by
-  the same rules (spec §5.3). <code>@meantjs/format</code> implements them, and the agent tools
+  the same rules (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>). <code>@meantjs/format</code> implements them, and the agent tools
   and the consent generator both use it, so they cannot disagree about what a value means:
 </p>
 
@@ -54,7 +54,7 @@ amount?.safeParse("1.500000000"); // { ok: false, error: { code: "E_EXCESS_PRECI
 </p>
 
 <p>
-  Rounding would be friendlier, and it would move money. "0.000000005 ICP" rounded to 8 decimals
+  Rounding would be friendlier, and it would send an amount nobody asked for. "0.000000005 ICP" rounded to 8 decimals
   is either nothing or one base unit, and neither is what the person wrote. A refusal costs one
   correction; a silent rounding costs a wrong transfer that nobody sees until the balance is
   wrong. The format library's message says how to fix the input:
@@ -291,7 +291,7 @@ E_EXCESS_PRECISION "1.500000000" has 9 fractional digits but this token has 8; a
 <h2>On an EVM contract</h2>
 
 <p>
-  Profiles for EVM contracts are experimental (spec §15). The rules above carry over unchanged
+  Profiles for EVM contracts are experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>). The rules above carry over unchanged
   for <code>amount</code>, <code>timestamp</code>, <code>duration</code> and <code>bytes</code>,
   with ABI types in place of Candid ones: <code>amount</code> applies to <code>uint8</code> to
   <code>uint256</code> and <code>int8</code> to <code>int256</code>, each with the bounds of its

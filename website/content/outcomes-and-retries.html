@@ -1,1 +1,296 @@
-<p>This page is being written.</p>
+<pre data-lang="json" data-file="profile/packs/icrc1.profile.json">
+{
+  "at": "icrc1_transfer",
+  "tag": "idempotency",
+  "args": {
+    "mode": "replay_same_payload",
+    "stamp": "created_at_time"
+  }
+},
+{
+  "at": "icrc1_transfer",
+  "tag": "outcome",
+  "args": {
+    "classes": {
+      "Ok": "success",
+      "Err.Duplicate": "already_done",
+      "Err.TemporarilyUnavailable": "retry_same",
+      "Err.TooOld": "retry_new",
+      "Err.CreatedInFuture": "retry_new",
+      "Err.BadFee": "fix_input",
+      "Err.BadBurn": "fix_input",
+      "Err.InsufficientFunds": "fail",
+      "Err.GenericError": "fail"
+    },
+    "default": "fail"
+  }
+}
+</pre>
+
+<p>
+  A ledger answers a transfer with one of nine result cases. Read as a type, they are one
+  variant. Read by a caller that has to decide what happens next, they are very different:
+  <code>Duplicate</code> means the money already moved, <code>TemporarilyUnavailable</code> means
+  try the same thing again, <code>TooOld</code> means the attempt can no longer be repeated as it
+  was. The ICRC-1 pack gives every case an <strong>outcome class</strong>, and says which argument
+  makes a retry safe.
+</p>
+
+<h2>Six classes</h2>
+
+<table>
+  <thead><tr><th>Class</th><th>What the caller does</th><th>ICRC-1 cases</th></tr></thead>
+  <tbody>
+    <tr><td><outcome>success</outcome></td><td>Done.</td><td><code>Ok</code></td></tr>
+    <tr><td><outcome>already_done</outcome></td><td>An identical call already executed. Treat it as success and report the referenced result.</td><td><code>Err.Duplicate</code>, which carries <code>duplicate_of</code>, the block of the first transfer</td></tr>
+    <tr><td><outcome>retry_same</outcome></td><td>Transient. Retry with the same encoded bytes.</td><td><code>Err.TemporarilyUnavailable</code></td></tr>
+    <tr><td><outcome>retry_new</outcome></td><td>The idempotency stamp expired or is ahead of the canister's clock. Re-stamp, show the person the new intent, and retry only after they confirm it.</td><td><code>Err.TooOld</code>, <code>Err.CreatedInFuture</code></td></tr>
+    <tr><td><outcome>fix_input</outcome></td><td>The input needs correcting; the error's fields carry the hint.</td><td><code>Err.BadFee</code> (with <code>expected_fee</code>), <code>Err.BadBurn</code></td></tr>
+    <tr><td><outcome>fail</outcome></td><td>Do not retry.</td><td><code>Err.InsufficientFunds</code>, <code>Err.GenericError</code>, and anything unclassified</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>retry_new</code> is the class that needs a person. Re-stamping makes a new intent, and a new
+  intent is a new call that the person must see and confirm. A seventh word,
+  <outcome>reconcile</outcome>, appears in consumers but in no pack: it is what a consumer
+  concludes from history, covered under the consumer rules below.
+</p>
+
+<h2>Keys select variant cases</h2>
+
+<p>
+  The keys of <code>classes</code> are <a href="addresses.html">relative paths</a> into the result
+  tuple, and each must select a case of a variant (<diag>E_OUTCOME_NOT_CASE</diag>):
+  <code>Err.BadFee</code> is the <code>BadFee</code> case of the <code>Err</code> case of result 0.
+  Four rules settle every reply:
+</p>
+
+<ul>
+  <li>
+    <strong>The most specific key wins.</strong> When both <code>Err</code> and
+    <code>Err.BadFee</code> are given, a <code>BadFee</code> reply takes the longer key's class.
+  </li>
+  <li>
+    <strong>Unclassified cases fall back to <code>default</code></strong>, reported at info level.
+    A case with no key and no default gets <diag>W_OUTCOME_UNCLASSIFIED</diag> as a warning.
+  </li>
+  <li>
+    <strong>A case with no class and no default is <code>fail</code>.</strong> Consumers must treat
+    it so. That covers cases the profile never saw, including the extra result cases a pack match
+    allows.
+  </li>
+  <li>
+    <strong>Packs should set a default</strong> (<diag>W_PACK_NO_DEFAULT</diag> otherwise), because
+    a pack applies to canisters it was not written against.
+  </li>
+</ul>
+
+<p>
+  The third rule is what makes the pack-matching relaxation of D-019 safe. A local ledger with an
+  extra <code>Frozen</code> error still matches the ICRC-1 pack, and its new case is a
+  <code>fail</code>, never a guess:
+</p>
+
+<pre data-lang="text">
+  info    W_OUTCOME_UNCLASSIFIED     [icrc1] icrc1_transfer  result case "Err.Frozen" has no class (falls back to default)
+</pre>
+
+<h2>Results that are not a variant</h2>
+
+<p>
+  Not every method answers with a variant. A method that returns a record, a number or nothing has
+  no case to select, so D-049 allows <code>classes</code> to be left out. <code>default</code> is
+  then required and is the class of every reply. Such a method can only fail by a reject, which
+  the consumer handles as for any update: a rejection by the replica means the call did not
+  execute, and an unknown outcome follows the retry rules below. On a method whose result does
+  have a variant, <code>default</code> alone leaves every case unclassified, as any case without a
+  key.
+</p>
+
+<h2>idempotency: the same bytes, sent again</h2>
+
+<p>
+  A call over a network can time out after it executed. Sending it again is safe only if the
+  canister can tell the second send from a new call. <code>idempotency</code> with
+  <code>mode: "replay_same_payload"</code> declares that it can: a retry that carries exactly the
+  same payload is either executed once or answered with the <code>already_done</code> case. Its
+  <code>stamp</code> names the argument field that makes payloads unique; for ICRC-1 that is
+  <code>created_at_time</code>.
+</p>
+
+<ul>
+  <li>
+    The stamp field must carry a <code>timestamp</code> tag (<diag>E_STAMP_UNTAGGED</diag>), so the
+    tool layer knows its unit. A stamp field that is not optional gets
+    <diag>W_STAMP_REQUIRED</diag>, since the tool layer must then always fill it, and
+    <code>idempotency</code> on a query is <diag>E_IDEMPOTENCY_MODE</diag>.
+  </li>
+  <li>
+    <strong>The tool layer owns the stamp.</strong> The stamp position never appears in an agent's
+    tool schema and cannot be edited in a user interface. The tool layer fills it from the
+    canister's clock, never the host's (<a href="addresses.html">why</a>).
+  </li>
+  <li>
+    <strong>It fills the stamp once per intent</strong>, encodes the arguments once, and reuses
+    the exact encoded bytes for every retry of that intent. Re-encoding is not enough: any
+    difference in the bytes, a fresh stamp above all, is a new call to the ledger.
+  </li>
+</ul>
+
+<h2>One intent, one stamp</h2>
+
+<p>
+  The stamp has to follow the person's intent, not the agent's attempts. An agent that is unsure
+  whether a transfer went through may prepare it again; if that minted a new stamp, the ledger
+  would see a second transfer and execute it. So the spec defines an intent and ties the stamp to
+  it.
+</p>
+
+<p>
+  An intent is identified by the canister, the method and the converted arguments without the
+  stamp: base units, defaults applied, <code>auto</code> fields filled. Inputs that convert to the
+  same value are the same intent (<code>"1.5 ICP"</code> and <code>"1.50"</code>), a relative time
+  counts by its duration rather than the instant it resolves to, and the all-zero subaccount
+  equals an absent one. The tool layer keeps every intent it stamped during the session.
+</p>
+
+<ul>
+  <li>
+    An intent is <strong>unsettled</strong> while it was prepared but not committed, its last
+    attempt was <code>retry_same</code>, it was rejected by the replica, or its outcome is unknown.
+    Preparing the same intent again then returns the existing prepared call, with the same
+    identifier and the same bytes, and says so; it never mints a new stamp.
+  </li>
+  <li>
+    It is <strong>settled</strong> by <code>success</code>, <code>already_done</code>,
+    <code>fail</code>, <code>fix_input</code> or a reconciliation. Only then may the same arguments
+    be stamped again, as a new intent the person confirms again, with a stamp later than every
+    earlier one of the same identity.
+  </li>
+</ul>
+
+<h2>Unknown outcomes and rejections</h2>
+
+<p>
+  An unknown outcome (a timeout, a lost connection, a reply that says the call may have executed)
+  and a rejection are different facts, and the rules keep them apart.
+</p>
+
+<ul>
+  <li>
+    <strong>Unknown outcome, with the tag:</strong> the consumer may send the same bytes again
+    <em>within the canister's deduplication window</em>, where the canister either executes the
+    call once or answers <code>already_done</code>. The tool layer's answer must tell the caller to
+    commit the same prepared call again, and must not suggest preparing a new one.
+  </li>
+  <li>
+    <strong>Rejected by the replica:</strong> a trap or a refused call did not execute. It is not an
+    unknown outcome, and the same bytes may be sent again. <code>@meantjs/tools</code> reads this
+    narrowly: only reject codes 1, 2 and 3 count as "did not execute", and any other reject is
+    treated as an unknown outcome (<a href="agent-tools.html">Give an agent tools</a>).
+  </li>
+  <li>
+    <strong>Unknown outcome, without the tag:</strong> nothing can make a second send safe, so a
+    consumer must not retry the update automatically.
+  </li>
+</ul>
+
+<h2>Why ICRC-1 deduplication works this way</h2>
+
+<p>
+  The idempotency rules are written around the deduplication an ICRC-1 ledger already does.
+  <claim>fact</claim> These are ICRC-1's rules, as the spec records them (verified 2026-10-08,
+  <a href="https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-1/README.md">ICRC-1
+  standard</a>):
+</p>
+
+<ul>
+  <li>
+    <strong>Deduplication applies only when <code>created_at_time</code> is set.</strong> A transfer
+    without it is never recognized as a repeat, which is why the stamp is the field the pack names
+    and why the tool layer always fills it.
+  </li>
+  <li>
+    <strong>Only within <code>TX_WINDOW</code> plus <code>PERMITTED_DRIFT</code></strong>, which
+    the ledger defines. A stamp older than that is refused as <code>TooOld</code>; one ahead of the
+    ledger's clock by more than the drift as <code>CreatedInFuture</code>.
+    <claim>fact</claim> For the DFINITY ledger the two add up to 24 hours and 2 minutes
+    (<code>DEDUP_WINDOW_NS</code> in <code>@meantjs/reconcile</code>).
+  </li>
+  <li>
+    <strong>Different memos are never duplicates.</strong> Changing the memo makes a different
+    transfer, which is one more reason the retry reuses the bytes rather than the person's words.
+  </li>
+  <li>
+    <strong>A duplicate returns <code>Duplicate { duplicate_of }</code></strong>, the block of the
+    transfer that did execute. The pack classes it <code>already_done</code>, so the caller reports
+    that block as the result.
+  </li>
+</ul>
+
+<h2>Three rules that depend on history</h2>
+
+<p>
+  A class map is static: it says what one reply means. Three rules depend on what happened to the
+  same intent before, so they live in the consumers, and <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a> states them for every consumer.
+</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-title"><code>reconcile</code> overrides <code>retry_new</code> after an unknown outcome</span>
+    <p>
+      If an earlier attempt of the intent had an unknown outcome and a later attempt returns a
+      <code>retry_new</code> case such as <code>TooOld</code>, the window has passed and the first
+      attempt may have executed. The consumer treats this as <outcome>reconcile</outcome>: it
+      checks the canister's history for the original before any new attempt, in ICRC-3 blocks since
+      the stamp, matched on operation, stamp, amount, accounts, memo and caller. Balances and
+      allowances cannot settle it. If the history cannot settle it, the consumer asks the person,
+      and sends or re-stamps nothing until they answer.
+      <a href="reconcile-outcomes.html">Settle an unknown outcome</a> shows the matcher.
+    </p>
+  </li>
+  <li>
+    <span class="step-title"><code>CreatedInFuture</code> caps the new stamp</span>
+    <p>
+      The error reports the ledger's time, <code>ledger_time</code>. The new stamp must not exceed
+      it: re-stamping from the same clock that ran ahead would fail again.
+    </p>
+  </li>
+  <li>
+    <span class="step-title">Retries stop before the window can close</span>
+    <p>
+      <code>retry_same</code> retries are limited to a few attempts with backoff, ending before the
+      deduplication window can close; after that, rule 1 applies. <code>@meantjs/tools</code> stops
+      an intent at its third <code>retry_same</code>.
+    </p>
+  </li>
+</ol>
+
+<callout type="note" title="Not on EVM contracts yet">
+  <p>
+    <code>idempotency</code> and <code>outcome</code> on an EVM contract are
+    <diag>E_TAG_TARGET</diag>: retries by nonce and classes over reverts need receipts and nonces
+    that a later phase adds. See <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</callout>
+
+<h2>Next</h2>
+
+<div class="card-grid">
+  <a class="card" href="reconcile-outcomes.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Settle an unknown outcome</span>
+    <p>Find out from the ledger's history whether the first attempt went through, before anything is sent again.</p>
+  </a>
+  <a class="card" href="agent-tools.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Give an agent tools</span>
+    <p>A tool layer that stamps once, replays the same bytes and returns a class for every reply.</p>
+  </a>
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>What the person confirms before the first send, and again after a re-stamp.</p>
+  </a>
+</div>

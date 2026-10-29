@@ -149,8 +149,12 @@ console.log(formatter.safeParse("1.000000001 ICP"));</pre>
   <li>
     <h3>See what an agent would see</h3>
 <tool-view bridge="exact, no rounding">
-<sees value="1.5 ICP">prepare_icrc1_transfer({ amount: "1.5 ICP", … })</sees>
-<sends value="150000000">icrc1_transfer(record { amount = 150_000_000 : nat; … })</sends>
+<sees value="1.5 ICP">prepare_icrc1_transfer({
+  amount: "1.5 ICP", …
+})</sees>
+<sends value="150000000">icrc1_transfer(record {
+  amount = 150_000_000 : nat; …
+})</sends>
 </tool-view>
     <p>
       The model writes the amount the way a person says it. The tool layer reads it with the same

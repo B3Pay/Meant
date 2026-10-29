@@ -1,1 +1,458 @@
-<p>This page is being written.</p>
+<p>
+  <code>@meantjs/consent</code> answers <code>icrc21_consent_message</code> for any method a resolved
+  form describes. You give it the resolved form, the method name and the call's Candid-encoded
+  argument bytes; it decodes the bytes against the form, renders the method's intent template with
+  the value formatters, and returns the ICRC-21 response. It has no network code.
+</p>
+
+<h2>Generate a message</h2>
+
+<pre data-lang="bash">
+npm install --save-exact @meantjs/consent@0.2.0
+</pre>
+
+<pre data-lang="js" data-check="consent">
+import { readFileSync } from "node:fs";
+import { decodeConsentResponse, encodeConsentRequest, handleConsentRequest, icrc21ConsentMessage, toJson } from "@meantjs/consent";
+
+// candid-profile resolve ledger.did --packs > ledger.resolved.json
+const resolved = JSON.parse(readFileSync("ledger.resolved.json", "utf8"));
+const refs = { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" };
+
+// The call the person is asked about, as the signer received it: icrc1_transfer of 1.5 TKA to Alice, memo "lunch".
+const argHex =
+  "4449444c066c06fbca0101c6fcb60204ba89e5c20402a2de94eb060282f3f3910c05d8a38ca80d7d6c02b3b0dac30368ad86ca8305026e036d7b6e7d6e780100011db56bf994b37ae8e79f5ce000be1727a6060ae4eef24736b7cc999c3c02000001056c756e63680001004af3f1afdadc1880a3c347";
+const arg = Uint8Array.from(argHex.match(/../g) ?? [], (byte) => parseInt(byte, 16));
+
+const response = icrc21ConsentMessage(
+  {
+    method: "icrc1_transfer",
+    arg,
+    user_preferences: { metadata: { language: "en", utc_offset_minutes: null }, device_spec: { FieldsDisplay: null } },
+  },
+  { resolved, refs },
+);
+console.log(JSON.stringify(toJson(response), null, 2));
+</pre>
+
+<pre data-lang="json">
+{
+  "Ok": {
+    "consent_message": {
+      "FieldsDisplayMessage": {
+        "intent": "Send tokens: Send 1.5 TKA to k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae with memo lunch",
+        "fields": [
+          ["Amount", { "TokenAmount": { "decimals": 8, "amount": "150000000", "symbol": "TKA" } }],
+          ["Recipient", { "Text": { "content": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae" } }],
+          ["Memo", { "Text": { "content": "lunch" } }]
+        ]
+      }
+    },
+    "metadata": { "language": "en", "utc_offset_minutes": null }
+  }
+}
+</pre>
+
+<p>That is the output of the code above, as a signer could show it:</p>
+
+<consent standard="Consent · ICRC-21" title="Send tokens" effects="transfer irreversible">
+<field name="Amount" amount>1.5 TKA</field>
+<field name="Recipient">k2t6j-…-teztq-6ae</field>
+<field name="Memo">lunch</field>
+</consent>
+
+<p>
+  Ask for <code>{ GenericDisplay: null }</code>, or leave <code>device_spec</code> out, and the same
+  call is one Markdown text:
+</p>
+
+<pre data-lang="text">
+# Send tokens
+
+Send `1.5 TKA` to `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae` with memo `lunch`
+
+- **Amount:** `1.5 TKA`
+- **Recipient:** `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`
+- **Memo:** `lunch`
+</pre>
+
+<p>
+  The words "Send tokens" and the template come from the ICRC-1 pack, not from the ledger. The result
+  says so: besides <code>Ok</code> or <code>Err</code> it has two non-enumerable properties,
+  <code>diagnostics</code> (what was adjusted) and <code>provenance</code>, here
+  <code>{ intent: { origin: "pack", profile: "icrc1" }, profiles: [ … ] }</code>, so a signer can warn
+  when a profile, not the canister, wrote the words. Nothing in the message says
+  <code>From</code> or names a fee the call does not set: the argument bytes do not carry the caller,
+  and the default fee is ledger state, which a template must not claim (spec §6).
+</p>
+
+<h3>Answer the request as bytes</h3>
+
+<pre data-lang="js" data-check="consent">
+const requestBytes = encodeConsentRequest({
+  method: "icrc1_transfer",
+  arg,
+  user_preferences: { metadata: { language: "en", utc_offset_minutes: null }, device_spec: null },
+});
+const replyBytes = handleConsentRequest(requestBytes, { resolved, refs }); // what an icrc21_consent_message endpoint returns
+const reply = decodeConsentResponse(replyBytes);
+</pre>
+
+<p>
+  <code>handleConsentRequest</code> takes the Candid bytes of an
+  <code>icrc21_consent_message_request</code> and returns the Candid bytes of the response. The codec
+  for the ICRC-21 types is exported too, and <code>generateConsent({ resolved, method, arg, refs, form })</code>
+  gives one form without the ICRC-21 envelope. The context takes <code>languagePolicy</code>
+  (<code>"fallback"</code>, the default, or <code>"error"</code>), <code>rawArguments</code> and
+  decoder <code>limits</code>. The main entry runs in a browser: it imports no Node built-in and uses
+  no <code>Buffer</code>. Every export is on the <a href="reference-profile-api.html">JavaScript API</a>
+  reference.
+</p>
+
+<h2>What happens, in order</h2>
+
+<ol class="steps">
+  <li>
+    <span class="step-title">Decode</span>
+    <p>
+      The argument bytes are decoded against the method's tree in the resolved form, with
+      <code>@candid-core/schema</code> 0.5.0 (<code>decodeArgs</code>), so the bytes never choose the
+      types. Integers become decimal strings, <code>blob</code> a <code>Uint8Array</code>, an absent
+      <code>opt</code> <code>null</code>, a variant <code>{ tag, value }</code>. Nothing is rounded or
+      truncated.
+    </p>
+  </li>
+  <li>
+    <span class="step-title">Intent</span>
+    <p>
+      The call's intent is that of the deepest variant case with an <code>intent</code> that the
+      arguments hold, else the method's (<a href="intent-and-effects.html">intent and effects</a>). Its
+      template's placeholders are rendered through <code>formatterFor</code> of
+      <code>@meantjs/format</code>, so values mean exactly what they mean in a tool input
+      (<a href="format-values.html">parse and display values</a>). A <code>[ … ]</code> segment is
+      dropped when a placeholder inside is absent. A method without an intent gets a generic one.
+    </p>
+  </li>
+  <li>
+    <span class="step-title">Forms</span>
+    <p>
+      <code>FieldsDisplayMessage</code>: the intent line and one typed row per placeholder.
+      <code>GenericDisplayMessage</code>: a Markdown heading, the rendered template, and the same
+      fields as a list. Both by the mapping below.
+    </p>
+  </li>
+</ol>
+
+<p>
+  <claim>fact</claim> The decoder is checked against an independent one in the package's tests:
+  <code>@dfinity/didc</code> (the Rust candid crates as wasm) accepts and rejects 16 wire variants and
+  3000 mutated encodings exactly as this decoder does (<code>test/decode-differential.test.mjs</code>),
+  and every reply is decoded against the standard's own <code>ICRC-21.did</code>, vendored with its
+  commit and sha256 in <code>test/upstream/icrc21/</code> beside the standard's example messages.
+</p>
+
+<p>
+  The renderer reads no ledger state. Dynamic refs come in through <code>refs</code>; a ref you did not
+  supply stops the message with <diag>E_REF_UNRESOLVED</diag>, so a number is never shown without its
+  decimals.
+</p>
+
+<h2>How a profile maps to ICRC-21</h2>
+
+<p>
+  For <code>FieldsDisplay</code>, from
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#12-mapping-to-icrc-21-informative">spec §12</a>:
+</p>
+
+<table>
+  <thead><tr><th>Profile</th><th><code>FieldsDisplayMessage</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>intent.title</code> and the rendered <code>template</code></td><td><code>intent</code></td></tr>
+    <tr><td>each placeholder</td><td>one <code>(label, Value)</code> row; the label is <code>describe.label</code>, else the field name</td></tr>
+    <tr><td><code>amount</code></td><td><code>TokenAmount { decimals; amount; symbol }</code> when it fits <code>nat64</code>, else <code>Text</code></td></tr>
+    <tr><td><code>timestamp</code></td><td><code>TimestampSeconds { amount }</code> after unit conversion</td></tr>
+    <tr><td><code>duration</code></td><td><code>DurationSeconds { amount }</code> after unit conversion</td></tr>
+    <tr><td>everything else</td><td><code>Text { content }</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  For <code>GenericDisplay</code> the output is the rendered template as Markdown, then the same
+  fields as a list. The rendering rules (D-028), in short:
+</p>
+
+<ol>
+  <li>The fields-form <code>intent</code> is the call's intent title, <code>": "</code> and the rendered template; the title alone when the intent has no template.</li>
+  <li>Rows follow the order of first appearance in the template, one per distinct path. A placeholder in a dropped <code>[ ]</code> segment adds no row; an absent placeholder outside a segment renders as <code>(none)</code>.</li>
+  <li>A placeholder whose path crosses a variant case is absent unless the value holds that case. A placeholder over <code>[]</code> joins its elements with <code>, </code>; more than 256 elements is refused.</li>
+  <li>Untagged values render as Candid text, except that a principal on its own renders as its textual form.</li>
+  <li><code>TokenAmount</code> only when the amount is non-negative, fits <code>nat64</code> and the tag has a symbol; <code>TimestampSeconds</code> and <code>DurationSeconds</code> only when the conversion is exact and fits <code>nat64</code>. Otherwise <code>Text</code>, with every digit.</li>
+  <li>The generic form shows a time as <code>YYYY-MM-DD HH:MM:SS[.f] UTC+HH:MM</code> in the requested offset, and the response carries <code>utc_offset_minutes</code> exactly when it showed one. The fields form is UTC seconds and never depends on the zone. An offset outside ±24 h is ignored with a diagnostic.</li>
+  <li>The generic layout is <code># title</code>, the paragraph, then <code>- **label:** value</code> lines. Values from the call are Markdown code spans; an empty value is <code>*(empty)*</code>; text from the profile is backslash-escaped.</li>
+  <li>A call without an intent is titled by <code>describe.label</code>, else <code>Call &lt;method&gt;</code>, with one row per leaf of the decoded arguments. More than 64 rows is refused, never truncated.</li>
+  <li>A language the profile does not have is answered in the profile's language, and the metadata says which. An absent <code>device_spec</code> means <code>GenericDisplay</code>.</li>
+  <li>A value a formatter refuses is shown as raw Candid text with a diagnostic. A formatter that cannot be built, from an unresolved ref or a bad tag argument, produces no message at all.</li>
+  <li>The decoded raw arguments are appended only on request (<code>rawArguments: true</code>).</li>
+  <li>Nothing the resolved form cannot carry is guessed at. A call whose value reaches a recursive position the form cuts is <code>ConsentMessageUnavailable</code>, as is every call to a method with a <code>func</code>, <code>service</code> or <code>opt opt T</code> position. A template that fails at consent time falls back to the generic intent with <diag>W_TEMPLATE_FALLBACK</diag>.</li>
+</ol>
+
+<p>
+  Rule 5 matters for 18-decimal tokens. <claim>fact</claim> <code>TokenAmount.amount</code> is a
+  <code>nat64</code> in the ICRC-21 interface, so 25 TKC on an 18-decimal ledger, 25 &times; 10<sup>18</sup>
+  base units, is the row <code>Text {"content":"25 TKC"}</code> in the package's goldens, never a
+  rounded number. Rule 6, for an approval that expires, with the person at UTC+02:00:
+</p>
+
+<pre data-lang="text" data-file="profile/packages/consent/test/golden/REVIEW.md">
+- **Expires at:** `2026-10-09 14:00:00 UTC+02:00`
+…
+- Expires at: TimestampSeconds {"amount":"1791547200"}
+</pre>
+
+<h2>Escaping</h2>
+
+<p>
+  The relying party is not trusted, so every value that comes from the call is shown inert. A memo from
+  the package's goldens, on a 6-decimal ledger:
+</p>
+
+<pre data-lang="text" data-file="profile/packages/consent/test/golden/REVIEW.md">
+- **Memo:** ``[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;``
+</pre>
+
+<ul>
+  <li>
+    <strong>Generic form.</strong> A value is a code span, verbatim, with a fence one backtick longer
+    than any run inside it, so links, images, HTML, emphasis, entities and headings do not exist inside
+    it. Control, format and line-separator characters, such as a right-to-left override, are shown as
+    <code>\u{202e}</code>, never passed through. Text from the profile (the title, labels, template
+    literals) is backslash-escaped, and its line breaks become spaces. The package checks this with the
+    CommonMark reference parser on 38 hostile values.
+  </li>
+  <li><strong>Fields form.</strong> Plain text, as ICRC-21 requires. Only invisible characters are made visible.</li>
+  <li>A memo that is not valid UTF-8, holds control characters or starts with <code>0x</code> is shown as hex: <code>0xfffe0001</code>.</li>
+</ul>
+
+<h2>Errors</h2>
+
+<table>
+  <thead><tr><th>Cause</th><th>ICRC-21 result</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>An unknown method, argument bytes that do not decode, arguments too large, a malformed request, an unsupported language under <code>languagePolicy: "error"</code></td>
+      <td><code>UnsupportedCanisterCall</code>; <code>description</code> starts with <diag>E_METHOD_UNKNOWN</diag>, <diag>E_DECODE</diag>, <diag>E_TOO_LARGE</diag>, <diag>E_REQUEST</diag> or <diag>E_LANGUAGE</diag></td>
+    </tr>
+    <tr>
+      <td>A value that reaches a position the resolved form cuts, or a method with a <code>func</code> or <code>service</code> position</td>
+      <td><code>ConsentMessageUnavailable</code> (<diag>E_UNSUPPORTED_TYPE</diag>)</td>
+    </tr>
+    <tr>
+      <td>A missing ref, an invalid tag argument, a tag on the wrong type, two value tags, a malformed resolved form (an EVM one among them)</td>
+      <td><code>GenericError</code> with <code>error_code</code> 1100 (<diag>E_REF_UNRESOLVED</diag>), 1101 (<diag>E_ARG</diag>), 1102 (<diag>E_TAG_TYPE</diag>), 1103 (<diag>E_TAG_CONFLICT</diag>), 1000 (<diag>E_RESOLVED_FORM</diag>); 1999 for an internal error. <code>GENERIC_ERROR_CODES</code> also names 1001 (<diag>E_TEMPLATE</diag>) and 1002 (<diag>E_TEMPLATE_PATH</diag>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Called with no <code>refs</code>, the transfer above answers
+  <code>{"Err":{"GenericError":{"error_code":"1100","description":"E_REF_UNRESOLVED: amount.decimals needs the value of \"query:icrc1_decimals\", …"}}}</code>.
+  A language other than English is not an error: ICRC-21 prefers a message to an error, so the answer
+  is English with <code>metadata.language: "en"</code> and <diag>I_LANGUAGE_FALLBACK</diag> in
+  <code>diagnostics</code>. The limits are explicit and never truncate: 2 MiB of argument bytes, 64
+  fields, 256 list elements, 32 KiB of message text.
+</p>
+
+<h2>SNS proposal validators</h2>
+
+<pre data-lang="js" data-check="sns">
+import { readFileSync } from "node:fs";
+import { snsValidatorRendering, verifySnsRendering } from "@meantjs/consent/sns";
+
+const dapp = JSON.parse(readFileSync("dapp.resolved.json", "utf8")); // the dapp's own author profile, resolved
+const payloadHex =
+  "4449444c046c03fbca0101ba89e5c20402d8a38ca80d7d6c02b3b0dac30368ad86ca8305026e036d7b0100011db56bf994b37ae8e79f5ce000be1727a6060ae4eef24736b7cc999c3c020001096772616e7420233432b4b8f0fe2d";
+const payload = Uint8Array.from(payloadHex.match(/../g) ?? [], (byte) => parseInt(byte, 16));
+
+const reply = snsValidatorRendering({ payload, resolved: dapp, method: "pay_grant" });
+// { Ok: "### Pay a grant\n\nPay `123.456789 GOV` from the treasury to `k2t6j-…` with memo `grant #42`\n\n…" }
+
+const review = verifySnsRendering({
+  payloadTextRendering: readFileSync("proposal-rendering.txt", "utf8"), // what governance stored
+  payload,
+  resolved: dapp,
+  targetCanisterId: "emmff-iaaaa-aaaaa-accja-cai",
+  method: "pay_grant",
+});
+review.ok; // true; each of review.checks names one check
+</pre>
+
+<p>
+  An SNS proposal that executes a generic nervous system function calls a dapp method with a payload.
+  Apart from the proposer's own title and summary, the only description of that payload that governance
+  shows is the text the dapp's validator method returns. <code>@meantjs/consent/sns</code> is that
+  validator, generated from the profile. It hashes with <code>node:crypto</code>, so it runs on Node
+  only.
+</p>
+
+<p>
+  <claim>fact</claim> From dfinity/ic at <code>649156c</code> (<code>rs/sns/governance/src/proposal.rs</code>):
+  on submission governance calls the validator with the payload bytes and decodes the reply as
+  <code>Result&lt;String, String&gt;</code>, and <code>Err</code> rejects the proposal. It stores
+  <code>Ok(text)</code> as <code>payload_text_rendering</code> under its own headings, the last of which
+  is <code>## Payload:</code>. On adoption it calls the target method with the same bytes.
+</p>
+
+<p>The text follows the rules <code>candid-profile-sns/v0</code>:</p>
+<ol>
+  <li>The generic consent message, with the title at heading level 3 so it nests under <code>## Payload:</code>. Times in UTC.</li>
+  <li><code>**Method:**</code> and <code>**Effect:**</code>, the kind and whether it is reversible.</li>
+  <li>The arguments as Candid text with no formatter applied: base units, nanoseconds, bytes. This view does not depend on the profile's units.</li>
+  <li><code>**Rendered from:**</code>: each profile with its <code>profile_id</code>, the <code>interface_id</code>, and the rules.</li>
+</ol>
+
+<pre data-lang="text" data-file="profile/packages/consent/test/sns-golden/REVIEW.md">
+**Method:** `pay_grant`. **Effect:** transfer, irreversible.
+
+**Arguments (Candid, as sent, no units applied):**
+
+```
+(record { to = record { owner = principal "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae"; subaccount = null }; memo = opt blob "\67\72\61\6e\74\20\23\34\32"; amount = 12345678900 })
+```
+
+**Rendered from:**
+
+- Profile `sns-dapp-example` (author): `candid-profile:v0:sha256:41d00b240eb065919300ff6a9743d033280953feea2833a2027efcdd503510e1`
+- Interface: `candid-core:interface:v1:sha256:b8b02efa62a133bbf24d1c211875df5ff59c36c47cfe6bfa924e419bdb23daf1`
+- Rules: `candid-profile-sns/v0`
+</pre>
+
+<p>
+  Anything the generator cannot describe is <code>Err</code>, so governance rejects the proposal: an
+  unknown method, bytes that do not decode (<code>{ Err: "E_DECODE: …" }</code>), a missing dynamic ref,
+  or a message over the limits. Values are escaped as in the generic message, so a memo that imitates
+  <code>## Payload:</code> cannot add a heading. <code>handleSnsValidatorCall(payload, context)</code>
+  returns the reply Candid-encoded, as <code>variant { Ok : text; Err : text }</code>.
+</p>
+
+<p>
+  <code>verifySnsRendering</code> is the reviewer's check of a stored rendering, given the payload bytes
+  the proposer published. It runs five checks: governance's layout, the payload's SHA-256, the target
+  canister the reviewer names, the target method, and that the validator's text equals what the profile
+  renders for those bytes. Naming another canister fails <code>target_canister</code>.
+  <code>get_proposal</code> returns a payload only when it is at most 64 bytes, and a text summary with
+  its SHA-256 otherwise; given that summary in place of the bytes, the check says so.
+</p>
+
+<h2>The Rust version for canisters</h2>
+
+<p>
+  A validator is a canister method, so the renderer also exists in Rust:
+  <code>candid-profile-consent</code>, in
+  <a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent/rust"><code>profile/packages/consent/rust/</code></a>.
+  <claim>fact</claim> It is not published: its manifest says <code>version = "0.0.0"</code> and
+  <code>publish = false</code>, and it is not in the npm package either. Build it from the repository.
+</p>
+
+<pre data-lang="rust" data-file="profile/packages/consent/rust/src/lib.rs">
+pub fn generic_consent_message(
+    resolved: &Value,
+    method: &str,
+    arg: &[u8],
+    refs: &Map<String, Value>,
+    utc_offset_minutes: Option<i32>,
+    raw_arguments: bool,
+    limits: Limits,
+) -> Result<GenericMessage> {
+</pre>
+
+<table>
+  <thead><tr><th>Function</th><th>Does</th></tr></thead>
+  <tbody>
+    <tr><td><code>sns_validator_rendering(resolved, method, payload, refs)</code></td><td><code>Ok(text)</code> or <code>Err(text)</code>, as <code>snsValidatorRendering</code>.</td></tr>
+    <tr><td><code>handle_sns_validator_call</code>, <code>encode_validator_result</code></td><td>The Candid-encoded reply a validator method returns.</td></tr>
+    <tr><td><code>render_sns_payload(…, limits)</code></td><td>The same, with the error as a value and the diagnostics.</td></tr>
+    <tr><td><code>generic_consent_message(…)</code></td><td>The ICRC-21 <code>GenericDisplayMessage</code> text, as <code>generateConsent</code> with <code>form: "generic"</code>.</td></tr>
+    <tr><td><code>parse_resolved(json)</code></td><td>The resolved form from its JSON text, field order kept.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  It reads the same resolved form and writes the same text, byte for byte. It decodes with the
+  <code>candid</code> crate against types built from the resolved form and ports the display side of
+  the format library; where JavaScript's strings show through (UTF-16 lengths for the 32 KiB budget,
+  <code>trim</code>) it counts the way JavaScript does. <code>tests/golden.rs</code> runs the package's
+  13 SNS goldens and the generic message of its 20 ICRC-21 goldens, and <code>tests/differential.rs</code>
+  a corpus of 203 payloads, each answered alike. <code>rust-version</code> is 1.85.
+</p>
+
+<p>
+  Not ported: the <code>FieldsDisplayMessage</code> form, the ICRC-21 request and response envelope, and
+  the reviewer's check, which runs off-chain in JavaScript. A Rust canister that serves
+  <code>icrc21_consent_message</code> builds the envelope around <code>generic_consent_message</code>
+  itself. <claim>fact</claim> The package's PocketIC test (observed 2026-10-12, 10 of 10 tests passing)
+  registers the example validator canister with the real SNS governance canister, and the
+  <code>payload_text_rendering</code> governance stored equals the golden text byte for byte. That
+  test is not part of the package's <code>npm test</code>: it downloads pinned binaries first.
+</p>
+
+<h2>Consent text for an EVM call</h2>
+
+<pre data-lang="js" data-check="evm">
+import { readFileSync } from "node:fs";
+import { evmConsent } from "@meantjs/consent/evm";
+
+const erc20 = JSON.parse(readFileSync("erc20.resolved.json", "utf8")); // "chain": "evm"
+const { message } = evmConsent({
+  resolved: erc20,
+  calldata:
+    "0xa9059cbb00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8000000000000000000000000000000000000000000000000000000000016e360",
+  to: "0x5FbDB2315678afecb367f032d93F642f64180aa3", // a token deployed on a local Anvil node
+  chainId: 31337,
+  refs: { "query:decimals": 6, "query:symbol": "USDC" },
+});
+</pre>
+
+<pre data-lang="text">
+# Send tokens
+
+Send `1.5 USDC` to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+
+- **Amount:** `1.5 USDC`
+- **Recipient:** `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+
+**Contract:** `0x5FbDB2315678afecb367f032d93F642f64180aa3` on chain 31337
+</pre>
+
+<p>
+  <claim>fact</claim> EVM support is experimental (spec §15, phase 1). ICRC-21 is the Internet
+  Computer's, so an EVM call gets the same model and the same two layouts without the ICRC-21 envelope:
+  <code>evmConsent</code> in <code>@meantjs/consent/evm</code> decodes the calldata strictly and ends the
+  text with the contract's address and chain, because a pack applies to any contract with matching
+  functions. <code>@meantjs/consent/erc7730</code> writes the contract's ERC-7730 clear-signing file and
+  its ERC-8176 <code>descriptorHash</code>. The main entry refuses an EVM resolved form with
+  <diag>E_RESOLVED_FORM</diag>, and the Rust version does not cover EVM. The mapping, the deployment check
+  and the export are on <a href="chain-evm.html">EVM contracts</a>.
+</p>
+
+<h2>What a consent message does not prove</h2>
+
+<ul>
+  <li>
+    <claim>fact</claim> A profile is a claim, not a proof (spec §11 item 1): an author profile can
+    describe a drain as "claim reward". <code>provenance</code> tells the signer which profile wrote the
+    words, and <code>rawArguments: true</code> appends the decoded arguments, which the spec asks a
+    signer to show next to the intent for <effect>transfer</effect>, <effect>approve</effect>,
+    <effect>admin</effect> and <effect>destroy</effect>.
+  </li>
+  <li>
+    Dynamic refs come from a single replica unless you certify them (spec §11 item 2). Read
+    <code>decimals</code> and <code>symbol</code> through an update call, or cross-check them with
+    <code>icrc1_metadata</code>, before you show a transfer. A message generated inside the canister
+    avoids this, because the canister knows its own decimals.
+  </li>
+  <li>
+    The message describes the call, never the state it lands in: no balance after it, no "From" line.
+    Only the owner confirms; the model never does. The full argument is on the
+    <a href="security-model.html">security model</a> page.
+  </li>
+</ul>

@@ -1,1 +1,242 @@
-<p>This page is being written.</p>
+<pre data-lang="candid" data-file="wallet.did">
+type Kind = variant { Icp; Bitcoin };
+type Account = record { id : nat32; label : text; address : text; kind : Kind };
+type Transfer = record { from : nat32; to : text; amount : nat };
+service : {
+  accounts : () -> (variant { Ok : vec Account; Err : text }) query;
+  propose : (Transfer) -> ();
+}
+</pre>
+
+<pre data-lang="json" data-file="wallet.profile.json">
+{ "at": "accounts", "tag": "names", "args": { "set": "account", "items": "Ok", "name": "label", "value": "id", "show": "address", "kind": "kind" } },
+{ "at": "propose(0).from", "tag": "named", "args": { "set": "account" } },
+{ "at": "propose(0).to", "tag": "named", "args": { "set": "account", "by": "show" } }
+</pre>
+
+<p>
+  A wallet canister keeps accounts that its owner has labelled: "Main", "Savings", "BTC Savings".
+  When the owner says "move 1 BTC from Savings", the call needs <code>from = 4</code>, the
+  account's id. The first annotation says where the canister lists its named things; the other
+  two say which positions a name can stand in for. With those written down once (D-045, <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>), every
+  consumer, whether an agent tool, a consent message or a guard, turns "Savings" into a value by
+  the same rule, instead of each by its own. Both tags are experimental.
+</p>
+
+<h2>A names set</h2>
+
+<p>
+  <code>names</code> sits on a method that lists named things. <code>items</code> is a
+  results path to the list, and <code>name</code>, <code>value</code>, <code>show</code> and
+  <code>kind</code> are paths inside one item:
+</p>
+
+<ul>
+  <li><code>name</code> is the text a person uses, and must be <code>text</code> (<diag>E_NAMES_FIELD</diag>).</li>
+  <li><code>value</code> is what the name stands for, here the account's <code>id</code>.</li>
+  <li><code>show</code>, when given, is what to display beside the name, typically an address when <code>value</code> is an id.</li>
+  <li><code>kind</code>, when given, splits the set, so a consumer can ask for "the account named Main that holds Bitcoin".</li>
+</ul>
+
+<p>
+  The method must be a query, a composite query or a <a href="intent-and-effects.html">read-only
+  update</a> (<diag>E_NAMES_MODE</diag>), must take no arguments, and its <code>items</code> must
+  be a <code>vec</code> of records (<diag>E_NAMES_SHAPE</diag>). Those rules make the canister
+  vouch for its own names in the same way it vouches for its own decimals: one call, no input, one
+  answer. A set's name is declared once among all the merged profiles
+  (<diag>E_NAMES_SET_DUPLICATE</diag>).
+</p>
+
+<h2>A named position</h2>
+
+<p>
+  <code>named</code> marks a position whose value a name from a set can stand in for. Its
+  <code>set</code> must be declared (<diag>E_NAMED_SET</diag>), and <code>by</code> says which
+  field of the entry fills the position: <code>value</code> by default, or <code>show</code>. The
+  position must have the same Candid type as that field (<diag>E_NAMED_TYPE</diag>): above,
+  <code>from</code> is a <code>nat32</code> like an account's <code>id</code>, and <code>to</code>
+  is a <code>text</code> like its <code>address</code>.
+</p>
+
+<p>
+  <code>named</code> stacks with the position's other tags. A transfer's <code>to</code> stays an
+  <code>account</code> or an address; a name is tried only when the input is not a value.
+</p>
+
+<h2>The match</h2>
+
+<p>
+  A name matches a text when both normalize to the same string. <code>normalize(t)</code> is, in
+  order: Unicode NFKC, then the Unicode default lowercase mapping (full, without locale rules), then
+  every run of <code>White_Space</code> characters made one space, then leading and trailing
+  spaces removed. Nothing else is removed. Words such as "my" or "the" are the reader's to drop,
+  not the resolver's: "my Savings" is not "Savings" until the agent or the person drops "my".
+</p>
+
+<p>
+  These are cases from <a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/names-vectors.json"><code>spec/names-vectors.json</code></a>,
+  the shared test vectors:
+</p>
+
+<table>
+  <thead><tr><th>Input</th><th>Normalized</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>Savings</code></td><td><code>savings</code></td><td>Letters lowercased</td></tr>
+    <tr><td><code>␣␣My␣␣␣Savings␣</code></td><td><code>my savings</code></td><td>Runs of spaces made one, ends trimmed</td></tr>
+    <tr><td><code>Savings</code> U+00A0 <code>Account</code></td><td><code>savings account</code></td><td>A no-break space is <code>White_Space</code></td></tr>
+    <tr><td><code>ＳＡＶＩＮＧＳ</code></td><td><code>savings</code></td><td>Fullwidth letters fold to ASCII (NFKC)</td></tr>
+    <tr><td><code>Straße</code></td><td><code>straße</code></td><td>Lowercase, not case folding: the sharp s stays</td></tr>
+    <tr><td><code>STRASSE</code></td><td><code>strasse</code></td><td>So this does not equal the line above</td></tr>
+    <tr><td><code>Sav</code> U+200B <code>ings</code></td><td><code>sav</code> U+200B <code>ings</code></td><td>A zero-width space is not <code>White_Space</code>: it stays, so this is not "savings"</td></tr>
+    <tr><td><code>Cafe</code> U+0301</td><td><code>café</code></td><td>A combining accent composes (NFKC)</td></tr>
+  </tbody>
+</table>
+
+<p>
+  The choice of lowercase over case folding is about agreement, not linguistics. The default
+  lowercase mapping is in the standard library of JavaScript, Rust and Python, and they give the
+  same answer, so an agent tool in one language and a guard in another cannot disagree about
+  whether "STRASSE" is "Straße". Under full Unicode case folding the two would be equal; the
+  spec chose the mapping that all three standard libraries apply the same way.
+</p>
+
+<h2>Resolution</h2>
+
+<p>
+  Given the text <code>t</code> a person or an agent typed at a named position, and the set's
+  entries (and optionally a kind), three rules decide:
+</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-title">A value is a value</span>
+    <p>
+      Input that is a valid value of the position by its own tags and type (an address, a
+      principal, a number) is that value, and is not looked up. For a <code>text</code> position,
+      the valid values are the texts its <code>text.pattern</code> matches. A named
+      <code>text</code> position without a pattern gets a warning, because then every input is
+      looked up first, and only input that matches no name is passed on as text:
+    </p>
+    <pre data-lang="text">
+  warning W_NAMED_UNPATTERNED        [local-wallet] propose(0).to  named text without a text.pattern: every input is looked up as a name first, so a name could stand in for a value (spec 5.3)
+</pre>
+  </li>
+  <li>
+    <span class="step-title">Otherwise, exactly one entry, or no answer</span>
+    <p>
+      The entries whose normalized name equals <code>normalize(t)</code>, of the given kind if one
+      is given, decide: exactly one gives its <code>value</code> (or its <code>show</code>, with
+      <code>by: "show"</code>); none is <strong>not found</strong>; more than one is
+      <strong>ambiguous</strong>. A consumer never picks one of several: an agent tool asks the
+      person, and a guard reports "not checked".
+    </p>
+  </li>
+  <li>
+    <span class="step-title">Some names never match</span>
+    <p>
+      An entry whose name is itself a valid value of the position never matches, so a label
+      written as an address cannot redirect a transfer. An entry whose normalized name is empty
+      never matches either.
+    </p>
+  </li>
+</ol>
+
+<p>
+  <code>@meantjs/format</code> implements the rule once, for every consumer, as
+  <code>normalizeName</code> and <code>resolveName</code>. The entries here are from the shared
+  vectors:
+</p>
+
+<pre data-lang="js" data-check>
+import { normalizeName, resolveName, principalFromText } from "@meantjs/format";
+
+const entries = [
+  { name: "Main", value: 1, kind: "icp" },
+  { name: "Main", value: 2, kind: "bitcoin" },
+  { name: "Savings", value: 4, kind: "icp" },
+  { name: "BTC Savings", value: 5, kind: "bitcoin" },
+  { name: "rrkah-fqaaa-aaaaa-aaaaq-cai", value: 6, kind: "icp" },
+];
+
+/** A principal position's own values. @param {string} text */
+function isPrincipal(text) {
+  try {
+    principalFromText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+normalizeName("  My   Savings "); // "my savings"
+resolveName(entries, "  sAVINGS ", { isValue: isPrincipal }); // { value: 4, entry: { name: "Savings", … } }
+resolveName(entries, "Main", { isValue: isPrincipal }); // { error: "ambiguous", entries: [ …two entries… ] }
+resolveName(entries, "Main", { isValue: isPrincipal, kind: (k) => k === "bitcoin" }); // { value: 2, entry: … }
+resolveName(entries, "rrkah-fqaaa-aaaaa-aaaaq-cai", { isValue: isPrincipal }); // { value: "rrkah-…", direct: true }
+</pre>
+
+<p>
+  The last line is rule 1 and rule 3 together: the input is a principal, so it is that principal,
+  and the entry that is <em>named</em> like a principal is never consulted.
+</p>
+
+<h2>Display</h2>
+
+<p>
+  A consumer should show a named position's value with the name of the one entry it belongs to,
+  as <code>Savings (efadq-…-kjy554y.1)</code>; with no such entry, or several, the value alone.
+  For a call whose effect is <code>transfer</code>, <code>approve</code>, <code>admin</code> or
+  <code>destroy</code>, the value must be shown whenever a name is: the person confirms what the
+  call carries, not what someone called it. Names are untrusted text, so they are escaped like
+  any rendered value (<a href="intent-and-effects.html">Intent, effects and confirmation</a>), and
+  a name never stands in for the value on screen.
+</p>
+
+<h2>Once per intent</h2>
+
+<p>
+  A name is resolved when the call is prepared, and the prepared call carries the value. If the
+  owner renames "Savings" after the person confirmed, the next display beside the value changes;
+  the value sent does not. This is the same reason the <a href="outcomes-and-retries.html">idempotency
+  stamp</a> is fixed per intent: what the person confirmed is the bytes, not a lookup that runs
+  again later.
+</p>
+
+<h2>Names are untrusted display text</h2>
+
+<p>
+  Whoever may name an account, or join a group with a label, chooses the text. It can look like an
+  address, mimic another entry, or press the reader ("approved by the CEO"). The rules above are
+  written so that a name can never replace a value: a value always wins over a name, an ambiguous
+  name fails rather than picks, and the value is shown beside the name. Names read through a plain
+  query come from one replica, as the decimals of a dynamic reference do. The
+  <a href="security-model.html">security model</a> lists this beside the other things a profile
+  cannot vouch for.
+</p>
+
+<callout type="note" title="Not on EVM contracts yet">
+  <p>
+    <code>names</code> and <code>named</code> on an EVM contract are <diag>E_TAG_TARGET</diag>
+    until a later phase adds the reads they need (<a href="chain-evm.html">EVM contracts</a>).
+  </p>
+</callout>
+
+<h2>Next</h2>
+
+<div class="card-grid">
+  <a class="card" href="value-tags.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Values and exact conversion</span>
+    <p>The value tags a named position keeps, and how their input is read.</p>
+  </a>
+  <a class="card" href="agent-tools.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Give an agent tools</span>
+    <p>Tools that read names once per intent and ask the person when a name is ambiguous.</p>
+  </a>
+  <a class="card" href="security-model.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Security model</span>
+    <p>What a profile can and cannot vouch for, names included.</p>
+  </a>
+</div>

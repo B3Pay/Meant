@@ -243,7 +243,7 @@ if (byName?.kind === "arg" && byId?.kind === "arg") {
 
 <p>
   An address says where a tag sits. Its arguments then hold values, and those have rules of their
-  own (spec §4).
+  own (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#4-values-inside-tag-arguments">spec §4</a>).
 </p>
 
 <h3>Literals, and numbers as strings</h3>
@@ -293,8 +293,8 @@ symbol: query:icrc1_symbol
   <code>now</code> means the canister's time, never the host's. A consumer takes it from the
   canister's environment, such as the time in a recent certificate or its transport's
   <code>now()</code>. The reason is ICRC-1's deduplication: a stamp from a host clock that runs
-  ahead of the replica is refused as <code>CreatedInFuture</code>, and one from a clock that runs
-  behind as <code>TooOld</code> (<a href="outcomes-and-retries.html">Outcomes and retries</a>).
+  ahead of the replica can be refused as <code>CreatedInFuture</code>, and one from a clock that
+  runs behind as <code>TooOld</code> (<a href="outcomes-and-retries.html">Outcomes and retries</a>).
 </p>
 
 <h3>Candid literals</h3>
@@ -327,7 +327,7 @@ symbol: query:icrc1_symbol
 
 <div data-chain-panel="evm">
   <p>
-    Experimental (spec §15). The resolver reads an ABI as the graph a <code>.did</code> compiles
+    Experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>). The resolver reads an ABI as the graph a <code>.did</code> compiles
     to: a function is a method, and its parameters are <strong>one record at argument 0</strong>,
     so <code>function transfer(address to, uint256 value)</code> has the positions
     <code>transfer(0).to</code> and <code>transfer(0).value</code>. A function without parameters

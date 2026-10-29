@@ -1,1 +1,233 @@
-<p>This page is being written.</p>
+<pre data-lang="bash">ic-wasm canister.wasm -o canister.wasm metadata candid:service -f tokens.did -v public
+ic-wasm canister.wasm -o canister.wasm metadata candid:profile -f tokens.profile.json -v public
+ic-wasm canister.wasm metadata</pre>
+<pre data-lang="text">icp:public candid:service
+icp:public candid:profile</pre>
+
+<p>
+  That is the whole change: no code in the canister, two custom sections in its built Wasm module.
+  The first holds the interface, the second the profile, and both are public. Install or upgrade the
+  canister with this module, and anyone who knows its id can read both in one certified request.
+  The files are the example of <a href="write-a-profile.html">Write a profile</a>.
+</p>
+
+<h2>Add the profile to the module</h2>
+
+<p>
+  <code>ic-wasm</code> is DFINITY's Wasm tool for canisters; install it with
+  <code>cargo install ic-wasm --version 0.11.1 --locked</code>. The commands above were run with
+  that version, on a module that held nothing else. <code>metadata &lt;name&gt; -f &lt;file&gt;</code>
+  writes the file's bytes into the custom section <code>icp:&lt;visibility&gt; &lt;name&gt;</code>;
+  <code>metadata</code> with no name lists the sections; <code>metadata candid:profile</code> prints
+  one back. <code>ic-wasm canister.wasm info</code> reported the profile section as 1543 bytes, the
+  size of <code>tokens.profile.json</code>.
+</p>
+
+<callout type="warn" title="Pass -v public">
+  <p>
+    <code>ic-wasm</code>'s visibility defaults to <code>private</code> (its <code>metadata --help</code>
+    says so). A private section is readable by the canister's controllers only, so a consumer would
+    find nothing. <claim>fact</claim> Observed on PocketIC 16.0.0, recorded as the answer to OQ-1 in
+    <a href="open-questions.html">Open questions</a>: a private section is refused to a caller that is
+    not a controller.
+  </p>
+</callout>
+
+<p>
+  Add <code>candid:service</code> too if your build has not, since the profile binds to it. The
+  section is served from the next install or upgrade. A profile served this
+  way changes with the module only: editing it changes the module hash and needs an upgrade.
+</p>
+
+<p>
+  Spec §8.1 also names <code>candid-profile-kit embed canister.wasm --profile my.profile.json</code>
+  for this step. That tool is not in this repository and is not published, so this page uses
+  <code>ic-wasm</code>.
+</p>
+
+<h2>Where the profile goes</h2>
+
+<p>
+  The profile document, as UTF-8 JSON without a byte order mark, is the content of the public custom
+  section <code>icp:public candid:profile</code>. <code>@meantjs/profile</code> exports the names as
+  <code>SERVED_SECTION</code> (<code>"icp:public candid:profile"</code>) and
+  <code>SERVED_METADATA</code> (<code>"candid:profile"</code>).
+</p>
+
+<ul>
+  <li>
+    <claim>fact</claim> The content of a custom section <code>icp:public &lt;name&gt;</code> is at
+    <code>/canister/&lt;canister_id&gt;/metadata/&lt;name&gt;</code> in the state tree, and "otherwise,
+    this path does not exist". The specification recommends <code>icp:public candid:service</code> for
+    the canister's Candid interface; the profile is its neighbour. Source:
+    <a href="https://docs.internetcomputer.org/references/ic-interface-spec/">IC interface specification</a>,
+    canister information.
+  </li>
+  <li>
+    <claim>fact</claim> Anyone may request that path for a public section, also when the canister has
+    no such section, and the reply is a certificate of the subnet's state, unlike a query's reply,
+    which one replica signs. Source:
+    <a href="https://docs.internetcomputer.org/references/ic-interface-spec/https-interface/">IC interface specification, HTTPS interface</a>,
+    read state.
+  </li>
+  <li>
+    <claim>fact</claim> A canister may export at most 16 custom sections named <code>icp:…</code> and
+    1 MiB of exported custom sections. Source:
+    <a href="https://docs.internetcomputer.org/references/resource-limits/">resource limits</a>. The
+    1 MiB is for all of them together, <code>candid:service</code> included, so a served profile is at
+    most 1 MiB (<code>SERVED_MAX_BYTES</code>, 1048576).
+  </li>
+</ul>
+
+<h2>What may be served</h2>
+
+<p>
+  A profile of <code>kind: "canister"</code> and <code>origin: "author"</code>. Its
+  <code>binds.canister_id</code> may be left out, so that one module can be installed as many
+  canisters; when it is given, it has to be the id of the canister that serves it. Bytes that are not
+  such a document are <diag>E_SERVED</diag>, and the profile is not applied; the rest of the service
+  resolves without it.
+</p>
+
+<table>
+  <thead><tr><th>The served bytes</th><th>The <diag>E_SERVED</diag> message</th></tr></thead>
+  <tbody>
+    <tr><td>More than 1 MiB</td><td><code>the served profile is … bytes, over the 1048576 a canister can serve</code></td></tr>
+    <tr><td>Not UTF-8</td><td><code>the served profile is not UTF-8</code></td></tr>
+    <tr><td>A byte order mark first</td><td><code>the served profile starts with a byte order mark</code></td></tr>
+    <tr><td>Not JSON, or not one JSON object</td><td><code>the served profile is not JSON: …</code>, <code>… is not a JSON object</code></td></tr>
+    <tr><td>A pack</td><td><code>a canister serves a profile of kind "canister", not "pack"</code></td></tr>
+    <tr><td>Another origin</td><td><code>a profile its canister serves is the author's: origin "author", not …</code></td></tr>
+    <tr><td>Bound to another canister</td><td><code>the served profile is bound to canister "be2us-…-qaabq-cai", but bkyz2-…-qaaaq-cai served it</code></td></tr>
+  </tbody>
+</table>
+
+<h2>How a consumer reads it</h2>
+
+<ol class="steps">
+  <li>
+    <h3>One read_state for both paths</h3>
+    <p>
+      Read <code>/canister/&lt;id&gt;/metadata/candid:service</code> and
+      <code>/canister/&lt;id&gt;/metadata/candid:profile</code> in one <code>read_state</code> request,
+      and verify the certificate. One certificate gives both from the same state, so the interface and
+      the profile cannot come from two versions of the module.
+    </p>
+  </li>
+  <li>
+    <h3>Absent is not unknown</h3>
+    <p>
+      A path the certificate shows absent means the canister serves nothing there, and no profile is
+      not an error. A path the certificate neither holds nor shows absent is an error: the spec says
+      the consumer "MUST NOT read it as absent".
+    </p>
+  </li>
+  <li>
+    <h3>Bind it to the served interface</h3>
+    <p>
+      Bind the profile as any other, against the interface the same canister serves as
+      <code>candid:service</code>: the same <code>interface_id</code> applies it, a different one makes
+      it <code>rebound</code> or <code>stale</code> (<a href="profiles.html">Profiles, layers and
+      binding</a>). A canister that serves no <code>candid:service</code> gives nothing to bind
+      against, and the consumer binds against the interface it has from elsewhere.
+    </p>
+  </li>
+  <li>
+    <h3>Apply it in the author layer</h3>
+    <p>
+      A served profile is the author's. It merges above any third-party profile and any pack, so a
+      pack tag it overrides is reported with <diag>W_OVERRIDDEN</diag>.
+    </p>
+  </li>
+</ol>
+
+<h2>Read it with @meantjs/profile</h2>
+
+<pre data-lang="js" data-check="served">import { createSchemaValidator, readServedProfile, resolveService } from "@meantjs/profile";
+
+/**
+ * Both metadata paths come from ONE verified read_state certificate. Pass null for a path the certificate
+ * shows absent; a path it neither holds nor shows absent is an error, so do not call this with it.
+ * @param {string} canisterId
+ * @param {Uint8Array | null} serviceBytes  /canister/<id>/metadata/candid:service
+ * @param {Uint8Array | null} profileBytes  /canister/<id>/metadata/candid:profile
+ * @param {string} [fallbackDid]            the interface from elsewhere, when no candid:service is served
+ */
+export async function resolveServed(canisterId, serviceBytes, profileBytes, fallbackDid) {
+  const did = serviceBytes !== null ? new TextDecoder().decode(serviceBytes) : fallbackDid;
+  if (did === undefined) throw new Error("no interface to bind the profile against");
+  const served = profileBytes === null ? null : readServedProfile(profileBytes, { canisterId });
+  const validateSchema = await createSchemaValidator();
+  const r = await resolveService({
+    did,
+    validateSchema,
+    profiles: served !== null && served.doc !== null ? [{ doc: served.doc, label: "candid:profile" }] : [],
+  });
+  return { ...r, ok: r.ok && (served === null || served.ok), diagnostics: [...(served?.diagnostics ?? []), ...r.diagnostics] };
+}</pre>
+
+<p>
+  <code>@meantjs/profile</code> does not fetch anything and has no agent dependency: reading the
+  certificate is your agent's job, and the package checks what came back.
+  <code>readServedProfile(bytes, { canisterId })</code> returns <code>{ ok, doc, diagnostics }</code>,
+  with <code>doc</code> <code>null</code> and one <diag>E_SERVED</diag> when the bytes cannot be used.
+  The profile it returns is not checked yet: <code>resolveService</code> checks its schema, its binding
+  and its tags as for any profile. To try the function without a canister, feed it the two files:
+</p>
+
+<pre data-lang="js" data-check="served">import { readFileSync } from "node:fs";
+
+const service = new TextEncoder().encode(readFileSync("tokens.did", "utf8"));
+const profile = new TextEncoder().encode(readFileSync("tokens.profile.json", "utf8"));
+const r = await resolveServed("bkyz2-fmaaa-aaaaa-qaaaq-cai", service, profile);
+console.log(r.ok, r.profiles.map((p) => `${p.status} ${p.name} ${p.origin}`), r.diagnostics);</pre>
+<pre data-lang="text">true [ 'applied tokens-example author' ] []</pre>
+
+<p>
+  With a copy of the profile whose <code>binds.canister_id</code> names another canister, the same call
+  gives <code>false</code>, no profile, and the <diag>E_SERVED</diag> of the table above, followed by
+  the two <diag>I_UNTAGGED_NUMERIC</diag> infos of a service that now has no profile.
+</p>
+
+<p>
+  <code>canisterId</code> is a string, or <code>null</code> to check a module that is not installed
+  yet, since a module does not know the id it will run as; <code>null</code> skips only the
+  <code>canister_id</code> check, and any other value that is not a string throws. Checking the module
+  before you install it works the same way: <code>ic-wasm canister.wasm metadata candid:profile</code>
+  prints the section, and <code>readServedProfile</code> with <code>canisterId: null</code> followed
+  by <code>resolveService</code> gave the example profile <code>applied</code>, with no diagnostic.
+</p>
+
+<h2>A tagged .did</h2>
+
+<p>
+  The <code>candid:service</code> a canister serves may carry doc annotations
+  (<a href="annotate-a-did.html">Annotate a .did file</a>). They are an author profile too, read from
+  the same certificate: <code>profileFromDocAttributes(await didToDocAttributes(serviceText))</code>
+  turns them into one. A consumer that reads both applies both in the author layer, where two
+  different values for one tag at one position are <diag>E_CONFLICT</diag>. So a canister can serve
+  its whole profile in the interface's comments and no <code>candid:profile</code> at all, or both,
+  as long as they agree.
+</p>
+
+<h2>Other channels</h2>
+
+<p>
+  A profile read through a query method, or fetched from any host but the canister's certified
+  state, is not certified. A consumer may still apply it in the author layer when it trusts that
+  channel, as for a profile the author ships with their code. A query method is not proposed as a
+  way to serve a profile, because its reply is not certified.
+</p>
+
+<h2>What serving proves</h2>
+
+<p>
+  A served profile is certified, not vouched for. The certificate proves that the canister serves
+  these bytes, so no replica or boundary node can change them on the way. The words are still the
+  author's claim: a canister can serve a profile that calls a drain "claim reward", and the controller
+  that installs the module chooses what it says. A consumer should still show the decoded arguments
+  next to the intent for a <effect>transfer</effect>, <effect>approve</effect>, <effect>admin</effect> or
+  <effect>destroy</effect>. <a href="security-model.html">Security model</a> covers what a profile can
+  and cannot vouch for, and <a href="chain-icp.html">Internet Computer</a> the platform pieces this
+  page relies on.
+</p>

@@ -1,1 +1,419 @@
-<p>This page is being written.</p>
+<p>
+  <code>@meantjs/tools</code> turns a resolved form into tools an agent host can offer a model: one
+  per query method, one <code>prepare_&lt;method&gt;</code> per update method, and one
+  <code>commit</code>. The model writes amounts and accounts the way a person does. The tool layer
+  converts them exactly, fills what the profile says it fills, shows the person a preview, and sends
+  nothing until the person confirms. It brings no transport and no keys: you inject the encoder, the
+  call and the clock. Why a <effect>transfer</effect> waits for the person is on
+  <a href="intent-and-effects.html">intent, effects and confirmation</a>, what the inputs mean on
+  <a href="value-tags.html">values and exact conversion</a>, and every export is on the
+  <a href="reference-profile-api.html">JavaScript API</a> reference.
+</p>
+
+<h2>Build the tools</h2>
+
+<pre data-lang="bash">
+npm install --save-exact @meantjs/tools@0.2.0 @meantjs/profile@0.2.0 @candid-core/schema@0.5.0
+npx candid-profile resolve ledger.did --packs > ledger.resolved.json
+</pre>
+
+<pre data-lang="js" data-check="tools">
+import { readFileSync } from "node:fs";
+import { buildToolPlans, createToolLayer, toolDefinitions } from "@meantjs/tools";
+
+const resolved = JSON.parse(readFileSync("ledger.resolved.json", "utf8"));
+const TKA = "bkyz2-fmaaa-aaaaa-qaaaq-cai"; // a local ledger
+const canisters = [{ id: TKA, label: "TKA", refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" } }];
+
+const tools = toolDefinitions(resolved, { canisters }); // MCP tool definitions, sorted by name
+const { skipped } = buildToolPlans(resolved); // the methods that got no tool, each with its reason
+</pre>
+
+<p>
+  On the resolved form of a ledger with the ICRC-1 and ICRC-2 packs that gives 22 tools, among them
+  <code>icrc1_balance_of</code>, <code>icrc1_fee</code>, <code>prepare_icrc1_transfer</code>,
+  <code>prepare_icrc2_approve</code>, <code>prepare_icrc2_transfer_from</code> and
+  <code>commit</code>. Five methods are skipped, and <code>skipped</code> says why rather than
+  throwing:
+</p>
+
+<pre data-lang="json">
+[
+  { "method": "get_blocks", "reason": "start: no rule for a nat position without a value tag or a describe" },
+  { "method": "get_transactions", "reason": "start: no rule for a nat position without a value tag or a describe" },
+  { "method": "icrc103_get_allowances", "reason": "take: no rule for a nat position without a value tag or a describe" },
+  { "method": "icrc21_canister_call_consent_message", "reason": "an update method needs the intent tag" },
+  { "method": "icrc3_get_blocks", "reason": "(0)[].start: no rule for a nat position without a value tag or a describe" }
+]
+</pre>
+
+<p>This is what the model sees of <code>prepare_icrc1_transfer</code>, abridged:</p>
+
+<pre data-lang="json">
+{
+  "name": "prepare_icrc1_transfer",
+  "description": "Prepare the call \"Send tokens\" (`icrc1_transfer`, effect: transfer, irreversible). Nothing is sent yet. Inputs are in human units and are checked exactly (nothing is rounded). The tool layer fills in: fee (left empty); created_at_time (the idempotency stamp, set once from the canister's clock and reused for every retry). Returns a preview_id and the exact arguments; commit sends it after the person confirms. Preparing the same call again returns the same preview_id.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "canister_id": { "type": "string", "enum": ["bkyz2-fmaaa-aaaaa-qaaaq-cai"], "description": "Canister id of the canister to call: bkyz2-fmaaa-aaaaa-qaaaq-cai (TKA)." },
+      "to": { "type": "string", "description": "Recipient. ICRC-1 account in text form: a principal for its default subaccount, or \"principal-checksum.subaccounthex\" for another subaccount. …" },
+      "memo": { "type": "string", "description": "Memo. Text, stored as its UTF-8 bytes. … Optional: leave it out for none." },
+      "from_subaccount": { "type": "string", "description": "From subaccount. …", "pattern": "…" },
+      "amount": {
+        "type": "string",
+        "description": "Amount. Amount in TKA: a decimal number with at most 8 digits after the point, optionally followed by the symbol TKA. Digits on both sides of a point, no thousands separators or exponents. Never rounded: more digits after the point is an error, even zeros. For example \"1\", \"1.25\", \"1.25 TKA\".",
+        "pattern": "^\\s*[0-9]+(?:\\.[0-9]{1,8})?(?:\\s+[Tt][Kk][Aa])?\\s*$"
+      }
+    },
+    "required": ["canister_id", "to", "amount"],
+    "additionalProperties": false
+  },
+  "annotations": { "destructiveHint": false, "openWorldHint": false, "readOnlyHint": true, "title": "Send tokens" }
+}
+</pre>
+
+<h2>What the model fills, and what the layer fills</h2>
+
+<p>
+  The record <code>TransferArg</code> has six fields. The model is asked for four of them, beside
+  <code>canister_id</code>, and only <code>to</code> and <code>amount</code> are required:
+</p>
+
+<table>
+  <thead><tr><th>Field</th><th>Its tags</th><th>In the tool</th></tr></thead>
+  <tbody>
+    <tr><td><code>to</code></td><td><code>account</code></td><td>An input: account text, checksum verified.</td></tr>
+    <tr><td><code>amount</code></td><td><code>amount</code></td><td>An input in human units: <code>"1.5 TKA"</code>.</td></tr>
+    <tr><td><code>memo</code></td><td><code>bytes</code>, <code>default</code> with <code>mode: suggest</code></td><td>An optional input.</td></tr>
+    <tr><td><code>from_subaccount</code></td><td><code>subaccount</code></td><td>An optional input.</td></tr>
+    <tr><td><code>fee</code></td><td><code>default</code> with <code>mode: auto</code></td><td>Not an input. The layer fills it with <code>null</code>, so the ledger takes its own fee.</td></tr>
+    <tr><td><code>created_at_time</code></td><td>the <code>idempotency</code> stamp, <code>ui.hidden</code></td><td>Not an input. The layer sets it once per intent from the ledger's clock.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A value-tagged position is a text input whose description is <code>Formatter.describe()</code> of
+  <code>@meantjs/format</code>, with the canister's decimals and symbol filled in (when several canisters
+  disagree, the words give the grammar without the numbers), and whose <code>pattern</code> is the
+  formatter's own. The stamp, <code>auto</code> defaults and <code>ui.hidden</code> positions never
+  reach the model (spec §5.3). A prepare tool sends nothing, so it is annotated
+  <code>readOnlyHint: true</code>; the <code>commit</code> tool is the one that sends.
+</p>
+
+<h2>Run the tool layer</h2>
+
+<pre data-lang="js" data-check="tools">
+import { serviceMethods } from "@candid-core/schema";
+import { schemaFromContract } from "@candid-core/schema/contract";
+import { encodeArgs } from "@candid-core/schema/codec";
+
+// candid-core's encoder for the ledger: npx @candid-core/cli@0.4.0 gen ledger.did -o generated
+const loaded = schemaFromContract(JSON.parse(readFileSync("generated/ledger.envelope.json", "utf8")));
+if (!loaded.ok || loaded.actor === undefined) throw new Error("the ledger envelope does not load");
+const methods = serviceMethods(loaded.actor);
+
+/** @type {import("@meantjs/tools").ToolLayerConfig["encode"]} */
+const encode = (method, value, args) => {
+  const signature = methods.get(method);
+  if (signature === undefined) throw new Error(`no method ${method}`);
+  const encoded = encodeArgs(signature.args, args);
+  if (!encoded.ok) throw new Error(`${method}: the arguments do not encode`);
+  return encoded.bytes;
+};
+
+/** A scripted local ledger, as the package's tests use; in your host, send `arg` with your agent. */
+/** @type {import("@meantjs/tools").ToolLayerConfig["call"]} */
+const call = async ({ mode }) =>
+  mode === "query" ? { status: "replied", reply: 150_000_000n } : { status: "replied", reply: { tag: "Ok", value: 1042n } };
+
+/** @type {import("@meantjs/tools").ToolLayerConfig["now"]} */
+const now = async () => 1_791_547_201_000_000_000n; // the ledger's clock, ns
+
+/** @type {NonNullable<import("@meantjs/tools").ToolLayerConfig["confirm"]>} */
+const confirm = async (preview) => window.confirm(`${preview.title}\n${JSON.stringify(preview.arguments, null, 2)}`);
+
+const layer = createToolLayer({ resolved, canisters, encode, call, now, confirm });
+</pre>
+
+<p>The host supplies four functions; <code>createToolLayer</code> checks them when it is built:</p>
+
+<ul>
+  <li>
+    <code>encode(method, value, args)</code> turns the arguments into the bytes that are sent. Use
+    candid-core's <code>encodeArgs</code> of <code>args</code>, the whole argument tuple, as here. The
+    arguments arrive in candid-core's domain shapes: <code>T | null</code> for an <code>opt</code>,
+    <code>bigint</code> for <code>nat</code>, <code>Uint8Array</code> for a <code>blob</code>, principals
+    as text.
+  </li>
+  <li>
+    <code>call({ canister, method, mode, arg, value, args })</code> sends <code>arg</code> exactly, as a
+    <code>"query"</code> or an <code>"update"</code> call, and answers
+    <code>{ status: "replied", reply }</code> (the first result value decoded, a variant as
+    <code>{ tag, value }</code>), <code>{ status: "rejected", reject_code, message }</code> or
+    <code>{ status: "unknown", message }</code>. A <code>call</code> that throws counts as an unknown
+    outcome.
+  </li>
+  <li>
+    <code>now({ canister })</code> is that canister's clock in nanoseconds, not the host's: canisters on
+    different subnets keep different times, and the stamp must be one the ledger accepts.
+  </li>
+  <li>
+    <code>confirm(preview)</code> is awaited before every send, a re-send included. There is no
+    auto-approve default: a form with an update method needs it. An optional fifth,
+    <code>reconcile</code>, is below.
+  </li>
+</ul>
+
+<h2>Prepare, confirm, commit</h2>
+
+<pre data-lang="js" data-check="tools">
+const prepared = await layer.callTool("prepare_icrc1_transfer", {
+  canister_id: TKA,
+  to: "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+  amount: "1.5 TKA",
+  memo: "lunch",
+});
+const preview = prepared.structuredContent.preview; // nothing has been sent
+if (preview === undefined) throw new Error("not prepared");
+
+const result = await layer.callTool("commit", { preview_id: preview.preview_id }); // awaits confirm(preview)
+result.structuredContent.outcome; // "success"
+</pre>
+
+<tool-view bridge="exact, no rounding">
+<sees value="1.5 TKA">prepare_icrc1_transfer({
+  to: "k2t6j-…-teztq-6ae",
+  amount: "1.5 TKA",
+  memo: "lunch"
+})</sees>
+<sends value="150000000">icrc1_transfer(record {
+  amount = 150_000_000;
+  memo = opt blob "lunch";
+  fee = null;
+  created_at_time =
+    opt 1_791_547_201_000_000_000;
+  …
+})</sends>
+</tool-view>
+
+<p>
+  The prepare tool answers with a short text for the model and <code>structuredContent</code> for the
+  host. The text starts <code>Prepared. Nothing has been sent; commit it with its preview_id once the
+  person has seen it.</code> The preview is what <code>confirm</code> receives:
+</p>
+
+<pre data-lang="json">
+{
+  "preview_id": "p1",
+  "method": "icrc1_transfer",
+  "canister": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+  "title": "Send tokens",
+  "effect": { "kind": "transfer", "irreversible": true },
+  "arguments": {
+    "to": {
+      "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "raw": { "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae", "subaccount": null }
+    },
+    "fee": null,
+    "memo": { "text": "lunch", "raw": "6c756e6368" },
+    "from_subaccount": null,
+    "created_at_time": { "text": "2026-10-09T12:00:01Z", "raw": "1791547201000000000" },
+    "amount": { "text": "1.5 TKA", "raw": "150000000" }
+  },
+  "arg_hex": "4449444c066c06fbca0101c6fcb60204ba89e5c20402a2de94eb060282f3f3910c05d8a38ca80d7d6c02b3b0dac30368ad86ca8305026e036d7b6e7d6e780100011db56bf994b37ae8e79f5ce000be1727a6060ae4eef24736b7cc999c3c02000001056c756e63680001004af3f1afdadc1880a3c347"
+}
+</pre>
+
+<p>
+  Every argument is shown formatted and raw, and <code>arg_hex</code> is the exact bytes that will be
+  sent. Show the person the title, the effect and the formatted values, with the raw ones beside them
+  for a <effect>transfer</effect>. A host could render it as:
+</p>
+
+<consent standard="Preview · @meantjs/tools" title="Send tokens" effects="transfer irreversible">
+<field name="amount" amount>1.5 TKA</field>
+<field name="to">k2t6j-…-teztq-6ae</field>
+<field name="memo">lunch</field>
+<field name="created_at_time">2026-10-09T12:00:01Z</field>
+</consent>
+
+<p>
+  Given the same bytes, <code>@meantjs/consent</code> writes the ICRC-21 message of
+  <a href="consent-messages.html">consent messages</a> from the same intent template. On <code>commit</code>, the layer awaits <code>confirm</code>, sends
+  <code>arg</code> once, and classifies the reply by the method's <code>outcome</code> tag. Here the
+  ledger answered <code>Ok</code>: the text is <code>Success: the call was executed.</code> and
+  <code>structuredContent</code> is
+  <code>{ "outcome": "success", "case": "Ok", "details": "1042", … }</code>. A decline sends nothing and
+  answers <code>declined</code>.
+</p>
+
+<p>
+  Input the formatter refuses is never sent. <code>"1.123456789 TKA"</code> answers
+  <code>Nothing was sent.</code> with one issue per input, each with its place and the format library's
+  code:
+</p>
+
+<pre data-lang="json">
+{ "param": "amount", "path": "$args[0].amount", "code": "E_EXCESS_PRECISION",
+  "message": "\"1.123456789 TKA\" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8" }
+</pre>
+
+<h2>Retries that cannot pay twice</h2>
+
+<p>
+  An intent is the canister, the method and the converted arguments without the stamp. The layer stamps
+  each intent once and keeps the encoded bytes. From the scripted ledger, with its first answer a
+  timeout and its second <code>Err.Duplicate</code>:
+</p>
+
+<pre data-lang="text">
+prepare   Prepared. Nothing has been sent; commit it with its preview_id once the person has seen it.
+commit    The outcome is unknown: it may have executed. Commit the same preview_id again; do not prepare a new call.
+prepare   The outcome is unknown: it may have executed. Commit the same preview_id again; do not prepare a new call.
+          {"status":"repeated","outcome":"unknown","preview":{"preview_id":"p1",…}}
+commit    Already done: an identical call had already been executed. Treat it as done.
+          {"outcome":"already_done","case":"Err.Duplicate","details":{"duplicate_of":"1042"},…}
+</pre>
+
+<ul>
+  <li>
+    <strong>One intent, one stamp.</strong> Preparing it again, here with <code>amount: "1.50"</code>,
+    which converts to the same base units, returns the same preview with <code>status: "repeated"</code>.
+    Only a settled intent is stamped again, with a later stamp, and the person confirms it again.
+  </li>
+  <li>
+    <strong>Unknown, then the same bytes.</strong> After a timeout the second commit resends the exact
+    bytes, stamp included. Inside the ledger's deduplication window it executes once or answers
+    <code>Duplicate</code>, which is <outcome>already_done</outcome>, never a second payment.
+  </li>
+  <li>
+    <strong>Rejects.</strong> A reject with code 1, 2 or 3 means the call did not execute
+    (<code>not_executed</code>); any other code (4, 5, 6 or one not listed), and any reject from
+    <code>aaaaa-aa</code>, is an unknown outcome. A third reject 4 or 5 of one intent needs a
+    reconciliation, so a call that traps every time is not committed forever.
+  </li>
+  <li>
+    <strong>A budget.</strong> The third <outcome>retry_same</outcome> of an intent stops it (spec §5.3,
+    consumer rule 3). Nothing sleeps in the layer: <outcome>retry_same</outcome> is handed back, and the
+    caller or the person commits again.
+  </li>
+  <li>
+    <strong>A new stamp is a new confirmation.</strong> <outcome>retry_new</outcome> prepares a new
+    preview with a new stamp and retires the old one; the person confirms it again. After
+    <code>CreatedInFuture</code> the new stamp is capped by the <code>ledger_time</code> the error
+    reports.
+  </li>
+</ul>
+
+<p>
+  Why the stamp makes this safe, and what the spec requires, is on
+  <a href="outcomes-and-retries.html">outcomes and retries</a>.
+</p>
+
+<h2>Outcomes</h2>
+
+<table>
+  <thead><tr><th>Outcome</th><th>When</th><th>The intent</th></tr></thead>
+  <tbody>
+    <tr><td><code>declined</code></td><td><code>confirm</code> said no</td><td>Settled if it had no attempt, else unchanged. After an unknown outcome the result also carries <code>earlier_outcome: "unknown"</code>.</td></tr>
+    <tr><td><outcome>success</outcome>, <outcome>already_done</outcome></td><td>the class of the reply</td><td>Done. A later commit answers <code>already_done</code> without sending.</td></tr>
+    <tr><td><outcome>retry_same</outcome></td><td>the class of the reply</td><td>Unchanged; commit again. The third one stops it.</td></tr>
+    <tr><td><outcome>retry_new</outcome></td><td>the class of the reply</td><td>A new preview with a new stamp, under <code>next</code>; the old one is retired.</td></tr>
+    <tr><td><outcome>fix_input</outcome>, <outcome>fail</outcome></td><td>the class of the reply</td><td>Settled. <code>details</code> carries the hint, formatted: <code>expected_fee</code> as <code>0.0001 TKA</code>.</td></tr>
+    <tr><td><code>not_executed</code></td><td>reject code 1, 2 or 3</td><td>Unchanged.</td></tr>
+    <tr><td><code>unknown</code></td><td>no answer, another reject code, or a <code>call</code> that throws</td><td>Unknown: commit again sends the same bytes; preparing it again returns the same preview.</td></tr>
+    <tr><td><outcome>reconcile</outcome></td><td>after an unknown outcome, any answer but <code>success</code>, <code>already_done</code> or <code>retry_same</code></td><td>Held until the original is found (then done) or reported absent (then settled).</td></tr>
+  </tbody>
+</table>
+
+<p>
+  The classes come from the method's <code>outcome</code> tag, through the result's variant cases; a
+  case with no class and no default is <outcome>fail</outcome>. The model reads the text, which says
+  what to do next (<code>Not executed: correct the input and prepare the call again.</code>); the host
+  reads <code>structuredContent</code>. Every outcome but <code>success</code>,
+  <code>already_done</code> and <code>declined</code> is marked <code>isError: true</code>, and so is
+  refused input.
+</p>
+
+<h2>Reconcile after an unknown outcome</h2>
+
+<p>
+  When a timeout is followed by <code>TooOld</code>, the deduplication window has passed and the first
+  attempt may have executed. Resending cannot settle that, and a new stamp could pay twice. Without a
+  <code>reconcile</code> hook the commit answers <outcome>reconcile</outcome> and holds the intent:
+</p>
+
+<pre data-lang="text">
+An earlier attempt may have executed. Tell the person what happened; do not send or prepare this call again until they decide.
+{"outcome":"reconcile","preview_id":"p1","finding":{"status":"unreadable","reason":"this tool layer has no reconcile hook","after":"Err.TooOld"}}
+</pre>
+
+<p>
+  With a hook, <code>reconcile({ canister, method, value, stamp, preview })</code> looks for the original
+  in the ledger's history and answers <code>{ status: "found", block }</code>, <code>"absent"</code>,
+  <code>"not_yet"</code> or <code>"unreadable"</code>. Found is <outcome>already_done</outcome>; absent
+  settles the intent, so a new preparation gets a new stamp and a new confirmation. For ICRC-1 and
+  ICRC-2 ledgers that check is <code>@meantjs/reconcile</code>:
+  <a href="reconcile-outcomes.html">settle an unknown outcome</a> shows the hook.
+</p>
+
+<p>
+  An update without an <code>idempotency</code> tag gets a prepare tool too, and its description says it
+  has no stamp. After an unknown outcome it is never sent again: the intent is held at
+  <outcome>reconcile</outcome> and the hook is not called, since there is no stamp to match.
+</p>
+
+<h2>Names</h2>
+
+<pre data-lang="js" data-file="profile/packages/tools/test/names.test.mjs">
+assert.deepEqual(read("1"), { value: 1, identity: [["integer", "1"]] });
+assert.deepEqual(read("  savings "), { value: 4, identity: [["integer", "4"]] }); // the same intent as "4"
+assert.equal(read("Main").issues[0].code, "E_NAME_AMBIGUOUS");
+assert.match(read("Main").issues[0].message, /2 entries of account are named "Main" \(1, 2\): ask the person which one/);
+assert.equal(read("Vault").issues[0].code, "E_NAME_NOT_FOUND");
+assert.equal(read("Savings", {}).issues[0].code, "E_NAMES_UNREAD");
+</pre>
+
+<p>
+  Where a profile marks a position <code>named</code>, the model may write a name in place of the value.
+  When the call is prepared, the layer calls the query that lists the names set and resolves the input
+  by the rule every consumer shares: a valid value is that value and is not looked up; otherwise exactly
+  one matching entry gives its value. More than one is <diag>E_NAME_AMBIGUOUS</diag> and the model asks
+  the person, none is <diag>E_NAME_NOT_FOUND</diag>, and a list that could not be read is
+  <diag>E_NAMES_UNREAD</diag>. A name and the value it stands for are one intent, and the preview shows the
+  value with the name beside it. The rule is on <a href="names.html">names</a>.
+</p>
+
+<h2>Beyond the packs</h2>
+
+<p>The layer has rules for interfaces the standard packs do not cover. Each method without a rule is skipped with its reason.</p>
+
+<ul>
+  <li>An untagged <code>principal</code> is a text input, its checksum checked (<diag>E_PRINCIPAL</diag>).</li>
+  <li>An untagged integer with a <code>describe</code> is a text input of decimal digits, within the Candid type's bounds.</li>
+  <li><code>text</code> and <code>bool</code> positions, checked against their <code>text</code> tag.</li>
+  <li>A record, variant or <code>vec</code> that no value tag reads is one JSON input, each leaf read by the rules above; at most 256 elements in a <code>vec</code> and 4096 values in one input.</li>
+  <li>A method with more than one argument takes them as <code>arg0</code>, <code>arg1</code> and so on.</li>
+  <li>A read-only update (<code>effect.replicated: true</code>) is a read tool, sent once as an update call so its answer is certified; no preview, no confirmation.</li>
+  <li>A method whose argument is a variant with an <code>intent</code> or <code>effect</code> on its cases gets one tool per case, <code>prepare_&lt;method&gt;_&lt;Case&gt;</code>.</li>
+</ul>
+
+<h2>Not here</h2>
+
+<ul>
+  <li>
+    Agent tools for EVM contracts. <claim>fact</claim> EVM support is experimental and its phase 1 has
+    no agent tools, outcome classes or idempotency (spec §15). Given a resolved form with
+    <code>"chain": "evm"</code>, the layer throws.
+  </li>
+  <li>
+    The payer. The layer does not choose the identity that sends a call; your <code>call</code>
+    does, and holds the keys. The trust boundaries are on the <a href="security-model.html">security
+    model</a> page.
+  </li>
+  <li>
+    <claim>fact</claim> From the package README: the demo's agent tools are not switched to this package
+    yet, and the eval's tool arm (arm C) keeps its own frozen code.
+  </li>
+</ul>

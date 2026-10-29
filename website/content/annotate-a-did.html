@@ -1,1 +1,326 @@
-<p>This page is being written.</p>
+<p>
+  This is <code>tokens.did</code> from <a href="write-a-profile.html">Write a profile</a> with that
+  guide's profile written into it as doc comments. The interface itself is unchanged:
+</p>
+
+<pre data-lang="candid" data-file="tokens.did">// The tokens example, with its profile written as doc comments.
+
+type Tokens = record {
+  /// @amount(decimals = 8, symbol = "TOK")
+  /// @describe(label = "Amount")
+  e8s : nat64;
+};
+type SendArgs = record {
+  to : principal;
+  amount : Tokens;
+  /// @bytes(encoding = "utf8")
+  /// @default(value = "null", mode = suggest)
+  memo : opt blob;
+  /// @timestamp(unit = ns, epoch = unix)
+  created_at : opt nat64;
+};
+type SendError = variant {
+  Insufficient : record { balance : Tokens };
+  Duplicate : record { block : nat };
+  Other : text;
+};
+service : {
+  /// @describe(at = "->(0).e8s", label = "Balance")
+  balance : (principal) -> (Tokens) query;
+  /// Send tokens to another principal.
+  /// @intent(title = "Send TOK", template = "Send {amount.e8s} to {to}[ with memo {memo}]")
+  /// @effect(kind = "transfer", irreversible = true)
+  /// @idempotency(mode = replay_same_payload, stamp = "created_at")
+  /// @outcome(classes = { Ok = success, "Err.Duplicate" = already_done, "Err.Insufficient" = fail, "Err.Other" = fail })
+  send : (SendArgs) -> (variant { Ok : nat; Err : SendError });
+}</pre>
+
+<h2>Read the comments into a profile</h2>
+
+<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.2.0 @candid-core/cli@0.4.0</pre>
+
+<p>Save this as <code>from-docs.mjs</code> beside <code>tokens.did</code>:</p>
+
+<pre data-lang="js" data-check>import { readFileSync } from "node:fs";
+import { didToDocAttributes } from "@candid-core/cli";
+import { createSchemaValidator, profileFromDocAttributes, resolveService } from "@meantjs/profile";
+
+const did = readFileSync("tokens.did", "utf8");
+const { ok, doc, diagnostics } = profileFromDocAttributes(await didToDocAttributes(did), { name: "tokens-docs" });
+for (const d of diagnostics) console.log(d.severity, d.code, d.at, d.message);
+if (!ok || doc === null) process.exit(1);
+for (const a of doc.annotations) console.log(a.at.padEnd(25), a.tag.padEnd(12), JSON.stringify(a.args));
+
+const validateSchema = await createSchemaValidator();
+const r = await resolveService({ did, validateSchema, profiles: [{ doc }] });
+console.log(r.ok, r.profiles.map((p) => `${p.name} ${p.status}`), r.diagnostics.length);</pre>
+
+<pre data-lang="bash">node from-docs.mjs</pre>
+<pre data-lang="text">balance->(0).e8s          describe     {"label":"Balance"}
+send                      intent       {"title":"Send TOK","template":"Send {amount.e8s} to {to}[ with memo {memo}]"}
+send                      effect       {"kind":"transfer","irreversible":true}
+send                      idempotency  {"mode":"replay_same_payload","stamp":"created_at"}
+send                      outcome      {"classes":{"Ok":"success","Err.Duplicate":"already_done","Err.Insufficient":"fail","Err.Other":"fail"}}
+send                      describe     {"help":"Send tokens to another principal."}
+type:SendArgs.memo        bytes        {"encoding":"utf8"}
+type:SendArgs.memo        default      {"value":"null","mode":"suggest"}
+type:SendArgs.created_at  timestamp    {"unit":"ns","epoch":"unix"}
+type:Tokens.e8s           amount       {"decimals":8,"symbol":"TOK"}
+type:Tokens.e8s           describe     {"label":"Amount"}
+true [ 'tokens-docs applied' ] 0</pre>
+
+<p>
+  Two calls do the work. <code>didToDocAttributes</code> from <code>@candid-core/cli</code> compiles
+  the <code>.did</code> and parses every <code>@name(…)</code> doc line, failing on a malformed one;
+  it gives no name a meaning. <code>profileFromDocAttributes</code> from
+  <code>@meantjs/profile</code> keeps the names that are profile tags, works out the address each one
+  lands on, and returns an <code>author</code> canister profile bound to the interface's
+  <code>interface_id</code>. That profile then goes through <code>resolveService</code> like any
+  other, which is where its tags are checked. The result is the profile of
+  <a href="write-a-profile.html">Write a profile</a>, with one more annotation: the prose line on
+  <code>send</code>, as <code>describe.help</code>.
+</p>
+
+<p>
+  The <code>candid-profile</code> command has no option that reads doc comments; this is a library
+  call. <code>profileFromDocAttributes(response, opts)</code> takes the profile's
+  <code>name</code> (default <code>"doc-annotations"</code>), <code>origin</code>
+  (<code>"author"</code>, the default, or <code>"third_party"</code>), <code>language</code> (default
+  <code>"en"</code>) and a <code>canisterId</code> to bind to as well. <code>doc</code> is
+  <code>null</code> when the comments hold no tag, and <code>ok</code> is false when a diagnostic is an
+  error; with errors, <code>doc</code> still holds every tag that could be placed.
+</p>
+
+<h2>The syntax</h2>
+
+<p>
+  A doc line that starts with <code>@</code>, a lowercase name and <code>(</code> with no space before
+  it is an attribute: <code>@&lt;tag&gt;(key = value, …)</code>, where the tag is one of the 18 profile
+  tags and the keys are its arguments. The values:
+</p>
+
+<table>
+  <thead><tr><th>Write</th><th>The profile gets</th></tr></thead>
+  <tbody>
+    <tr><td><code>"TOK"</code>, <code>"Err.Duplicate"</code></td><td>A string. Escapes <code>\"</code>, <code>\\</code>, <code>\n</code>, <code>\r</code>, <code>\t</code> and <code>\u{…}</code>.</td></tr>
+    <tr><td><code>ns</code>, <code>suggest</code>, <code>success</code></td><td>An identifier, read as the same string.</td></tr>
+    <tr><td><code>8</code>, <code>-1</code></td><td>A whole number, kept exact: past 2<sup>53</sup>, and for <code>range</code> bounds, a decimal string. A fraction is <diag>E_DOC_VALUE</diag>.</td></tr>
+    <tr><td><code>true</code>, <code>false</code></td><td>A boolean.</td></tr>
+    <tr><td><code>query(decimals)</code>, <code>now()</code>, <code>caller()</code></td><td>A dynamic value: <code>{ "from": "query:decimals" }</code>, <code>{ "from": "now" }</code>, <code>{ "from": "caller" }</code>. Any other call is <diag>E_DOC_VALUE</diag>.</td></tr>
+    <tr><td><code>[a, b]</code>, <code>{ Ok = success }</code></td><td>A list, or an object. A key that is not an identifier, such as a path, is written as a string.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  An attribute whose brackets are still open at the end of a line continues on the next doc line, so
+  a long <code>@outcome</code> can span lines; a string cannot. An attribute line that does not parse
+  to its end, or a key repeated in one argument list, makes <code>didToDocAttributes</code> fail, and
+  the reader reports each as <diag>E_DOC_SYNTAX</diag> with no profile. A line where the name is followed by a space or by text
+  (<code>@amount (decimals = 8)</code>, <code>@param amount the value</code>) is prose, not an
+  attribute. The full grammar is candid-core's
+  <a href="https://github.com/B3Pay/Meant/blob/main/docs/doc-attributes.md">doc attributes v1</a>.
+</p>
+
+<p>
+  Only bare names that are profile tags are read. A dotted name such as <code>@ui.hidden</code>
+  belongs to another tool and is left alone (<diag>I_DOC_IGNORED</diag>), and so is any other bare
+  name, with <diag>W_DOC_UNKNOWN_TAG</diag> when it is one or two letters from a tag
+  (<code>@amout</code>). <claim>open</claim> Whether the tags stay bare (<code>@amount</code>) or take
+  a prefix that cannot collide with other conventions is open question OQ-5, owned by W0, in
+  <a href="open-questions.html">Open questions</a>.
+</p>
+
+<h2>Which comments count</h2>
+
+<p>
+  Doc lines are the <code>//</code> and <code>///</code> line comments on their own lines directly
+  above an item, with no blank line between them and the item. A comment after code on the same
+  line, a block comment, and a comment separated from the item by a blank line are not doc lines.
+  Neither is a comment above a quoted method name (<code>"foo-bar" : …</code>).
+</p>
+
+<callout type="warn" title="A header comment documents the first item">
+  <p>
+    A file's opening comment with no blank line after it documents the first item below it. With
+    the example's original first line, <code>// Example canister interface …</code>, directly above
+    <code>type Tokens</code>, the run above also produced a <code>describe.help</code> on
+    <code>type:Tokens</code> holding that sentence (observed with <code>@candid-core/cli</code>
+    0.4.0). The blank line after the header in the file above is there to stop that.
+  </p>
+</callout>
+
+<h2>Reaching arguments and results with at</h2>
+
+<p>
+  Candid has no doc comments on function parameters, so a method's comment reaches its argument and
+  result positions with <code>at</code>, a path relative to the method. This is the example of spec
+  §9:
+</p>
+
+<pre data-lang="candid" data-file="profile/packages/resolver/test/fixtures/doc-attributes/spec-9.did">type SendArgs = record { to : principal; amount : nat; memo : opt blob };
+service : {
+  decimals : () -> (nat8) query;
+  /// Send tokens to another principal.
+  /// @intent(title = "Send", template = "Send {amount} to {to}[ with memo {memo}]")
+  /// @effect(kind = "transfer", irreversible = true)
+  /// @amount(at = "amount", decimals = query(decimals), symbol = "TOK")
+  /// @bytes(at = "memo", encoding = "utf8")
+  /// @amount(at = "->(0).Ok", decimals = query(decimals), symbol = "TOK")
+  send : (SendArgs) -> (variant { Ok : nat; Err : text });
+}</pre>
+
+<ul>
+  <li><code>at = "amount"</code> targets the arguments: <code>send(0).amount</code>.</li>
+  <li><code>at = "-&gt;(0).Ok"</code> targets the results: <code>send-&gt;(0).Ok</code>.</li>
+  <li>When the method takes more than one argument (or returns more than one result), the path
+    starts with <code>(i)</code>: <code>at = "(1)"</code> is the second argument.</li>
+  <li>Method tags (<code>intent</code>, <code>effect</code>, <code>idempotency</code>,
+    <code>outcome</code>, <code>list</code>, <code>names</code>) apply to the method and take no
+    <code>at</code>. A value tag on a method needs one. <code>@describe</code> without <code>at</code>
+    describes the method.</li>
+</ul>
+
+<p>Where the comment sits decides the address the tag gets:</p>
+
+<table>
+  <thead><tr><th>A comment on</th><th>Becomes</th></tr></thead>
+  <tbody>
+    <tr><td>A declaration, <code>type Payment = …</code></td><td><code>type:Payment</code>; with <code>at</code>, a path inside it. A pathless <code>type:</code> address is allowed only on a record or a variant (<diag>E_TYPE_NODE</diag>).</td></tr>
+    <tr><td>A field of a named type</td><td><code>type:SendArgs.memo</code>, a <code>type:</code> address that reaches every position of that edge.</td></tr>
+    <tr><td>A field of an inline record in a method's signature</td><td>A method address, such as <code>inline(0).items[].price</code>: an <code>opt</code> adds nothing to the path and a <code>vec</code> adds <code>[]</code>. Spec §9 left this mapping to confirm against real SourceInfo output (OQ-4); it is now answered, and the resolver implements it.</td></tr>
+    <tr><td>A method</td><td>The method, for method tags; the method's positions through <code>at</code>.</td></tr>
+    <tr><td>The service as a whole</td><td>Nothing: no tag applies there (<diag>E_DOC_TARGET</diag>).</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Because field comments become <code>type:</code> addresses, they behave as in a profile file:
+  one comment on <code>Tokens.e8s</code> reaches every <code>Tokens</code> in the interface, and a
+  method address beats it at the same position. That is why the <code>Balance</code> label above
+  sits on the <code>balance</code> method, with <code>at</code>. <a href="addresses.html">Addresses</a>
+  explains both kinds.
+</p>
+
+<h2>What has no doc form</h2>
+
+<ul>
+  <li>
+    <strong>Case tags.</strong> An <code>intent</code> or <code>effect</code> at a variant case
+    (<code>propose(0).Transfer</code>, spec §5.2, D-053) cannot be written as a comment in v0.
+    <code>@intent</code> and <code>@effect</code> on a method take no <code>at</code>, and on a field
+    or a declaration they are not allowed (<diag>E_DOC_TARGET</diag>). Write case tags in a profile
+    file, and give both to the resolver: they merge in the same <code>author</code> layer.
+  </li>
+  <li>
+    <strong>Positions inside a <code>func</code> or <code>service</code> value</strong>, such as a
+    callback's arguments: no v0 address reaches them (<diag>E_DOC_TARGET</diag>).
+  </li>
+  <li>
+    <strong>Methods with quoted names</strong> (<code>"foo-bar"</code>): v0 addresses cannot name them
+    (open question OQ-3), and the compiler does not attach comments to them.
+  </li>
+</ul>
+
+<h2>Prose becomes describe.help</h2>
+
+<p>
+  Doc lines that are not attributes are prose. The lines of a paragraph are joined with spaces,
+  paragraphs are kept, and the text becomes the item's <code>describe.help</code>: the line
+  <code>/// Send tokens to another principal.</code> above is
+  <code>{ "at": "send", "tag": "describe", "args": { "help": "Send tokens to another principal." } }</code>.
+  When the same comment has a <code>@describe</code> without <code>at</code>, the prose fills its
+  <code>help</code>; when that <code>@describe</code> already gives <code>help</code>, the prose is
+  left out.
+</p>
+
+<p>
+  Prose is not attached, and is reported with <diag>I_DOC_PROSE</diag>, in two places. On an integer
+  position whose comment gives it no value tag that reads it (<code>amount</code>,
+  <code>timestamp</code>, <code>duration</code> or <code>named</code>): a described integer is an agent
+  input of plain digits (D-044), so a comment such as "the amount in e8s" would turn a bare number
+  into an input without a unit. Add the value tag, or an explicit <code>@describe</code> if plain
+  digits are right. And on a declaration that is not a record or a variant, such as
+  <code>type Tokens = nat</code>, which a whole-declaration tag cannot describe.
+</p>
+
+<h2>Diagnostics</h2>
+
+<pre data-lang="candid" data-file="broken.did">service : {
+  decimals : () -> (nat8) query;
+  /// @amount(decimals = query(decimals))
+  /// @amout(at = "(0)", decimals = 8)
+  send : (nat) -> ();
+}</pre>
+<pre data-lang="text">error    E_DOC_TARGET       send   doc line 1: @amount: a value tag on a method needs `at`: at = "<path>" for an argument, at = "-><path>" for a result
+warning  W_DOC_UNKNOWN_TAG  send   doc line 2: @amout: not a profile tag; did you mean @amount?</pre>
+
+<p>
+  Each diagnostic names the address of the item (or its SourceInfo occurrence path, such as
+  <code>actor.methods[0]</code>, when it has no address) and the doc line, counted from 1. It also
+  carries <code>path</code> and <code>source</code>, the item's SourceInfo path and the file it is in.
+</p>
+
+<table>
+  <thead><tr><th>Code</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><diag>E_DOC_TARGET</diag></td><td>A tag no v0 address reaches (inside a <code>func</code> or <code>service</code> value), or one in the wrong place: a value tag on a method without <code>at</code>, a method tag on a field, an <code>at</code> that is not a relative path, a missing <code>(i)</code>.</td></tr>
+    <tr><td><diag>E_DOC_VALUE</diag></td><td>A value the profile cannot hold: a fraction, an unknown call, <code>query</code> with more than one name.</td></tr>
+    <tr><td><diag>E_DOC_SYNTAX</diag></td><td>candid-core refused the comment: an attribute line that does not parse, or a repeated key.</td></tr>
+    <tr><td><diag>E_DOC_INPUT</diag></td><td>What was passed in is not a doc attributes v1 response.</td></tr>
+    <tr><td><diag>E_CANDID</diag></td><td>The <code>.did</code> itself does not compile.</td></tr>
+    <tr><td><diag>W_DOC_UNKNOWN_TAG</diag></td><td>A bare name one or two letters from a tag.</td></tr>
+    <tr><td><diag>I_DOC_IGNORED</diag></td><td>A name that is not a profile tag, or comments that hold no tag at all.</td></tr>
+    <tr><td><diag>I_DOC_PROSE</diag></td><td>Prose that is not attached, and why.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  These are the codes of the comment reader. The tags it placed are then checked by
+  <code>resolveService</code> like those of any profile, with the codes on
+  <a href="reference-profile-diagnostics.html">Profile diagnostics</a>.
+</p>
+
+<h2>Identity</h2>
+
+<pre data-lang="js" data-check>import { readFileSync } from "node:fs";
+import { didToDocAttributes } from "@candid-core/cli";
+
+for (const file of ["tokens.plain.did", "tokens.did"]) {
+  const r = await didToDocAttributes(readFileSync(file, "utf8"));
+  if (!r.ok) throw new Error(`${file} does not compile`);
+  const contract = /** @type {{ identities: { contract: string, interface: string } }} */ (r.contract);
+  const info = /** @type {{ source_bundle_id: string }} */ (r.source_info);
+  console.log(file);
+  console.log("  interface_id    ", contract.identities.interface);
+  console.log("  contract_id     ", contract.identities.contract);
+  console.log("  source_bundle_id", info.source_bundle_id);
+}</pre>
+<pre data-lang="text">tokens.plain.did
+  interface_id     candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
+  contract_id      candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
+  source_bundle_id candid-core:source-bundle:v1:sha256:85aaf4e378bdcd6e77113b703c60ff7863b0601a2b46aaf6d518db0e34f38cc2
+tokens.did
+  interface_id     candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
+  contract_id      candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
+  source_bundle_id candid-core:source-bundle:v1:sha256:fbba36e930d16c43c0482841e3ea296579d7d19b126973d678f3a86ac3ffba65</pre>
+
+<p>
+  <code>tokens.plain.did</code> is a copy of <code>profile/examples/tokens.did</code>, which carries no
+  tags.
+  Both files have the same <code>interface_id</code> and <code>contract_id</code>: comments live in the
+  SourceInfo sidecar, outside the Contract, so annotating an interface never changes the identity a
+  profile binds to. Only <code>source_bundle_id</code> moves, because it hashes the source text.
+  <a href="identities.html">Content-addressed identities</a> explains the three.
+</p>
+
+<h2>Comments and a profile file together</h2>
+
+<p>
+  A profile read from comments is an <code>author</code> profile, and so is a profile file the author
+  ships. Give both to <code>resolveService</code> and they merge in the <code>author</code> layer:
+  different tags combine, and two different values for one tag at one position are
+  <diag>E_CONFLICT</diag>. A canister that serves a tagged <code>.did</code> as its
+  <code>candid:service</code> serves an author profile this way too;
+  <a href="serve-a-profile.html">Serve a profile from a canister</a> covers it, and
+  <a href="resolve-profiles.html">Validate and resolve profiles</a> covers the merge.
+</p>

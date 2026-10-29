@@ -1,1 +1,221 @@
-<p>This page is being written.</p>
+<consent standard="Consent · ICRC-21" title="Claim reward" effects="transfer irreversible" note="The title is the profile author's words. The raw arguments are the call.">
+<field name="Reward" amount>250 TKA</field>
+<field name="Raw arguments">record { to = record { owner = principal "efadq-…-kjy554y"; subaccount = null }; amount = 25_000_000_000 : nat; … }</field>
+</consent>
+
+<p>
+  Every word in that preview came from a profile, and a profile can lie. Its author can call a
+  transfer to their own account "Claim reward", and the consent message will say so in the
+  canister's own format. Meant does not try to make a dishonest profile impossible; no
+  description format can. It makes sure a profile cannot turn a lie into a loss quietly: the
+  values a call carries are exact and shown, a profile is bound to one interface, every tag says
+  whose it is, and the calls that move value wait for the person. This page is the spec's list of
+  what a profile cannot vouch for (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">spec §11</a>), and the rule behind each limit.
+</p>
+
+<h2>A profile is a claim, not a proof</h2>
+
+<p>
+  An author profile can describe a drain as "claim reward". Ethereum's clear-signing format,
+  ERC-7730, has the same limit, and adds ERC-8176 attestations, in which a reviewer vouches for a
+  file, to address it. v0 has two mitigations of its own:
+</p>
+
+<ul>
+  <li>
+    <strong>Provenance on every tag.</strong> Each tag in the resolved form carries the
+    <code>origin</code> (<code>author</code>, <code>third_party</code>, <code>pack</code>,
+    <code>inferred</code>) and the name of the profile it came from, and the resolved form lists
+    every applied profile with its <code>profile_id</code>. The consent generator returns the same
+    provenance beside each message, so a signer can warn when a profile, not the canister, wrote
+    the words.
+  </li>
+  <li>
+    <strong>Binding to <code>interface_id</code>.</strong> A canister profile describes one
+    callable interface. When the interface changes and the profile no longer fits, it is
+    <a href="profiles.html">stale</a> and loses every tag that converts a value.
+  </li>
+</ul>
+
+<p>
+  Consumers should show the decoded raw arguments next to the rendered intent for every call
+  whose effect is <code>transfer</code>, <code>approve</code>, <code>admin</code> or
+  <code>destroy</code>, as in the preview above. The signer that displays a consent message is the
+  consumer that should show them; <code>@meantjs/consent</code> includes them on request. A
+  profile's effect is a claim too. The resolver checks what it can: a query cannot be declared
+  anything but a <code>read</code> (<diag>E_EFFECT_MODE</diag>), and a <code>read</code> on an
+  update method is warned (<diag>W_EFFECT_MODE</diag>). It cannot check that an update changes
+  nothing, so the read-only update form, which gets no warning, rests on the profile's provenance
+  alone.
+</p>
+
+<h2>Dynamic values come from one replica</h2>
+
+<p>
+  <claim>fact</claim> A plain query's reply comes from a single replica and is signed only by that
+  node, while an update's reply comes with a certificate of the subnet's state
+  (<a href="https://docs.internetcomputer.org/references/ic-interface-spec/https-interface/">IC
+  interface specification, HTTPS interface</a>). So a malicious replica can answer
+  <code>icrc1_decimals</code> with a wrong number, and every amount shown for that ledger is then
+  wrong by a power of ten.
+</p>
+
+<p>
+  Consumers should resolve the dynamic values used to render a <code>transfer</code> or
+  <code>approve</code> intent through an update call or another certified path, or cross-check them
+  with <code>icrc1_metadata</code>. A consent message generated <em>inside</em> the canister avoids
+  the problem, because the canister knows its own decimals. <claim>open</claim> Whether the
+  resolved form should carry resolved dynamic values with their provenance, certified or not, is
+  OQ-10.
+</p>
+
+<h2>Nothing is rounded or truncated</h2>
+
+<p>
+  No value conversion anywhere rounds or truncates. Excess precision is refused, out-of-range
+  values are refused rather than wrapped or clamped, and a time that does not fit its unit is
+  refused (<a href="value-tags.html">Values and exact conversion</a>). The same rule holds where a
+  message would be long: a consent message for a call without an intent, one row per argument
+  leaf, is refused above 64 rows rather than cut short, and a formatter that cannot be built (an unresolved dynamic value, a bad tag argument) produces
+  no message at all, so a number is never shown without its decimals.
+</p>
+
+<h2>Rendered values are escaped</h2>
+
+<p>
+  A template is the author's text; the values in it come from the call. Rendered values are
+  escaped for the target format, so a memo of <code>[Approve now](https://evil.example/drain)</code>
+  is shown as those characters, not as a link
+  (<a href="intent-and-effects.html">Intent, effects and confirmation</a>).
+</p>
+
+<h2>ICRC-21 field limits</h2>
+
+<p>
+  <claim>fact</claim> ICRC-21's <code>TokenAmount.amount</code> is a <code>nat64</code>, and
+  <code>TimestampSeconds</code> counts seconds (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#14-facts-assumptions-and-open-questions">spec §14</a>, verified 2026-10-08). Two consequences:
+</p>
+
+<ul>
+  <li>
+    A token with 18 decimals does not fit <code>TokenAmount</code> above about 18.4 whole units.
+    Consumers fall back to a <code>Text</code> field, never to a truncated number.
+    <claim>open</claim> Whether to propose a <code>nat</code> variant upstream is OQ-12.
+  </li>
+  <li>
+    ICRC-1 timestamps are in nanoseconds. A consumer converts them with the
+    <code>timestamp</code> tag and never passes the raw value as seconds; a conversion that is
+    not exact becomes a <code>Text</code> field.
+  </li>
+</ul>
+
+<h2>Work is bounded</h2>
+
+<p>
+  Profiles and interfaces can come from anyone, so resolving them should run under a budget, as
+  compiling an untrusted <code>.did</code> does (<a href="limits-and-diagnostics.html">Limits,
+  budgets and diagnostics</a>). The reference packages bound their own work: the subtype check
+  behind pack matching stops at depth 256 and 2,000,000 pair evaluations and answers "not a
+  subtype" beyond them, the format library reads at most 1024 characters of input (4 MiB for
+  <code>bytes</code>), and a served profile is at most 1 MiB.
+</p>
+
+<h2>Names are untrusted display text</h2>
+
+<p>
+  Whoever may name an account, or join with a label, chooses the text. It can look like an
+  address, mimic another entry, or press the reader ("approved by the CEO"). The rules of
+  <a href="names.html">Names</a> keep a name from ever replacing a value: a value always wins over
+  a name, an ambiguous name fails rather than picks one, and the value is shown beside the name.
+  Names read through a plain query come from one replica, as dynamic values do.
+</p>
+
+<h2>A served profile is certified, not vouched for</h2>
+
+<p>
+  A canister can serve its own profile in the public custom section
+  <code>icp:public candid:profile</code> (<a href="serve-a-profile.html">Serve a profile from a
+  canister</a>). <claim>fact</claim> The section's content is in the canister's certified state,
+  and a <code>read_state</code> reply for it is a certificate of the subnet's state, unlike a
+  query's reply (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#81-serving-a-profile-d-048">spec §8.1</a>, from the IC interface specification). The certificate proves that the
+  canister serves these bytes, so no replica or boundary node can change them.
+</p>
+
+<p>
+  It proves nothing about the words. A canister can serve a profile that calls a drain "claim
+  reward", and the controller that installs the module chooses it. A served profile is an
+  <code>author</code> profile, with the trust of one.
+</p>
+
+<h2>An EVM pack matches any contract with the right functions</h2>
+
+<p>
+  EVM profiles are experimental (<a href="chain-evm.html">EVM contracts</a>). An EVM pack applies
+  to any contract whose functions match it, so a hostile contract can match ERC-20, have its drain
+  described as "Send tokens", and answer "USDT" to <code>symbol()</code>. A consumer must show the
+  contract's address, with its EIP-55 checksum, whenever it asks a person to confirm a call matched
+  by a pack; the consent text <code>@meantjs/consent/evm</code> writes ends with it.
+  <claim>fact</claim> ERC-7730 names the same risk in its security considerations, as "parameter
+  injection using legitimate, high-profile contract formats"
+  (<a href="https://eips.ethereum.org/EIPS/eip-7730">ERC-7730</a>). A <code>query:</code> value on
+  an EVM contract is an <code>eth_call</code> answered by one RPC node, as one on a canister is
+  answered by one replica. <claim>open</claim> Whether EVM packs should apply only to deployments a
+  consumer lists is item O4 of the EVM binding.
+</p>
+
+<h2>Consent text makes no claims about state</h2>
+
+<p>
+  A consent message describes what the call does with its arguments, never what the canister's
+  state will be: no "your balance after this is…". ICRC-21 requires the message to describe every
+  possible outcome, because time passes between fetching the message and submitting the call.
+  Templates are written under that rule, and <code>@meantjs/consent</code> has no network access
+  and states nothing about ledger state (<a href="consent-messages.html">Generate consent
+  messages</a>).
+</p>
+
+<h2>What v0 does not do yet</h2>
+
+<p>
+  These are open, and the spec says so. Each is on <a href="open-questions.html">Open
+  questions</a> with its owner.
+</p>
+
+<ul>
+  <li>
+    <claim>open</claim> <strong>Third-party attestations for profiles</strong> (OQ-7), so that
+    trust can rest on more than the author's claim, and where a registry of them lives. Planned for
+    v1. The ERC-7730 export already gives a reviewer the file's ERC-8176 hash and the unsigned
+    attestation to sign; checking attestations is a later phase.
+  </li>
+  <li>
+    <claim>open</claim> <strong>Spending policies and budgets</strong> (OQ-8) that would let an
+    agent commit some calls without a confirmation each time. Until then every
+    <code>transfer</code>, <code>approve</code>, <code>admin</code> and <code>destroy</code> call
+    waits for the person.
+  </li>
+  <li>
+    <claim>open</claim> <strong>Resolved dynamic values with provenance</strong> (OQ-10), so a
+    consumer can tell a certified decimals value from a single replica's.
+  </li>
+</ul>
+
+<h2>Next</h2>
+
+<div class="card-grid">
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>Which calls wait for the person, and what the person reads.</p>
+  </a>
+  <a class="card" href="consent-messages.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Generate consent messages</span>
+    <p>ICRC-21 messages with provenance and, on request, the raw arguments.</p>
+  </a>
+  <a class="card" href="guarantees.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">Guarantees and verification</span>
+    <p>What is proven, by which gate, and what is explicitly not claimed.</p>
+  </a>
+</div>

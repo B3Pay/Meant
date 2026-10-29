@@ -49,8 +49,8 @@
 
 <p>
   Because they read one document, they cannot disagree: the amount an agent tool reads from
-  <code>"1.5 TOK"</code> is the amount the consent message shows the person, and the effect that
-  makes the tool ask for confirmation is the effect the consent message names. Page layout,
+  <code>"1.5 TOK"</code> is the amount the consent message shows the person, since both read it
+  through the same tag. Page layout,
   references across canisters and templates in several languages are outside v0; cross-canister
   references are <a href="open-questions.html">open question</a> OQ-6.
 </p>
@@ -59,9 +59,9 @@
 
 <p>
   A profile never changes the interface it describes. It is a separate document bound to the
-  interface's identity, the way the <code>SourceInfo</code> sidecar is: compiling the same
-  <code>.did</code> file with or without a profile gives the same Contract, the same
-  <code>interface_id</code> and the same <code>contract_id</code>. Tags written as doc comments in
+  interface's identity, the way the <code>SourceInfo</code> sidecar is, and never an input to
+  compiling it: the Contract, its <code>interface_id</code> and its <code>contract_id</code> are
+  the same whether or not any profile exists. Tags written as doc comments in
   the <code>.did</code> itself are no exception. Doc comments live in <code>SourceInfo</code>,
   outside the Contract, so adding them moves the <code>source_bundle_id</code> and neither
   semantic identity (<a href="identities.html">what moves which id</a>).
@@ -78,7 +78,7 @@
 <p>
   The interface layer interns structurally equal types into one node of the
   <a href="contract-graph.html">Contract graph</a>. That is right for identity and wrong for
-  meaning. <claim>fact</claim> Compiling the ICRC-1 fragment shows the consequence (spec §2): one
+  meaning. <claim>fact</claim> Compiling the ICRC-1 fragment shows the consequence (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#2-relationship-to-candid-core">spec §2</a>): one
   <code>opt blob</code> node serves <code>from_subaccount</code>, <code>memo</code> and
   <code>Account.subaccount</code>, and one <code>nat</code> node serves <code>amount</code>,
   <code>fee</code>, <code>Ok</code>, <code>duplicate_of</code> and <code>expected_fee</code>.
@@ -89,7 +89,8 @@
   tokens, and a tag on the <code>opt blob</code> would make the memo a subaccount. So a profile
   addresses the <strong>edge</strong> that leads to a value: a method's argument or result, then a
   path through fields and cases. <code>icrc1_transfer(0).amount</code> and
-  <code>icrc1_transfer(0).fee</code> are two edges into the same node, and each gets its own tags.
+  <code>icrc1_transfer(0).fee</code> lead to the same <code>nat</code> node (the fee through its
+  <code>opt</code>), and each gets its own tags.
   <a href="addresses.html">Addresses</a> has the grammar and the resolution rules.
 </p>
 
@@ -98,8 +99,9 @@
 <p>
   Every profile carries <code>format</code> (<code>"candid-profile"</code>),
   <code>format_version</code> (<code>0</code>), a <code>kind</code>, a <code>name</code>, an
-  <code>origin</code>, a <code>language</code>, a <code>binds</code> object and its
-  <code>annotations</code>. The <code>kind</code> says how it binds:</p>
+  <code>origin</code>, a <code>binds</code> object and its <code>annotations</code>;
+  <code>language</code> and <code>description</code> are optional. The <code>kind</code> says how
+  it binds:</p>
 
 <ul>
   <li><code>canister</code>: one canister's interface, by <code>binds.interface_id</code> (and
@@ -141,7 +143,7 @@ PASS examples/tokens.profile.json  (0 error, 0 warning, 0 info)
 <p>
   A canister profile was written against one interface. When the live interface is a different
   one, the profile may still be right, or it may describe positions that moved. The resolver does
-  not guess which. Given a live interface, it applies one of three rules (spec §7):
+  not guess which. Given a live interface, it applies one of three rules (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#7-document-format-identity-and-binding">spec §7</a>):
 </p>
 
 <table>

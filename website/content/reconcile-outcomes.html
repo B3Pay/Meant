@@ -1,1 +1,249 @@
-<p>This page is being written.</p>
+<p>
+  A transfer timed out, and the ledger's later answer is <code>TooOld</code>: the stamp's deduplication
+  window has passed, so resending the same bytes can no longer tell you whether the first attempt
+  executed, and a new stamp could pay twice. The outcome is <outcome>reconcile</outcome>.
+  <code>@meantjs/reconcile</code> answers the one question left: is the original in the ledger's ICRC-3
+  history? It reads nothing itself. You read the blocks and pass them in. Its exports are on the
+  <a href="reference-profile-api.html">JavaScript API</a> reference.
+</p>
+
+<h2>Check the history</h2>
+
+<pre data-lang="bash">
+npm install --save-exact @meantjs/reconcile@0.2.0
+</pre>
+
+<pre data-lang="js" data-check="reconcile">
+import { DEDUP_WINDOW_NS, expectedTransaction, matchBlocks } from "@meantjs/reconcile";
+
+/**
+ * Your read of the ledger's icrc3_get_blocks: certified, archives followed, every block from `floor` to the tip.
+ * @param {bigint} floor
+ * @returns {Promise<{ blocks: { id: bigint, block: import("@meantjs/reconcile").Icrc3Value }[], logLength: bigint, ledgerTime: bigint }>}
+ */
+async function readBlocks(floor) {
+  throw new Error(`read the blocks from ${floor} to the tip with your agent`);
+}
+
+// The call whose outcome is unknown, as candid-core values: icrc1_transfer of 1.5 TKA to Alice, memo "lunch".
+const arg = {
+  to: { owner: "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae", subaccount: null },
+  amount: 150_000_000n,
+  memo: new TextEncoder().encode("lunch"),
+  fee: null,
+  from_subaccount: null,
+  created_at_time: 1_791_547_201_000_000_000n, // the stamp
+};
+const caller = "snnfi-lalgb-kxvh6-e5ehd-gwd5u-ld6ye-jwloa-klsxp-cq4v5-a5izx-zae"; // the person's principal, which sent it
+
+const expected = expectedTransaction("icrc1_transfer", arg, caller);
+
+const floor = 1041n; // the log length before the first send
+const { blocks, logLength, ledgerTime } = await readBlocks(floor);
+const finding = matchBlocks(blocks, expected, { logLength, floor, inFlight: true, ledgerTime, windowNs: DEDUP_WINDOW_NS });
+</pre>
+
+<p>
+  <code>expectedTransaction(method, arg, caller, { minting })</code> maps the call to the transaction it
+  would leave in the log. For the call above:
+</p>
+
+<pre data-lang="text">
+{
+  ts: 1791547201000000000n,
+  amt: 150000000n,
+  memo: '6c756e6368',
+  fee: null,
+  op: 'xfer',
+  btype: '1xfer',
+  from: { owner: '0b30557a9fc4e90e33587da2c7ec11365b80a5caef14395e83a8cdf202', subaccount: '0000000000000000000000000000000000000000000000000000000000000000' },
+  to: { owner: 'b56bf994b37ae8e79f5ce000be1727a6060ae4eef24736b7cc999c3c02', subaccount: '0000000000000000000000000000000000000000000000000000000000000000' }
+}
+</pre>
+
+<p>
+  It maps <code>icrc1_transfer</code>, <code>icrc2_approve</code> and <code>icrc2_transfer_from</code>
+  (<code>METHODS</code>). It returns <code>undefined</code> for any other method, for a call without a
+  stamp, and for a caller it cannot read, and <code>matchBlocks</code> then answers
+  <code>unreadable</code>. Pass the ledger's <code>icrc1_minting_account</code> as <code>minting</code>:
+  a transfer from it is a mint and one to it a burn. Without it, the original's mint or burn block is
+  never found, only reported as a lookalike.
+</p>
+
+<p>
+  <code>matchBlocks(blocks, expected, options)</code> judges the blocks you read. <code>blocks</code> is
+  <code>[{ id, block }]</code> with each block an ICRC-3 value in <code>{ tag, value }</code> form
+  (<code>Map</code>, <code>Array</code>, <code>Nat</code>, <code>Int</code>, <code>Text</code>,
+  <code>Blob</code>), and together they must hold every index from <code>floor</code> to
+  <code>logLength - 1</code>. The options:
+</p>
+
+<table>
+  <thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>logLength</code></td><td>The log length when the blocks were read (<code>log_length</code> of <code>icrc3_get_blocks</code>). Required.</td></tr>
+    <tr><td><code>floor</code></td><td>The log length before the first send; the original is at this index or later. Default <code>0n</code>, the whole log.</td></tr>
+    <tr><td><code>inFlight</code></td><td>A send had an unknown outcome, so it may still execute until it is refused. Required.</td></tr>
+    <tr><td><code>stampExpired</code></td><td>A send was answered <code>TooOld</code>. Sound only for blocks read after that answer arrived.</td></tr>
+    <tr><td><code>ledgerTime</code>, <code>ledgerTimeAtLeast</code></td><td>The ledger's clock in ns, or a time it is at least. Without either, the tip block's time stands in.</td></tr>
+    <tr><td><code>windowNs</code></td><td>How long after its stamp a call can still execute: the ledger's <code>TX_WINDOW</code> plus <code>PERMITTED_DRIFT</code>. Without it nothing closes by the clock.</td></tr>
+    <tr><td><code>notOriginal</code></td><td>Block indices the person said are not the original.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>DEDUP_WINDOW_NS</code> is 24 hours and 2 minutes, the DFINITY ledger's default
+  <code>TX_WINDOW</code> plus <code>PERMITTED_DRIFT</code>. <claim>assumption</claim> Passing it assumes
+  your ledger keeps that default: each ledger defines its own window, so check yours first.
+</p>
+
+<h2>Act on the answer</h2>
+
+<p>The four answers <code>matchBlocks</code> can give, each for the call above:</p>
+
+<pre data-lang="text">
+{ status: "found", block: 1042n }
+{ status: "absent", closedBy: "window_passed", clock: { at: 1791633721000000001n, by: "ledger" } }
+{ status: "not_yet", openUntil: 1791633721000000000n, clock: { at: 1791547204000000000n, by: "ledger" } }
+{ status: "unreadable", reason: "block 1042 since the first send was not read (an archive, or a short page)" }
+</pre>
+
+<table>
+  <thead><tr><th><code>status</code></th><th>What you do</th></tr></thead>
+  <tbody>
+    <tr><td><code>found</code></td><td>The first attempt executed: report it as <outcome>already_done</outcome>, with the block. Never send it again.</td></tr>
+    <tr><td><code>absent</code></td><td>It did not execute and no send can still land. The intent is settled; the same arguments may be prepared again as a new intent, with a new stamp, which the person confirms again.</td></tr>
+    <tr><td><code>not_yet</code></td><td>Not in the log, but a send may still land until <code>openUntil</code>. Read again later; send nothing.</td></tr>
+    <tr><td><code>unreadable</code></td><td>The history cannot settle it. Ask the person, and send nothing until they answer.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>absent</code> needs one of three things: every send was answered (<code>closedBy: "answered"</code>),
+  a send was answered <code>TooOld</code> (<code>"too_old"</code>), or the ledger's clock is past the
+  stamp plus <code>windowNs</code> (<code>"window_passed"</code>). Without <code>windowNs</code> an
+  in-flight call stays <code>not_yet</code>, with the reason
+  <code>no windowNs: the ledger's deduplication window is not known, so a send may still land</code>.
+</p>
+
+<h2>What a match compares</h2>
+
+<p>
+  A block is the original only when it carries exactly the call's transaction. Every rule leans the safe
+  way: a doubt is <code>unreadable</code>, never <code>absent</code>.
+</p>
+
+<ul>
+  <li>
+    <strong>Operation.</strong> The block's <code>btype</code> when it has one (<code>1xfer</code>,
+    <code>2xfer</code>, <code>1mint</code>, <code>1burn</code>, <code>2approve</code>; ICRC-3 makes it
+    authoritative), else the legacy <code>tx.op</code>. An unknown <code>btype</code> matches nothing. A
+    transfer also needs the <code>btype</code> its method leaves, when the block has one:
+    <code>1xfer</code> for <code>icrc1_transfer</code>, <code>2xfer</code> for
+    <code>icrc2_transfer_from</code>.
+  </li>
+  <li><strong>Stamp.</strong> <code>tx.ts</code> equals <code>created_at_time</code>.</li>
+  <li><strong>Amount and fee.</strong> <code>tx.amt</code> equals the amount; <code>tx.fee</code> equals the fee the call set, and is absent when it set none.</li>
+  <li>
+    <strong>Accounts.</strong> <code>from</code>, <code>to</code> and <code>spender</code>, compared as
+    owner bytes and a 32-byte subaccount, all zero for the default. The caller is one of them: the
+    <code>from</code> of a transfer or an approval, the <code>spender</code> of a
+    <code>transfer_from</code>. A block with a <code>spender</code> the call has not is another call.
+  </li>
+  <li><strong>Memo.</strong> An absent field is part of the match: an empty memo is not no memo.</li>
+  <li><strong>For an approval,</strong> <code>expires_at</code> and <code>expected_allowance</code> too.</li>
+</ul>
+
+<p>
+  <claim>fact</claim> The tests build blocks in the shapes recorded from the pinned DFINITY ledger wasm on
+  PocketIC (legacy <code>tx.op</code>, no <code>btype</code>), and each rule above has a test that fails
+  when the rule is removed. A burn, a spender's own <code>transfer_from</code>, a mint through
+  <code>transfer_from</code> and a block with a <code>btype</code> were not observed on a real ledger;
+  they follow ICRC-1, ICRC-2 and ICRC-3 as written.
+</p>
+
+<h2>What it cannot settle</h2>
+
+<ul>
+  <li>
+    <strong>Balances and allowances.</strong> They cannot tell whether one call executed: another call
+    can move the same amount. Only the original's block settles it (spec §5.3, consumer rule 1).
+  </li>
+  <li>
+    <strong>A gap.</strong> A block in <code>floor..logLength-1</code> that you did not read, because it
+    is archived or a page was short, or one whose operation or amount cannot be read, is
+    <code>unreadable</code>.
+  </li>
+  <li>
+    <strong>A lookalike.</strong> A block with the call's stamp and amount from the call's account, in a
+    shape the mapping does not know, may be the original:
+    <code>{ status: "unreadable", reason: "block 1042 (op xfer) carries this call's stamp and amount from its account in another shape: it may be the original", lookalike: { block: 1042n, op: "xfer", capped: false } }</code>.
+    An approval above <code>u64::MAX</code> that a ledger capped is one too (<code>capped: true</code>).
+  </li>
+  <li>
+    <strong>A call without a stamp.</strong> An update without an <code>idempotency</code> tag leaves
+    nothing that makes its block specific, so there is nothing to match.
+  </li>
+  <li><strong>A call it does not map:</strong> any method but the three ICRC-1 and ICRC-2 ones.</li>
+</ul>
+
+<h2>Ask the person</h2>
+
+<blockquote>
+  <p>
+    If the history cannot settle it, ask the user, and MUST NOT send or re-stamp the call until the
+    user has answered.
+  </p>
+</blockquote>
+
+<p>
+  That is consumer rule 1 of
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>.
+  When the answer is <code>unreadable</code>, tell the person what is known: the call, its stamp, and the
+  lookalike block if there is one. Then hold the intent. Do not re-stamp it, do not prepare it again, and
+  never let the model decide. If the person says a lookalike is not the original, pass its index in
+  <code>notOriginal</code> and read again: with every send answered, the same block then gives
+  <code>{ status: "absent", closedBy: "answered" }</code>. Only then may the same arguments be stamped
+  again, as a new intent the person confirms again.
+</p>
+
+<h2>Wire it into the tool layer</h2>
+
+<pre data-lang="js" data-check="hook">
+import { DEDUP_WINDOW_NS, expectedTransaction, matchBlocks } from "@meantjs/reconcile";
+
+/**
+ * Your read of icrc3_get_blocks on one ledger, from `floor` to the tip.
+ * @param {string} canister
+ * @param {bigint} floor
+ * @returns {Promise<{ blocks: { id: bigint, block: import("@meantjs/reconcile").Icrc3Value }[], logLength: bigint, ledgerTime: bigint }>}
+ */
+async function readBlocks(canister, floor) {
+  throw new Error(`read ${canister} from block ${floor} with your agent`);
+}
+/** The log length you read before the first send of each prepared call, by its bytes. */
+const floors = new Map();
+const caller = "snnfi-lalgb-kxvh6-e5ehd-gwd5u-ld6ye-jwloa-klsxp-cq4v5-a5izx-zae";
+
+/** @type {NonNullable<import("@meantjs/tools").ToolLayerConfig["reconcile"]>} */
+const reconcile = async ({ canister, method, value, preview }) => {
+  const expected = expectedTransaction(method, /** @type {Record<string, unknown>} */ (value), caller);
+  const floor = floors.get(preview.arg_hex) ?? 0n;
+  const { blocks, logLength, ledgerTime } = await readBlocks(canister, floor);
+  const finding = matchBlocks(blocks, expected, { logLength, floor, inFlight: true, ledgerTime, windowNs: DEDUP_WINDOW_NS });
+  if (finding.status === "found") return { status: "found", block: finding.block };
+  if (finding.status === "unreadable") return { status: "unreadable", reason: finding.reason };
+  return { status: finding.status };
+};
+</pre>
+
+<p>
+  Pass <code>reconcile</code> to <code>createToolLayer</code> (<a href="agent-tools.html">give an agent
+  tools</a>). The layer calls it when an intent with an unknown outcome gets any answer but
+  <code>success</code>, <code>already_done</code> or <code>retry_same</code>, with the call's
+  <code>value</code>, its <code>stamp</code> and its <code>preview</code>. <code>found</code> becomes
+  <outcome>already_done</outcome>, <code>absent</code> settles the intent, and anything else holds it at
+  <outcome>reconcile</outcome>: no commit and no new preparation of it sends again. Without the hook the
+  layer holds the intent with the finding <code>unreadable</code>, the same as a history that cannot be
+  read. Why this rule exists is on <a href="outcomes-and-retries.html">outcomes and retries</a>.
+</p>
