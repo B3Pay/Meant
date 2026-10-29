@@ -102,13 +102,13 @@ export function readServedProfile(
   </thead>
   <tbody>
     <tr><td><code>createSchemaValidator(schema?)</code></td><td>The validate function for the profile schema: a path or a document, by default the schema the package ships. The shipped schema is compiled ahead of time; any other is compiled by <code>ajv</code> at run time with <code>new Function</code>.</td></tr>
-    <tr><td><code>resolveService(opts)</code></td><td>Resolves one service (<code>did</code>, <code>envelope</code> or <code>abi</code>, exactly one) with <code>profiles</code> (applied as given; a pack here must match) and <code>packs</code> (tried; applied only if they match). Returns <code>{ ok, resolved, diagnostics, profiles }</code>; <code>resolved</code> is null when the service does not compile.</td></tr>
-    <tr><td><code>validateProfile(doc, opts)</code></td><td>The single-profile validator that <code>scripts/validate.mjs</code> wraps: <code>{ ok, profile_id, interface_id, methods, annotations, diagnostics, resolved? }</code>.</td></tr>
+    <tr><td><code>resolveService(opts)</code></td><td>Resolves one service (<code>did</code>, <code>envelope</code> or <code>abi</code>, exactly one) with <code>profiles</code> (applied as given; a pack here must match) and <code>packs</code> (tried; applied only if they match). Returns <code class="wrap">{ ok, resolved, diagnostics, profiles }</code>; <code>resolved</code> is null when the service does not compile.</td></tr>
+    <tr><td><code class="wrap">validateProfile(doc, opts)</code></td><td>The single-profile validator that <code>scripts/validate.mjs</code> wraps: <code class="wrap">{ ok, profile_id, interface_id, methods, annotations, diagnostics, resolved? }</code>.</td></tr>
     <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name (default: the shipped packs, <code>DEFAULT_PACKS_DIR</code>).</td></tr>
     <tr><td><code>profileId(doc)</code>, <code>jcs(value)</code></td><td><code>candid-profile:v0:sha256:&lt;hex&gt;</code> over the RFC 8785 (JCS) form; the JCS text itself.</td></tr>
-    <tr><td><code>profileFromDocAttributes(response, opts?)</code></td><td>An author canister profile from the tags written as doc comments in a <code>.did</code>; <code>response</code> is what <code>didToDocAttributes</code> of <code>@candid-core/cli</code> returns (<a href="annotate-a-did.html">Annotate a .did file</a>).</td></tr>
-    <tr><td><code>readServedProfile(bytes, opts)</code>, <code>SERVED_SECTION</code>, <code>SERVED_METADATA</code>, <code>SERVED_MAX_BYTES</code></td><td>Checks the bytes of a canister's <code>candid:profile</code> metadata; <diag>E_SERVED</diag> when they cannot be used (<a href="serve-a-profile.html">Serve a profile</a>).</td></tr>
-    <tr><td><code>runCli(argv, io)</code>, <code>USAGE</code></td><td><code>candid-profile</code> as a function, returning its exit code; its help text.</td></tr>
+    <tr><td><code class="wrap">profileFromDocAttributes(response, opts?)</code></td><td>An author canister profile from the tags written as doc comments in a <code>.did</code>; <code>response</code> is what <code>didToDocAttributes</code> of <code>@candid-core/cli</code> returns (<a href="annotate-a-did.html">Annotate a .did file</a>).</td></tr>
+    <tr><td><code class="wrap">readServedProfile(bytes, opts)</code>, <code>SERVED_SECTION</code>, <code>SERVED_METADATA</code>, <code>SERVED_MAX_BYTES</code></td><td>Checks the bytes of a canister's <code>candid:profile</code> metadata; <diag>E_SERVED</diag> when they cannot be used (<a href="serve-a-profile.html">Serve a profile</a>).</td></tr>
+    <tr><td><code class="wrap">runCli(argv, io)</code>, <code>USAGE</code></td><td><code>candid-profile</code> as a function, returning its exit code; its help text.</td></tr>
     <tr><td><code>parseAddress</code>, <code>parseRelPath</code>, <code>idlHash</code></td><td>The address grammar and the Candid field-name hash (also in <code>/address</code>).</td></tr>
     <tr><td><code>compileInterface</code>, <code>interfaceFromEnvelope</code>, <code>Iface</code></td><td>An interface as the resolver sees it: the Contract graph with lookups.</td></tr>
     <tr><td><code>matchPack</code>, <code>matchService</code>, <code>typeSubtype</code>, <code>SubtypeChecker</code></td><td>Pack matching by Candid subtyping, result variants allowed to be wider (D-019).</td></tr>
@@ -289,10 +289,10 @@ export function typedDataDigest(typed: TypedData): string;
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>parseAbi(entries, label?)</code></td><td>Reads an ABI (human-readable fragments or JSON ABI entries); only functions. Problems are listed, not thrown.</td></tr>
+    <tr><td><code class="wrap">parseAbi(entries, label?)</code></td><td>Reads an ABI (human-readable fragments or JSON ABI entries); only functions. Problems are listed, not thrown.</td></tr>
     <tr><td><code>parseSignature(signature)</code></td><td>One function from its named signature, as a resolved form carries it. Throws.</td></tr>
     <tr><td><code>abiInterfaceId(functions)</code></td><td><code>candid-profile:evm-abi:v0:sha256:…</code>: SHA-256 over the JCS array of the canonical fragments, sorted.</td></tr>
-    <tr><td><code>canonicalFragment</code>, <code>namedSignature</code>, <code>typeSignature</code>, <code>selectorOf</code>, <code>typeString</code>, <code>componentKey</code></td><td><code>function transfer(address to,uint256 value) returns (bool)</code>; <code>transfer(address to,uint256 value)</code>; <code>transfer(address,uint256)</code>; <code>0xa9059cbb</code>; a type's canonical text; a tuple component's key (its name, else <code>#</code> and its position).</td></tr>
+    <tr><td><code>canonicalFragment</code>, <code>namedSignature</code>, <code>typeSignature</code>, <code>selectorOf</code>, <code>typeString</code>, <code>componentKey</code></td><td><code class="wrap">function transfer(address to,uint256 value) returns (bool)</code>; <code class="wrap">transfer(address to,uint256 value)</code>; <code>transfer(address,uint256)</code>; <code>0xa9059cbb</code>; a type's canonical text; a tuple component's key (its name, else <code>#</code> and its position).</td></tr>
     <tr><td><code>encodeParams</code>, <code>encodeCall</code>, <code>decodeParams</code></td><td>The strict codec: a value read from anything but its canonical encoding is refused.</td></tr>
     <tr><td><code>toChecksumAddress</code>, <code>readAddress</code></td><td>The EIP-55 form; reading an address whose mixed case must match it.</td></tr>
     <tr><td><code>keccak256</code>, <code>keccak256Hex</code>, <code>typedDataDigest</code>, <code>jcs</code></td><td>Keccak-256 (Ethereum's, not NIST SHA3-256); the EIP-712 digest; RFC 8785 JSON.</td></tr>
@@ -380,7 +380,7 @@ export function nameOf<V>(entries: NameEntry<V>[], value: V, opts?: { by?: "valu
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>formatterFor(node, options?)</code></td><td>The formatter of a resolved-form position, or null when it has no value tag. Throws <diag>E_REF_UNRESOLVED</diag>, <diag>E_ARG</diag>, <diag>E_TAG_TYPE</diag> or <diag>E_TAG_CONFLICT</diag> rather than return one that half works. <code>refs</code> are keyed by <code>from</code>.</td></tr>
+    <tr><td><code class="wrap">formatterFor(node, options?)</code></td><td>The formatter of a resolved-form position, or null when it has no value tag. Throws <diag>E_REF_UNRESOLVED</diag>, <diag>E_ARG</diag>, <diag>E_TAG_TYPE</diag> or <diag>E_TAG_CONFLICT</diag> rather than return one that half works. <code>refs</code> are keyed by <code>from</code>.</td></tr>
     <tr><td><code>parseAmount</code>, <code>displayAmount</code></td><td><code>"1.5 ICP"</code> to base units as a decimal string, and back. A number is refused.</td></tr>
     <tr><td><code>parseTimestamp</code>, <code>displayTimestamp</code>, <code>parseDuration</code>, <code>displayDuration</code>, <code>convertUnit</code>, <code>alignNow</code></td><td>RFC 3339 and ISO 8601 text to a count of the tag's unit, and back; exact unit conversion.</td></tr>
     <tr><td><code>parseAccount</code>, <code>displayAccount</code>, <code>principalFromText</code>, <code>principalToText</code></td><td>The ICRC-1 textual account encoding and principal text, checksums verified.</td></tr>
@@ -474,8 +474,8 @@ export declare class ConsentError extends Error {
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>icrc21ConsentMessage(request, context)</code></td><td>The ICRC-21 call as a function: <code>{ Ok: { consent_message, metadata } }</code> or <code>{ Err }</code>, with non-enumerable <code>diagnostics</code> and <code>provenance</code> (which profile wrote the words).</td></tr>
-    <tr><td><code>handleConsentRequest(requestBytes, context)</code></td><td>Candid bytes of <code>icrc21_consent_message_request</code> in, Candid bytes of the response out: what a canister endpoint returns.</td></tr>
+    <tr><td><code class="wrap">icrc21ConsentMessage(request, context)</code></td><td>The ICRC-21 call as a function: <code class="wrap">{ Ok: { consent_message, metadata } }</code> or <code>{ Err }</code>, with non-enumerable <code>diagnostics</code> and <code>provenance</code> (which profile wrote the words).</td></tr>
+    <tr><td><code class="wrap">handleConsentRequest(requestBytes, context)</code></td><td>Candid bytes of <code>icrc21_consent_message_request</code> in, Candid bytes of the response out: what a canister endpoint returns.</td></tr>
     <tr><td><code>generateConsent(input)</code></td><td>One form without the ICRC-21 envelope: <code>"generic"</code> (Markdown, the default) or <code>"fields"</code>.</td></tr>
     <tr><td><code>encodeConsentRequest</code>, <code>decodeConsentRequest</code>, <code>encodeConsentResponse</code>, <code>decodeConsentResponse</code>, <code>toJson</code></td><td>The Candid codec for the ICRC-21 types, and a JSON-safe copy (bigint as a decimal string, <code>Uint8Array</code> as <code>{ hex }</code>).</td></tr>
     <tr><td><code>toIcrc21Error</code>, <code>CODES</code>, <code>GENERIC_ERROR_CODES</code>, <code>ConsentError</code>, <code>SUPPORTED_LANGUAGE</code></td><td>Errors and their ICRC-21 mapping (<a href="reference-profile-diagnostics.html#meantjs-consent-consenterror">ConsentError</a>); <code>"en"</code>, the only language v0 emits.</td></tr>
@@ -534,8 +534,8 @@ export function verifySnsRendering(input: {
   </thead>
   <tbody>
     <tr><td><code>snsValidatorRendering(input)</code></td><td>Payload bytes in, <code>{ Ok: text }</code> or <code>{ Err: text }</code> out. Anything the generator cannot describe is <code>Err</code>, so governance rejects the proposal.</td></tr>
-    <tr><td><code>handleSnsValidatorCall</code>, <code>encodeValidatorResult</code>, <code>decodeValidatorResult</code></td><td>The canister-side wrapper and the codec of <code>variant { Ok : text; Err : text }</code>.</td></tr>
-    <tr><td><code>verifySnsRendering(input)</code>, <code>parseGovernanceRendering(text)</code></td><td>The reviewer's check of a stored <code>payload_text_rendering</code>: five checks, <code>{ ok, checks, expectedRendering, parsed }</code>.</td></tr>
+    <tr><td><code>handleSnsValidatorCall</code>, <code>encodeValidatorResult</code>, <code>decodeValidatorResult</code></td><td>The canister-side wrapper and the codec of <code class="wrap">variant { Ok : text; Err : text }</code>.</td></tr>
+    <tr><td><code>verifySnsRendering(input)</code>, <code>parseGovernanceRendering(text)</code></td><td>The reviewer's check of a stored <code>payload_text_rendering</code>: five checks, <code class="wrap">{ ok, checks, expectedRendering, parsed }</code>.</td></tr>
     <tr><td><code>SNS_RENDERING_RULES</code></td><td><code>"candid-profile-sns/v0"</code>, named in every rendering.</td></tr>
   </tbody>
 </table>
@@ -576,7 +576,7 @@ export function evmConsent(input: EvmConsentInput): {
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>decodeCalldata(resolved, calldata, limits?)</code></td><td>The function a selector names and its arguments, keyed by parameter name. Strict: <diag>E_DECODE</diag> on anything but the canonical encoding; <diag>E_RESOLVED_FORM</diag> for a form that is not an EVM one; <diag>E_METHOD_UNKNOWN</diag> for an unknown selector.</td></tr>
+    <tr><td><code class="wrap">decodeCalldata(resolved, calldata, limits?)</code></td><td>The function a selector names and its arguments, keyed by parameter name. Strict: <diag>E_DECODE</diag> on anything but the canonical encoding; <diag>E_RESOLVED_FORM</diag> for a form that is not an EVM one; <diag>E_METHOD_UNKNOWN</diag> for an unknown selector.</td></tr>
     <tr><td><code>evmConsent(input)</code></td><td>The same model and two layouts as an ICRC-21 message, without its envelope, ending with the contract's address and chain. A call to a contract its profiles do not list is <diag>E_DEPLOYMENT</diag>; a payable function is <diag>E_UNSUPPORTED_TYPE</diag>.</td></tr>
   </tbody>
 </table>
@@ -613,7 +613,7 @@ export function erc8176Attestation(input: Erc8176Input): { typedData: Erc8176Typ
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>erc7730Descriptor(resolved, options?)</code></td><td>The contract's ERC-7730 file and its ERC-8176 <code>descriptorHash</code>; deterministic. What a file cannot say is <diag>E_EXPORT</diag>; no deployment is <diag>E_DEPLOYMENT</diag>.</td></tr>
+    <tr><td><code class="wrap">erc7730Descriptor(resolved, options?)</code></td><td>The contract's ERC-7730 file and its ERC-8176 <code>descriptorHash</code>; deterministic. What a file cannot say is <diag>E_EXPORT</diag>; no deployment is <diag>E_DEPLOYMENT</diag>.</td></tr>
     <tr><td><code>descriptorHash(descriptor)</code></td><td><code>0x</code> and the Keccak-256 of the RFC 8785 form: the hash of a file someone edited.</td></tr>
     <tr><td><code>erc8176Attestation(input)</code></td><td>The unsigned offchain attestation (EAS offchain v2 typed data) and its EIP-712 digest, for a reviewer to sign with their own key.</td></tr>
     <tr><td><code>ERC7730_SCHEMA_URL</code>, <code>ERC8176_SCHEMA_UID</code>, <code>EAS_ADDRESS</code></td><td>The exact-version schema every file names; ERC-8176's schema UID; the canonical EAS contract.</td></tr>
@@ -682,10 +682,10 @@ export function createToolLayer(config: ToolLayerConfig): ToolLayer;
   </thead>
   <tbody>
     <tr><td><code>createToolLayer(config)</code></td><td>The layer an agent host serves: <code>listTools()</code> and <code>callTool(name, input)</code>. <code>confirm</code> is awaited before every send and is required when the form has an update method; the model never confirms. <code>now</code> is the named canister's clock.</td></tr>
-    <tr><td><code>toolDefinitions(resolved, options?)</code></td><td>MCP tool definitions, sorted by name.</td></tr>
+    <tr><td><code class="wrap">toolDefinitions(resolved, options?)</code></td><td>MCP tool definitions, sorted by name.</td></tr>
     <tr><td><code>buildToolPlans</code>, <code>resolvedMethods</code>, <code>prepareToolName</code>, <code>caseToolName</code>, <code>COMMIT_TOOL</code></td><td>Which tools a form gives and what each one fills; <code>prepare_&lt;method&gt;</code>; a tool per case of a variant argument (D-053); <code>"commit"</code>.</td></tr>
-    <tr><td><code>readToolInput(plan, input, context?)</code></td><td>Reads a tool call's inputs in human units: <code>{ value, identity }</code> or <code>{ issues }</code> (<a href="reference-profile-diagnostics.html#meantjs-tools-input-issues">input issues</a>).</td></tr>
-    <tr><td><code>classifyReply(plan, reply)</code></td><td>The outcome class of a reply, by the method's <code>outcome</code> tag.</td></tr>
+    <tr><td><code class="wrap">readToolInput(plan, input, context?)</code></td><td>Reads a tool call's inputs in human units: <code>{ value, identity }</code> or <code>{ issues }</code> (<a href="reference-profile-diagnostics.html#meantjs-tools-input-issues">input issues</a>).</td></tr>
+    <tr><td><code class="wrap">classifyReply(plan, reply)</code></td><td>The outcome class of a reply, by the method's <code>outcome</code> tag.</td></tr>
     <tr><td><code>toCandid</code>, <code>displayValue</code>, <code>nameEntries</code></td><td>Converted values to candid-core shapes; values as a preview shows them; the entries of a <code>names</code> set in a reply.</td></tr>
   </tbody>
 </table>
@@ -731,9 +731,9 @@ export function matchBlocks(blocks: { id: bigint; block: Icrc3Value }[], expecte
     <tr><th>Export</th><th>Does</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>expectedTransaction(method, arg, caller, options?)</code></td><td>The ICRC-3 transaction a call leaves, or undefined for a method this module does not map, a call without a stamp, or an unreadable caller. <code>options.minting</code> is the ledger's <code>icrc1_minting_account</code>.</td></tr>
-    <tr><td><code>matchBlocks(blocks, expected, options)</code></td><td>Judges the blocks read since the first send: <code>found</code>, <code>absent</code>, <code>not_yet</code> or <code>unreadable</code>; never <code>absent</code> while a send may still land or a block in the range could not be read.</td></tr>
-    <tr><td><code>blockMatches(block, expected)</code></td><td>Whether one block carries exactly this transaction.</td></tr>
+    <tr><td><code class="wrap">expectedTransaction(method, arg, caller, options?)</code></td><td>The ICRC-3 transaction a call leaves, or undefined for a method this module does not map, a call without a stamp, or an unreadable caller. <code>options.minting</code> is the ledger's <code>icrc1_minting_account</code>.</td></tr>
+    <tr><td><code class="wrap">matchBlocks(blocks, expected, options)</code></td><td>Judges the blocks read since the first send: <code>found</code>, <code>absent</code>, <code>not_yet</code> or <code>unreadable</code>; never <code>absent</code> while a send may still land or a block in the range could not be read.</td></tr>
+    <tr><td><code class="wrap">blockMatches(block, expected)</code></td><td>Whether one block carries exactly this transaction.</td></tr>
     <tr><td><code>DEDUP_WINDOW_NS</code></td><td>ICRC-1 <code>TX_WINDOW</code> plus <code>PERMITTED_DRIFT</code> of the DFINITY ledger: 24 h 2 min, 86,520,000,000,000 ns. For a caller that has checked its ledger uses it.</td></tr>
     <tr><td><code>U64_MAX</code>, <code>METHODS</code></td><td>Where the DFINITY ledger's u64 build caps an approval; the three methods mapped to a block.</td></tr>
   </tbody>

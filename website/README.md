@@ -54,7 +54,8 @@ website/
 them; see Publishing.
 
 `style.css` is copied from the Meant Docs design system rather than written
-here: its tokens (every colour once per theme, dark first, then spacing, radii,
+here, with one site addition marked as such in the file (`code.wrap`, for
+long code in a table cell, until the system takes it or answers it otherwise): its tokens (every colour once per theme, dark first, then spacing, radii,
 layout widths and type styles), then its component rules, which style the class
 names `build.mjs` already emits. Change a value in the design system and copy
 both parts again, so the site and the system never drift. The font stacks name

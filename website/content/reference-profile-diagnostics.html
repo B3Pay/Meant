@@ -79,7 +79,7 @@ export interface Diagnostic {
     <tr><td><diag>E_TAG_NOT_APPLICABLE</diag></td><td>error</td><td>Wrong Candid type. Includes <code>account</code> and <code>subaccount</code> on an EVM contract (no ABI type) (§15.4).</td></tr>
     <tr><td><diag>E_REF_UNRESOLVED</diag></td><td>error</td><td>Bad dynamic value: the <code>query:</code> method is not in the interface.</td></tr>
     <tr><td><diag>E_REF_NOT_QUERY</diag></td><td>error</td><td>Bad dynamic value: the <code>query:</code> method is not a query.</td></tr>
-    <tr><td><diag>E_REF_SHAPE</diag></td><td>error</td><td>Bad dynamic value: the method does not take no arguments and return one value.</td></tr>
+    <tr><td><diag>E_REF_SHAPE</diag></td><td>error</td><td>Bad dynamic value: the method takes arguments, or does not return exactly one value.</td></tr>
     <tr><td><diag>E_REF_TYPE</diag></td><td>error</td><td>Bad dynamic value: the method returns the wrong kind (a number expected, or text).</td></tr>
     <tr><td><diag>E_DYNAMIC_KIND</diag></td><td>error</td><td>Bad dynamic value: <code>now</code> or <code>caller</code> where only <code>query:</code> is valid.</td></tr>
     <tr><td><diag>E_DEFAULT_NULL</diag></td><td>error</td><td><code>null</code> default on a non-optional position.</td></tr>

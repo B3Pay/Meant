@@ -903,6 +903,14 @@ pre.code {
 .table-wrap td code {
   white-space: nowrap;
 }
+/* Site addition, not yet in the Meant Docs design system: code in a table
+   cell that is too long for one line (a pack's arguments, a signature, a
+   78-digit amount) may wrap, at its spaces first. Copy it into the system, or drop it here when
+   the system gives tables another answer. */
+.table-wrap td code.wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
 /* --------------------------------------------------------------- cards */
 

@@ -35,7 +35,7 @@ symbol: { "from": "query:icrc1_symbol" }
       <td><span class="pill ok">core</span></td>
       <td><code>nat</code>, <code>int</code>, <code>nat8</code>, <code>nat16</code>, <code>nat32</code>, <code>nat64</code>, <code>int8</code>, <code>int16</code>, <code>int32</code>, <code>int64</code></td>
       <td>
-        <code>decimals</code>, required: an integer 0–255, or <code>{ "from": "query:&lt;method&gt;" }</code>.<br>
+        <code>decimals</code>, required: an integer 0–255, or <code class="wrap">{ "from": "query:&lt;method&gt;" }</code>.<br>
         <code>symbol</code>, optional: text of 1–32 characters, or a <code>query:</code> value.<br>
         <code>threshold</code>, optional, display only: a decimal string in base units; a value at or above it displays as <code>message</code> and the symbol.<br>
         <code>message</code>, optional: 1–32 characters, default <code>"Unlimited"</code>; needs <code>threshold</code>.
@@ -59,7 +59,7 @@ symbol: { "from": "query:icrc1_symbol" }
     <tr>
       <td><a href="value-tags.html"><code>account</code></a></td>
       <td><span class="pill ok">core</span></td>
-      <td><code>record { owner : principal; subaccount : opt blob }</code></td>
+      <td><code class="wrap">record { owner : principal; subaccount : opt blob }</code></td>
       <td><code>encoding</code>, optional: <code>icrc1</code>.</td>
     </tr>
     <tr>

@@ -188,7 +188,9 @@ candid-profile: tokens-memo.did  candid-core:interface:v1:sha256:7cb0945a805c17a
   value-conversion tags out of the resolved form (<code>amount</code>, <code>timestamp</code>,
   <code>duration</code>, <code>account</code>, <code>subaccount</code> and <code>bytes</code>) and
   keeps the rest: <code>intent</code>, <code>effect</code>, <code>describe</code>,
-  <code>default</code> and the others. In the stale resolve above, <code>send(0).amount.e8s</code>
+  <code>default</code> and the others. The spec lists those six; the reference resolver in
+  <code>@meantjs/profile</code> 0.2.0 also leaves out a stale profile's <code>named</code> tags,
+  since a name stands in for a value. In the stale resolve above, <code>send(0).amount.e8s</code>
   still has its <code>describe</code> label and no longer has its <code>amount</code> tag, and
   <code>send</code> keeps its intent, effect, idempotency and outcome tags. Agent tools fall back to
   raw Candid for those positions.

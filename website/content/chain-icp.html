@@ -48,7 +48,7 @@ candid-profile: packages/resolver/test/fixtures/ledger.did  candid-core:interfac
   </thead>
   <tbody>
     <tr><td><code>amount</code></td><td><code>nat</code> and the sized integers</td><td><code>1.5 ICP</code></td><td><code>150000000</code> with <code>decimals: 8</code>, from <code>query:icrc1_decimals</code> on a ledger</td></tr>
-    <tr><td><code>account</code></td><td><code>record { owner : principal; subaccount : opt blob }</code></td><td>the ICRC-1 textual encoding, <code>principal-checksum.subaccounthex</code>, or a bare principal for the default subaccount</td><td>the record; the checksum is verified on input</td></tr>
+    <tr><td><code>account</code></td><td><code class="wrap">record { owner : principal; subaccount : opt blob }</code></td><td>the ICRC-1 textual encoding, <code>principal-checksum.subaccounthex</code>, or a bare principal for the default subaccount</td><td>the record; the checksum is verified on input</td></tr>
     <tr><td><code>subaccount</code></td><td><code>blob</code></td><td><code>#7</code>, <code>7</code>, or 64 hex characters</td><td>32 bytes, big-endian</td></tr>
     <tr><td><code>timestamp</code></td><td><code>nat64</code> (ledgers use <code>unit: "ns"</code>)</td><td>an RFC 3339 time, or <code>+PT24H</code> from the canister's clock</td><td>nanoseconds since the Unix epoch</td></tr>
   </tbody>
