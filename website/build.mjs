@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* The candid-core documentation site generator.
+/* The Meant documentation site generator.
  *
  * Zero dependencies — Node built-ins only. It reads content/_site.json for the
  * navigation and content/<slug>.html for each page body, then writes a flat set
@@ -8,6 +8,7 @@
  *
  *   node website/build.mjs            build into website/dist
  *   node website/build.mjs --serve    build, then serve dist on :4173
+ *   node website/build.mjs --out DIR  build into DIR instead of website/dist
  *
  * Authoring notes for content/*.html:
  *   - The file is a body fragment. No <html>, <head> or <body>.
@@ -15,6 +16,10 @@
  *     text inside is taken literally: write `<T>` and `&` unescaped, never
  *     write the literal string "</pre>" inside a sample.
  *   - <h2>/<h3> get ids, anchors and a table-of-contents entry automatically.
+ *   - The Meant components of the design system are written as tags and
+ *     expanded here into their exact markup (renderComponents below), so a
+ *     page never repeats it: <outcome>, <effect>, <claim>, <diag>, <id-chip>,
+ *     <annotation>, <tool-view>, <consent> and <chain-switch>.
  */
 
 import { readFile, writeFile, mkdir, readdir, rm, copyFile, stat } from "node:fs/promises";
@@ -22,20 +27,21 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { highlight } from "./assets/highlight.js";
+import { escapeHtml, layerIcon, LAYERS, renderComponents } from "./components.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CONTENT = join(HERE, "content");
 const ASSETS = join(HERE, "assets");
-const OUT = join(HERE, "dist");
+const OUT = (() => {
+  const at = process.argv.indexOf("--out");
+  return at > -1 ? resolve(process.argv[at + 1]) : join(HERE, "dist");
+})();
 
 // Incremental authoring: skip pages listed in the sitemap whose file is not
 // written yet, instead of failing the whole build.
 const ALLOW_MISSING = process.argv.includes("--allow-missing");
 
 /* ----------------------------------------------------------------- utils */
-
-const escapeHtml = (text) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const slugify = (text) =>
   text
@@ -153,10 +159,11 @@ function renderNav(site, activeSlug) {
   return site.sections
     .map((section) => {
       const items = section.pages
-        .map((page) => {
+        .map((entry) => {
+          const page = { ...entry, layer: entry.layer || section.layer };
           const current = page.slug === activeSlug ? ' aria-current="page"' : "";
           const href = page.slug === "index" ? "./" : `${page.slug}.html`;
-          return `<li><a href="${href}"${current}>${escapeHtml(page.nav || page.title)}</a></li>`;
+          return `<li><a href="${href}"${current}>${layerIcon(page.layer)}${escapeHtml(page.nav || page.title)}</a></li>`;
         })
         .join("");
       return `<div class="nav-section"><h2>${escapeHtml(section.title)}</h2><ul>${items}</ul></div>`;
@@ -166,7 +173,7 @@ function renderNav(site, activeSlug) {
 
 function flatPages(site) {
   return site.sections.flatMap((section) =>
-    section.pages.map((page) => ({ ...page, section: section.title })),
+    section.pages.map((page) => ({ ...page, layer: page.layer || section.layer, section: section.title })),
   );
 }
 
@@ -210,13 +217,9 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
 <footer class="site-footer">
   <div class="site-footer-inner">
     ${MARK}
-    <span>${escapeHtml(site.title)} — Apache-2.0</span>
+    <span>${escapeHtml(site.footer.note)}</span>
     <span class="sep"></span>
-    <a href="${site.docs.url}">${escapeHtml(site.docs.title)}</a>
-    <a href="${site.repo}">Repository</a>
-    <a href="${site.repo}/issues">Issues</a>
-    <a href="https://crates.io/crates/candid-core">crates.io</a>
-    <a href="https://www.npmjs.com/package/@candid-core/schema">npm</a>
+    ${site.footer.links.map((link) => `<a href="${link.href}">${escapeHtml(link.label)}</a>`).join("\n    ")}
   </div>
 </footer>`;
 
@@ -307,7 +310,11 @@ async function build() {
     let body = raw;
     let toc = "";
     if (!isLanding) {
-      const heading = `<h1>${escapeHtml(page.title)}</h1>${page.lead ? `<p class="page-lead">${page.lead}</p>` : ""}`;
+      // A page of one layer says so above its title, icon beside the name.
+      const kicker = page.layer
+        ? `<p class="card-kicker">${layerIcon(page.layer, 12)}${escapeHtml(LAYERS[page.layer].name)}</p>`
+        : "";
+      const heading = `${kicker}<h1>${escapeHtml(page.title)}</h1>${page.lead ? `<p class="page-lead">${page.lead}</p>` : ""}`;
       const processed = headingsAndToc(body);
       toc = renderToc(processed.toc);
       body = heading + processed.html;
@@ -317,6 +324,7 @@ async function build() {
           index.push({
             title: `${page.title} › ${entry.text}`,
             section: page.section,
+            layer: page.layer || "",
             url: `${page.slug === "index" ? "index" : page.slug}.html#${entry.id}`,
             headings: entry.text,
             lead: "",
@@ -328,6 +336,7 @@ async function build() {
 
     body = renderCallouts(body);
     body = renderCodeBlocks(body);
+    body = renderComponents(body);
     body = wrapTables(body);
 
     const html = shell({
@@ -346,6 +355,7 @@ async function build() {
     index.unshift({
       title: page.title,
       section: page.section,
+      layer: page.layer || "",
       url: page.slug === "index" ? "./" : `${page.slug}.html`,
       headings: "",
       lead: page.lead ? plainText(page.lead) : "",
@@ -367,7 +377,7 @@ async function build() {
 
   await writeFile(
     join(OUT, "assets", "search-index.js"),
-    `window.CANDID_CORE_SEARCH_INDEX = ${JSON.stringify(index)};\n`,
+    `window.MEANT_SEARCH_INDEX = ${JSON.stringify(index)};\n`,
     "utf8",
   );
 

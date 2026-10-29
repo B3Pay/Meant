@@ -1,5 +1,6 @@
 /* Site behaviour: theme, mobile navigation, command-palette search, copy
- * buttons, table-of-contents scrollspy, and tab groups.
+ * buttons, table-of-contents scrollspy, tab groups, and the Meant components
+ * that move: the chain switcher, identity chips and the consent preview.
  *
  * A classic script, not a module, and it calls fetch() nowhere: the search
  * index arrives from assets/search-index.js as a global. That combination is
@@ -77,21 +78,30 @@
 
   function initCopy() {
     document.addEventListener("click", function (event) {
-      var button = event.target.closest(".copy-button");
+      // A code block's button copies its code; an identity chip's button
+      // (data-copy) copies the whole id the chip shows truncated.
+      var button = event.target.closest(".copy-button, [data-copy]");
       if (!button) return;
-      var block = button.closest(".code-block");
-      var code = block && block.querySelector("pre > code");
-      if (!code) return;
+      var text;
+      if (button.hasAttribute("data-copy")) {
+        text = button.getAttribute("data-copy");
+      } else {
+        var block = button.closest(".code-block");
+        var code = block && block.querySelector("pre > code");
+        if (!code) return;
+        text = code.textContent;
+      }
 
-      var text = code.textContent;
       var done = function () {
         button.setAttribute("data-copied", "true");
         var label = button.querySelector(".copy-label");
-        var previous = label ? label.textContent : "";
+        var previous = label ? label.textContent : button.textContent;
         if (label) label.textContent = "copied";
+        else button.textContent = "Copied";
         setTimeout(function () {
           button.removeAttribute("data-copied");
           if (label) label.textContent = previous;
+          else button.textContent = previous;
         }, 1400);
       };
 
@@ -117,6 +127,73 @@
         }
         document.body.removeChild(area);
       }
+    });
+  }
+
+  /* ----------------------------------------------------- chain switcher */
+
+  /* Every switcher on a page shows the reader's last choice, remembered on
+   * their device, so a reader on EVM stays on EVM from page to page. A page
+   * that does not offer the remembered chain shows its first one. */
+  var CHAIN_KEY = "meant-chain";
+
+  function setChain(id) {
+    document.querySelectorAll(".chain-switch").forEach(function (group) {
+      var buttons = Array.prototype.slice.call(group.querySelectorAll("button[data-chain]"));
+      var offered = buttons.some(function (button) {
+        return button.getAttribute("data-chain") === id;
+      });
+      var chosen = offered ? id : buttons.length ? buttons[0].getAttribute("data-chain") : id;
+      buttons.forEach(function (button) {
+        button.setAttribute("aria-pressed", button.getAttribute("data-chain") === chosen ? "true" : "false");
+      });
+    });
+    var panels = document.querySelectorAll("[data-chain-panel]");
+    var shown = Array.prototype.some.call(panels, function (panel) {
+      return panel.getAttribute("data-chain-panel") === id;
+    });
+    var fallback = panels.length ? panels[0].getAttribute("data-chain-panel") : id;
+    panels.forEach(function (panel) {
+      panel.hidden = panel.getAttribute("data-chain-panel") !== (shown ? id : fallback);
+    });
+  }
+
+  function initChains() {
+    if (!document.querySelector(".chain-switch")) return;
+    var saved = null;
+    try {
+      saved = localStorage.getItem(CHAIN_KEY);
+    } catch (error) {
+      /* Blocked storage: the choice lasts for this page only. */
+    }
+    var pressed = document.querySelector('.chain-switch button[aria-pressed="true"]');
+    setChain(saved || (pressed ? pressed.getAttribute("data-chain") : "icp"));
+    document.addEventListener("click", function (event) {
+      var button = event.target.closest(".chain-switch button[data-chain]");
+      if (!button) return;
+      var id = button.getAttribute("data-chain");
+      setChain(id);
+      try {
+        localStorage.setItem(CHAIN_KEY, id);
+      } catch (error) {
+        /* As above. */
+      }
+    });
+  }
+
+  /* ---------------------------------------------------- consent preview */
+
+  /* The preview's buttons say what each choice would do; nothing is sent. */
+  function initConsent() {
+    document.addEventListener("click", function (event) {
+      var button = event.target.closest(".consent [data-consent]");
+      if (!button) return;
+      var note = button.closest(".consent").querySelector(".consent-note");
+      if (!note) return;
+      note.textContent =
+        button.getAttribute("data-consent") === "confirm"
+          ? "Confirmed by the owner. This is the only step that sends."
+          : "Rejected. Nothing was sent, and the tool tells the agent.";
     });
   }
 
@@ -225,8 +302,18 @@
     var results = document.getElementById("search-results");
     if (!trigger || !dialog || !input || !results) return;
 
-    var index = window.CANDID_CORE_SEARCH_INDEX || [];
+    var index = window.MEANT_SEARCH_INDEX || [];
     var base = document.documentElement.getAttribute("data-base") || "";
+    var icon = function (name) {
+      return (
+        '<img class="on-dark" src="' + base + "assets/" + name + '-dark.svg" alt="" width="12" height="12">' +
+        '<img class="on-light" src="' + base + "assets/" + name + '-light.svg" alt="" width="12" height="12">'
+      );
+    };
+    var LAYERS = {
+      interfaces: { name: "Interfaces", icon: icon("meant-layer-interfaces") },
+      profiles: { name: "Profiles", icon: icon("meant-layer-profiles") },
+    };
     var selected = 0;
     var current = [];
 
@@ -287,7 +374,14 @@
         link.innerHTML =
           '<span class="search-title"></span><span class="search-crumb"></span><span class="search-snippet"></span>';
         link.querySelector(".search-title").textContent = entry.title;
-        link.querySelector(".search-crumb").textContent = entry.section;
+        var crumb = link.querySelector(".search-crumb");
+        // The layer icon sits beside the layer's name, never alone.
+        if (LAYERS[entry.layer]) {
+          crumb.innerHTML = LAYERS[entry.layer].icon;
+          crumb.appendChild(document.createTextNode(LAYERS[entry.layer].name + " · " + entry.section));
+        } else {
+          crumb.textContent = entry.section;
+        }
         link.querySelector(".search-snippet").textContent = entry.snippet;
         item.appendChild(link);
         results.appendChild(item);
@@ -305,6 +399,7 @@
           scored.push({
             title: entry.title,
             section: entry.section,
+            layer: entry.layer,
             url: entry.url,
             snippet: snippet(entry, terms[0]),
             score: value,
@@ -372,6 +467,8 @@
     initNav();
     initCopy();
     initTabs();
+    initChains();
+    initConsent();
     initScrollspy();
     initSearch();
   });

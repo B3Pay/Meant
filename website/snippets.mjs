@@ -7,6 +7,8 @@
  * its three subpaths to the SOURCE in that directory, and `@candid-core/cli`
  * to its hand-written declarations, so a snippet is checked against what the
  * repository builds — exactly the four subpaths the package exports, no more.
+ * The profile packages, `@meantjs/*`, resolve to their hand-written `.d.mts`
+ * under profile/packages, again exactly the subpaths each one exports.
  *
  * Every `<pre>` whose language is ts or js is in exactly one of four classes,
  * and a block in none of them fails the gate, so an unverified snippet cannot
@@ -145,8 +147,25 @@ export function excerptProblem(excerpt, fileText, partial = false) {
   return null;
 }
 
+/* The five profile packages, `@meantjs/*`: each export resolves to its
+ * hand-written declarations, exactly the subpaths its package.json exports. */
+const PROFILE_EXPORTS = {
+  "@meantjs/profile": "resolver/src/index.d.mts",
+  "@meantjs/profile/address": "resolver/src/address.d.mts",
+  "@meantjs/profile/browser": "resolver/src/browser.d.mts",
+  "@meantjs/profile/evm": "resolver/src/evm.d.mts",
+  "@meantjs/format": "format/src/index.d.mts",
+  "@meantjs/consent": "consent/src/index.d.mts",
+  "@meantjs/consent/sns": "consent/src/sns.d.mts",
+  "@meantjs/consent/evm": "consent/src/evm.d.mts",
+  "@meantjs/consent/erc7730": "consent/src/erc7730.d.mts",
+  "@meantjs/tools": "tools/src/index.d.mts",
+  "@meantjs/reconcile": "reconcile/src/index.d.mts",
+};
+
 function tsconfig(root, cli) {
   const ts = join(root, "crates", "candid-core-ts", "ts");
+  const profile = join(root, "profile", "packages");
   return {
     compilerOptions: {
       strict: true,
@@ -166,6 +185,9 @@ function tsconfig(root, cli) {
         "@candid-core/schema/contract": [join(ts, "contract.ts")],
         "@candid-core/schema/codec": [join(ts, "codec.ts")],
         "@candid-core/cli": [cli],
+        ...Object.fromEntries(
+          Object.entries(PROFILE_EXPORTS).map(([name, file]) => [name, [join(profile, file)]]),
+        ),
       },
     },
     include: ["**/*.ts", "**/*.js"],
@@ -327,9 +349,10 @@ export async function checkSnippets({ pages, root, skipCompile = false }) {
     const known = new Set(files.map((f) => f.name));
     for (const d of diagnostics) {
       const base = d.file.split("/").pop();
-      if (!known.has(base) && !base.endsWith("ambient.d.ts") && !d.file.includes("/crates/")) {
+      const inTree = d.file.includes("/crates/") || d.file.includes("/profile/packages/");
+      if (!known.has(base) && !base.endsWith("ambient.d.ts") && !inTree) {
         report("snippets", `compiler: ${d.file}(${d.line}): ${d.code} ${d.message}`);
-      } else if (d.file.includes("/crates/")) {
+      } else if (inTree) {
         report("snippets", `compiler, in the tree: ${d.file}(${d.line}): ${d.code} ${d.message}`);
       }
     }

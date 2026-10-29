@@ -1,4 +1,11 @@
-# The candid-core documentation site
+# The Meant documentation site
+
+One site for everything in this repository, in two layers: **Interfaces** (the
+`meant` crate, `@candid-core/schema`, `@candid-core/cli`, the generator) and
+**Profiles** (the Candid Profile spec under `profile/`, the five `@meantjs`
+packages and the `meant-format` crate). The navigation follows the Meant Docs
+design system's site structure: Learn, Guides, Concepts, Reference, Chains,
+then Project, with each page of one layer marked by that layer's icon.
 
 A static documentation site with **no dependencies at all** — no site generator,
 no CSS framework, no webfonts, no npm install. `build.mjs` and `check.mjs` use
@@ -13,24 +20,31 @@ node website/build.mjs --serve
 
 Then open <http://localhost:4173>. Omit `--serve` to build only. Add
 `--allow-missing` while drafting to skip sitemap entries whose file does not
-exist yet.
+exist yet. `--out <dir>` builds somewhere other than `dist/`, and
+`check.mjs --dist <dir>` checks that build, so two builds at once do not
+overwrite each other.
 
 ## Layout
 
 ```
 website/
   build.mjs         the generator: content + assets -> dist/
+  components.mjs    the Meant components a page writes as tags (see below)
   check.mjs         the gates (see below)
   redirects.mjs     the old address's redirects: dist/ -> redirects/
   content/
-    _site.json      the sitemap; this is the navigation, and the page order
+    _site.json      the sitemap; this is the navigation, and the page order.
+                    A section or a page may carry "layer": "interfaces" or
+                    "profiles", which puts the layer's icon beside it in the
+                    sidebar, above its title and in search results
     <slug>.html     one body fragment per page
   assets/
     style.css       the Meant Docs design system: its tokens, then its component rules
     site.js         theme, mobile nav, search, copy buttons, scrollspy, tabs
     highlight.js    the syntax highlighter, used at build time
     favicon.svg     the Meant mark on a graphite tile
-    meant-*.svg     the lockup (header) and the mark (footer), one file per ground
+    meant-*.svg     the lockup (header), the mark (footer) and the two layer
+                    icons, one file per ground
   snippets.mjs      the TypeScript snippet gates, run by check.mjs
   dist/             generated; not committed
   redirects/        generated; not committed
@@ -80,6 +94,33 @@ search index would both break a page opened directly from disk.
 
 Languages: `rust`, `ts`, `js`, `json`, `bash`, `candid`, `toml`, `text`.
 
+### The Meant components
+
+The design system's Meant components are written as tags, and `build.mjs`
+expands each into the system's exact markup through `components.mjs`, so the
+copied stylesheet styles them and no page repeats the markup:
+
+```html
+<layer>profiles</layer>                       the layer icon and its name
+<outcome>retry_same</outcome>                 an outcome class, a shape and a word
+<effect>transfer</effect>                     an effect
+<claim>fact</claim>                           Fact, Assumption or Open, before the sentence it labels
+<diag>E_ADDR_UNRESOLVED</diag>                a diagnostic code
+<id-chip kind="interface_id">…</id-chip>      an identity, shown truncated and copied whole
+<annotation at="…" tag="amount">              one profile annotation, an argument a line
+decimals: query:icrc1_decimals
+</annotation>
+<tool-view><sees value="1.5 ICP">…</sees><sends value="150000000">…</sends></tool-view>
+<consent standard="Consent · ICRC-21" title="…" effects="transfer irreversible">
+<field name="Amount" amount>1.5 ICP</field>
+</consent>
+<chain-switch chains="icp evm"></chain-switch> then elements with data-chain-panel="icp" …
+```
+
+The header of `components.mjs` lists every attribute. A chain switcher
+remembers the reader's choice on their device, so a reader on EVM stays on
+EVM from page to page; use one only where the answer differs by chain.
+
 ### Callouts, tables and the rest
 
 ```html
@@ -111,6 +152,12 @@ node website/build.mjs && node website/check.mjs
   while still working on a local server — the one mistake local preview cannot
   catch;
 - a performance claim, or marketing filler, anywhere in the prose;
+- a Meant component with a value it does not have (an outcome class, an
+  effect, a claim, a chain or a layer), a chain panel without a switcher, or a
+  `<diag>` code that the profile spec, the profile packages' sources and
+  `meant-format` define nowhere;
+- an `@meantjs/<name>@<version>` that is not one of the five packages or not
+  the version its `package.json` in `profile/packages/` holds;
 - a name `@candid-core/schema` 0.2.0 has and 0.3.0 removes (and so `latest`,
   0.5.0, lacks)
   (`createActor`, `httpTransport`, `PrincipalValue`, the four removed
@@ -143,21 +190,32 @@ broken spellings, and a copyable line is the thing that must work:
   yet, such as a prepared beta (`@candid-core/schema@0.3.0-beta.2`, or
   `@candid-core/schema@beta` before any beta exists). The version-bump pull
   request adds its specs; the publish-day pull request removes them;
-- a `candid-core` dependency requirement that is anything other than the
-  exact pin. The required spelling is derived from the `version` in
-  `Cargo.toml` rather than written down here, so a release makes every stale
-  line in the documentation fail on the next run. While that version is a
-  prerelease the `=` is mandatory, because a caret requirement never selects
-  a prerelease; until 1.0 it stays mandatory by policy, because a caret
-  requirement would take a breaking 0.x release. Note that a bare
-  `candid-core = "0.1.0"` _is_ a caret requirement. After 1.0 the plain
+- the crate's old name: `use candid_core::`, a `candid-core = …` dependency
+  line, or `cargo add`/`cargo install candid-core`. The crate is `meant`
+  since the rename; the Contract format's own `candid-core` strings and the
+  `@candid-core/` npm names are unchanged and untouched by these rules;
+- a `meant` or `meant-format` dependency requirement that is anything other
+  than the exact pin. The required spelling is derived from the `version` in
+  each crate's own `Cargo.toml` rather than written down here, so a release
+  makes every stale line in the documentation fail on the next run. While
+  that version is a prerelease the `=` is mandatory, because a caret
+  requirement never selects a prerelease; until 1.0 it stays mandatory by
+  policy, because a caret requirement would take a breaking 0.x release. Note
+  that a bare `meant = "0.1.0"` _is_ a caret requirement. After 1.0 the plain
   requirement becomes the correct one and this rule follows on its own;
-- a bare `cargo add candid-core`, or `cargo add candid-core@<wrong-req>`.
+- a bare `cargo add meant`, or `cargo add meant@<wrong-req>` (and the same
+  for `meant-format`), and a `cargo install <crate> --version` naming another
+  version than the manifest's;
+- a dependency line or `cargo add` for a crate version in
+  `UNPUBLISHED_CRATES` in `check.mjs`: a version a manifest holds that
+  crates.io does not yet (`meant-format@0.2.0` today). The publish removes
+  the entry.
 
-`cargo install candid-core --version 0.1.0` is deliberately **not**
-flagged. Cargo's manual states that a `--version` without a requirement
-operator installs exactly that version and is not treated as a caret
-requirement — unlike a dependency in a manifest, where a bare string is one.
+`cargo install meant --version 0.1.0` is deliberately **not** flagged as a
+caret requirement. Cargo's manual states that a `--version` without a
+requirement operator installs exactly that version and is not treated as a
+caret requirement — unlike a dependency in a manifest, where a bare string is
+one.
 
 It also warns about softer filler without failing.
 
@@ -184,6 +242,10 @@ Compilation uses the TypeScript pinned in `crates/candid-core-ts/ts`
 in that directory and `@candid-core/cli` to its hand-written declarations.
 Exactly the four exported subpaths resolve, so an import of a removed one is a
 compile error, which is what the migration page's "before" blocks rely on.
+The five `@meantjs` packages, and exactly the subpaths each one exports,
+resolve to their hand-written `.d.mts` declarations under
+`profile/packages/*/src`, so a profile snippet is checked against the types
+the published tarball carries.
 A snippet may import `./ledger.ts`, `./shadowing.ts` or `./generated/interface`,
 which the gate supplies from the checked-in goldens, so the import resolves to
 real generated output. If the compiler is not installed the check fails and
@@ -202,6 +264,13 @@ codes and version numbers. All of them are checkable against the source. When
 you change a public API, grep this directory for its name before you assume the
 docs still hold — nothing here is generated from the code, so nothing here
 updates itself.
+
+The profile pages describe `profile/`, which is a synced copy of the
+candid-profile repository that each sync pull request replaces whole (see the
+repository's `CLAUDE.md`). A sync that changes the spec, a pack or a package's
+API changes what those pages must say: the snippet, version and diagnostic-code
+gates catch part of it, and the rest is a read of the sync's diff against the
+pages under Guides · Profiles, Concepts · Profiles and Reference · Profiles.
 
 ## Publishing
 
