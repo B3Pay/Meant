@@ -349,26 +349,15 @@ jobs:
           cargo doc -p meant-format --no-deps --locked
           cargo doc -p meant-format --no-deps --no-default-features --locked
       # The published file set, exactly, by the same positive-allowlist rule as
-      # the root package: tests and the parity vectors never ship. Then the
-      # archive is built and compiled on its own, as `cargo publish` would.
+      # the root package: tests and the parity vectors never ship. The list is
+      # pinned once, for this job, `Release candidate` and `Release` (#300).
+      # Then the archive is built and compiled on its own, as `cargo publish`
+      # would.
       - name: Verify the package
         run: |
           set -euxo pipefail
           cargo package -p meant-format --locked --list > "$RUNNER_TEMP/meant-format-files.txt"
-          diff -u - "$RUNNER_TEMP/meant-format-files.txt" <<'EOF'
-          .cargo_vcs_info.json
-          CHANGELOG.md
-          Cargo.lock
-          Cargo.toml
-          Cargo.toml.orig
-          LICENSE
-          README.md
-          src/amount.rs
-          src/error.rs
-          src/int_type.rs
-          src/lib.rs
-          src/text.rs
-          EOF
+          diff -u tests/fixtures/packaging/meant-format-files.txt "$RUNNER_TEMP/meant-format-files.txt"
           cargo package -p meant-format --locked
 
   benchmark-smoke:

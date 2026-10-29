@@ -1,6 +1,6 @@
 {
   "name": "@meantjs/reconcile",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Consumer rule 1 without a transport: the ICRC-3 block an ICRC-1/2 write leaves, and whether the blocks a caller read since its first send hold it (found, absent, not yet, or unreadable with a lookalike). Browser-safe.",
   "license": "Apache-2.0",
   "repository": {
@@ -43,7 +43,7 @@
     "test": "node --test \"test/*.test.mjs\""
   },
   "dependencies": {
-    "@meantjs/format": "0.2.0"
+    "@meantjs/format": "0.3.0"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

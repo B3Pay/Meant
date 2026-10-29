@@ -15,9 +15,10 @@ import { profileId } from "./util.mjs";
 import { compileInterface, interfaceFromEnvelope } from "./compile.mjs";
 import { analyzeProfiles } from "./analyze.mjs";
 import { matchPack } from "./pack-match.mjs";
-import { abiInterface, checkDeployments } from "./abi-iface.mjs";
+import { abiInterface, checkDeployments, eip712Of } from "./abi-iface.mjs";
 import { matchAbiPack, translatePack } from "./abi-pack.mjs";
 import { abiInterfaceId, parseAbi } from "./abi.mjs";
+import { jcs } from "./util.mjs";
 import { resolvedForm } from "./resolved.mjs";
 import { schemaDiagnostics } from "./schema-core.mjs";
 
@@ -59,12 +60,15 @@ async function resolveCompiled(opts, fromEnvelope) {
   const statuses = [];
   if (opts.abi !== undefined) {
     const label = opts.didLabel ?? "abi";
-    const compiled = abiInterface(opts.abi, label);
+    // The messages of an EVM contract come from its profiles and packs (spec section 15.9), so the interface is built
+    // again once they are known; an ABI without functions is refused only if none brings a message.
+    const build = (eip712, allowEmpty = false) => abiInterface(opts.abi, label, "contract", eip712, { allowEmpty });
+    const compiled = build(null, true);
     if (compiled.failure) {
       for (const d of compiled.failure) diagnostics.push({ severity: "error", code: "E_ABI", at: d.at, message: d.message });
       return { ok: false, resolved: null, diagnostics, profiles: statuses };
     }
-    return resolveWith(compiled.iface, opts, diagnostics, statuses);
+    return resolveWith(compiled.iface, opts, diagnostics, statuses, build);
   }
   const compiled = fromEnvelope ? interfaceFromEnvelope(opts.envelope, "canister") : await compileInterface(opts.did, "canister");
   if (compiled.failure) {
@@ -78,7 +82,7 @@ async function resolveCompiled(opts, fromEnvelope) {
 /** A profile or pack for an EVM contract (spec section 15) rather than a Candid service. */
 const isEvmDoc = (doc) => doc.kind === "contract" || (doc.kind === "pack" && doc.binds.abi !== undefined);
 
-async function resolveWith(iface, opts, diagnostics, statuses) {
+async function resolveWith(iface, opts, diagnostics, statuses, rebuild = null) {
   const evm = iface.chain === "evm";
 
   const candidates = [
@@ -106,6 +110,12 @@ async function resolveWith(iface, opts, diagnostics, statuses) {
       statuses.push({ ...status, status: "invalid" });
       continue;
     }
+    const eip712 = evm ? eip712Of(doc) : null;
+    if (eip712?.errors.length) {
+      for (const d of eip712.errors) note("error", "E_EIP712", d.at, d.message);
+      statuses.push({ ...status, status: "invalid" });
+      continue;
+    }
     if (evm && doc.kind === "pack") {
       const m = matchAbiPack(iface, doc);
       if (m.error) {
@@ -121,16 +131,17 @@ async function resolveWith(iface, opts, diagnostics, statuses) {
         continue;
       }
       note("info", "I_PACK_MATCHED", doc.name, "the contract has every function of the pack's binds.abi (same selectors, outputs and kind of call)");
-      items.push({ doc: translatePack(doc, m.functions, iface), pid, rebinding: false, apply: true, status });
+      items.push({ doc: translatePack(doc, m.functions, iface), pid, rebinding: false, apply: true, status, eip712 });
     } else if (evm) {
-      const own = parseAbi(doc.binds.abi, "binds.abi");
+      // A contract profile binds the functions of its `binds.abi`; one that only describes messages binds none.
+      const own = parseAbi(doc.binds.abi ?? [], "binds.abi");
       if (own.errors.length) {
         for (const d of own.errors) note("error", "E_ABI", d.at, d.message);
         statuses.push({ ...status, status: "invalid" });
         continue;
       }
       checkDeployments(doc, note);
-      items.push({ doc, pid, rebinding: abiInterfaceId(own.functions) !== iface.interfaceId, apply: false, status });
+      items.push({ doc, pid, rebinding: doc.binds.abi !== undefined && abiInterfaceId(own.functions) !== iface.abiId, apply: false, status, eip712 });
     } else if (doc.kind === "pack") {
       const m = await matchPack(iface, doc);
       if (m.error) {
@@ -152,6 +163,33 @@ async function resolveWith(iface, opts, diagnostics, statuses) {
       items.push({ doc, pid, rebinding: doc.binds.interface_id !== iface.interfaceId, apply: false, status });
     }
     taken.add(pid);
+  }
+
+  if (evm) {
+    // The EIP-712 types of every profile and pack applied, merged: one name, one struct (spec section 15.9).
+    const types = {};
+    const owner = {};
+    const messages = new Set();
+    for (const item of [...items]) {
+      const clash = Object.entries(item.eip712.types).find(([n, members]) => Object.hasOwn(types, n) && jcs(types[n]) !== jcs(members));
+      if (clash) {
+        diagnostics.push({ severity: "error", code: "E_EIP712", at: `binds.eip712.types.${clash[0]}`, message: `the type ${clash[0]} differs from the one profile "${owner[clash[0]]}" declares; one name is one struct`, profile: item.doc.name });
+        statuses.push({ ...item.status, status: "invalid" });
+        items.splice(items.indexOf(item), 1);
+        continue;
+      }
+      for (const [n, members] of Object.entries(item.eip712.types)) {
+        types[n] = members;
+        owner[n] ??= item.doc.name;
+      }
+      for (const n of item.eip712.messages) messages.add(n);
+    }
+    const built = Object.keys(types).length ? rebuild({ types, messages: [...messages].sort(), label: "binds.eip712.types" }) : iface.methods.size ? { iface } : rebuild(null);
+    if (built.failure) {
+      for (const d of built.failure) diagnostics.push({ severity: "error", code: d.at.startsWith("binds.eip712") ? "E_EIP712" : "E_ABI", at: d.at, message: d.message });
+      return { ok: false, resolved: null, diagnostics, profiles: [...items.map((i) => ({ ...i.status, status: "invalid" })), ...statuses] };
+    }
+    iface = built.iface;
   }
 
   const analysis = analyzeProfiles(iface, items, { attribute: true });

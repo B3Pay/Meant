@@ -244,6 +244,19 @@ test("section 12: everything else is Text; an amount without a symbol or a negat
   assert.deepEqual(unitFields(withSymbol, "int", "150"), { TokenAmount: { decimals: 2, amount: 150n, symbol: "EUR" } });
 });
 
+test("section 12: an amount at or above its threshold, and a timestamp shown as words, are Text, never a number", () => {
+  const unlimited = syntheticResolved("f", [{ candid: "record", fields: { x: { candid: "nat", tags: { amount: tag({ decimals: 2, symbol: "EUR", threshold: "1000", message: "Unlimited" }) } } } }], { intent: tag({ title: "T", template: "Do {x}" }) });
+  assert.deepEqual(unitFields(unlimited, "nat", "999"), { TokenAmount: { decimals: 2, amount: 999n, symbol: "EUR" } });
+  assert.deepEqual(unitFields(unlimited, "nat", "1_000"), { Text: { content: "Unlimited EUR" } });
+  const words = syntheticResolved("f", [{ candid: "record", fields: { x: { candid: "nat64", tags: { timestamp: tag({ unit: "s", epoch: "unix", threshold: "4102444800", message: "Never", labels: { 0: "Now" } }) } } } }], { intent: tag({ title: "T", template: "Do {x}" }) });
+  assert.deepEqual(unitFields(words, "nat64", "0"), { Text: { content: "Now" } });
+  assert.deepEqual(unitFields(words, "nat64", "4_102_444_800"), { Text: { content: "Never" } });
+  assert.deepEqual(unitFields(words, "nat64", "1"), { TimestampSeconds: { amount: 1n } });
+  // the generic form in a time zone shows the words too, not a zoned time
+  const generic = run({ method: "f", arg: encodeCall("f", "(record { x = 0 : nat64 })", "service : { f : (record { x : nat64 }) -> () }"), user_preferences: { metadata: { language: "en", utc_offset_minutes: 120 }, device_spec: { GenericDisplay: null } } }, { resolved: words });
+  assert.match(generic.Ok.consent_message.GenericDisplayMessage, /Do `Now`/);
+});
+
 test("section 12: labels come from describe.label, else the field name", () => {
   const f = approve("null", {}, { FieldsDisplay: null }).Ok.consent_message.FieldsDisplayMessage.fields.map(([l]) => l);
   assert.deepEqual(f, ["Spender", "Allowance"], "icrc2_approve: describe labels of the pack");

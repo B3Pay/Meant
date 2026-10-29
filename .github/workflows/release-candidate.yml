@@ -115,6 +115,77 @@ jobs:
             release-evidence
           retention-days: 30
 
+  # The same evidence for the `meant-format` crate (#300), which `Release`
+  # publishes when dispatched with `crate: meant-format`. Its digest is the
+  # `expected_sha256` of that dispatch. The crate has no dependencies and its
+  # own gates run in `Verify` (the `meant-format` job), so only the archive is
+  # recorded here.
+  package-meant-format:
+    name: Package and inspect the meant-format archive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Load the pinned tool versions
+        run: grep -E '^[A-Z_]+=' tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
+        with:
+          toolchain: ${{ env.RELEASE_TOOLCHAIN }}
+      - name: Confirm the pinned Cargo is the one packaging
+        run: |
+          set -euo pipefail
+          actual="$(cargo --version | cut -d' ' -f2)"
+          if [ "${actual}" != "${RELEASE_TOOLCHAIN}" ]; then
+            printf 'expected cargo %s, found %s\n' "${RELEASE_TOOLCHAIN}" "${actual}" >&2
+            exit 1
+          fi
+      - name: Build the archive
+        run: cargo package -p meant-format --locked
+      # The file list pinned once for this job, `Verify` and `Release`.
+      - name: Verify the package manifest
+        run: |
+          set -euo pipefail
+          cargo package -p meant-format --locked --list > "${RUNNER_TEMP}/meant-format-files.txt"
+          diff -u tests/fixtures/packaging/meant-format-files.txt "${RUNNER_TEMP}/meant-format-files.txt"
+      - name: Dry-run the publish
+        run: cargo publish -p meant-format --dry-run --locked
+      - name: Record the archive digest and contents
+        run: |
+          set -euxo pipefail
+          version="$(cargo metadata --no-deps --format-version 1 --locked \
+            | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "meant-format"))')"
+          archive="target/package/meant-format-${version}.crate"
+          mkdir -p release-evidence
+          sha256sum "${archive}" | tee release-evidence/sha256.txt
+          wc -c < "${archive}" | tr -d ' ' | tee release-evidence/bytes.txt
+          cargo package -p meant-format --list --locked | sort | tee release-evidence/contents.txt
+          {
+            echo "### Release candidate archive: meant-format"
+            echo
+            echo "| Evidence | Value |"
+            echo "| --- | --- |"
+            echo "| Commit | \`${GITHUB_SHA}\` |"
+            echo "| Cargo | \`$(cargo --version)\` |"
+            echo "| Archive | \`$(basename "${archive}")\` |"
+            echo "| Bytes | $(cat release-evidence/bytes.txt) |"
+            echo "| SHA-256 | \`$(cut -d' ' -f1 release-evidence/sha256.txt)\` |"
+            echo "| Packaged paths | $(wc -l < release-evidence/contents.txt | tr -d ' ') |"
+            echo
+            echo "<details><summary>Exact contents</summary>"
+            echo
+            echo '```'
+            cat release-evidence/contents.txt
+            echo '```'
+            echo
+            echo "</details>"
+          } >> "${GITHUB_STEP_SUMMARY}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: meant-format-archive-${{ github.sha }}
+          path: |
+            target/package/meant-format-*.crate
+            release-evidence
+          retention-days: 30
+
   packaged-consumers:
     name: Consumers from the archive (${{ matrix.os }})
     needs: package

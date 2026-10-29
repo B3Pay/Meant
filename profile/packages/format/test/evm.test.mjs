@@ -2,7 +2,7 @@
 // the amount tag's `threshold` and `message`.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CODES, describeInput, displayAmount, formatterFor, parseAmount } from "../src/index.mjs";
+import { CODES, describeInput, displayAmount, displayTimestamp, formatterFor, parseAmount } from "../src/index.mjs";
 
 const MAX256 = (2n ** 256n - 1n).toString();
 const amount = (abi, args) => formatterFor({ abi, tags: { amount: { args } } });
@@ -61,4 +61,44 @@ test("timestamps and durations on uint32 to uint256 and int72 to int256; bytes o
   assert.equal(err(() => formatterFor({ abi: "bytes32", tags: { subaccount: { args: {} } } })), CODES.TAG_TYPE);
   assert.equal(err(() => formatterFor({ abi: "address", tags: { amount: { args: { decimals: 6 } } } })), CODES.TAG_TYPE);
   assert.equal(formatterFor({ abi: "address" }), null);
+});
+
+test("an amount in the token a field names (spec section 15.9): the caller passes that token's decimals and symbol", () => {
+  const node = { abi: "uint160", tags: { amount: { args: { token: "details.token", threshold: (2n ** 160n - 1n).toString() } } } };
+  const usdc = formatterFor(node, { token: { decimals: 6, symbol: "USDC" } });
+  assert.equal(usdc.display("1500000"), "1.5 USDC");
+  assert.equal(usdc.display((2n ** 160n - 1n).toString()), "Unlimited USDC");
+  assert.equal(usdc.parse("1.5 USDC"), "1500000");
+  assert.deepEqual(usdc.args, { decimals: 6, symbol: "USDC", token: "details.token", threshold: (2n ** 160n - 1n).toString(), message: "Unlimited" });
+  assert.equal(formatterFor(node, { token: { decimals: 18, symbol: "WETH" } }).display("1500000"), "0.0000000000015 WETH");
+  // without the token's metadata there is no text, never a guess
+  assert.equal(err(() => formatterFor(node)), CODES.REF_UNRESOLVED);
+  assert.equal(err(() => formatterFor(node, { token: { symbol: "USDC" } })), CODES.ARG);
+  assert.equal(err(() => formatterFor(node, { token: { decimals: 6, symbol: " USDC" } })), CODES.ARG);
+  // the token gives the decimals and symbol, so the tag may not give its own
+  assert.equal(err(() => formatterFor({ abi: "uint160", tags: { amount: { args: { token: "t", decimals: 6 } } } }, { token: { decimals: 6 } })), CODES.ARG);
+  assert.equal(err(() => formatterFor({ abi: "uint160", tags: { amount: { args: { token: "" } } } }, { token: { decimals: 6 } })), CODES.ARG);
+});
+
+test("a timestamp's words (spec section 15.9): labels for exact values, a message at or above the threshold, display only", () => {
+  const MAX48 = (2n ** 48n - 1n).toString();
+  const f = formatterFor({ abi: "uint48", tags: { timestamp: { args: { unit: "s", epoch: "unix", threshold: MAX48, message: "Never", labels: { 0: "Only in the block it is used" } } } } });
+  assert.equal(f.display("0"), "Only in the block it is used");
+  assert.equal(f.display(MAX48), "Never");
+  assert.equal(f.display("1798761600"), "2027-01-01T00:00:00Z");
+  assert.deepEqual(f.args, { unit: "s", epoch: "unix", threshold: MAX48, message: "Never", labels: { 0: "Only in the block it is used" } });
+  // input is a date or a +duration, as before: the words are never read back
+  assert.equal(f.safeParse("Never").error.code, CODES.SYNTAX);
+  assert.equal(f.parse("2027-01-01T00:00:00Z"), "1798761600");
+  // uint256 max is no date (E_RANGE) unless a threshold names it
+  const deadline = (args) => formatterFor({ abi: "uint256", tags: { timestamp: { args: { unit: "s", ...args } } } });
+  assert.equal(deadline({}).safeDisplay(MAX256).error.code, CODES.RANGE);
+  assert.equal(deadline({ threshold: MAX256, message: "Never" }).display(MAX256), "Never");
+  assert.equal(displayTimestamp("86400", { unit: "s", candid: "uint256", labels: { 86400: "Day two" } }), "Day two");
+  for (const args of [{ threshold: "1" }, { message: "Never" }, { threshold: "01", message: "Never" }, { threshold: "1", message: "" }, { labels: {} }, { labels: { "-1": "Before" } }, { labels: { 1: " One" } }, { labels: [] }]) {
+    assert.equal(err(() => deadline(args)), CODES.ARG, JSON.stringify(args));
+  }
+  assert.equal(err(() => displayTimestamp("0", { unit: "s", candid: "uint256", labels: Object.fromEntries(Array.from({ length: 17 }, (_, i) => [i, `w${i}`])) })), CODES.ARG);
+  assert.equal(err(() => displayTimestamp("1", { unit: "s", candid: "uint256", threshold: "1" })), CODES.ARG);
+  assert.equal(err(() => displayTimestamp("1", { unit: "s", candid: "uint256", message: "Never" })), CODES.ARG);
 });

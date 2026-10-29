@@ -2,6 +2,14 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.3.0 — 2026-10-29
+
+- `timestamp` takes `threshold` with `message`, and `labels` (spec §5.3, §15.9, D-055): `displayTimestamp` shows a
+  labelled value as its words, and a value at or above the threshold as the message ("Never"), never as a date.
+  Parsing is unchanged. The two come together, with no default word (`E_ARG`).
+- `formatterFor(node, { token })`: an `amount` whose `token` names its token by a field takes that token's decimals
+  and symbol from the caller; without them it is `E_REF_UNRESOLVED`.
+
 ## 0.2.0 — 2026-10-28
 
 - EVM integer types (spec §15, D-054): `amount` on `uint8`…`uint256` and `int8`…`int256`, `timestamp` and `duration`

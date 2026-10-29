@@ -1,0 +1,196 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "pack",
+  "name": "erc2612",
+  "origin": "pack",
+  "language": "en",
+  "description": "Standard pack for EIP-2612 permits on EVM chains (spec section 15.9, experimental): the signed `Permit` message that sets an ERC-20 allowance, and the `permit` function that submits one. Applies to a contract that has every function of `binds.abi` with the same selector, outputs and kind of call, `decimals()` and `symbol()` included, since the amounts read them. A signing request matches the `Permit` message by its EIP-712 type hash, and its verifying contract is the token, so `query:` refs are calls to that token. The domain's name and version are each token's own, so the pack names neither.",
+  "binds": {
+    "standard": "ERC-2612",
+    "spec_url": "https://eips.ethereum.org/EIPS/eip-2612",
+    "abi": [
+      "function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+      "function nonces(address owner) view returns (uint256)",
+      "function DOMAIN_SEPARATOR() view returns (bytes32)",
+      "function decimals() view returns (uint8)",
+      "function symbol() view returns (string)"
+    ],
+    "eip712": {
+      "types": {
+        "Permit": [
+          {
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ]
+      }
+    }
+  },
+  "annotations": [
+    {
+      "at": "Permit",
+      "tag": "intent",
+      "args": {
+        "title": "Permit token spending",
+        "template": "Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."
+      }
+    },
+    {
+      "at": "Permit",
+      "tag": "effect",
+      "args": {
+        "kind": "approve",
+        "irreversible": false
+      }
+    },
+    {
+      "at": "Permit(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:decimals"
+        },
+        "symbol": {
+          "from": "query:symbol"
+        },
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+      }
+    },
+    {
+      "at": "Permit(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "Permit(0).deadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "Permit(0).deadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    },
+    {
+      "at": "Permit(0).owner",
+      "tag": "describe",
+      "args": {
+        "label": "Owner"
+      }
+    },
+    {
+      "at": "Permit(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "Permit(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "permit",
+      "tag": "intent",
+      "args": {
+        "title": "Submit a token permit",
+        "template": "Set {spender}'s allowance from {owner} to {value} with {owner}'s signature. Signature expires: {deadline}."
+      }
+    },
+    {
+      "at": "permit",
+      "tag": "effect",
+      "args": {
+        "kind": "approve",
+        "irreversible": false
+      }
+    },
+    {
+      "at": "permit(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": {
+          "from": "query:decimals"
+        },
+        "symbol": {
+          "from": "query:symbol"
+        },
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+      }
+    },
+    {
+      "at": "permit(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "permit(0).deadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "permit(0).deadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    },
+    {
+      "at": "permit(0).owner",
+      "tag": "describe",
+      "args": {
+        "label": "Owner"
+      }
+    },
+    {
+      "at": "permit(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "permit(0).v",
+      "tag": "describe",
+      "args": {
+        "label": "Signature v"
+      }
+    }
+  ]
+}

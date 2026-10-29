@@ -5,6 +5,11 @@ name: Release
 # those steps *should* happen already ran in `Verify` and `Release candidate`;
 # this workflow only performs them, and only after a human approves each one.
 #
+# It releases one of the two published crates, named by the `crate` input: the
+# root `meant`, or `meant-format` (#300). Every crate-specific value below (the
+# package, its file list, its archive, its tag, its crates.io page) follows that
+# input; the gates and the approvals are the same for both.
+#
 # Design constraints, all of which are load-bearing:
 #
 #   * `workflow_dispatch` only. This workflow must never be reachable from a
@@ -31,6 +36,14 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
+      crate:
+        description: 'Crate to release: meant, or meant-format'
+        required: true
+        default: meant
+        type: choice
+        options:
+          - meant
+          - meant-format
       commit:
         description: 'Exact release commit SHA (full 40 hex characters), not a branch name'
         required: true
@@ -54,7 +67,7 @@ permissions: {}
 # A second dispatch for the same version must not race the first. Never
 # cancel-in-progress: a half-cancelled release is worse than a slow one.
 concurrency:
-  group: release-${{ inputs.version }}
+  group: release-${{ inputs.crate }}-${{ inputs.version }}
   cancel-in-progress: false
 
 jobs:
@@ -70,17 +83,26 @@ jobs:
     outputs:
       prerelease: ${{ steps.semver.outputs.prerelease }}
       notes_path: ${{ steps.semver.outputs.notes_path }}
+      tag: ${{ steps.semver.outputs.tag }}
     steps:
       # Shape-check the inputs before anything touches the network. A branch
       # name here would mean the release is identified by something that can
       # move after the evidence was collected.
+      #
+      # A `choice` input is checked by GitHub, but an API dispatch is a second
+      # door, so the crate is checked here too.
       - name: Validate the input shapes
         env:
+          CRATE: ${{ inputs.crate }}
           COMMIT: ${{ inputs.commit }}
           VERSION: ${{ inputs.version }}
           EXPECTED: ${{ inputs.expected_sha256 }}
         run: |
           set -euo pipefail
+          case "${CRATE}" in
+            meant|meant-format) ;;
+            *) echo "crate must be meant or meant-format" >&2; exit 1 ;;
+          esac
           printf '%s' "${COMMIT}" | grep -qE '^[0-9a-f]{40}$' \
             || { echo "commit must be a full 40-character lowercase SHA" >&2; exit 1; }
           printf '%s' "${EXPECTED}" | grep -qE '^[0-9a-f]{64}$' \
@@ -97,9 +119,15 @@ jobs:
       # The prerelease flag is derived, never supplied: a semver prerelease is
       # exactly a version with a hyphenated suffix. Taking it as an input would
       # let a typo publish `0.1.0-beta.2` as a stable GitHub release.
-      - name: Derive the prerelease flag and locate the notes
+      #
+      # The tag and the default notes path are derived from the crate. `meant`
+      # keeps `v<version>` and the top-level notes; `meant-format` is versioned
+      # on its own, so its tags and notes carry its name, and its `0.2.0` can
+      # never be read as the root crate's.
+      - name: Derive the prerelease flag, the tag and the notes
         id: semver
         env:
+          CRATE: ${{ inputs.crate }}
           VERSION: ${{ inputs.version }}
           NOTES_PATH: ${{ inputs.notes_path }}
         run: |
@@ -109,12 +137,20 @@ jobs:
             *)   prerelease=false ;;
           esac
           echo "prerelease=${prerelease}" >> "${GITHUB_OUTPUT}"
+          if [ "${CRATE}" = meant ]; then
+            tag="v${VERSION}"
+            default_notes=".github/release-notes/${VERSION}.md"
+          else
+            tag="${CRATE}-v${VERSION}"
+            default_notes=".github/release-notes/${CRATE}/${VERSION}.md"
+          fi
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
           notes="${NOTES_PATH}"
           if [ -z "${notes}" ]; then
-            notes=".github/release-notes/${VERSION}.md"
+            notes="${default_notes}"
           fi
           echo "notes_path=${notes}" >> "${GITHUB_OUTPUT}"
-          printf 'version %s -> prerelease=%s, notes=%s\n' "${VERSION}" "${prerelease}" "${notes}"
+          printf '%s %s -> prerelease=%s, tag=%s, notes=%s\n' "${CRATE}" "${VERSION}" "${prerelease}" "${tag}" "${notes}"
 
       # Fail here rather than after publishing. Everything below this point is
       # recoverable; a missing release note discovered after step `publish` is
@@ -147,14 +183,14 @@ jobs:
 
       - name: Confirm the tag does not already exist
         env:
-          VERSION: ${{ inputs.version }}
+          TAG: ${{ steps.semver.outputs.tag }}
         run: |
           set -euo pipefail
-          if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null 2>&1; then
-            echo "tag v${VERSION} already exists on origin" >&2
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "tag ${TAG} already exists on origin" >&2
             exit 1
           fi
-          echo "tag v${VERSION} is free"
+          echo "tag ${TAG} is free"
 
       - name: Load the pinned tool versions
         run: grep -E '^[A-Z_]+=' tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
@@ -172,23 +208,39 @@ jobs:
             exit 1
           fi
 
+      # By name, not by position: the workspace lists more than one package.
       - name: Confirm the manifest declares the version being released
         env:
+          CRATE: ${{ inputs.crate }}
           VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
           declared="$(cargo metadata --no-deps --format-version 1 --locked \
-            | python3 -c 'import json,sys; print(json.load(sys.stdin)["packages"][0]["version"])')"
+            | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == sys.argv[1]))' "${CRATE}")"
           if [ "${declared}" != "${VERSION}" ]; then
-            printf 'Cargo.toml declares %s, dispatch asked for %s\n' "${declared}" "${VERSION}" >&2
+            printf '%s declares %s, dispatch asked for %s\n' "${CRATE}" "${declared}" "${VERSION}" >&2
             exit 1
           fi
 
       - name: Build the archive
-        run: cargo package --locked
+        env:
+          CRATE: ${{ inputs.crate }}
+        run: cargo package -p "${CRATE}" --locked
 
+      # Each crate's own allowlist: the root package's script, or the file list
+      # of meant-format pinned once for this job, `Verify` and `Release
+      # candidate`.
       - name: Verify the package manifest
-        run: python3 tests/fixtures/packaging/verify_package_manifest.py --locked
+        env:
+          CRATE: ${{ inputs.crate }}
+        run: |
+          set -euo pipefail
+          if [ "${CRATE}" = meant ]; then
+            python3 tests/fixtures/packaging/verify_package_manifest.py --locked
+          else
+            cargo package -p "${CRATE}" --locked --list > "${RUNNER_TEMP}/package-files.txt"
+            diff -u "tests/fixtures/packaging/${CRATE}-files.txt" "${RUNNER_TEMP}/package-files.txt"
+          fi
 
       # The check the manual procedure could only ask a human to perform by eye.
       # `cargo package` is byte-stable within one Cargo version and not across
@@ -196,10 +248,12 @@ jobs:
       # that produced the recorded digest are the ones publishing.
       - name: Confirm the archive digest matches the recorded evidence
         env:
+          CRATE: ${{ inputs.crate }}
+          VERSION: ${{ inputs.version }}
           EXPECTED: ${{ inputs.expected_sha256 }}
         run: |
           set -euo pipefail
-          archive="$(echo target/package/meant-*.crate)"
+          archive="target/package/${CRATE}-${VERSION}.crate"
           actual="$(sha256sum "${archive}" | cut -d' ' -f1)"
           printf 'archive:  %s\nexpected: %s\nactual:   %s\n' "${archive}" "${EXPECTED}" "${actual}"
           if [ "${actual}" != "${EXPECTED}" ]; then
@@ -208,7 +262,9 @@ jobs:
           fi
 
       - name: Dry-run the publish
-        run: cargo publish --dry-run --locked
+        env:
+          CRATE: ${{ inputs.crate }}
+        run: cargo publish -p "${CRATE}" --dry-run --locked
 
   tag:
     name: Create the annotated tag
@@ -227,27 +283,29 @@ jobs:
       # the commit the evidence names, even if the branch has moved since.
       - name: Tag the release commit
         env:
+          CRATE: ${{ inputs.crate }}
           COMMIT: ${{ inputs.commit }}
           VERSION: ${{ inputs.version }}
+          TAG: ${{ needs.guard.outputs.tag }}
         run: |
           set -euo pipefail
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -a "v${VERSION}" -m "meant ${VERSION}" "${COMMIT}"
-          git push origin "refs/tags/v${VERSION}"
+          git tag -a "${TAG}" -m "${CRATE} ${VERSION}" "${COMMIT}"
+          git push origin "refs/tags/${TAG}"
 
       - name: Verify the pushed tag
         env:
           COMMIT: ${{ inputs.commit }}
-          VERSION: ${{ inputs.version }}
+          TAG: ${{ needs.guard.outputs.tag }}
         run: |
           set -euo pipefail
-          target="$(git rev-parse "v${VERSION}^{commit}")"
-          [ "$(git cat-file -t "v${VERSION}")" = tag ] \
-            || { echo "v${VERSION} is not an annotated tag" >&2; exit 1; }
+          target="$(git rev-parse "${TAG}^{commit}")"
+          [ "$(git cat-file -t "${TAG}")" = tag ] \
+            || { echo "${TAG} is not an annotated tag" >&2; exit 1; }
           [ "${target}" = "${COMMIT}" ] \
-            || { echo "v${VERSION} points at ${target}, expected ${COMMIT}" >&2; exit 1; }
-          printf 'v%s -> %s (annotated)\n' "${VERSION}" "${target}"
+            || { echo "${TAG} points at ${target}, expected ${COMMIT}" >&2; exit 1; }
+          printf '%s -> %s (annotated)\n' "${TAG}" "${target}"
 
   publish:
     name: Publish to crates.io
@@ -292,8 +350,9 @@ jobs:
 
       - name: Publish
         env:
+          CRATE: ${{ inputs.crate }}
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
-        run: cargo publish --locked
+        run: cargo publish -p "${CRATE}" --locked
 
   confirm:
     name: Confirm the published digest
@@ -306,6 +365,7 @@ jobs:
       # the artifact. The index can lag the publish by a few seconds.
       - name: Read the checksum back from crates.io and compare
         env:
+          CRATE: ${{ inputs.crate }}
           VERSION: ${{ inputs.version }}
           EXPECTED: ${{ inputs.expected_sha256 }}
         run: |
@@ -321,7 +381,7 @@ jobs:
           actual=""
           for attempt in 1 2 3 4 5 6 7 8 9 10; do
             body="$(curl -sS -H 'User-Agent: meant release workflow' \
-              "https://crates.io/api/v1/crates/meant/${VERSION}" || true)"
+              "https://crates.io/api/v1/crates/${CRATE}/${VERSION}" || true)"
             actual="$(printf '%s' "${body}" | python3 "${reader}")"
             [ -n "${actual}" ] && break
             printf 'attempt %s: version not visible yet, retrying\n' "${attempt}"
@@ -361,6 +421,7 @@ jobs:
       # recorded checksum after the publish.
       - name: Compose the release body
         env:
+          CRATE: ${{ inputs.crate }}
           COMMIT: ${{ inputs.commit }}
           VERSION: ${{ inputs.version }}
           EXPECTED: ${{ inputs.expected_sha256 }}
@@ -375,7 +436,7 @@ jobs:
             printf '| Release commit | `%s` |\n' "${COMMIT}"
             printf '| Cargo | `%s` |\n' "${RELEASE_TOOLCHAIN}"
             printf '| `.crate` SHA-256 | `%s` |\n' "${EXPECTED}"
-            printf '| crates.io | https://crates.io/crates/meant/%s |\n' "${VERSION}"
+            printf '| crates.io | https://crates.io/crates/%s/%s |\n' "${CRATE}" "${VERSION}"
             printf '\nThe digest above was recorded by the `Release candidate` run for this'
             printf ' commit, re-verified by repackaging with the pinned Cargo before the tag'
             printf ' was created, and matched against the checksum crates.io itself recorded'
@@ -391,7 +452,9 @@ jobs:
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
+          CRATE: ${{ inputs.crate }}
           VERSION: ${{ inputs.version }}
+          TAG: ${{ needs.guard.outputs.tag }}
           PRERELEASE: ${{ needs.guard.outputs.prerelease }}
         run: |
           set -euo pipefail
@@ -400,35 +463,37 @@ jobs:
             flag="--prerelease"
           fi
           # shellcheck disable=SC2086
-          gh release create "v${VERSION}" \
+          gh release create "${TAG}" \
             --verify-tag \
             ${flag} \
-            --title "meant ${VERSION}" \
+            --title "${CRATE} ${VERSION}" \
             --notes-file "${RELEASE_BODY}"
 
       - name: Verify the published release
         env:
           GH_TOKEN: ${{ github.token }}
+          CRATE: ${{ inputs.crate }}
           VERSION: ${{ inputs.version }}
+          TAG: ${{ needs.guard.outputs.tag }}
           PRERELEASE: ${{ needs.guard.outputs.prerelease }}
           COMMIT: ${{ inputs.commit }}
         run: |
           set -euo pipefail
-          gh release view "v${VERSION}" --json name,tagName,isPrerelease,isDraft,url \
+          gh release view "${TAG}" --json name,tagName,isPrerelease,isDraft,url \
             > release.json
           cat release.json
-          python3 - "${VERSION}" "${PRERELEASE}" <<'PY'
+          python3 - "${CRATE}" "${VERSION}" "${TAG}" "${PRERELEASE}" <<'PY'
           import json, sys
-          version, prerelease = sys.argv[1], sys.argv[2] == "true"
+          crate, version, tag, prerelease = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4] == "true"
           r = json.load(open("release.json"))
-          assert r["tagName"] == f"v{version}", r["tagName"]
-          assert r["name"] == f"meant {version}", r["name"]
+          assert r["tagName"] == tag, r["tagName"]
+          assert r["name"] == f"{crate} {version}", r["name"]
           assert r["isPrerelease"] is prerelease, r["isPrerelease"]
           assert r["isDraft"] is False, r["isDraft"]
           print("release verified:", r["url"])
           PY
-          target="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" --jq '.object.sha')"
-          type="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" --jq '.object.type')"
+          target="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}" --jq '.object.sha')"
+          type="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}" --jq '.object.type')"
           if [ "${type}" = tag ]; then
             target="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${target}" --jq '.object.sha')"
           fi

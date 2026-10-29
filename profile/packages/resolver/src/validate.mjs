@@ -4,7 +4,7 @@
  */
 import { profileId } from "./util.mjs";
 import { compileInterface } from "./compile.mjs";
-import { abiInterface, checkDeployments } from "./abi-iface.mjs";
+import { abiInterface, checkDeployments, eip712Of } from "./abi-iface.mjs";
 import { analyzeProfiles } from "./analyze.mjs";
 import { resolvedForm } from "./resolved.mjs";
 import { schemaDiagnostics } from "./schema-core.mjs";
@@ -27,11 +27,15 @@ export async function validateProfile(doc, opts) {
   }
   const pid = profileId(doc);
 
-  // An EVM contract profile or pack carries its own ABI (spec section 15): it is checked against that.
+  // An EVM contract profile or pack carries its own ABI and EIP-712 types (spec sections 15 and 15.9): it is
+  // checked against them.
   if (doc.kind === "contract" || (doc.kind === "pack" && doc.binds.abi !== undefined)) {
-    const compiled = abiInterface(doc.binds.abi, "binds.abi");
+    const eip712 = eip712Of(doc);
+    for (const d of eip712.errors) diag("error", "E_EIP712", d.at, d.message);
+    if (eip712.errors.length) return { ok: false, profile_id: pid, diagnostics };
+    const compiled = abiInterface(doc.binds.abi ?? [], "binds.abi", "contract", doc.binds.eip712 ? { ...eip712, label: "binds.eip712.types" } : null);
     if (compiled.failure) {
-      for (const d of compiled.failure) diag("error", "E_ABI", d.at, d.message);
+      for (const d of compiled.failure) diag("error", d.at.startsWith("binds.eip712") ? "E_EIP712" : "E_ABI", d.at, d.message);
       return { ok: false, profile_id: pid, diagnostics };
     }
     if (doc.kind === "contract") checkDeployments(doc, diag);

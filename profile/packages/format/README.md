@@ -21,6 +21,10 @@ npm install @meantjs/format
   works like a Candid one. `amount` takes `uint8`…`uint256` and `int8`…`int256`, `timestamp` and `duration`
   `uint32`…`uint256` and `int64`…`int256`, each with the bounds of its bits; `bytes` takes `bytes` and `bytesN`
   (exactly N bytes). `amount`'s `threshold` and `message` show a value at or above the threshold as `Unlimited USDC`.
+- **Words for times** (spec §5.3, §15.9): `timestamp`'s `labels` show exact values as words, and `threshold` with
+  `message` a value at or above it ("Never" for a deadline of `uint256` max, which is no date). Display only.
+- **An amount in a named token** (spec §15.9): an `amount` whose `token` names its token by a field takes that token's
+  decimals and symbol from the caller, `formatterFor(node, { token: { decimals: 6, symbol: "USDC" } })`.
 
 ```sh
 npm test -w packages/format          # or: npm test at the repo root

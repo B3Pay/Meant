@@ -89,8 +89,8 @@ There are 18 tags. Twelve are **core**: the eval depends on them, so they are st
 
 | Tag | Applies to | Args | Core |
 |---|---|---|---|
-| `amount` | `nat`, `int`, `nat8`…`int64` | `decimals` (0–255 or dynamic, required); `symbol` (text or dynamic) | ✓ |
-| `timestamp` | `nat`, `int`, `nat32`, `nat64`, `int64` | `unit`: `ns`/`us`/`ms`/`s` (required); `epoch`: `unix` | ✓ |
+| `amount` | `nat`, `int`, `nat8`…`int64` | `decimals` (0–255 or dynamic, required unless `token`); `symbol` (text or dynamic); `threshold`, `message` (display only, §5.3); `token` (EVM only, §15.9) | ✓ |
+| `timestamp` | `nat`, `int`, `nat32`, `nat64`, `int64` | `unit`: `ns`/`us`/`ms`/`s` (required); `epoch`: `unix`; `threshold` with `message`, `labels` (display only, §5.3) | ✓ |
 | `duration` | same as `timestamp` | `unit` (required) | ✓ |
 | `account` | `record { owner : principal; subaccount : opt blob }` | `encoding`: `icrc1` | ✓ |
 | `subaccount` | `blob` | none | ✓ |
@@ -127,6 +127,7 @@ the call's case for that tag. The other method tags (`idempotency`, `outcome`, `
 
 **`amount`**
 - **Display:** the base-unit integer `v` with `d` decimals is shown as a decimal string with trailing fractional zeros removed, then a space and the symbol. Examples: `150000000` with `d=8` → `1.5 ICP`; `100000000` → `1 ICP`.
+- **Threshold (display only, D-054):** a value at or above `threshold` (a decimal string of base units) is shown as `message` (default `Unlimited`) and the symbol: `Unlimited USDC`. `message` needs `threshold`. Input is unchanged: a number at the threshold still parses to its base units. ICRC-21 shows such a value as `Text`, never as a `TokenAmount` (§12).
 - **Input:** an optionally negative decimal number with digits on both sides of a single `.` if it has one, optionally followed by whitespace and the symbol: `"1.5"` or `"1.5 ICP"`. Thousands separators, exponents and a leading `+` MUST be rejected. A symbol, if present, MUST match the token's symbol (case-insensitive for ASCII letters only).
 - **No rounding:** input with more than `d` fractional digits MUST be rejected, never rounded, including when the extra digits are zeros.
 - **Sign:** negative input MUST be rejected unless the Candid type is signed.
@@ -134,6 +135,7 @@ the call's case for that tag. The other method tags (`idempotency`, `outcome`, `
 
 **`timestamp`**
 - **Display:** canonical RFC 3339 UTC, `YYYY-MM-DDTHH:MM:SS[.f]Z` with trailing zeros of the fraction removed; human renderers localize, using ICRC-21 `utc_offset_minutes` when present.
+- **Words (display only, D-055):** `labels` maps exact values (decimal strings of the tagged unit, 1 to 16 entries) to words, and a value at or above `threshold` is shown as `message`; `threshold` and `message` come together, with no default word. A label is checked first, then the threshold, then the time. A value shown as words is never read as a time: not localized, and `Text` in ICRC-21, never `TimestampSeconds`. Input is unchanged; a word is never parsed back. They exist for deadlines whose extreme values are not dates (`uint256` max for "never", which is otherwise out of range; Permit2's expiration 0 for "this block only", which otherwise reads as 1970; §15.9).
 - **Input:** an absolute RFC 3339 time with an explicit zone (leap seconds are rejected), or a relative ISO 8601 duration prefixed with `+` (`+PT24H`, `+P7D`), resolved at fill time against `now` floored to the tagged unit.
 - **Conversion:** to the tagged `unit` MUST be exact.
 
@@ -522,6 +524,8 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 | `E_ABI` | error | An EVM ABI (`binds.abi`, or the contract's given as the interface) that cannot be read: a fragment that does not parse, a type that does not exist, an overloaded function name (O1), two components with one field id, or no function at all (§15.1) |
 | `E_CHAIN` | error | A profile or pack for an EVM contract given for a Candid service, or the other way round (§15.3) |
 | `E_ADDRESS_CHECKSUM` | error | A deployment address in mixed case that does not match its EIP-55 checksum (§15.3) |
+| `E_EIP712` | error | `binds.eip712.types` that cannot be read (a struct name that is not an identifier or reads as an ABI type or `EIP712Domain`, a member type that is not canonical or not a type, a struct that contains itself or refers to a refused one), a message that shares its name with a function, two profiles that give one type name different members, or types with no message and no function (§15.9) |
+| `E_TOKEN_PATH` | error | An `amount.token` that is not a relative path to an `address` in the same argument and the same array element as the amount, or that is given on a Candid service (§15.9, OQ-6) |
 | `E_NAMES_MODE` / `E_NAMES_SHAPE` / `E_NAMES_FIELD` / `E_NAMES_SET_DUPLICATE` | error | A `names` set on a method that is not a query or a read-only update / that takes arguments, or whose `items` is not a `vec` of records / whose `name` is not `text` / declared twice (§5.3) |
 | `E_NAMED_SET` / `E_NAMED_TYPE` | error | A `named` position whose set is not declared (or has no `show` for `by: "show"`) / whose type differs from the set's field (§5.3) |
 | `W_NAMED_UNPATTERNED` | warning | A `named` `text` position without a `text.pattern`: names are looked up before values (§5.3) |
@@ -553,10 +557,11 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 
 ## 15. EVM contracts (experimental, D-054)
 
-**Status:** experimental, phase 1. A profile can describe an EVM contract's functions; from it come consent text for a
-call's calldata and an ERC-7730 clear-signing file with its ERC-8176 `descriptorHash`. Agent tools, `outcome` classes
-over reverts, `idempotency` by nonce, EIP-712 messages and ERC-7730 import are later phases, each its own decision. The
-eval does not use any of it.
+**Status:** experimental, phase 1 and the first part of phase 2. A profile can describe an EVM contract's functions;
+from it come consent text for a call's calldata and an ERC-7730 clear-signing file with its ERC-8176
+`descriptorHash`. It can also describe the EIP-712 messages a wallet is asked to sign (§15.9, D-055), with consent text
+for a signing request and an ERC-7730 file of the messages. Agent tools, `outcome` classes over reverts,
+`idempotency` by nonce and ERC-7730 import are later phases, each its own decision. The eval does not use any of it.
 
 ### 15.1 The interface: an ABI
 
@@ -599,7 +604,8 @@ Template placeholders read `{to}` and `{value}`, as ERC-7730's do.
 ### 15.3 Profiles and packs
 
 - **A contract profile** has `kind: "contract"`, an `origin` of `author`, `third_party` or `inferred`, and
-  `binds: { "abi": […], "deployments": [ { "chain_id": 1, "address": "0x…" } ] }`. `deployments` is optional; it says
+  `binds: { "abi": […], "deployments": [ { "chain_id": 1, "address": "0x…" } ] }`. It may have `binds.eip712`
+  (§15.9) beside `abi` or instead of it. `deployments` is optional; it says
   which contracts the profile describes, as ERC-7730's `context.contract.deployments` does. An address in mixed case
   that does not match its EIP-55 checksum is `E_ADDRESS_CHECKSUM`; a deployment listed twice is `W_DUPLICATE`.
 - A contract profile is checked against its own `binds.abi`. Resolved against another ABI (`candid-profile resolve
@@ -613,14 +619,15 @@ Template placeholders read `{to}` and `{value}`, as ERC-7730's do.
 - **Standard pack:** [`packs/erc20.profile.json`](../packs/erc20.profile.json), the ERC-20 `transfer`, `approve`,
   `transferFrom`, `balanceOf`, `allowance`, `decimals` and `symbol`. **Fact**
   ([EIP-20](https://eips.ethereum.org/EIPS/eip-20)): `decimals()` and `symbol()` are optional, so a token without them
-  matches no pack and needs a contract profile with literal values.
+  matches no pack and needs a contract profile with literal values. The EIP-712 standard files (an EIP-2612 pack, and
+  Permit2 and DAI's permit as contract profiles) are in §15.9.
 
 ### 15.4 Tags
 
 | Tag | On an EVM contract |
 |---|---|
-| `amount` | `uint8`…`uint256`, `int8`…`int256`. `query:` refs are `eth_call`s of a `view` or `pure` function of the same contract with no argument and one result |
-| `timestamp`, `duration` | `uint32`…`uint256`, `int64`…`int256` |
+| `amount` | `uint8`…`uint256`, `int8`…`int256`. `query:` refs are `eth_call`s of a `view` or `pure` function of the same contract with no argument and one result. `token` names the token by an `address` field instead (§15.9) |
+| `timestamp`, `duration` | `uint32`…`uint256`, `int64`…`int256`. `timestamp` words (§5.3) are for EVM deadlines first |
 | `bytes` | `bytes`, `bytes1`…`bytes32` |
 | `text` | `string` |
 | `range` | an integer type, `string`, an array |
@@ -637,8 +644,11 @@ The resolved form of an EVM contract has the top-level field `"chain": "evm"`. I
 form's carry `candid`: the canonical type of a primitive, `"tuple"` with `fields`, or `"array"` with `element` and, for
 `T[k]`, `length`. Each method also has `selector` (`0xa9059cbb`), `signature` (the ERC-7730 key form, with names:
 `transfer(address to,uint256 value)`) and `state_mutability`; each entry of `profiles` that binds deployments lists
-them as `deployments`. A consumer MUST refuse a resolved form whose `chain` it does not know rather than read it as
-Candid (the reference consent and tool packages do).
+them as `deployments`. EIP-712 messages are under a top-level `messages` map, never `methods` (§15.9): each has
+`encode_type`, `type_hash`, `tags` and `args`, and each entry of `profiles` that binds a domain lists its name and
+version as `eip712_domain`. Without messages the map is absent, so a phase 1 form is unchanged. A consumer MUST refuse
+a resolved form whose `chain` it does not know rather than read it as Candid (the reference consent and tool packages
+do).
 
 ### 15.6 Consent text for a call
 
@@ -657,7 +667,8 @@ RFC 8785 serialization has that Keccak-256. It describes no call; it vouches for
 From an EVM contract's resolved form, `@meantjs/consent/erc7730` writes that file (`erc7730Descriptor`): the same
 resolved form always gives the same bytes, so the same `descriptorHash`. `$schema` names the exact version
 `erc7730-v2.1.0.schema.json`, so that a new release of the `v2` alias cannot move the hash. One entry per function a
-transaction calls (an update), keyed by its `signature`:
+transaction calls (an update), keyed by its `signature` (for the messages of §15.9, `options.context: "eip712"` gives a file
+of their own):
 
 | Profile | ERC-7730 |
 |---|---|
@@ -666,6 +677,7 @@ transaction calls (an update), keyed by its `signature`:
 | each leaf of the parameters, in ABI order | one entry of `fields`; `path` in the parameter names, `name.[]` through an array; `label` is `describe.label`, else the name |
 | `amount` with `query:decimals` and `query:symbol` (the ERC-20 functions) | `tokenAmount`, `tokenPath: "@.to"` |
 | `amount` with literal `decimals` and `symbol` | the same, with `metadata.token` (only when the caller says the contract is that token) |
+| `amount` with `token` (§15.9) | `tokenAmount`, `tokenPath` the token's path; inside the field group of an array when the token is in the same element |
 | `threshold`, `message` | `threshold` (`0x` hex), `message` |
 | `timestamp` in `s` | `date`, `encoding: "timestamp"` |
 | `duration` in `s` | `duration` |
@@ -676,9 +688,15 @@ transaction calls (an update), keyed by its `signature`:
 | `binds.deployments` | `context.contract.deployments` (the caller may pick a subset; a file needs at least one) |
 
 What a profile says that an ERC-7730 file cannot say is refused (`E_EXPORT`), never written as something near it: a
-time in another unit, `utf8` or `base64` bytes, an amount whose decimals and symbol are not the contract's own, an
-unnamed parameter, a placeholder over an array or a whole tuple. `effect` and the agent tags have no ERC-7730 form;
-the file carries what a call says, not what it does.
+time in another unit, `utf8` or `base64` bytes, an amount whose decimals and symbol are not the contract's own (or
+whose token is outside the array group it is in), an unnamed parameter. `effect` and the agent tags have no ERC-7730
+form; the file carries what a call says, not what it does.
+
+Some words have no ERC-7730 form but change no value, and are left out with a note (the export's `notes`) instead of
+refusing the file (D-055): a timestamp's `threshold`, `message` and `labels` (the file shows the date), and a template
+ERC-7730 cannot interpolate (a placeholder over an array or a whole tuple), which gets no `interpolatedIntent`.
+**Fact** (ERC-7730): `interpolatedIntent` is optional, and a wallet falls back to `intent` when interpolation fails.
+Phase 1 refused the whole file for such a template; every file phase 1 wrote is written the same now.
 
 `erc8176Attestation` gives the unsigned offchain attestation (EAS offchain v2 typed data: domain `EAS Attestation`,
 version `0.26`, chain 1, the canonical EAS contract; `data` is the hash) and its EIP-712 digest. A reviewer signs it
@@ -697,3 +715,134 @@ spends mainnet ETH (AGENTS.md rule 4). Checking attestations is a later phase.
   token' warning", where §12 rule 10 produces no message. An exported file cannot make a wallet refuse.
 - **O8.** **Assumption:** a wallet reads `metadata.token` as the token at `@.to`. ERC-7730 calls it the token "exported
   by this format"; the export writes it only when the caller says the contract is that token.
+- The open items of EIP-712 messages are O9 to O14, in §15.9.
+
+### 15.9 Typed messages (EIP-712, D-055)
+
+**Status:** experimental, the first part of phase 2 (`proposals/w0-evm-eip712.md`, Q1 to Q5 as recommended). A
+profile can describe the EIP-712 messages a wallet is asked to sign; from it come consent text for a signing request
+and an ERC-7730 file of the messages. Signing, checking signatures, witness messages (O9) and agent tools are not in
+it.
+
+**Fact** ([EIP-712](https://eips.ethereum.org/EIPS/eip-712), Final): a signing request (`eth_signTypedData_v4`) has
+`types`, `primaryType`, `domain` and `message`. The signature signs `keccak256(0x1901 ‖ domainSeparator ‖
+hashStruct(message))`. A struct's `typeHash` is the Keccak-256 of its `encodeType`: the struct with its members, then
+every struct it refers to, sorted by name (`Mail(Person from,Person to,string contents)Person(string name,address
+wallet)`). The domain's fields are `name`, `version`, `chainId`, `verifyingContract` and `salt`, in that order, each
+optional. The EIP says a user agent should refuse to sign when `chainId` is not the active chain.
+
+#### Types and messages
+
+- `binds.eip712: { "domain": { "name": "Permit2", "version": "1" }, "types": { "PermitSingle": [ { "name":
+  "details", "type": "PermitDetails" }, … ] } }`, in a contract profile or an EVM pack. `types` has the request's own
+  JSON shape, without `EIP712Domain`. `domain` is optional and binds only the name and the version; `chainId` and
+  `verifyingContract` come from `binds.deployments`. A pack has no domain (each token's is its own) and keeps its
+  `binds.abi`, by which it matches (§15.3).
+- A struct name is an identifier that does not read as an ABI type (`uint256`, `bytes32`, `tuple`, …) and is not
+  `EIP712Domain`. Members have unique names. A member type is a canonical ABI type as written (`uint256`, never `uint`:
+  the type hash hashes the text) or a struct of the same map, either with array suffixes (`T[]`, `T[k]`, k ≥ 1). No
+  struct contains itself. Anything else is `E_EIP712` at its place; a struct that refers to a refused one is refused
+  too.
+- **A message** is a type the same document tags with `intent` at its bare name (`PermitSingle`). Its struct is
+  argument 0, as a function's parameters are (§15.1): `PermitSingle(0).details.amount`. A type without an intent is a
+  type only, and an address that names it is `E_ADDR_UNRESOLVED`. A message may not share its name with a function,
+  two profiles may not give one type name different members (the later profile is invalid), and types with no message
+  and no function describe nothing: each is `E_EIP712`.
+- The resolver computes each message's `encode_type` and `type_hash`. **A request matches a message by its type hash,
+  never by its name**: DAI's `Permit` and EIP-2612's share a name and not a hash.
+- **Tags.** `intent` and `effect` as on a function. A signature runs nothing when it is signed, so `effect` says what
+  it allows, of any kind (`approve` for an allowance, `transfer` for a one-time transfer; default `write`,
+  irreversible), and `replicated` does not apply (`E_EFFECT_MODE`). The value tags and the tags that are not yet
+  defined are as in §15.4.
+- **Identity.** The resolved form's `interface_id` covers the struct types with the functions: §15.1's hash over the
+  sorted canonical fragments and one `struct <Name>(<type> <name>,…)` line per type. With no types it is §15.1's, so a
+  phase 1 form is unchanged. Whether a contract profile is rebound or stale (§15.3) is decided by its functions alone,
+  so the messages a pack adds never make it stale.
+
+#### An amount in the token a field names
+
+`amount.token` is a relative path (§4) from the argument to an `address` field of the same argument, whose path up to
+its last `[]` is the amount's own: the token is in the same array element as the amount, or outside every array
+(`"token": "details[].token"` for `details[].amount`). Then `decimals` and `symbol` are not given (the schema refuses
+them): they are that token's `decimals()` and `symbol()`. The consumer reads them and passes them per token address
+(`tokens: { "0xA0b8…": { "decimals": 6, "symbol": "USDC" } }`); the libraries do no I/O. Without an entry there is no
+text (`E_REF_UNRESOLVED`; §12 rule 10), never a number read in the wrong decimals. A token's `symbol()` is its own
+claim, so its address is always shown beside it: `1.5 USDC (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48)`. A path
+that breaks these rules is `E_TOKEN_PATH`, and so is `token` on a Candid service, whose ledger a field cannot name yet
+(OQ-6). `token` works on functions too.
+
+#### Consent text for a signing request
+
+`@meantjs/consent/evm`, `eip712Consent({ resolved, typedData, chainId, refs, tokens, form, utcOffsetMinutes,
+rawArguments, limits })`, takes the wallet's active chain. It refuses before anything is shown:
+
+1. `E_DOMAIN`: a domain field EIP-712 does not define; a `salt` (O11); a `types.EIP712Domain` that does not list the
+   domain's fields in EIP-712 order (it may be left out); no `chainId` (the signature would be valid on every chain);
+   no `verifyingContract`; a `chainId` other than the wallet's; a `name` or `version` other than that of every profile
+   that binds a domain, absent where the profile's is absent (Permit2's domain has no version).
+2. `E_TYPE_HASH`: no message has the request's type hash. `E_DEPLOYMENT`: a profile lists deployments and the
+   verifying contract on the chain is not one of them, so a look-alike contract named "Permit2" gets none of Permit2's
+   words.
+3. `E_DECODE`: values that are not exactly the members, or not canonical. Integers are decimal strings without
+   leading zeros, or JSON numbers up to 2^53 − 1, within their type's range. Addresses follow §15.2. `bytesN` has
+   exactly N bytes, as `0x` hex. An array has its declared length, within the decoder's limits.
+4. `E_REF_UNRESOLVED`: an amount in a token not in `tokens`, or a `query:` ref not in `refs`. For a pack's message
+   the `query:` refs are calls to the verifying contract: the consumer resolves that contract's ABI with the packs.
+
+The text is §15.6's model and two forms, then the verifying contract and its chain, the EIP-712 digest (a hardware
+wallet that shows the hash can be checked against it), and "This is a signature, not a transaction: whoever holds it
+can submit it."
+
+#### The ERC-7730 file of the messages
+
+ERC-7730 binds a file to a contract or to messages, not both, so `erc7730Descriptor(resolved, { context: "eip712" })`
+writes the messages' file, with its own `descriptorHash`. **Fact** (ERC-7730): `context.eip712` has `domain` (each
+value must match the request's) and `deployments`; formats are keyed by the primary type's `encodeType`, whose hash
+must match; for a message, `@.to` is the verifying contract.
+
+- `context.eip712.domain` is the name and version the profiles bind (absent for a pack), and `deployments` as in
+  §15.7. Formats are keyed by `encode_type`, and the export checks that its Keccak-256 is the `type_hash`.
+- Fields follow §15.7's table. An amount with `token` is `tokenAmount` with `tokenPath`. An array whose elements hold
+  an amount in a token of the same element is a field group (`{ "path": "details.[]", "fields": […] }`), its paths
+  relative to the element, as ERC-7730's own PermitBatch example writes it. An EIP-2612 amount is `tokenPath: "@.to"`:
+  the verifying contract is the token.
+- A message without a title is `Sign <name>`. The notes of §15.7 apply: Permit2's file shows its deadlines as dates.
+
+#### Standard files
+
+- [`packs/erc2612.profile.json`](../packs/erc2612.profile.json), a pack: EIP-2612's `Permit` message and the `permit`
+  function that submits one. It applies to a token with `permit`, `nonces`, `DOMAIN_SEPARATOR`, `decimals` and
+  `symbol`; amounts read the token's `decimals()` and `symbol()`, and a deadline of `uint256` max reads "Never".
+  **Fact** ([EIP-2612](https://eips.ethereum.org/EIPS/eip-2612)): "The `deadline` argument can be set to `uint(-1)`
+  to create `Permit`s that effectively never expire."
+- [`packs/permit2.profile.json`](../packs/permit2.profile.json), a contract profile (`origin: "third_party"`):
+  Permit2's `PermitSingle` and `PermitBatch` (an allowance, `approve`) and `PermitTransferFrom` and
+  `PermitBatchTransferFrom` (one transfer, `transfer`), amounts in the token each message names. Bound to domain
+  `Permit2` and to `0x000000000022D473030F116dDEE9F6B43aC78BA3` on chains 1 and 42161 (**Fact**: ERC-7730's own
+  Permit2 example; O10). **Fact** (Uniswap `permit2`, `Allowance.sol` and `AllowanceTransfer.sol`): "If the inputted
+  expiration is 0, the allowance only lasts the duration of the block", so it reads "Only in the block it is used";
+  an allowance of `type(uint160).max` is never decremented, so it reads "Unlimited".
+- [`packs/dai-permit.profile.json`](../packs/dai-permit.profile.json), a contract profile: DAI's older `Permit`, bound
+  to domain `Dai Stablecoin` version `1` and to `0x6B175474E89094C44Da98b954EedeAC495271d0F` on chain 1 (**Fact**:
+  `MCD_DAI` in the Sky chainlog, read 2026-10-28). **Fact** (MakerDAO `dss/src/dai.sol`): `expiry == 0` never expires,
+  `allowed` sets the allowance to `uint(-1)` or 0, and `PERMIT_TYPEHASH` is
+  `0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb`, which the resolver's hash matches.
+
+The type hashes of the six standard messages, EIP-712's `Mail` type hash and digest, the consent goldens' digests and
+the exported files' `descriptorHash`es were recomputed by an independent Python EIP-712 and Keccak-256 (the phase 1
+cross-check tool).
+
+#### Open items
+
+- **O9.** Permit2 witness messages (`PermitWitnessTransferFrom` with a protocol's own witness type). Each needs its
+  own profile; until then a request with a witness matches nothing and gets no text.
+- **O10.** Permit2's deployments beyond chains 1 and 42161: its address is the same on many chains, and each is added
+  after checking Uniswap's list, never assumed.
+- **O11.** Domains with a `salt`, and contracts whose domain name or version changes after deployment: refused for
+  now.
+- **O12.** DAI's `allowed` bool reads through its template ("to all of it if allowed is true, to none if false");
+  a case-like reading of `true` and `false` would need D-053 for `bool`.
+- **O13.** The signer against an `owner` or `holder` member: whether the text should say so, or refuse, when they
+  differ. **Open:** the consent function does not take the signer yet.
+- **O14.** Permits that differ from EIP-2612 by a member match nothing and get no text; a pack per variant is added
+  only when one is seen.
