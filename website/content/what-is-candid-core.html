@@ -1,4 +1,19 @@
 <p>
+  Meant has two layers, and this page is about the first one, the interface layer: the Rust crate
+  <code>meant</code>, the npm packages <code>@candid-core/schema</code> and
+  <code>@candid-core/cli</code>, and the <strong>Contract</strong> they share. It settles what a
+  call's values <em>are</em> — their Candid types, checked once and named by a hash.
+</p>
+
+<p>
+  The profile layer on top of it says what those values <em>mean</em>: units, intent, effects, whether a retry is
+  safe. A profile is a separate document bound to the Contract, and it never changes the
+  Contract's <code>interface_id</code> or <code>contract_id</code>.
+  <a href="what-is-meant.html">What is Meant?</a> sets the two layers side by side, and
+  <a href="profiles.html">Profiles, layers and binding</a> says what the profile layer adds.
+</p>
+
+<p>
   A Candid interface description — a <code>.did</code> file — is the contract between a
   canister and everything that calls it. It is also, to every tool in the chain, a string. Two
   strings can describe exactly the same callable interface while differing in type names, field
@@ -7,7 +22,7 @@
 </p>
 
 <p>
-  candid-core parses that string once, through the official <code>candid_parser</code>, and
+  <code>meant</code> parses that string once, through the official <code>candid_parser</code>, and
   projects the checked result into a <strong>Contract</strong>: a validated data structure with
   one exact byte encoding and a SHA-256 identity over it. Parsing DID text stays inside the Rust
   boundary, behind the <code>compiler</code> feature; downstream of that single parse — the
@@ -102,7 +117,7 @@ for each UTF-8 byte b of the name:
 </p>
 
 <p>
-  candid-core's rule is that exactly one component may parse DID text or apply Candid type
+  Meant's rule is that exactly one component may parse DID text or apply Candid type
   rules: the Rust boundary, and only when the <code>compiler</code> feature is enabled.
   <code>candid_parser</code> is authoritative for what the source means, and the builder only
   projects that checked result into the graph — it reimplements no part of alias resolution,
@@ -140,8 +155,8 @@ for each UTF-8 byte b of the name:
 </p>
 
 <p>
-  candid-core's own first two prereleases got this wrong, which is the most honest example
-  available. Both <code>0.1.0-beta.1</code> and <code>0.1.0-beta.2</code> walked the
+  The crate's own first two prereleases, published under its old name <code>candid-core</code>,
+  got this wrong, which is the most honest example available. Both <code>0.1.0-beta.1</code> and <code>0.1.0-beta.2</code> walked the
   declaration reference graph as a tree, re-expanding a shared subtree once per incoming edge —
   node visits doubling per level, from a source under a kilobyte, reachable from the public
   <code>compile_did</code> entry point under default limits. Nothing was charged for the work
@@ -165,7 +180,7 @@ for each UTF-8 byte b of the name:
 
 <h2>The idea: compile once, into a Contract</h2>
 
-<p>A Contract is what candid-core hands you instead of the source. Four things happen, in order.</p>
+<p>A Contract is what <code>meant</code> hands you instead of the source. Four things happen, in order.</p>
 
 <ol>
   <li>
@@ -435,14 +450,14 @@ export { $Odd as Odd };
   <p>
     Until 1.0, any release may change the public Rust API, the serialized Contract, envelope and
     compilation shapes, the canonical bytes, and therefore every identity computed over them.
-    A caret requirement such as <code>candid-core = "0.1"</code> would take such a release with
+    A caret requirement such as <code>meant = "0.1"</code> would take such a release with
     it. Name the version exactly, as below.
   </p>
 </callout>
 
 <pre data-lang="toml" data-file="Cargo.toml">
 [dependencies]
-candid-core = "=0.1.0"
+meant = "=0.1.0"
 </pre>
 
 <p>

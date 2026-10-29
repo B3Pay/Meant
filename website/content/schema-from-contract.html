@@ -22,7 +22,7 @@
 
 <p>
   <code>@candid-core/schema/contract</code> covers that case. <code>schemaFromContract</code> takes
-  a canonical <strong>Contract</strong> document — the JSON the <code>candid-core</code> compiler
+  a canonical <strong>Contract</strong> document — the JSON the <code>meant</code> compiler
   prints from a <code>.did</code> file — and returns the same <code>c.*</code> schema objects the
   generator would have emitted, built at runtime, with no code generation step and no
   <code>eval</code>. Every mapping decision the generator makes is applied here too, and a
@@ -196,7 +196,7 @@ export type SchemaFromContractResult =
 <h3>One document instead of two</h3>
 
 <p>
-  <code>candid-core compile &lt;path&gt; --envelope</code> prints a <code>ContractEnvelope</code>
+  <code>meant compile &lt;path&gt; --envelope</code> prints a <code>ContractEnvelope</code>
   instead: <code>{ contract, extensions }</code>, where the
   <code>org.candid-core.field-names/v1</code> extension carries the name table.
   <code>schemaFromContract</code> accepts that shape directly and consumes the table, so one
@@ -286,7 +286,7 @@ type B = record { x : record { 100 : text } };
 
 <p>
   Passing no table at all is legal. Every field then renders as <code>_&lt;id&gt;_</code>, which is
-  also what <code>candid-core compile --no-source-info</code> leaves you with. The schemas are
+  also what <code>meant compile --no-source-info</code> leaves you with. The schemas are
   correct and encode to identical bytes — only the readable keys are gone.
 </p>
 
@@ -339,7 +339,7 @@ type B = record { x : record { 100 : text } };
   <dd>
     <code>actor</code> is returned as a service schema. A <code>class</code> actor is unwrapped to
     its running service — init arguments are install-time metadata a call surface never consumes.
-    A class node anywhere else is refused, mirroring two of candid-core's own rules:
+    A class node anywhere else is refused, mirroring two of <code>meant</code>'s own rules:
     <code>class_not_first_class_type</code>, so no type edge may target a class, and
     <code>class_not_actor_root</code>, so a named declaration must never target one either — even
     when that class <em>is</em> the actor root.
@@ -395,10 +395,10 @@ type B = record { x : record { 100 : text } };
   </li>
   <li>
     <h3>Compile the .did file</h3>
-    <pre data-lang="bash">cargo install candid-core --version 0.1.0 --locked
-candid-core compile ./collections.did > ./compiled.json</pre>
+    <pre data-lang="bash">cargo install meant --version 0.1.0 --locked
+meant compile ./collections.did > ./compiled.json</pre>
     <p>
-      <code>candid-core</code> is pre-1.0, so name the version you mean rather than install
+      <code>meant</code> is pre-1.0, so name the version you mean rather than install
       whatever is newest. Plain
       <code>compile</code> prints <code>{ ok, contract, source_info }</code>: the Contract document,
       plus the provenance sidecar that carries the field names.
@@ -467,7 +467,7 @@ validate(Item, { id: 7, label: "seven", payload: [7] });
 </ol>
 
 <p>
-  With <code>candid-core compile ./collections.did --envelope &gt; ./service.json</code>, steps two
+  With <code>meant compile ./collections.did --envelope &gt; ./service.json</code>, steps two
   and three collapse into one read and the <code>names</code> option goes away entirely:
 </p>
 
@@ -514,7 +514,7 @@ built.actor; // the service schema, when the document has one
   <code>Infinity</code>), throws <code>TypeError</code>. <code>0</code> is a valid cap that refuses
   any non-empty document part it bounds.
   <code>ContractIssueCode</code> is a closed union of 17 members; several deliberately reuse the
-  codes candid-core's own Rust validator produces for the same condition, so the two loaders refuse
+  codes <code>meant</code>'s own Rust validator produces for the same condition, so the two loaders refuse
   the same documents under the same names.
 </p>
 
@@ -636,7 +636,7 @@ for (const [declaration, samples] of Object.entries(fixture.samples)) {
   </a>
   <a class="card" href="cli-rust.html">
     <span class="card-kicker">Reference</span>
-    <span class="card-title">The candid-core binary</span>
+    <span class="card-title">The meant binary</span>
     <p><code>compile</code>, <code>--envelope</code>, <code>--no-source-info</code> and <code>validate</code>.</p>
   </a>
 </div>

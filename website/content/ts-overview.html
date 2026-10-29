@@ -21,7 +21,7 @@
 
 <p>
   The pieces split across a language boundary. A Rust crate, <code>candid-core-ts</code>, turns a
-  validated <strong>Contract</strong> — candid-core's canonical model of a <code>.did</code> file —
+  validated <strong>Contract</strong> — Meant's canonical model of a <code>.did</code> file —
   into a TypeScript module. An npm package, <a href="https://www.npmjs.com/package/@candid-core/schema"><code>@candid-core/schema</code></a>,
   is what that module imports and what everything downstream is built on. You can also skip the
   generator entirely and build the same schemas at runtime from a compiled Contract document.
@@ -48,7 +48,7 @@ pub fn generate_module(
 </pre>
 
 <p>
-  The published <code>candid-core</code> binary does not emit TypeScript: its usage is
+  The published <code>meant</code> binary does not emit TypeScript: its usage is
   <code>compile &lt;path&gt; [--no-source-info | --envelope]</code> and
   <code>validate &lt;path&gt;</code>, and it stops there. The generator crate itself is marked
   <code>publish = false</code> and is not on crates.io — a registry name is a permanent decision and
@@ -195,15 +195,15 @@ export { $Items as Items };
 <p>
   Or skip generation. The <code>./contract</code> subpath builds the same schemas from a compiled
   Contract JSON document. Producing that document from <code>.did</code> is a separate step, and the
-  route below uses the published <code>candid-core</code> binary: two commands, whose output is data
+  route below uses the published <code>meant</code> binary: two commands, whose output is data
   you can ship, fetch or cache. <a href="cli-npm.html"><code>@candid-core/cli</code></a> compiles
   the same sources in WebAssembly with no Rust toolchain, and its
   <code>&lt;stem&gt;.envelope.json</code> is the same document.
 </p>
 
 <pre data-lang="bash">
-cargo install candid-core --version 0.1.0 --locked
-candid-core compile ./service.did --envelope > ./service.json
+cargo install meant --version 0.1.0 --locked
+meant compile ./service.did --envelope > ./service.json
 </pre>
 
 <pre data-lang="ts" data-check>

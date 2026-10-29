@@ -451,7 +451,7 @@ export interface CodecResourceLimitInfo {
   <code>maxDepth</code> encodes and decodes a 100,000-level linked list or ICRC-3 value the same way
   on every call. <code>encode</code>'s type table charges <code>maxDepth</code> for Candid nesting
   depth only — once per combinator level at which it opens an entry, never for a <code>rec</code>
-  hop, since an alias adds no depth in Candid either — so any type the candid-core compiler
+  hop, since an alias adds no depth in Candid either — so any type the <code>meant</code> compiler
   accepts encodes through its generated module at the default limits, and a hand-built schema
   nested deeper than the limit is refused with <code>value_depth</code> at Candid depth 257.
 </p>
@@ -656,7 +656,7 @@ encode(c.principal, { toText: () => "aaaaa-aa" }); // invalid_type (not a string
   <code>candid</code>, and asserts they equal the case's value — so the reference implementation
   validates our encoder, not only the reverse. The reference type environment is built by
   <code>candid_parser</code> reading the fixture <code>.did</code> source directly, deliberately
-  not through candid-core's own compiler, so the reference path shares no code with the model under
+  not through <code>meant</code>'s own compiler, so the reference path shares no code with the model under
   test.
 </p>
 

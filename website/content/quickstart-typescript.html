@@ -253,11 +253,15 @@ for the full procedure and the mapping it applies.</p>
 
 <p>If you would rather not have a generated file in your tree, the same schemas
 can be built at startup from the canonical Contract JSON. The
-<code>candid-core</code> binary writes that document; <code>schemaFromContract</code>
+<code>meant</code> binary writes that document; <code>schemaFromContract</code>
 reads it.</p>
 
-<pre data-lang="bash">cargo install candid-core --version 0.1.0 --locked
-candid-core compile ./service.did --envelope > ./service.json</pre>
+<pre data-lang="bash">cargo install meant --version 0.1.0 --locked
+meant compile ./service.did --envelope > ./service.json</pre>
+
+<p>The crate and its binary were published as <code>candid-core</code> until
+0.1.0 and are <code>meant</code> now, so a script written for the old name runs
+<code>meant compile</code> where it ran <code>candid-core compile</code>.</p>
 
 <p><code>--envelope</code> prints one self-describing document: the canonical
 Contract plus an <code>extensions</code> map whose
@@ -283,7 +287,7 @@ root export before you read its structure. Names are hash-enforced — each one
 must be the Candid preimage of the id it claims — so a table that lies fails
 closed instead of silently renaming a field. <a href="schema-from-contract.html">Schemas
 at runtime</a> covers the options and the failure modes;
-<a href="cli-rust.html">the candid-core binary</a> covers the compile side.</p>
+<a href="cli-rust.html">the <code>meant</code> binary</a> covers the compile side.</p>
 
 <callout type="tip" title="The same compile step with no Rust toolchain">
   <p>A second package, <code>@candid-core/cli</code>, compiles the same pipeline

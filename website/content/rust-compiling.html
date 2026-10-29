@@ -99,7 +99,7 @@ pub fn compile_did_with_context(
 </p>
 
 <pre data-lang="rust" data-file="examples/contract_walkthrough.rs">
-use candid_core::{compile_did, Actor, TypeNode};
+use meant::{compile_did, Actor, TypeNode};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -199,7 +199,7 @@ pub fn compile_with_resolver(
   This is the platform primitive. The supported boundary is
   <em>synchronous, immutable source data supplied by the host</em>: the resolver
   decides identity and returns bytes, and the compiler owns every limit.
-  <code>candid-core</code> never fetches anything, never resolves asynchronously and
+  <code>meant</code> never fetches anything, never resolves asynchronously and
   never consults a registry.
 </p>
 
@@ -254,7 +254,7 @@ pub trait SourceResolver {
 <pre data-lang="rust" data-file="examples/hermetic_bundle.rs">
 //! Imported-bundle compilation with no filesystem.
 
-use candid_core::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
+use meant::{compile_with_resolver, CompileOptions, MemoryResolver, RuntimeContext};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -343,7 +343,7 @@ pub fn compile_did_file_with_context(
 </p>
 
 <pre data-lang="rust">
-use candid_core::{compile_did_file_with_options, CompileOptions};
+use meant::{compile_did_file_with_options, CompileOptions};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
