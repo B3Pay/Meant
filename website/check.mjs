@@ -437,13 +437,13 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
   for (const match of source.matchAll(/<layer>([\s\S]*?)<\/layer>/g)) {
     if (!LAYERS[match[1].trim()]) fail(page, `<layer> "${match[1].trim()}" is not one of ${Object.keys(LAYERS).join(", ")}`);
   }
-  for (const match of source.matchAll(/<outcome[^>]*>([\s\S]*?)<\/outcome>/g)) {
+  for (const match of source.matchAll(/<outcome(?:[^>"]|"[^"]*")*>([\s\S]*?)<\/outcome>/g)) {
     if (!OUTCOMES.includes(match[1].trim())) fail(page, `<outcome> "${match[1].trim()}" is not one of ${OUTCOMES.join(", ")}`);
   }
   for (const match of source.matchAll(/<effect>([\s\S]*?)<\/effect>/g)) {
     if (!EFFECTS.includes(match[1].trim())) fail(page, `<effect> "${match[1].trim()}" is not one of ${EFFECTS.join(", ")}`);
   }
-  for (const match of source.matchAll(/<consent[^>]*\beffects="([^"]*)"/g)) {
+  for (const match of source.matchAll(/<consent(?:[^>"]|"[^"]*")*?\beffects="([^"]*)"/g)) {
     for (const effect of match[1].split(/\s+/).filter(Boolean)) {
       if (!EFFECTS.includes(effect)) fail(page, `<consent> effect "${effect}" is not one of ${EFFECTS.join(", ")}`);
     }
@@ -451,13 +451,13 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
   for (const match of source.matchAll(/<claim>([\s\S]*?)<\/claim>/g)) {
     if (!CLAIMS.includes(match[1].trim())) fail(page, `<claim> "${match[1].trim()}" is not one of ${CLAIMS.join(", ")}`);
   }
-  for (const match of source.matchAll(/<diag[^>]*>([\s\S]*?)<\/diag>/g)) {
+  for (const match of source.matchAll(/<diag(?:[^>"]|"[^"]*")*>([\s\S]*?)<\/diag>/g)) {
     const code = match[1].trim();
     if (!KNOWN_CODES.has(code)) {
       fail(page, `<diag> ${code} is defined nowhere in the profile spec, the profile packages or meant-format`);
     }
   }
-  for (const match of source.matchAll(/<chain-switch([^>]*)>/g)) {
+  for (const match of source.matchAll(/<chain-switch((?:[^>"]|"[^"]*")*)>/g)) {
     const chains = ((match[1].match(/chains="([^"]*)"/) || [, "icp evm"])[1]).split(/\s+/);
     for (const chain of chains) {
       if (!CHAINS.some((known) => known.id === chain)) fail(page, `<chain-switch> chain "${chain}" is unknown`);

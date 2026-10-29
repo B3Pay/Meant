@@ -4,7 +4,8 @@
  * A content page writes a component as a tag, and build.mjs expands it here
  * into the design system's exact markup (its components/bundle.js, html()), so
  * the stylesheet copied from the system styles it unchanged and no page
- * repeats the markup by hand. check.mjs reads the same lists to refuse a value
+ * repeats the markup by hand. An attribute value may hold `>` (an address
+ * such as `balance->(0).e8s`): the tag patterns skip over quoted values. check.mjs reads the same lists to refuse a value
  * the component does not have.
  *
  *   <layer>profiles</layer>                  a layer icon and the layer's name
@@ -93,7 +94,7 @@ export function renderComponents(html) {
       const layer = raw.trim();
       return `${layerIcon(layer, 12)}${escapeHtml(LAYERS[layer] ? LAYERS[layer].name : layer)}`;
     })
-    .replace(/<outcome([^>]*)>([\s\S]*?)<\/outcome>/g, (whole, attributes, name) =>
+    .replace(/<outcome((?:[^>"]|"[^"]*")*)>([\s\S]*?)<\/outcome>/g, (whole, attributes, name) =>
       outcome(name.trim(), attr(attributes, "label")),
     )
     .replace(/<effect>([\s\S]*?)<\/effect>/g, (whole, name) => effect(name.trim()))
@@ -101,17 +102,17 @@ export function renderComponents(html) {
       const k = kind.trim();
       return `<span class="claim ${escapeHtml(k)}">${escapeHtml(k)}</span>`;
     })
-    .replace(/<diag([^>]*)>([\s\S]*?)<\/diag>/g, (whole, attributes, raw) => {
+    .replace(/<diag((?:[^>"]|"[^"]*")*)>([\s\S]*?)<\/diag>/g, (whole, attributes, raw) => {
       const code = raw.trim();
       const severity = code[0] === "E" ? ["error", "E"] : code[0] === "W" ? ["warning", "W"] : ["info", "I"];
       const href = attr(attributes, "href");
       const tag = href ? "a" : "span";
       return `<${tag} class="diag ${severity[0]}"${href ? ` href="${escapeHtml(href)}"` : ""} title="${severity[0]}"><span class="sev">${severity[1]}</span><span class="code">${escapeHtml(code)}</span></${tag}>`;
     })
-    .replace(/<id-chip([^>]*)>([\s\S]*?)<\/id-chip>/g, (whole, attributes, value) =>
+    .replace(/<id-chip((?:[^>"]|"[^"]*")*)>([\s\S]*?)<\/id-chip>/g, (whole, attributes, value) =>
       idChip(attr(attributes, "kind"), value.trim()),
     )
-    .replace(/<annotation([^>]*)>([\s\S]*?)<\/annotation>/g, (whole, attributes, body) => {
+    .replace(/<annotation((?:[^>"]|"[^"]*")*)>([\s\S]*?)<\/annotation>/g, (whole, attributes, body) => {
       // One argument per line, `key: value`.
       const args = body
         .split("\n")
@@ -138,9 +139,9 @@ export function renderComponents(html) {
         "</dl></figure>"
       );
     })
-    .replace(/<tool-view([^>]*)>([\s\S]*?)<\/tool-view>/g, (whole, attributes, body) => {
+    .replace(/<tool-view((?:[^>"]|"[^"]*")*)>([\s\S]*?)<\/tool-view>/g, (whole, attributes, body) => {
       const side = (name, label) => {
-        const m = body.match(new RegExp(`<${name}([^>]*)>([\\s\\S]*?)</${name}>`)) || ["", "", ""];
+        const m = body.match(new RegExp(`<${name}((?:[^>"]|"[^"]*")*)>([\\s\\S]*?)</${name}>`)) || ["", "", ""];
         return `<div class="tool-side ${name}"><span class="tool-label">${label}</span><span class="tool-value">${escapeHtml(attr(m[1], "value"))}</span><pre>${literal(m[2])}</pre></div>`;
       };
       return (
@@ -151,8 +152,8 @@ export function renderComponents(html) {
         "</div>"
       );
     })
-    .replace(/<consent([^>]*)>([\s\S]*?)<\/consent>/g, (whole, attributes, body) => {
-      const fields = [...body.matchAll(/<field([^>]*)>([\s\S]*?)<\/field>/g)]
+    .replace(/<consent((?:[^>"]|"[^"]*")*)>([\s\S]*?)<\/consent>/g, (whole, attributes, body) => {
+      const fields = [...body.matchAll(/<field((?:[^>"]|"[^"]*")*)>([\s\S]*?)<\/field>/g)]
         .map(([, a, value]) => {
           const address = attr(a, "address");
           const amount = /\bamount\b/.test(a.replace(/="[^"]*"/g, ""));
@@ -161,15 +162,19 @@ export function renderComponents(html) {
         .join("");
       const effects = attr(attributes, "effects").split(/\s+/).filter(Boolean).map(effect).join("");
       const note = attr(attributes, "note", "Only the owner confirms. The model never does.");
+      // The design system gives .consent no outer margin, unlike .annotation
+      // and .tool-view; the wrapper adds the same spacing they have, here, so
+      // the copied stylesheet stays the system's.
       return (
+        '<div style="margin: var(--space-4) 0 var(--space-6)">' +
         `<section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">${escapeHtml(attr(attributes, "standard"))}</span>` +
         `<h4 class="consent-title">${escapeHtml(attr(attributes, "title"))}</h4><div class="consent-effects">${effects}</div></div>` +
         `<dl class="consent-fields">${fields}</dl>` +
         '<div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button>' +
-        `<span class="consent-note" aria-live="polite">${escapeHtml(note)}</span></div></section>`
+        `<span class="consent-note" aria-live="polite">${escapeHtml(note)}</span></div></section></div>`
       );
     })
-    .replace(/<chain-switch([^>]*)><\/chain-switch>/g, (whole, attributes) => {
+    .replace(/<chain-switch((?:[^>"]|"[^"]*")*)><\/chain-switch>/g, (whole, attributes) => {
       const wanted = attr(attributes, "chains", "icp evm").split(/\s+/);
       const chains = CHAINS.filter((chain) => wanted.includes(chain.id));
       const selected = attr(attributes, "selected", chains[0].id);
