@@ -1,0 +1,12 @@
+.cargo_vcs_info.json
+CHANGELOG.md
+Cargo.lock
+Cargo.toml
+Cargo.toml.orig
+LICENSE
+README.md
+src/amount.rs
+src/error.rs
+src/int_type.rs
+src/lib.rs
+src/text.rs
