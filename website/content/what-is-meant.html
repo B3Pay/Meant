@@ -1,0 +1,137 @@
+<p>
+  Here is one line of an ICRC-1 ledger's interface, and the line of the ICRC-1 profile pack that
+  gives it a meaning:
+</p>
+
+<pre data-lang="candid" data-file="profile/packages/consent/test/fixtures/ledger.did">
+type TransferArg = record {
+  // …
+  amount : Tokens;
+  // …
+};
+</pre>
+
+<annotation at="icrc1_transfer(0).amount" tag="amount">
+decimals: query:icrc1_decimals
+symbol: query:icrc1_symbol
+</annotation>
+
+<p>
+  The interface says the amount is a <code>nat</code>. It does not say that the ledger counts in
+  units of 10<sup>-8</sup>, so that "1.5 ICP" is <code>150000000</code> and a guess of 6 decimals
+  sends a hundredth of that. It does not say that <code>created_at_time</code> is in nanoseconds
+  and is what makes a retry safe, or that <code>Err.Duplicate</code> means the payment already went
+  through. Agents, wallets and user interfaces each guess, and each guesses differently. A profile
+  writes the meaning down once, bound to the interface, and every consumer reads the same answer.
+</p>
+
+<h2>Two layers</h2>
+
+<div class="card-grid">
+  <a class="card" href="what-is-candid-core.html">
+    <span class="card-kicker"><layer>interfaces</layer></span>
+    <span class="card-title">What a call's values are</span>
+    <p>The <code>meant</code> crate compiles a <code>.did</code> file, through the official Candid
+    type checker, into a validated Contract graph with content-addressed identities.</p>
+  </a>
+  <a class="card" href="profiles.html">
+    <span class="card-kicker"><layer>profiles</layer></span>
+    <span class="card-title">What they mean</span>
+    <p>A profile attaches tags to positions of that graph: units, intent, effects, retry safety
+    and what each result means.</p>
+  </a>
+</div>
+
+<p>
+  The <strong>interface layer</strong> answers "what is this interface?" exactly. A
+  <code>.did</code> file is text: two files can describe the same callable interface with different
+  type names, field order and comments. Compiled, both get the same <code>interface_id</code>, and a
+  change that matters to a caller moves it. The graph also gives every value a position that can be
+  named: <code>icrc1_transfer(0).amount</code> is the <code>amount</code> field of the first argument
+  of <code>icrc1_transfer</code>, whatever the type that holds it is called.
+  <a href="what-is-candid-core.html">The interface layer →</a>
+</p>
+
+<p>
+  The <strong>profile layer</strong> answers "what does this call mean?". A profile is a JSON
+  document of annotations, each an <a href="addresses.html">address</a>, a tag and its arguments. It
+  binds to an <code>interface_id</code> and never changes it, the way a sidecar describes a file
+  without editing it. A profile can come from the canister's author, from a third party you trust,
+  from a standard pack that matches the interface by subtyping, or from a model that proposes one
+  for a person to approve; the four layers merge per tag and per position.
+  <a href="profiles.html">Profiles, layers and binding →</a>
+</p>
+
+<h2>What one profile gives you</h2>
+
+<p>
+  Consumers never resolve addresses themselves. <code>@meantjs/profile</code> merges every layer
+  that applies and writes the <a href="reference-profile-format.html">resolved form</a>: one tree per
+  method, with its tags attached to each position. Everything else reads that.
+</p>
+
+<table>
+  <thead><tr><th>Consumer</th><th>What it gets from the profile</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td>Agent tools (MCP)</td><td>Input in human units, filled defaults, a preview the person confirms, safe retries, classified outcomes</td><td><a href="agent-tools.html"><code>@meantjs/tools</code></a>, <a href="reconcile-outcomes.html"><code>@meantjs/reconcile</code></a></td></tr>
+    <tr><td>ICRC-21 consent messages</td><td>An intent line and typed fields, for any method</td><td><a href="consent-messages.html"><code>@meantjs/consent</code></a></td></tr>
+    <tr><td>User interfaces</td><td>Parsing and display of amounts, times, accounts and bytes; labels and help text</td><td><a href="format-values.html"><code>@meantjs/format</code></a>, <a href="reference-meant-format.html"><code>meant-format</code></a></td></tr>
+    <tr><td>Typed Candid in TypeScript</td><td>Schemas, validation and a binary codec for the interface itself</td><td><a href="ts-overview.html"><code>@candid-core/schema</code></a></td></tr>
+  </tbody>
+</table>
+
+<tool-view>
+<sees value="1.5 ICP">amount: "1.5 ICP"</sees>
+<sends value="150000000">amount = 150_000_000 : nat</sends>
+</tool-view>
+
+<p>
+  Three rules run through all of it. Nothing is rounded: input with more digits than the token has
+  is refused. A call that moves value waits for the person who owns the funds, and the model never
+  confirms. A retry reuses the exact bytes of the first attempt, so it cannot pay twice.
+  <a href="security-model.html">Security model →</a>
+</p>
+
+<h2>Which package do you need?</h2>
+
+<table>
+  <thead><tr><th>You want to</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td>Compile a <code>.did</code> file and compare or cache on its identity, in Rust</td><td><a href="rust-install.html"><code>meant</code></a> (crates.io)</td></tr>
+    <tr><td>Do the same from JavaScript, or generate a TypeScript module</td><td><a href="cli-npm.html"><code>@candid-core/cli</code></a> (npm)</td></tr>
+    <tr><td>Validate and encode Candid values in TypeScript</td><td><a href="ts-overview.html"><code>@candid-core/schema</code></a> (npm)</td></tr>
+    <tr><td>Check a profile, merge it with packs, write the resolved form</td><td><a href="resolve-profiles.html"><code>@meantjs/profile</code></a> and its <a href="cli-profile.html"><code>candid-profile</code></a> command</td></tr>
+    <tr><td>Parse and show amounts, times, accounts, subaccounts and bytes</td><td><a href="format-values.html"><code>@meantjs/format</code></a>; <a href="reference-meant-format.html"><code>meant-format</code></a> for amounts in Rust</td></tr>
+    <tr><td>Answer <code>icrc21_consent_message</code>, or render an SNS proposal</td><td><a href="consent-messages.html"><code>@meantjs/consent</code></a></td></tr>
+    <tr><td>Give an agent tools for a canister</td><td><a href="agent-tools.html"><code>@meantjs/tools</code></a></td></tr>
+    <tr><td>Find out whether a transfer with an unknown outcome went through</td><td><a href="reconcile-outcomes.html"><code>@meantjs/reconcile</code></a></td></tr>
+  </tbody>
+</table>
+
+<p><a href="packages.html">Every crate and package, with versions and dependencies →</a></p>
+
+<h2>Where Meant stops</h2>
+
+<ul>
+  <li>
+    <strong>It does not call canisters.</strong> The packages compile, describe, convert and render;
+    sending a call belongs to the layer above. B3Pay's
+    <a href="https://ic-reactor.b3pay.net/v4/">IC Reactor</a> is that layer for React on the Internet
+    Computer.
+  </li>
+  <li>
+    <strong>A profile is a claim, not a proof.</strong> An author can describe a drain as "claim
+    reward". Binding to <code>interface_id</code> and provenance on every tag limit the damage; they
+    do not remove it. <a href="security-model.html">Security model →</a>
+  </li>
+  <li>
+    <strong>The Internet Computer first.</strong> Profiles for EVM contracts are
+    <a href="chain-evm.html">experimental</a>: consent text and ERC-7730 files, not yet agent tools.
+    <a href="chain-solana.html">Solana</a> is planned and not supported.
+  </li>
+  <li>
+    <claim>assumption</claim> Typed tools built from profiles reduce the value errors agents make.
+    That is what the project's preregistered evaluation tests, and the profile spec stays a draft,
+    with breaking changes expected, until it reports.
+  </li>
+</ul>
