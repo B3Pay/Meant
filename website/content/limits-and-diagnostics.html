@@ -7,7 +7,7 @@
 </p>
 
 <p>
-  candid-core answers that in one place rather than leaving it to each caller. Every public entry
+  <code>meant</code> answers that in one place rather than leaving it to each caller. Every public entry
   point that touches untrusted bytes (parse, compile, validate, canonicalize, hash) runs under a
   resource policy — one you pass in, or <code>Limits::default()</code> for the no-argument
   conveniences — spends one budget while it works, and, when that budget runs out, returns a
@@ -64,7 +64,7 @@
 </p>
 
 <pre data-lang="rust" data-file="src/limits.rs">
-use candid_core::{Limits, LimitsProfile};
+use meant::{Limits, LimitsProfile};
 
 let limits = LimitsProfile::InteractiveV1
     .limits()
@@ -101,7 +101,7 @@ assert_eq!(limits.max_input_bytes(), 64 * 1024);
 </p>
 
 <pre data-lang="rust">
-use candid_core::{CancellationToken, Limits, RuntimeContext};
+use meant::{CancellationToken, Limits, RuntimeContext};
 
 let token = CancellationToken::new();
 let context = RuntimeContext::new(Limits::default()).with_cancellation(token.clone());
@@ -402,7 +402,7 @@ println!(
   rather than the ones you chose. Untrusted bytes go through <code>from_json_with_limits</code>,
   <code>from_slice_with_context</code> and their siblings; the no-argument conveniences such as
   <code>Contract::from_json</code> run the same bounded path under <code>Limits::default()</code>,
-  as does the <code>candid-core</code> binary, which has no flags for changing it.
+  as does the <code>meant</code> binary, which has no flags for changing it.
 </p>
 
 <div class="card-grid">

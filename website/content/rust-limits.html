@@ -1,5 +1,5 @@
 <p>
-  Every public entry point in <code>candid-core</code> — every compile, parse,
+  Every public entry point in <code>meant</code> — every compile, parse,
   validation, canonicalization, render and identity computation — runs under an
   explicit resource policy. That policy is a <code>Limits</code> value you pass in,
   not a global setting, not an environment variable, and not something the library
@@ -28,7 +28,7 @@
 </p>
 
 <pre data-lang="rust" data-file="src/limits.rs">
-use candid_core::{Limits, LimitsProfile};
+use meant::{Limits, LimitsProfile};
 
 let limits = LimitsProfile::InteractiveV1
     .limits()
@@ -120,7 +120,7 @@ impl CancellationToken {
 </pre>
 
 <pre data-lang="rust">
-use candid_core::{compile_did_with_context, CancellationToken, CompileOptions, Limits, RuntimeContext};
+use meant::{compile_did_with_context, CancellationToken, CompileOptions, Limits, RuntimeContext};
 
 let source = "service : { ping: () -> (nat) query };";
 
@@ -167,7 +167,7 @@ match compile_did_with_context(source, CompileOptions::default(), &context) {
 </p>
 
 <pre data-lang="rust">
-use candid_core::{Limits, RuntimeContext};
+use meant::{Limits, RuntimeContext};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 let now_ms = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis() as u64;
@@ -220,7 +220,7 @@ let context = RuntimeContext::new(limits);
 </p>
 
 <pre data-lang="rust">
-use candid_core::{Limits, RuntimeContext};
+use meant::{Limits, RuntimeContext};
 
 // Write it out — e.g. into a project config file, or across a process boundary.
 let limits = Limits::default()
@@ -278,7 +278,7 @@ let context: RuntimeContext = serde_json::from_str(r#"{"limits":{"version":1,"pr
 </p>
 
 <pre data-lang="rust">
-use candid_core::{compile_did_with_context, CompileOptions, Limits, RuntimeContext};
+use meant::{compile_did_with_context, CompileOptions, Limits, RuntimeContext};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {

@@ -12,13 +12,18 @@
 
 import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkSnippets } from "./snippets.mjs";
+import { CHAINS, CLAIMS, EFFECTS, LAYERS, OUTCOMES } from "./components.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(HERE, "..");
 const CONTENT = join(HERE, "content");
-const DIST = join(HERE, "dist");
+const DIST = (() => {
+  const at = process.argv.indexOf("--dist");
+  return at > -1 ? resolve(process.argv[at + 1]) : join(HERE, "dist");
+})();
 
 const failures = [];
 const fail = (page, message) => failures.push({ page, message });
@@ -31,12 +36,74 @@ const site = JSON.parse(await readFile(join(CONTENT, "_site.json"), "utf8"));
 const manifest = await readFile(join(HERE, "..", "Cargo.toml"), "utf8");
 const CRATE_VERSION = (manifest.match(/^version\s*=\s*"([^"]+)"/m) || [])[1];
 if (!CRATE_VERSION) throw new Error("could not read the crate version from Cargo.toml");
-const IS_PRERELEASE = CRATE_VERSION.includes("-");
+
+/* The crates a page may show a dependency line for, each with the version its
+ * own manifest holds, read the same way. `meant` is the root package (it was
+ * `candid-core` until the rename, so a `candid-core` line is refused outright
+ * below); `meant-format` versions on its own. */
 /* Exact while pre-1.0, not only while a prerelease: any 0.x release may break,
  * so the pages pin `=0.1.0` as they pinned the betas (issue #259). */
-const IS_PRE_1_0 = CRATE_VERSION.startsWith("0.");
-const REQUIRED_REQ = IS_PRERELEASE || IS_PRE_1_0 ? `=${CRATE_VERSION}` : CRATE_VERSION;
+const requirementFor = (version) =>
+  version.includes("-") || version.startsWith("0.") ? `=${version}` : version;
+const CRATES = [
+  { name: "meant", version: CRATE_VERSION },
+  {
+    name: "meant-format",
+    version: ((await readFile(join(ROOT, "crates", "meant-format", "Cargo.toml"), "utf8")).match(
+      /^version\s*=\s*"([^"]+)"/m,
+    ) || [])[1],
+  },
+];
+for (const crate of CRATES) {
+  if (!crate.version) throw new Error(`could not read the ${crate.name} version from its Cargo.toml`);
+  crate.requirement = requirementFor(crate.version);
+}
+
+/* Crate versions a manifest holds that crates.io does not yet: a release
+ * prepared on main before its publish. A dependency line or a `cargo add` for
+ * one cannot resolve, so it is refused in a code block, as UNPUBLISHED_NPM_SPECS
+ * refuses the npm equivalent. The publish removes the entry. */
+// Emptied when meant-format 0.2.0 was published on 2026-10-29. The rule
+// stays, so the next prepared crate version is one entry away.
+const UNPUBLISHED_CRATES = [];
+
+/* The @meantjs packages and the one version they release under together, read
+ * from their package.json files: an install line naming another version would
+ * install a different surface from the one the page describes. */
+const PROFILE_PACKAGES = {};
+for (const dir of ["resolver", "format", "consent", "tools", "reconcile"]) {
+  const manifest = JSON.parse(await readFile(join(ROOT, "profile", "packages", dir, "package.json"), "utf8"));
+  PROFILE_PACKAGES[manifest.name] = manifest.version;
+}
+
+/* Every diagnostic code a page may show with <diag>: the codes the profile
+ * spec, the profile packages and meant-format define. A code that is in none
+ * of them was invented by the page. */
+const CODE_SOURCES = [
+  join(ROOT, "profile", "docs"),
+  join(ROOT, "profile", "packages", "resolver", "src"),
+  join(ROOT, "profile", "packages", "format", "src"),
+  join(ROOT, "profile", "packages", "consent", "src"),
+  join(ROOT, "profile", "packages", "tools", "src"),
+  join(ROOT, "profile", "packages", "reconcile", "src"),
+  join(ROOT, "crates", "meant-format", "src"),
+];
+const KNOWN_CODES = new Set();
+for (const dir of CODE_SOURCES) {
+  for (const entry of await readdir(dir, { recursive: true })) {
+    if (!/\.(md|mjs|mts|rs)$/.test(entry)) continue;
+    const text = await readFile(join(dir, entry), "utf8");
+    for (const match of text.matchAll(/\b[EWI]_[A-Z0-9]+(?:_[A-Z0-9]+)*\b/g)) KNOWN_CODES.add(match[0]);
+  }
+}
 const slugs = new Set(site.sections.flatMap((section) => section.pages.map((page) => page.slug)));
+for (const section of site.sections) {
+  for (const holder of [section, ...section.pages]) {
+    if (holder.layer !== undefined && !LAYERS[holder.layer]) {
+      fail("_site.json", `"${holder.slug || section.title}" has layer "${holder.layer}"; it is one of ${Object.keys(LAYERS).join(", ")}`);
+    }
+  }
+}
 
 /* Commands and dependency lines that must never appear in a CODE BLOCK.
  *
@@ -105,9 +172,22 @@ const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({
 const FORBIDDEN_IN_CODE = [
   ...unpublishedRules,
   ...unpublishedSpecRules,
+  /* The crate is `meant` now (the README's rename note): `use candid_core::`
+   * no longer compiles, and `candid-core` on crates.io is the old name, frozen
+   * at 0.1.0. The Contract format's own `candid-core` strings, the identity
+   * prefixes and the `@candid-core/` npm packages are unchanged, and these
+   * patterns do not touch them. */
   {
-    pattern: /^\s*cargo\s+add\s+candid-core\s*$/m,
-    message: "bare `cargo add candid-core`, which cannot resolve a prerelease",
+    pattern: /\bcandid_core::/,
+    message: "`candid_core::`, the crate's old path; it is `meant::` since the rename",
+  },
+  {
+    pattern: /\bcargo\s+(add|install)\s+candid-core\b/,
+    message: "`cargo add`/`cargo install` of `candid-core`, the crate's old name; it is `meant`",
+  },
+  {
+    pattern: /^[ \t]*candid-core\s*=/m,
+    message: "a `candid-core` dependency line, the crate's old name; it is `meant`",
   },
 ];
 
@@ -304,33 +384,94 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
    * 0.1.0-beta.3` is NOT the same defect: cargo's manual states that a
    * `--version` without a requirement operator installs exactly that version
    * and is not treated as a caret requirement, unlike a dependency. */
-  for (const match of code.matchAll(/^[ \t]*candid-core\s*=\s*(.+)$/gm)) {
-    const value = match[1].trim();
-    const version = (value.match(/^"([^"]*)"/) ||
-      value.match(/\bversion\s*=\s*"([^"]*)"/) ||
-      [])[1];
-    if (version === undefined) {
-      fail(page, `candid-core dependency line with no readable version: ${JSON.stringify(value)}`);
-    } else if (version !== REQUIRED_REQ) {
-      fail(
-        page,
-        `candid-core dependency requirement ${JSON.stringify(version)}; it must be ${JSON.stringify(REQUIRED_REQ)}` +
-          (IS_PRERELEASE
-            ? " — a caret requirement never selects a prerelease"
-            : IS_PRE_1_0
-              ? " — before 1.0 a caret requirement would take a breaking 0.x release"
-              : ""),
-      );
+  for (const crate of CRATES) {
+    const lines = new RegExp(`^[ \\t]*${escapeRe(crate.name)}\\s*=\\s*(.+)$`, "gm");
+    for (const match of code.matchAll(lines)) {
+      const value = match[1].trim();
+      const version = (value.match(/^"([^"]*)"/) ||
+        value.match(/\bversion\s*=\s*"([^"]*)"/) ||
+        [])[1];
+      if (version === undefined) {
+        fail(page, `${crate.name} dependency line with no readable version: ${JSON.stringify(value)}`);
+      } else if (version !== crate.requirement) {
+        fail(
+          page,
+          `${crate.name} dependency requirement ${JSON.stringify(version)}; it must be ${JSON.stringify(crate.requirement)}` +
+            (crate.version.includes("-")
+              ? " — a caret requirement never selects a prerelease"
+              : crate.version.startsWith("0.")
+                ? " — before 1.0 a caret requirement would take a breaking 0.x release"
+                : ""),
+        );
+      } else if (UNPUBLISHED_CRATES.includes(`${crate.name}@${crate.version}`)) {
+        fail(page, `${crate.name} ${crate.version} dependency line, but crates.io does not hold that version yet`);
+      }
+    }
+    const adds = new RegExp(`\\bcargo\\s+add\\s+${escapeRe(crate.name)}(?:@(\\S+))?(?![\\w-])`, "g");
+    for (const match of code.matchAll(adds)) {
+      if (match[1] !== crate.requirement) {
+        fail(
+          page,
+          `\`${match[0].trim()}\`; the requirement must be ${JSON.stringify(crate.requirement)} (\`cargo add ${crate.name}@${crate.requirement}\`)`,
+        );
+      } else if (UNPUBLISHED_CRATES.includes(`${crate.name}@${crate.version}`)) {
+        fail(page, `\`${match[0].trim()}\`, but crates.io does not hold ${crate.name} ${crate.version} yet`);
+      }
+    }
+    const installs = new RegExp(`\\bcargo\\s+install\\s+${escapeRe(crate.name)}\\b[^\\n]*?--version\\s+(\\S+)`, "g");
+    for (const match of code.matchAll(installs)) {
+      if (match[1] !== crate.version) {
+        fail(page, `\`cargo install ${crate.name} --version ${match[1]}\`; the manifest holds ${crate.version}`);
+      }
     }
   }
-  for (const match of code.matchAll(/\bcargo\s+add\s+candid-core@(\S+)/g)) {
-    if (match[1] !== REQUIRED_REQ) {
-      fail(
-        page,
-        `\`cargo add candid-core@${match[1]}\`; the requirement must be ${JSON.stringify(REQUIRED_REQ)}`,
-      );
+
+  /* --- @meantjs install lines name the version the packages release under --- */
+  for (const match of code.matchAll(/(@meantjs\/[a-z-]+)@([^\s"'`]+)/g)) {
+    const expected = PROFILE_PACKAGES[match[1]];
+    if (!expected) fail(page, `${match[1]} is not one of the five @meantjs packages`);
+    else if (match[2] !== expected) {
+      fail(page, `${match[1]}@${match[2]}; the package.json in profile/packages holds ${expected}`);
     }
   }
+
+  /* --- the Meant components carry values they have --- */
+  for (const match of source.matchAll(/<layer>([\s\S]*?)<\/layer>/g)) {
+    if (!LAYERS[match[1].trim()]) fail(page, `<layer> "${match[1].trim()}" is not one of ${Object.keys(LAYERS).join(", ")}`);
+  }
+  for (const match of source.matchAll(/<outcome(?:[^>"]|"[^"]*")*>([\s\S]*?)<\/outcome>/g)) {
+    if (!OUTCOMES.includes(match[1].trim())) fail(page, `<outcome> "${match[1].trim()}" is not one of ${OUTCOMES.join(", ")}`);
+  }
+  for (const match of source.matchAll(/<effect>([\s\S]*?)<\/effect>/g)) {
+    if (!EFFECTS.includes(match[1].trim())) fail(page, `<effect> "${match[1].trim()}" is not one of ${EFFECTS.join(", ")}`);
+  }
+  for (const match of source.matchAll(/<consent(?:[^>"]|"[^"]*")*?\beffects="([^"]*)"/g)) {
+    for (const effect of match[1].split(/\s+/).filter(Boolean)) {
+      if (!EFFECTS.includes(effect)) fail(page, `<consent> effect "${effect}" is not one of ${EFFECTS.join(", ")}`);
+    }
+  }
+  for (const match of source.matchAll(/<claim>([\s\S]*?)<\/claim>/g)) {
+    if (!CLAIMS.includes(match[1].trim())) fail(page, `<claim> "${match[1].trim()}" is not one of ${CLAIMS.join(", ")}`);
+  }
+  for (const match of source.matchAll(/<diag(?:[^>"]|"[^"]*")*>([\s\S]*?)<\/diag>/g)) {
+    const code = match[1].trim();
+    if (!KNOWN_CODES.has(code)) {
+      fail(page, `<diag> ${code} is defined nowhere in the profile spec, the profile packages or meant-format`);
+    }
+  }
+  for (const match of source.matchAll(/<chain-switch((?:[^>"]|"[^"]*")*)>/g)) {
+    const chains = ((match[1].match(/chains="([^"]*)"/) || [, "icp evm"])[1]).split(/\s+/);
+    for (const chain of chains) {
+      if (!CHAINS.some((known) => known.id === chain)) fail(page, `<chain-switch> chain "${chain}" is unknown`);
+    }
+  }
+  for (const match of source.matchAll(/data-chain-panel="([^"]*)"/g)) {
+    if (!CHAINS.some((known) => known.id === match[1])) fail(page, `data-chain-panel "${match[1]}" is not a chain`);
+  }
+  const panels = (source.match(/data-chain-panel="/g) || []).length;
+  const switches = (source.match(/<chain-switch[\s>]/g) || []).length;
+  if (panels && !switches) fail(page, "chain panels without a <chain-switch>: the reader could not choose one");
+
   /* --- the removed surface, and the release note --- */
   const slug = name.replace(/\.html$/, "");
   snippetPages.push({ slug, source });

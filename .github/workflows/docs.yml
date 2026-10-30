@@ -41,7 +41,12 @@
 # pinned in crates/candid-core-ts/ts, so that directory is installed here and
 # its sources, the goldens and the CLI's declarations are trigger paths: a
 # change to any of them can make a snippet false without touching website/**.
-# The site itself still takes no dependency.
+# The same holds for the profile packages, whose hand-written declarations
+# the `@meantjs/*` snippets compile against (no install: the gate reads the
+# .d.mts files), whose package.json versions the install lines must match,
+# and whose sources and spec define every diagnostic code a page may show;
+# and for the two crate manifests the dependency lines are pinned to. The
+# site itself still takes no dependency.
 #
 # Every action is pinned by commit SHA, like the release workflows. The
 # toolchain is not a canary here: the site build is release tooling.
@@ -66,6 +71,12 @@ on:
       - "crates/candid-core-wasm/npm/bin/**"
       - "crates/candid-core-wasm/npm/test/**"
       - "crates/candid-core-wasm/npm/package.json"
+      - "Cargo.toml"
+      - "crates/meant-format/Cargo.toml"
+      - "crates/meant-format/src/**"
+      - "profile/docs/**"
+      - "profile/packages/*/package.json"
+      - "profile/packages/*/src/**"
       - ".github/workflows/docs.yml"
   pull_request:
     paths:
@@ -77,6 +88,12 @@ on:
       - "crates/candid-core-wasm/npm/bin/**"
       - "crates/candid-core-wasm/npm/test/**"
       - "crates/candid-core-wasm/npm/package.json"
+      - "Cargo.toml"
+      - "crates/meant-format/Cargo.toml"
+      - "crates/meant-format/src/**"
+      - "profile/docs/**"
+      - "profile/packages/*/package.json"
+      - "profile/packages/*/src/**"
       - ".github/workflows/docs.yml"
 
 permissions:

@@ -1,0 +1,335 @@
+<pre data-lang="js" data-check>import { readFileSync } from "node:fs";
+import { createSchemaValidator, loadPacks, resolveService } from "@meantjs/profile";
+
+const validateSchema = await createSchemaValidator();             // the schema the package ships
+const packs = await loadPacks();                                  // the standard packs it ships
+const author = JSON.parse(readFileSync("local-ledger.profile.json", "utf8"));
+
+const r = await resolveService({
+  did: readFileSync("ledger.did", "utf8"),
+  didLabel: "ledger.did",
+  validateSchema,
+  profiles: [{ doc: author, label: "local-ledger.profile.json" }], // applied as given
+  packs: packs.map(({ doc, file }) => ({ doc, label: file })),      // applied only if they match
+});
+
+console.log("ok", r.ok);
+for (const p of r.profiles) console.log(p.status.padEnd(8), p.name.padEnd(13), p.origin);
+for (const d of r.diagnostics) console.log(d.severity.padEnd(8), d.code.padEnd(20), d.profile ?? "-", d.at);</pre>
+
+<pre data-lang="text">ok true
+applied  local-ledger  author
+applied  icrc1         pack
+applied  icrc2         pack
+info     I_PACK_MATCHED       icrc1 icrc1
+info     I_PACK_MATCHED       icrc2 icrc2
+warning  W_OVERRIDDEN         icrc1 icrc1_transfer(0).memo
+info     I_UNTAGGED_NUMERIC   - icrc21_canister_call_consent_message(0).user_preferences.metadata.utc_offset_minutes</pre>
+
+<p>
+  <code>ledger.did</code> is the ICRC ledger interface of the
+  <a href="quickstart-profiles.html">profiles quickstart</a>, and
+  <code>local-ledger.profile.json</code> is a small author profile for it, shown under
+  <a href="#layers">Layers</a>. The packages are installed with
+  <code>npm install --save-exact @meantjs/profile@0.4.0</code>; Node 22 or later.
+</p>
+
+<h2>resolveService</h2>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">resolveService(opts)</span><span class="pill">@meantjs/profile</span></div><div class="api-body">
+<pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts">export interface ResolveOptions {
+  /** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */
+  did?: string;
+  /** The service's candid-core ContractEnvelope. */
+  envelope?: unknown;
+  /** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */
+  abi?: readonly (string | Record<string, unknown>)[];
+  didLabel?: string;
+  /** Applied as given; a pack here must match. */
+  profiles?: { doc: unknown; label?: string }[];
+  /** Tried by Candid subtyping (an EVM pack by selector); applied only if they match. */
+  packs?: { doc: unknown; label?: string }[];
+  validateSchema: SchemaValidator;
+}</pre>
+<p>
+  The interface comes in one of three ways: <code>did</code>, Candid source compiled here with the
+  pinned <code>@candid-core/cli</code>; <code>envelope</code>, a Contract another tool already wrote;
+  or <code>abi</code>, an EVM contract's ABI (<a href="chain-evm.html">experimental</a>). Passing none
+  or more than one throws a <code>TypeError</code>; everything else is reported as a diagnostic.
+  <code>didLabel</code> is how diagnostics about the input name it.
+</p>
+<p>
+  <code>profiles</code> are applied as given. A canister profile there is checked against its
+  binding; a pack there has to match the service, or it is <diag>E_PACK_NOT_MATCHED</diag>.
+  <code>packs</code> are candidates: each is tried by Candid subtyping against its
+  <code>binds.requires</code> and applied only if it matches, with <diag>I_PACK_MATCHED</diag> or
+  <diag>I_PACK_NOT_MATCHED</diag>. A pack for the other kind of interface (the ERC-20 pack, on a
+  Candid service) is skipped without a diagnostic, which is why <code>loadPacks()</code> can return
+  all four standard packs. The same document given in both lists is applied once.
+</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">ResolveResult</span><span class="pill">@meantjs/profile</span></div><div class="api-body">
+<pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts">export interface ResolveResult {
+  ok: boolean;
+  /** null when the service does not compile (or the envelope cannot be read). */
+  resolved: ResolvedForm | null;
+  diagnostics: Diagnostic[];
+  profiles: ProfileStatus[];
+}</pre>
+<p>
+  <code>ok</code> is false when any diagnostic is an error. <code>resolved</code> is still there when
+  a profile has errors; it is <code>null</code> only when the interface itself cannot be read
+  (<diag>E_CANDID</diag>, <diag>E_ENVELOPE</diag>, <diag>E_ABI</diag>). <code>profiles</code> lists
+  every profile it was given, applied ones first in precedence order, each with a
+  <code>status</code>: <code>applied</code>, <code>rebound</code> (bound to another
+  <code>interface_id</code>, but every address and tag still holds), <code>stale</code> (something no
+  longer holds: its value-conversion tags are left out), <code>not_matched</code> (a pack that does
+  not apply) or <code>invalid</code> (it fails the schema, or is for the other kind of interface, and
+  is left out).
+</p>
+</div></div>
+
+<h2>The Node entry and the browser entry</h2>
+
+<table>
+  <thead><tr><th>Import</th><th>Runs on</th><th>What it adds</th></tr></thead>
+  <tbody>
+    <tr><td><code>@meantjs/profile</code></td><td>Node 22 or later</td><td>Everything below, plus what reads files: <code>loadPacks(dir?)</code>, <code>createSchemaValidator</code> taking a path or a document, <code>DEFAULT_PACKS_DIR</code>, <code>DEFAULT_SCHEMA_PATH</code>, and the CLI as <code>runCli(argv, io)</code> and <code>USAGE</code>.</td></tr>
+    <tr><td><code>@meantjs/profile/browser</code></td><td>Browser bundles</td><td>The same resolver with no Node built-in: the shipped schema as <code>PROFILE_SCHEMA</code>, the packs as <code>STANDARD_PACKS</code>, <code>initCompiler</code> for the cli's wasm. <code>createSchemaValidator</code> takes a document, never a path.</td></tr>
+    <tr><td><code>@meantjs/profile/address</code></td><td>Anywhere, no dependency</td><td>The address grammar and the field-name hash: <code>parseAddress</code>, <code>parseRelPath</code>, <code>parsePath</code>, <code>idlHash</code>, <code>U32_MAX</code>.</td></tr>
+    <tr><td><code>@meantjs/profile/evm</code></td><td>Anywhere, no dependency</td><td>The EVM toolkit under the <code>abi</code> input (<a href="chain-evm.html">experimental</a>).</td></tr>
+  </tbody>
+</table>
+
+<pre data-lang="js" data-check>import { createSchemaValidator, initCompiler, resolveService, STANDARD_PACKS } from "@meantjs/profile/browser";
+
+// Only when your bundler moves the cli's candid_core_wasm_bg.wasm: say where it put it.
+await initCompiler(new URL("./candid_core_wasm_bg.wasm", import.meta.url));
+
+const did = `service : {
+  icrc1_decimals : () -> (nat8) query;
+  icrc1_symbol : () -> (text) query;
+}`;
+const validateSchema = await createSchemaValidator(); // the shipped schema, compiled ahead of time
+const r = await resolveService({ did, validateSchema, packs: STANDARD_PACKS.map(({ doc }) => ({ doc })) });</pre>
+
+<p>
+  Without <code>initCompiler</code>, the wasm compiler initializes itself on first use, from the file
+  next to the module. <claim>fact</claim> The shipped schema is compiled ahead of time, so a page
+  needs no <code>'unsafe-eval'</code> in its Content-Security-Policy; the cli's wasm needs
+  <code>'wasm-unsafe-eval'</code> in <code>script-src</code>. Only a schema document other than the
+  shipped one is compiled at run time, with <code>new Function</code>, and needs
+  <code>'unsafe-eval'</code>. The package's tests check both, in Node with code generation from
+  strings disabled and in Chromium under <code>script-src 'self' 'wasm-unsafe-eval'</code>
+  (<code>test/csp.test.mjs</code>, which skips the Chromium half where no Chromium is installed; see
+  the <a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver">README</a>).
+</p>
+
+<h2>Layers</h2>
+
+<pre data-lang="json" data-file="local-ledger.profile.json">{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "canister",
+  "name": "local-ledger",
+  "origin": "author",
+  "binds": { "interface_id": "candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846" },
+  "annotations": [
+    { "at": "icrc1_transfer(0).memo", "tag": "bytes", "args": { "encoding": "hex" } },
+    { "at": "icrc1_transfer", "tag": "describe", "args": { "label": "Send ICP" } }
+  ]
+}</pre>
+
+<pre data-lang="bash">npx candid-profile resolve ledger.did --profile local-ledger.profile.json --packs > merged.json</pre>
+<pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
+  applied     local-ledger     author       candid-profile:v0:sha256:3ab093c4e8583fc5e2efb4e7c8ce595457450bd38c7be6959998c0d17eab3b84
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+  0 error, 1 warning, 3 info
+  warning W_OVERRIDDEN               [icrc1] icrc1_transfer(0).memo  bytes from profile "icrc1" (pack) is overridden by profile "local-ledger" (author) at "icrc1_transfer(0).memo" [icrc1_transfer(0).memo]</pre>
+
+<pre data-lang="bash">node -p 'JSON.stringify(require("./merged.json").methods.icrc1_transfer.args[0].fields.memo.tags, null, 2)'</pre>
+<pre data-lang="json" data-file="merged.json">{
+  "bytes": {
+    "args": {
+      "encoding": "hex"
+    },
+    "origin": "author",
+    "profile": "local-ledger"
+  },
+  "default": {
+    "args": {
+      "value": "null",
+      "mode": "suggest"
+    },
+    "origin": "pack",
+    "profile": "icrc1"
+  },
+  "describe": {
+    "args": {
+      "label": "Memo",
+      "help": "Transfers with different memos are never deduplicated against each other. …"
+    },
+    "origin": "pack",
+    "profile": "icrc1"
+  }
+}</pre>
+
+<p>
+  Every profile belongs to a layer by its <code>origin</code>, highest first:
+  <code>author</code>, <code>third_party</code>, <code>pack</code>, <code>inferred</code> (the
+  <code>LAYERS</code> export). Merging is per tag and per position. The highest layer that has a tag
+  at a position supplies it; the same tag lower down is dropped and reported with
+  <diag>W_OVERRIDDEN</diag>, on the profile that lost. Other tags at that position stay, so the memo
+  above keeps the pack's <code>default</code> and <code>describe</code> under the author's
+  <code>bytes</code>. The order you pass the profiles in does not change which layer wins, and the
+  layer decides before specificity: an author tag through a <code>type:</code> address beats a pack tag through a
+  method address.
+</p>
+
+<p>Within one layer, two profiles that disagree are an error:</p>
+
+<pre data-lang="bash">npx candid-profile resolve ledger.did --profile local-ledger.profile.json --profile second-author.profile.json --packs > conflict.json</pre>
+<pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
+  applied     local-ledger     author       candid-profile:v0:sha256:3ab093c4e8583fc5e2efb4e7c8ce595457450bd38c7be6959998c0d17eab3b84
+  applied     second-author    author       candid-profile:v0:sha256:2e7ecfa9cf34d4d93438f1fa78140134bc7a9c8c2b0fae1eebcb7659c93b4baa
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+  1 error, 1 warning, 3 info
+  error   E_CONFLICT                 [second-author] icrc1_transfer(0).memo  two different bytes annotations at the same position (profile "local-ledger" "icrc1_transfer(0).memo" and profile "second-author" "icrc1_transfer(0).memo")
+  warning W_OVERRIDDEN               [icrc1] icrc1_transfer(0).memo  bytes from profile "icrc1" (pack) is overridden by profile "local-ledger" (author) at "icrc1_transfer(0).memo" [icrc1_transfer(0).memo]</pre>
+
+<p>
+  <code>second-author.profile.json</code> is the same kind of author profile, with
+  <code>"encoding": "base64"</code> for the memo. Two different values for one tag at one position,
+  at the same specificity in one layer, are <diag>E_CONFLICT</diag>, and the first one given stays:
+  the resolved form keeps <code>hex</code> and the command exits with status 1. Equal values are only
+  <diag>W_DUPLICATE</diag>. Inside a layer, a method address beats a <code>type:</code> address at
+  the same position, silently, so a profile can tag a whole declaration and then make one exception.
+  A conflict is found whatever the spelling: <code>icrc1_transfer(0).amount</code> and
+  <code>icrc1_transfer(0).#3573748184</code> are one position.
+</p>
+
+<p>
+  The doc comments of a <code>.did</code> make an author profile too
+  (<a href="annotate-a-did.html">Annotate a .did file</a>); pass it in <code>profiles</code> beside a
+  profile file and the two merge by these rules. Why the layers are ordered this way, and what an
+  <code>inferred</code> profile needs before it applies, is on
+  <a href="profiles.html">Profiles, layers and binding</a>.
+</p>
+
+<h2>The resolved form</h2>
+
+<p>
+  <code>r.resolved</code> is the document every consumer reads: <code>format</code>
+  (<code>"candid-profile-resolved"</code>), <code>format_version</code>, <code>interface_id</code>,
+  <code>profiles</code> (each applied profile's <code>name</code>, <code>origin</code> and
+  <code>profile_id</code>, highest layer first), <code>methods</code> (one tree per method, with each
+  position's tags) and <code>diagnostics</code>. Each tag says where it came from:
+  <code>{ "args": …, "origin": "pack", "profile": "icrc1" }</code>. A method that no profile gives an
+  effect still has one, the default for its mode, with <code>"origin": "default"</code> and no
+  profile. Dynamic values such as <code>{ "from": "query:icrc1_decimals" }</code> stay unresolved;
+  fetching them is the consumer's job. Every field is on
+  <a href="reference-profile-format.html">Profile and resolved form</a>.
+</p>
+
+<h2>Diagnostics</h2>
+
+<pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts">export interface Diagnostic {
+  severity: "error" | "warning" | "info";
+  code: string;
+  /** A JSON pointer for E_SCHEMA, an address (`send(0).to`, `type:Tokens.e8s`) or a document path (`binds.interface_id`). */
+  at: string;
+  message: string;
+  /** The profile's name, when the diagnostic comes from one. */
+  profile?: string;
+}</pre>
+
+<p>
+  The codes are stable; the messages are for people. A profile that fails the JSON Schema gets
+  <diag>E_SCHEMA</diag> and is left out with status <code>invalid</code>, and the rest of the service
+  resolves without it. A canister profile bound to another interface gets <diag>W_REBOUND</diag>,
+  then either nothing more or <diag>E_STALE</diag> with the specific errors. Every code, with its
+  severity and meaning, is on <a href="reference-profile-diagnostics.html">Profile diagnostics</a>.
+</p>
+
+<h2>Resolve from a ContractEnvelope</h2>
+
+<pre data-lang="bash">npx candid-core-cli gen tokens.did -o gen
+npx candid-profile resolve --envelope gen/tokens.envelope.json --profile tokens.profile.json > tokens.resolved.json</pre>
+<pre data-lang="text">contract:  candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
+interface: candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
+wrote gen/tokens.ts
+wrote gen/tokens.envelope.json
+candid-profile: gen/tokens.envelope.json  candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c  [2 methods]
+  applied     tokens-example   author       candid-profile:v0:sha256:70abc8cbce701650b6adafeabbf636a10b9c80e620bfcb6cc2d8793ee027745c
+  0 error, 0 warning, 0 info</pre>
+
+<pre data-lang="js" data-check>import { readFileSync } from "node:fs";
+import { createSchemaValidator, resolveService } from "@meantjs/profile";
+
+const validateSchema = await createSchemaValidator();
+const envelope = JSON.parse(readFileSync("gen/tokens.envelope.json", "utf8")); // written by candid-core-cli gen
+const doc = JSON.parse(readFileSync("tokens.profile.json", "utf8"));
+
+const r = await resolveService({ envelope, didLabel: "gen/tokens.envelope.json", validateSchema, profiles: [{ doc }] });</pre>
+
+<p>
+  An app that generates its TypeScript with <code>candid-core-cli gen</code> already has the
+  service's Contract, in the envelope written beside the module. Pass it as <code>envelope</code>
+  (<code>--envelope</code> on the command line) and the service is not compiled again
+  (decision D-039). The resolved form is the same as from the <code>.did</code>: the run above
+  writes a file byte for byte equal to the one <code>resolve tokens.did</code> writes, and its
+  <code>interface_id</code> is the envelope's <code>contract.identities.interface</code>, the id the
+  app's generator wrote.
+</p>
+
+<p>
+  The envelope's identities are taken as written: nothing here recomputes them, so a hand-edited
+  envelope keeps an id that no longer describes it. Its graph is checked before anything walks it.
+  One that cannot be read is <diag>E_ENVELOPE</diag>, with <code>resolved: null</code>:
+</p>
+
+<pre data-lang="text">  1 error, 0 warning, 0 info
+  error   E_ENVELOPE                 gen/broken.envelope.json  invalid_envelope: contract.format_version is 2, this resolver reads version 1</pre>
+
+<p>
+  Packs still compile their own <code>binds.requires</code>, so <code>@candid-core/cli</code> stays a
+  dependency either way.
+</p>
+
+<h2>Validate one profile</h2>
+
+<pre data-lang="js" data-check>import { readFileSync } from "node:fs";
+import { createSchemaValidator, validateProfile } from "@meantjs/profile";
+
+const validateSchema = await createSchemaValidator();
+const doc = JSON.parse(readFileSync("tokens.profile.json", "utf8"));
+const v = await validateProfile(doc, { validateSchema, did: readFileSync("tokens.did", "utf8"), didLabel: "tokens.did" });
+console.log(v.ok, v.profile_id, v.interface_id, v.methods, v.annotations, v.diagnostics);</pre>
+<pre data-lang="text">true candid-profile:v0:sha256:70abc8cbce701650b6adafeabbf636a10b9c80e620bfcb6cc2d8793ee027745c candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c 2 10 []</pre>
+
+<p>
+  <code>validateProfile(doc, { validateSchema, did, didLabel, resolved })</code> checks a single
+  profile, with no layers and no pack search: a pack against its own <code>binds.requires</code>, a
+  canister profile against the <code>did</code> you give. Without <code>did</code>, a canister profile
+  gets only the schema check and <diag>W_NO_INTERFACE</diag>. With <code>resolved: true</code> the
+  result also carries that profile's resolved form. It is what the repository's
+  <code>scripts/validate.mjs</code> wraps.
+</p>
+
+<h2>Other exports</h2>
+
+<ul>
+  <li><code>profileId(doc)</code> and <code>jcs(value)</code>: a profile's identity, and the RFC 8785 canonical JSON it hashes.</li>
+  <li><code>compileInterface(source)</code> and <code>interfaceFromEnvelope(envelope)</code>: the interface as the resolver sees it.</li>
+  <li><code>matchPack(iface, pack)</code> and <code>matchService(canister, fragment)</code>: the pack match on its own, with the reasons and the relaxed result variants.</li>
+  <li><code>profileFromDocAttributes(response, opts)</code>: an author profile from a <code>.did</code>'s doc comments (<a href="annotate-a-did.html">Annotate a .did file</a>).</li>
+  <li><code>readServedProfile(bytes, { canisterId })</code>: a profile a canister serves (<a href="serve-a-profile.html">Serve a profile from a canister</a>).</li>
+</ul>
+
+<p>
+  Every export with its signature is on <a href="reference-profile-api.html">JavaScript API</a>, and
+  every flag of the command is on <a href="cli-profile.html">The candid-profile command</a>.
+</p>

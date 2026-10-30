@@ -1,0 +1,360 @@
+<pre data-lang="candid" data-file="profile/packs/icrc1.profile.json">
+type Account = record { owner : principal; subaccount : opt blob };
+type TransferArgs = record {
+  from_subaccount : opt blob;
+  to : Account;
+  amount : nat;
+  fee : opt nat;
+  memo : opt blob;
+  created_at_time : opt nat64;
+};
+// type TransferError = variant { … };
+service : {
+  // …
+  icrc1_transfer : (TransferArgs) -> (variant { Ok : nat; Err : TransferError });
+}
+</pre>
+
+<annotation at="icrc1_transfer(0).to" tag="account">
+encoding: icrc1
+</annotation>
+
+<p>
+  The ICRC-1 pack's annotation above says that the <code>to</code> field of the first argument of
+  <code>icrc1_transfer</code> is an ICRC-1 account. It never mentions <code>TransferArgs</code> or
+  <code>Account</code>: an address starts at a method, picks an argument or a result by its index,
+  and walks a path of field and case names from there. Why a profile names that walk, the edge to
+  a value, rather than the type node it ends on, is on
+  <a href="profiles.html">Profiles, layers and binding</a>.
+</p>
+
+<h2>The grammar</h2>
+
+<pre data-lang="text" data-file="profile/docs/profile-v0.md">
+address      = value-address / method-address
+method-address = METHOD                                   ; the method itself
+value-address  = METHOD "(" INDEX ")" path                ; argument INDEX
+               / METHOD "->(" INDEX ")" path              ; result INDEX
+               / "type:" DECL path                         ; canister profiles only
+path         = *( "." label / "[]" )
+label        = IDENT / "#" U32                             ; field/case name, or raw Candid id
+relpath      = [ "(" INDEX ")" ] [ [ "." ] label / "[]" ] *( "." label / "[]" )   ; non-empty
+METHOD, DECL, IDENT = [A-Za-z_][A-Za-z0-9_]*
+U32          = decimal integer, 0 … 4294967295
+</pre>
+
+<p>
+  There are three shapes. A bare method name, <code>icrc1_transfer</code>, is the address of the
+  method itself, where the method tags (<code>intent</code>, <code>effect</code>,
+  <code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code>) sit. A
+  method with <code>(i)</code> or <code>-&gt;(i)</code> and a path is a position in its argument
+  or result tuple. A <code>type:</code> address starts from a declaration instead of a method, and
+  only a canister profile may use one. <code>relpath</code> is the short form used inside tag
+  arguments; it has its own section below.
+</p>
+
+<p>
+  Method names must be identifier-shaped in v0. Candid allows quoted method names such as
+  <code>"foo-bar"</code>; how to address them is <a href="open-questions.html">open question</a>
+  OQ-3.
+</p>
+
+<h2>Spellings are compared by what they resolve to</h2>
+
+<p>
+  <code>icrc1_transfer(0).amount</code> and <code>icrc1_transfer(0).#3573748184</code> are the
+  same position, because 3573748184 is the Candid id of the label <code>amount</code>. The spec
+  requires every implementation to compare addresses by their resolved form (method, side, index
+  and id path, or the type edge for a <code>type:</code> address) and never as strings, so the
+  two spellings in two profiles are the same tag at the same position, and can override or
+  conflict with each other.
+</p>
+
+<pre data-lang="js" data-check>
+import { parseAddress, methodKey } from "@meantjs/profile/address";
+
+const byName = parseAddress("icrc1_transfer(0).amount");
+const byId = parseAddress("icrc1_transfer(0).#3573748184");
+
+if (byName?.kind === "arg" && byId?.kind === "arg") {
+  // Both print "m:icrc1_transfer|arg|0|3573748184".
+  console.log(methodKey(byName.method, "arg", byName.index, byName.segs));
+  console.log(methodKey(byId.method, "arg", byId.index, byId.segs));
+}
+</pre>
+
+<p>
+  <code>@meantjs/profile/address</code> has no dependency, so a browser bundle can parse and
+  compare addresses without the resolver.
+</p>
+
+<h2>Labels hash to Candid ids</h2>
+
+<p>
+  A label resolves to <code>idl_hash(label)</code>, the same 32-bit id the Contract stores.
+  The Contract graph stores a field's id, not its name
+  (<a href="contract-graph.html">The Contract graph</a>), so a name finds its field by being
+  hashed. <code>#n</code> writes the id directly. It is the only way to name a field
+  of a tuple, whose fields are numbered rather than named, and a field whose Candid label is a
+  number: <code>get_blocks-&gt;(0).blocks[].#0</code> is field 0 of each element of
+  <code>blocks</code>.
+</p>
+
+<h2>opt, vectors and variant cases</h2>
+
+<ul>
+  <li>
+    <strong><code>opt</code> is transparent.</strong> A path passes through any <code>opt</code>
+    wrappers without a step of its own. A tag on <code>fee : opt nat</code> applies to the
+    <code>nat</code>, and the resolved form marks the position <code>"optional": true</code>, so a
+    consumer handles absence before it formats anything.
+  </li>
+  <li>
+    <strong><code>[]</code> steps into a vector's element.</strong> <code>blob</code> is
+    <code>vec nat8</code>, but it is a leaf: a tag addresses the blob itself
+    (<code>icrc1_transfer(0).memo</code>), never <code>memo[]</code>.
+  </li>
+  <li>
+    <strong>Variant cases are selected like fields.</strong>
+    <code>icrc1_transfer-&gt;(0).Err.BadFee.expected_fee</code> walks result 0, its
+    <code>Err</code> case, the <code>BadFee</code> case inside that, and the
+    <code>expected_fee</code> field of its record.
+  </li>
+</ul>
+
+<h2>Every address resolves to one position</h2>
+
+<p>
+  Each address must resolve to exactly one position of the interface, or the profile has an
+  error. A string that does not parse is <diag>E_ADDR_SYNTAX</diag>; one that parses and names
+  nothing is <diag>E_ADDR_UNRESOLVED</diag>, with the reason:
+</p>
+
+<pre data-lang="text">
+  error   E_ADDR_UNRESOLVED          [alias-demo] icrc1_fee->(1)  result index 1 out of range (1)
+</pre>
+
+<p>
+  A matched pack is the one exception, and only because subtyping makes it one: a pack's address
+  that names a position the canister lacks (an optional field it leaves out, a result case it
+  does not have) is skipped with <diag>I_PACK_ANNOTATION_SKIPPED</diag>, not reported against the
+  pack. A canister profile that stops resolving after its interface changes is
+  <a href="profiles.html">stale</a>.
+</p>
+
+<h2>type: addresses</h2>
+
+<p>
+  A <code>type:</code> address starts from a declaration of the <code>.did</code> file:
+  <code>type:Tokens.e8s</code> is the <code>e8s</code> field of the record declared as
+  <code>Tokens</code>. It saves writing one annotation per method, and it is what doc comments on
+  declarations and their fields become (<a href="annotate-a-did.html">Annotate a .did file</a>).
+  Three rules keep it from tagging more than its author meant.
+</p>
+
+<h3>Packs never use them</h3>
+
+<p>
+  Declaration names are not standardized: one ledger calls its argument <code>TransferArgs</code>,
+  another <code>TransferArg</code>, and a pack must match both. A <code>type:</code> address in a
+  pack is <diag>E_PACK_TYPE_REF</diag>.
+</p>
+
+<h3>They reach every place the edge is reached</h3>
+
+<p>
+  A <code>type:</code> address tags an edge of the type graph, and the tag appears at every
+  position that edge leads to. In <code>examples/tokens.profile.json</code>,
+  <code>type:Tokens.e8s</code> carries <code>amount</code> with <code>decimals: 8</code>, and the
+  resolved form has it at <code>send(0).amount.e8s</code>,
+  <code>balance-&gt;(0).e8s</code> and
+  <code>send-&gt;(0).Err.Insufficient.balance.e8s</code>.
+</p>
+
+<p>
+  Because the interface layer interns structurally equal types into one node, the edge is also
+  reached through any other declaration of the same structure. Add
+  <code>type Fee = record { e8s : nat64 }</code> beside <code>Tokens</code> and every fee becomes an
+  amount of TOK too. The validator warns, and a method address is the way to narrow the tag:
+</p>
+
+<pre data-lang="text">
+  warning W_STRUCTURAL_ALIAS         [tokens-example] type:Tokens.e8s  declaration "Tokens" is structurally identical to "Fee"; the tag reaches every one of them
+</pre>
+
+<h3>A pathless one is for records and variants only</h3>
+
+<p>
+  <code>type:Account</code>, with no path, is the declaration's whole type, so it reaches every
+  position of that type. That is allowed only when the type is a record or a variant. The ICRC-1
+  <code>.did</code> declares <code>type Tokens = nat</code> and <code>type Subaccount = blob</code>;
+  a pathless address on either would tag every <code>nat</code> or every <code>blob</code> of the
+  interface, block indexes and memos included:
+</p>
+
+<pre data-lang="text">
+  error   E_TYPE_NODE                [alias-demo] type:Tokens  pathless type: address on "Tokens" (nat) would tag every nat in the interface; use a field path or a method address
+</pre>
+
+<h2>Relative paths inside tag arguments</h2>
+
+<p>
+  Some tag arguments name positions of their own: the placeholders of an intent template, the
+  <code>stamp</code> of <code>idempotency</code>, the keys of <code>outcome</code>, the paths of
+  <code>list</code> and <code>names</code>. They use <code>relpath</code>, which is relative to the
+  method the tag sits on.
+</p>
+
+<ul>
+  <li>
+    Intent placeholders, <code>idempotency.stamp</code> and <code>list.cursor</code> resolve against
+    the method's <strong>argument</strong> tuple. The ICRC-1 pack's stamp is
+    <code>created_at_time</code>, and its template says <code>Send {amount} to {to}</code>.
+  </li>
+  <li>
+    <code>outcome</code> keys, <code>list.next</code> and <code>list.items</code> resolve against
+    the <strong>result</strong> tuple: <code>Err.Duplicate</code> is the <code>Duplicate</code> case
+    of the <code>Err</code> case of result 0.
+  </li>
+  <li>
+    When the tuple has one element, paths are relative to element 0, so <code>Ok</code>,
+    <code>.Ok</code> and <code>(0).Ok</code> are one path. When it has more than one, the path must
+    start with <code>(i)</code>.
+  </li>
+</ul>
+
+<h2>Examples</h2>
+
+<table>
+  <thead><tr><th>Address</th><th>What it names</th></tr></thead>
+  <tbody>
+    <tr><td><code>icrc1_transfer</code></td><td>The method, for method tags</td></tr>
+    <tr><td><code>icrc1_transfer(0).amount</code></td><td>The <code>amount</code> field of the first argument</td></tr>
+    <tr><td><code>icrc1_transfer(0).to</code></td><td>The whole <code>Account</code> record, for the <code>account</code> tag</td></tr>
+    <tr><td><code>icrc1_balance_of-&gt;(0)</code></td><td>The <code>nat</code> result</td></tr>
+    <tr><td><code>icrc1_transfer-&gt;(0).Err.InsufficientFunds.balance</code></td><td>A field inside an error case</td></tr>
+    <tr><td><code>propose(0).Transfer</code></td><td>The <code>Transfer</code> case of <code>propose</code>'s argument, for a case <code>intent</code> or <code>effect</code> (<a href="intent-and-effects.html">Intent, effects and confirmation</a>)</td></tr>
+    <tr><td><code>get_blocks-&gt;(0).blocks[].#0</code></td><td>Field id 0 of each vector element</td></tr>
+    <tr><td><code>type:Tokens.e8s</code></td><td>Declaration-based; canister profiles only</td></tr>
+  </tbody>
+</table>
+
+<h2>Values inside tag arguments</h2>
+
+<p>
+  An address says where a tag sits. Its arguments then hold values, and those have rules of their
+  own (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#4-values-inside-tag-arguments">spec §4</a>).
+</p>
+
+<h3>Literals, and numbers as strings</h3>
+
+<p>
+  Arguments are JSON strings, booleans and integers. An integer that can exceed 2<sup>53</sup>
+  (an amount, a bound) must be a decimal string, such as <code>"100000000"</code>. A JSON number
+  above 2<sup>53</sup> is read by JavaScript as the nearest double, which is not always the
+  number written; a string is read exactly, and the format library never passes an integer
+  through a JavaScript number.
+</p>
+
+<h3>Dynamic values</h3>
+
+<p>
+  Some arguments are not known when the profile is written. The ICRC-1 pack cannot say how many
+  decimals a ledger has, so it asks the ledger:
+</p>
+
+<annotation at="icrc1_transfer(0).amount" tag="amount">
+decimals: query:icrc1_decimals
+symbol: query:icrc1_symbol
+</annotation>
+
+<p>
+  In the document each is an object, <code>{ "from": "query:icrc1_decimals" }</code>. A
+  <code>query:&lt;method&gt;</code> must name a query or composite query of the same canister that
+  takes no arguments and returns one value of the kind the argument needs. The resolver checks
+  each part: <diag>E_REF_UNRESOLVED</diag> (no such method), <diag>E_REF_NOT_QUERY</diag>,
+  <diag>E_REF_SHAPE</diag> (arguments, or not one result) and <diag>E_REF_TYPE</diag> (a
+  <code>text</code> where a number is needed). The two other dynamic values, <code>now</code> and
+  <code>caller</code>, are valid only where a tag allows them, which in v0 is
+  <code>default.value</code>; anywhere else they are <diag>E_DYNAMIC_KIND</diag>.
+</p>
+
+<p>
+  The resolved form leaves dynamic values unresolved, because resolving them needs the network.
+  Consumers resolve them once per canister per session, by querying or from a trusted
+  configuration of the same canister, and cache them. A plain query is answered by one replica,
+  which is why the <a href="security-model.html">security model</a> asks for a certified path for
+  values that render a transfer.
+</p>
+
+<h3>now is the canister's clock</h3>
+
+<p>
+  <code>now</code> means the canister's time, never the host's. A consumer takes it from the
+  canister's environment, such as the time in a recent certificate or its transport's
+  <code>now()</code>. The reason is ICRC-1's deduplication: a stamp from a host clock that runs
+  ahead of the replica can be refused as <code>CreatedInFuture</code>, and one from a clock that
+  runs behind as <code>TooOld</code> (<a href="outcomes-and-retries.html">Outcomes and retries</a>).
+</p>
+
+<h3>Candid literals</h3>
+
+<p>
+  <code>default.value</code> holds Candid textual syntax, such as <code>"null"</code> or
+  <code>"opt 0"</code>. The ICRC-1 pack defaults <code>fee</code> and <code>memo</code> to
+  <code>"null"</code>. A <code>null</code> default on a position that is not optional is
+  <diag>E_DEFAULT_NULL</diag>; whether any other literal type-checks against its position is not
+  checked by the v0 validator, so a consumer must check it before using the default.
+</p>
+
+<h2>On an EVM contract</h2>
+
+<p>
+  The grammar is the same on every chain. What differs is the interface an address walks, and so
+  how its first steps read.
+</p>
+
+<chain-switch chains="icp evm"></chain-switch>
+
+<div data-chain-panel="icp">
+  <p>
+    A Candid method takes a tuple of arguments, often one record. The ICRC-1 transfer has one
+    argument, so its amount is <code>icrc1_transfer(0).amount</code>, and a balance is the first
+    result, <code>icrc1_balance_of-&gt;(0)</code>. A canister profile may also start from a
+    declaration with <code>type:</code>.
+  </p>
+</div>
+
+<div data-chain-panel="evm">
+  <p>
+    Experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>). The resolver reads an ABI as the graph a <code>.did</code> compiles
+    to: a function is a method, and its parameters are <strong>one record at argument 0</strong>,
+    so <code>function transfer(address to, uint256 value)</code> has the positions
+    <code>transfer(0).to</code> and <code>transfer(0).value</code>. A function without parameters
+    has no argument. Outputs are the result tuple: <code>balanceOf-&gt;(0)</code>. A tuple is a
+    record whose named components hash like Candid labels and whose unnamed ones are
+    <code>#i</code>; an array is a vector, <code>[]</code>. Overloaded function names are refused
+    (<diag>E_ABI</diag>), because an address names a function by its name alone. See
+    <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div>
+
+<h2>Next</h2>
+
+<div class="card-grid">
+  <a class="card" href="value-tags.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Values and exact conversion</span>
+    <p>What the value tags at these positions mean, and why nothing is rounded.</p>
+  </a>
+  <a class="card" href="write-a-profile.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Write a profile</span>
+    <p>Describe a canister's methods once, with addresses like these, bound to its interface.</p>
+  </a>
+  <a class="card" href="reference-profile-diagnostics.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">Profile diagnostics</span>
+    <p>Every code the resolver returns, including each address and reference error above.</p>
+  </a>
+</div>

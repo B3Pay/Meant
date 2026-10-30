@@ -1,0 +1,171 @@
+<p>
+  This page mirrors <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/open-questions.md"><code>profile/docs/open-questions.md</code></a>
+  and the open items of the EVM binding, spec
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#158-open-items">§15.8</a> and, for
+  EIP-712 messages, <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#159-typed-messages-eip-712-d-055">§15.9</a>. Ids and
+  owners are as written there. An owner is one of the project's workstreams (W0, W1, …); "Blocks" says what waits on
+  the answer. When a question is answered it moves to the answered list with its date and evidence, and a decision is
+  recorded when the answer changes the spec. Some questions name files of the project's working repository that are not
+  in this public copy (the eval's task review, status logs, proposals).
+</p>
+
+<h2>Open in the profile spec</h2>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Question</th><th>Owner</th><th>Blocks</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="white-space:nowrap">OQ-3</td>
+      <td><claim>open</claim> <strong>Quoted Candid method names</strong> (<code>"foo-bar"</code>) in addresses. Proposed: <code>"foo-bar"(0).x</code>. Until then, method names must be identifier-shaped (<a href="addresses.html">Addresses</a>).</td>
+      <td>W1</td>
+      <td>Rare interfaces</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-5</td>
+      <td><claim>open</claim> <strong>Doc-annotation namespace.</strong> Bare <code>@amount(...)</code> (readable) or a prefix such as <code>@ca.amount(...)</code> (no collisions with other conventions)? See <a href="annotate-a-did.html">Annotate a .did file</a>.</td>
+      <td>W0</td>
+      <td>Doc-annotation compiler</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-6</td>
+      <td><claim>open</claim> <strong>Cross-canister refs</strong>, for example a DEX record holding <code>amount</code> plus the token's ledger principal in a sibling field. Planned for v1. Partly answered for EVM (spec §15.9, D-055): <code>amount.token</code> names the token by an <code>address</code> field of the same argument, and the consumer passes that token's decimals and symbol per address (<a href="reference-tags.html#an-amount-in-the-token-a-field-names">An amount in the token a field names</a>). A Candid amount whose ledger a field names, and refs to a contract no field names, stay open (<diag>E_TOKEN_PATH</diag> on a Candid service).</td>
+      <td>W0</td>
+      <td>DeFi coverage</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-7</td>
+      <td><claim>open</claim> <strong>Third-party attestations</strong> for profiles (ERC-8176-like) and where a registry lives. Planned for v1. ERC-8176 itself attests ERC-7730 files, and its schema UID is reserved for them; the export of D-054 gives a reviewer the hash and the unsigned attestation of such a file. A profile attestation needs its own schema (phase 3 of the EVM proposal).</td>
+      <td>W0/W6</td>
+      <td>Trust beyond the author's claim</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-8</td>
+      <td><claim>open</claim> <strong>Spending policies and budgets</strong> that let agents commit without per-call confirmation. Product layer (B3Pay?).</td>
+      <td>W6</td>
+      <td>Unattended agents</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-9</td>
+      <td><claim>open</claim> <strong>ERC-7730 import</strong> for EVM ABIs. The export half is answered (spec §15.7, D-054): a profile of an EVM contract gives its ERC-7730 file and ERC-8176 <code>descriptorHash</code>. Import, as display-only profiles checked against ERC-8176 attestations, is phase 2. See <a href="chain-evm.html">EVM contracts</a>.</td>
+      <td>W6</td>
+      <td>Cross-chain story</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-10</td>
+      <td><claim>open</claim> Should the resolved form carry <strong>resolved dynamic values</strong> with provenance (certified or not)? Today they stay as <code>{ "from": … }</code> (<a href="reference-profile-format.html">Profile and resolved form</a>).</td>
+      <td>W1/W3</td>
+      <td>Consent and tool rendering</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-11</td>
+      <td><claim>open</claim> <strong>Upstream:</strong> would imcp2 allow transfers through profile-typed, previewed calls?</td>
+      <td>W6</td>
+      <td>Distribution</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-12</td>
+      <td><claim>open</claim> <strong>ICRC-21 for 18-decimal tokens:</strong> <code>TokenAmount.amount</code> is <code>nat64</code>. Propose a <code>nat</code> variant upstream, or always fall back to <code>Text</code>?</td>
+      <td>W4/W6</td>
+      <td>ckETH-class tokens</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-13</td>
+      <td><claim>open</claim> <strong>The practice-ledger symbols TKA, TKB and TKC are one letter apart</strong> and confuse device-class models: in the E4B probe, E4B chose ledger TKA for an approval on TKB three times in three. Renaming them would change the eval's tasks, a shared contract, and so needs the independent reviewer. W0 recommends renaming before the pilot.</td>
+      <td>W0</td>
+      <td>The freeze (M2): independent reviewer, owner Behrad</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-14</td>
+      <td><claim>open</claim> <strong>Several phrasings per intent for device-class models.</strong> Each task has one phrasing, and the E4B probe shows that the ledger choice depends on the phrasing. Adding phrasings (for example a seeded list per task) changes the tasks and the scorer's expectations, and needs the independent reviewer. W0 recommends one phrasing in v0.6, with sensitivity as a later exploratory study.</td>
+      <td>W0</td>
+      <td>The freeze (M2): independent reviewer, owner Behrad</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-16</td>
+      <td><claim>open</claim> <strong>How is Gemini 3.5 Flash-Lite pinned, and what does it think by default?</strong> Google publishes no dated snapshot for the stable code <code>gemini-3.5-flash-lite</code>. The preregistration needs an exact pin, so the plan is the stable code plus the <code>modelVersion</code> field of every response, recorded per run; to verify that the field is returned and stays constant across the pilot. Also to record the model's default thinking behavior (the <code>thoughtsTokenCount</code> of its replies when nothing is sent). Needs a key and one or two calls; no eval task.</td>
+      <td>W2</td>
+      <td>§13 pins; the first P-F runs of the model</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Answered</h2>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Answer</th><th>Date</th><th>Evidence</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="white-space:nowrap">OQ-1</td>
+      <td><strong>A public custom section, <code>icp:public candid:profile</code>, read with <code>candid:service</code> in one certified <code>read_state</code></strong> (spec §8.1, D-048). The section holds the profile as UTF-8 JSON, an <code>author</code> canister profile bound to the interface the canister serves. A path the certificate shows absent means nothing is served; a path it neither holds nor rules out is an error, never absent. A query method is not proposed: its reply is not certified. See <a href="serve-a-profile.html">Serve a profile</a>.</td>
+      <td style="white-space:nowrap">2026-10-27</td>
+      <td>The IC interface specification and its HTTPS interface; the resource limits (16 <code>icp:</code> sections, 1 MiB). <claim>fact</claim> Observed on PocketIC 16.0.0: a module given the section serves it byte for byte through <code>@icp-sdk/core</code> 6.1.0 <code>readState</code>, with the certificate verified; a canister without it shows the path absent; a private section is refused to a non-controller.</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-15</td>
+      <td><strong>Yes, the whole prompt.</strong> <code>prompt_eval_count</code> is the full prompt token count on every turn, cached or not. Above <code>num_ctx</code>, Ollama drops the oldest messages silently and reports the size of what is left, so the eval's gate G3 also counts a run whose per-turn count stopped growing as over the line.</td>
+      <td style="white-space:nowrap">2026-10-10</td>
+      <td>Ollama 0.40.2 with three <code>gemma4</code> models, a three-turn conversation run cold, warm and on a fully cached repeat.</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-4</td>
+      <td>An occurrence <code>path</code> is a sequence of steps from <code>type:&lt;Decl&gt;</code> or <code>actor.methods[i]</code>, then <code>.function.args[j]</code> / <code>.function.results[j]</code>, then <code>.type</code>, <code>.fields[k]</code>, <code>.inner</code> and <code>.args[j]</code> / <code>.results[j]</code> steps. To map a doc on an inline actor field to a method address: match the path's method prefix, let the next step pick <code>(j)</code> or <code>-&gt;(j)</code>, then walk the Contract writing <code>.label</code> per field step, nothing for <code>opt</code>, <code>[]</code> for <code>vec</code>.</td>
+      <td style="white-space:nowrap">2026-10-09</td>
+      <td>Real output of the native compiler built from candid-core main (acabe0f). At the time, <code>@candid-core/cli</code> 0.2.0 built SourceInfo and dropped it; the resolver now reads doc attributes through <code>didToDocAttributes</code> of <code>@candid-core/cli</code> 0.4.0.</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-2</td>
+      <td>Yes. Result variants may be wider than the pack fragment; extra cases fall back to <code>outcome.default</code>, else <code>fail</code>. Spec §7, D-019.</td>
+      <td style="white-space:nowrap">2026-10-08</td>
+      <td>Candid subtyping: a variant with more cases is a supertype, so a ledger that adds an error case would stop matching. Both ICRC packs set <code>default: "fail"</code>.</td>
+    </tr>
+    <tr>
+      <td style="white-space:nowrap">OQ-0</td>
+      <td><code>@candid-core/schema</code> 0.3.0 loads Contract documents (<code>./contract</code> export), and <code>@candid-core/cli</code> 0.2.0 compiles <code>.did</code> to a Contract envelope in wasm, including field names.</td>
+      <td style="white-space:nowrap">2026-10-08</td>
+      <td>npm package metadata; the envelope observed by the validator.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Open items of the EVM binding</h2>
+
+<p>
+  Spec §15.8, for the experimental EVM binding (<a href="chain-evm.html">EVM contracts</a>), and §15.9 for its EIP-712
+  messages (O9 to O14). These have no owner column in the spec.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Item</th><th>Status</th><th>Question</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>O1</td><td><claim>open</claim></td><td>Overloaded function names (ERC-721 <code>safeTransferFrom</code>). Candidate: <code>name@0x&lt;selector&gt;</code>. Until then an overloaded name is <diag>E_ABI</diag>.</td></tr>
+    <tr><td>O2</td><td><claim>open</claim></td><td>The native value of a <code>payable</code> call as a position, with the chain's native decimals and symbol. Until then consent text refuses a payable function.</td></tr>
+    <tr><td>O3</td><td><claim>open</claim></td><td>Whether a transfer recipient typed in one case (no checksum) is accepted everywhere.</td></tr>
+    <tr><td>O4</td><td><claim>open</claim></td><td>Whether EVM packs should apply only to deployments a consumer lists. Meanwhile the consent text shows the contract's address (spec §11 item 9).</td></tr>
+    <tr><td>O5</td><td>settled</td><td>The resolved form carries <code>abi</code> beside <code>candid</code>, with a top-level <code>chain</code> (§15.5).</td></tr>
+    <tr><td>O6</td><td>settled</td><td>The export refuses what it cannot express (§15.7, <diag>E_EXPORT</diag>).</td></tr>
+    <tr><td>O7</td><td><claim>open</claim></td><td><claim>fact</claim> (ERC-7730): a wallet that finds no ticker "SHOULD display the raw value instead with an 'Unknown token' warning", where spec §12 rule 10 produces no message. An exported file cannot make a wallet refuse.</td></tr>
+    <tr><td>O8</td><td><claim>assumption</claim></td><td>A wallet reads <code>metadata.token</code> as the token at <code>@.to</code>. ERC-7730 calls it the token "exported by this format"; the export writes it only when the caller says the contract is that token.</td></tr>
+    <tr><td>O9</td><td><claim>open</claim></td><td>Permit2 witness messages (<code>PermitWitnessTransferFrom</code> with a protocol's own witness type). Each needs its own profile; until then a request with a witness matches nothing and gets no text.</td></tr>
+    <tr><td>O10</td><td><claim>open</claim></td><td>Permit2's deployments beyond chains 1 and 42161: its address is the same on many chains, and each is added after checking Uniswap's list, never assumed.</td></tr>
+    <tr><td>O11</td><td><claim>open</claim></td><td>Domains with a <code>salt</code>, and contracts whose domain name or version changes after deployment: refused for now (<diag>E_DOMAIN</diag> for a salt).</td></tr>
+    <tr><td>O12</td><td><claim>open</claim></td><td>DAI's <code>allowed</code> bool reads through its template ("to all of it if allowed is true, to none if false"); a case-like reading of <code>true</code> and <code>false</code> would need D-053 for <code>bool</code>.</td></tr>
+    <tr><td>O13</td><td><claim>open</claim></td><td>The signer against an <code>owner</code> or <code>holder</code> member: whether the text should say so, or refuse, when they differ. The consent function does not take the signer yet.</td></tr>
+    <tr><td>O14</td><td><claim>open</claim></td><td>Permits that differ from EIP-2612 by a member match nothing and get no text; a pack per variant is added only when one is seen.</td></tr>
+  </tbody>
+</table>
+
+<h2>Assumptions the spec states</h2>
+
+<p>Spec §14 lists three assumptions next to its open questions:</p>
+
+<ul>
+  <li><claim>assumption</claim> Typed tools built from these tags reduce agent value errors. This is what the preregistered eval tests.</li>
+  <li><claim>assumption</claim> Doc-annotation ergonomics are good enough for authors.</li>
+  <li><claim>assumption</claim> Candid subtyping, relaxed for result variants, is the right pack-match rule.</li>
+</ul>

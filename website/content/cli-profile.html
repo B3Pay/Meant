@@ -1,0 +1,292 @@
+<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.4.0
+npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
+
+<p>
+  <code>candid-profile</code> is the command <code>@meantjs/profile</code> installs. It has one
+  command, <code>resolve</code>: it reads an interface, applies the profiles you give it and the packs
+  that match, prints the resolved form on stdout and a summary on stderr. It needs Node 22 or later.
+  Its source is
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/resolver/src/cli.mjs"><code>src/cli.mjs</code></a>,
+  started by <code>bin/candid-profile.mjs</code>.
+</p>
+
+<h2>Usage</h2>
+
+<pre data-lang="bash">npx candid-profile --help</pre>
+<pre data-lang="text">usage: candid-profile resolve <service.did> [options] > resolved.json
+       candid-profile resolve --envelope <file> [options] > resolved.json
+       candid-profile resolve --abi <file> [options] > resolved.json
+
+  --envelope <file>   the service's candid-core ContractEnvelope (as `candid-core-cli gen` writes it), instead of
+                      compiling a .did here
+  --abi <file>        an EVM contract's ABI, a JSON array of human-readable fragments or JSON ABI entries
+                      (experimental, spec section 15)
+  --profile <file>    a profile to apply (repeatable). A pack given this way must match the service.
+  --packs             try every pack in the packs directory; apply those that match
+  --packs-dir <dir>   packs directory (default: the standard packs this package ships)
+  --verbose           also list info diagnostics on stderr
+  --quiet             no summary on stderr
+  -h, --help          this text</pre>
+
+<p>
+  The help text goes to stderr. <code>candid-profile --help</code>, <code>-h</code>, and
+  <code>candid-profile resolve --help</code> print it and exit with status 0;
+  <code>candid-profile</code> with no arguments prints it and exits with status 2.
+</p>
+
+<h2>Inputs</h2>
+
+<p>Give exactly one interface:</p>
+
+<table>
+  <thead><tr><th>Input</th><th>What it reads</th></tr></thead>
+  <tbody>
+    <tr><td><code>&lt;service.did&gt;</code></td><td>Candid source, compiled with the <code>@candid-core/cli</code> the package pins (0.4.0). One file: an <code>import</code> is not followed, and fails with <diag>E_CANDID</diag> (<code>did_source_not_found</code>).</td></tr>
+    <tr><td><code>--envelope &lt;file&gt;</code></td><td>The service's candid-core <code>ContractEnvelope</code>, as <code>candid-core-cli gen</code> writes it beside a generated module. The service is not compiled again, and the resolved form is the same as from the <code>.did</code> (decision D-039).</td></tr>
+    <tr><td><code>--abi &lt;file&gt;</code></td><td>An EVM contract's ABI: a JSON array of human-readable fragments or JSON ABI entries. <a href="chain-evm.html">Experimental</a> (spec §15).</td></tr>
+  </tbody>
+</table>
+
+<p>
+  None of them is a usage error (<code>missing &lt;service.did&gt; (or --envelope &lt;file&gt;, or --abi
+  &lt;file&gt;)</code>), and so is more than one (<code>give only one of &lt;service.did&gt;, --envelope
+  and --abi</code>), or a second positional argument (<code>unexpected argument</code>).
+</p>
+
+<h2>Options</h2>
+
+<table>
+  <thead><tr><th>Option</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td><code>--profile &lt;file&gt;</code></td><td>A profile to apply, read as JSON. Repeat it for several; they merge by layer (<a href="profiles.html">Profiles, layers and binding</a>). A pack given this way has to match the service, or it is <diag>E_PACK_NOT_MATCHED</diag>. Diagnostics name the profile by its <code>name</code>.</td></tr>
+    <tr><td><code>--packs</code></td><td>Try every pack in the packs directory and apply the ones that match. The others get <diag>I_PACK_NOT_MATCHED</diag>; a pack for the other kind of interface is skipped silently.</td></tr>
+    <tr><td><code>--packs-dir &lt;dir&gt;</code></td><td>Where <code>--packs</code> looks: every <code>*.profile.json</code> of <code>kind: "pack"</code> in the directory, sorted by file name. Default: the ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs the package ships (the Permit2 and DAI permit files beside them are contract profiles, not packs). Without <code>--packs</code> it does nothing. A directory with no pack in it is a usage error.</td></tr>
+    <tr><td><code>--verbose</code></td><td>List info diagnostics in the summary too. They are always in the resolved form's <code>diagnostics</code>.</td></tr>
+    <tr><td><code>--quiet</code></td><td>Print no summary. Usage errors are still printed.</td></tr>
+    <tr><td><code>-h</code>, <code>--help</code></td><td>Print the usage text and exit with status 0.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A value option takes the next argument or an inline value: <code>--profile mine.profile.json</code>
+  and <code>--profile=mine.profile.json</code> are the same. A next argument that starts with
+  <code>--</code> is not taken as a value (<code>--profile needs a value</code>). Options and the
+  input may come in any order. Any other argument that starts with <code>-</code> is
+  <code>unknown option</code>.
+</p>
+
+<h2>Output</h2>
+
+<p>
+  <strong>stdout</strong> holds the resolved form, as JSON indented by two spaces with a final newline,
+  whenever the interface could be read, including when diagnostics hold errors. It is empty when the
+  input does not compile (<diag>E_CANDID</diag>), the envelope cannot be read
+  (<diag>E_ENVELOPE</diag>), the ABI cannot be read (<diag>E_ABI</diag>), or on a usage error.
+  <a href="reference-profile-format.html">Profile and resolved form</a> describes every field.
+</p>
+
+<p><strong>stderr</strong> holds the summary, unless <code>--quiet</code>:</p>
+
+<pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
+  applied     local-ledger     author       candid-profile:v0:sha256:3ab093c4e8583fc5e2efb4e7c8ce595457450bd38c7be6959998c0d17eab3b84
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+  0 error, 1 warning, 3 info
+  warning W_OVERRIDDEN               [icrc1] icrc1_transfer(0).memo  bytes from profile "icrc1" (pack) is overridden by profile "local-ledger" (author) at "icrc1_transfer(0).memo" [icrc1_transfer(0).memo]</pre>
+
+<ol>
+  <li>The input as you named it, the <code>interface_id</code>, and the number of methods. Absent when the interface could not be read.</li>
+  <li>One line per profile: its status (<code>applied</code>, <code>rebound</code>, <code>stale</code>, <code>not_matched</code> or <code>invalid</code>), name, origin and <code>profile_id</code>. Applied profiles come first, highest layer first.</li>
+  <li>The count of errors, warnings and infos.</li>
+  <li>One line per error and warning, and per info with <code>--verbose</code>: severity, code, the profile it is about in brackets, the address or document path, and the message.</li>
+</ol>
+
+<p>
+  A usage or I/O problem prints <code>candid-profile: </code> and the reason, then the usage text, on
+  stderr.
+</p>
+
+<h2>Exit status</h2>
+
+<table>
+  <thead><tr><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>0</code></td><td>No diagnostic is an error. Warnings and infos do not change it. Also <code>--help</code>.</td></tr>
+    <tr><td><code>1</code></td><td>At least one diagnostic is an error. The resolved form is still on stdout if the interface could be read.</td></tr>
+    <tr><td><code>2</code></td><td>A usage or I/O problem: no arguments, an unknown command or option, a missing value, a file that cannot be read or is not JSON, a packs directory that cannot be read or holds no pack. Also any unexpected exception.</td></tr>
+  </tbody>
+</table>
+
+<h2>Examples</h2>
+
+<h3>The standard packs, with infos</h3>
+
+<pre data-lang="bash">npx candid-profile resolve ledger.did --packs --verbose > ledger.resolved.json</pre>
+<pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+  0 error, 0 warning, 3 info
+  info    I_PACK_MATCHED             [icrc1] icrc1  the service is a subtype of the pack's binds.requires
+  info    I_PACK_MATCHED             [icrc2] icrc2  the service is a subtype of the pack's binds.requires
+  info    I_UNTAGGED_NUMERIC         icrc21_canister_call_consent_message(0).user_preferences.metadata.utc_offset_minutes  int16 argument without amount/timestamp/duration/describe</pre>
+
+<p>
+  <code>ledger.did</code> is the ICRC ledger interface of the
+  <a href="quickstart-profiles.html">profiles quickstart</a>. Exit status 0.
+</p>
+
+<h3>A profile and its interface</h3>
+
+<pre data-lang="bash">npx candid-profile resolve tokens.did --profile tokens.profile.json > tokens.resolved.json</pre>
+<pre data-lang="text">candid-profile: tokens.did  candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c  [2 methods]
+  applied     tokens-example   author       candid-profile:v0:sha256:70abc8cbce701650b6adafeabbf636a10b9c80e620bfcb6cc2d8793ee027745c
+  0 error, 0 warning, 0 info</pre>
+
+<p>
+  This is how you validate a profile you wrote: the files are the repository's
+  <code>profile/examples/tokens.did</code> and <code>tokens.profile.json</code>
+  (<a href="write-a-profile.html">Write a profile</a>). Run it without <code>--profile</code> to print
+  an interface's <code>interface_id</code> before you write the profile that binds to it.
+</p>
+
+<h3>An explicit pack that does not match</h3>
+
+<pre data-lang="bash">npx candid-profile resolve tokens.did --profile node_modules/@meantjs/profile/data/packs/icrc1.profile.json</pre>
+<pre data-lang="text">candid-profile: tokens.did  candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c  [2 methods]
+  not_matched icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  1 error, 0 warning, 2 info
+  error   E_PACK_NOT_MATCHED         [icrc1] icrc1  the service is not a subtype of the pack's binds.requires: icrc1_balance_of: method "icrc1_balance_of" is missing from the canister; icrc1_decimals: method "icrc1_decimals" is missing from the canister; icrc1_fee: method "icrc1_fee" is missing from the canister; and 2 more</pre>
+
+<p>
+  Exit status 1, and the resolved form on stdout lists no profile. With <code>--packs</code> instead,
+  the same pack is only <diag>I_PACK_NOT_MATCHED</diag> and the status is 0: a pack you name has to
+  apply, a pack the search tries does not.
+</p>
+
+<h3>A .did that does not compile</h3>
+
+<pre data-lang="bash">npx candid-profile resolve bad.did --packs > bad.json</pre>
+<pre data-lang="text">  1 error, 0 warning, 0 info
+  error   E_CANDID                   bad.did  did_parse_error: Candid parser error: Unexpected EOF at bytes 20..21</pre>
+
+<p>
+  <code>bad.did</code> holds <code>service : { oops : (</code>. Exit status 1, and
+  <code>bad.json</code> is empty.
+</p>
+
+<h3>From an envelope</h3>
+
+<pre data-lang="bash">npx candid-core-cli gen tokens.did -o gen
+npx candid-profile resolve --envelope gen/tokens.envelope.json --profile tokens.profile.json > tokens.resolved.json</pre>
+<pre data-lang="text">contract:  candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
+interface: candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
+wrote gen/tokens.ts
+wrote gen/tokens.envelope.json
+candid-profile: gen/tokens.envelope.json  candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c  [2 methods]
+  applied     tokens-example   author       candid-profile:v0:sha256:70abc8cbce701650b6adafeabbf636a10b9c80e620bfcb6cc2d8793ee027745c
+  0 error, 0 warning, 0 info</pre>
+
+<p>
+  The resolved form is byte for byte the one <code>resolve tokens.did</code> writes. An envelope the
+  resolver cannot read is <diag>E_ENVELOPE</diag>, with nothing on stdout.
+  <a href="resolve-profiles.html">Validate and resolve profiles</a> says what is checked.
+</p>
+
+<h3>Your own packs directory</h3>
+
+<pre data-lang="bash">mkdir my-packs && cp node_modules/@meantjs/profile/data/packs/icrc1.profile.json my-packs/
+npx candid-profile resolve ledger.did --packs --packs-dir my-packs > ledger.resolved.json</pre>
+<pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  0 error, 0 warning, 10 info</pre>
+
+<p>
+  Only the packs in <code>my-packs</code> are tried. The ICRC-2 methods now carry no tags, so eight
+  of their numeric arguments are reported as <diag>I_UNTAGGED_NUMERIC</diag>: 10 infos instead of 3.
+</p>
+
+<h3>An EVM contract</h3>
+
+<pre data-lang="json" data-file="token.abi.json">[
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address owner) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function transfer(address to, uint256 value) returns (bool)",
+  "function approve(address spender, uint256 value) returns (bool)",
+  "function transferFrom(address from, address to, uint256 value) returns (bool)"
+]</pre>
+<pre data-lang="bash">npx candid-profile resolve --abi token.abi.json --packs > token.resolved.json</pre>
+<pre data-lang="text">candid-profile: token.abi.json  candid-profile:evm-abi:v0:sha256:64c9e8e85fd0f3cdfd86c278b8f0d9f137cf2b872c228bd349b9e73fb85ff6d4  [9 methods]
+  applied     erc20            pack         candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
+  0 error, 0 warning, 1 info</pre>
+
+<p>
+  Experimental. The ERC-20 pack applies by selector, and the resolved form says
+  <code>"chain": "evm"</code>; <code>transfer</code>'s intent template reads
+  <code>Send {value} to {to}</code>, in this contract's parameter names. An EVM interface gets no
+  agent tools, outcome classes or idempotency yet; <a href="chain-evm.html">EVM contracts</a> says
+  what phase 1 covers.
+</p>
+
+<h2>From code</h2>
+
+<pre data-lang="js" data-check>import { runCli } from "@meantjs/profile";
+
+let resolved = "";
+let summary = "";
+const code = await runCli(["resolve", "tokens.did", "--profile", "tokens.profile.json"], {
+  stdout: { write: (text) => { resolved += text; } },
+  stderr: { write: (text) => { summary += text; } },
+});
+console.log(code, JSON.parse(resolved).interface_id);</pre>
+
+<p>
+  <code>runCli(argv, io)</code> is the command as a function: <code>argv</code> starts with the command
+  (<code>"resolve"</code>), <code>io</code> takes the two channels, and it resolves to the exit status,
+  <code>0</code>, <code>1</code> or <code>2</code>. The help text is exported as <code>USAGE</code>.
+  The functions underneath, without the file handling, are on
+  <a href="resolve-profiles.html">Validate and resolve profiles</a>.
+</p>
+
+<h2>scripts/validate.mjs</h2>
+
+<pre data-lang="bash">cd profile
+node scripts/validate.mjs</pre>
+<pre data-lang="text">PASS packs/erc20.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
+     interface_id candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b  [7 methods, 23 annotations]
+PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+     interface_id candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689  [5 methods, 29 annotations]
+PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+     interface_id candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f  [5 methods, 56 annotations]</pre>
+
+<p>
+  <code>profile/scripts/validate.mjs</code> is a script in the repository, not part of any published
+  package; run it from <code>profile/</code> after <code>npm ci</code>. It is a thin wrapper over
+  <code>validateProfile</code>, and it checks one profile at a time: a pack against its own
+  <code>binds.requires</code> (so the <code>interface_id</code> above is the pack fragment's, not a
+  canister's), a canister profile against the <code>.did</code> you give. It never merges layers or
+  searches for packs; that is <code>candid-profile resolve</code>. It reads the schema from the
+  repository's <code>spec/</code> rather than the copy the package ships.
+</p>
+
+<table>
+  <thead><tr><th>Invocation</th><th>Does</th></tr></thead>
+  <tbody>
+    <tr><td><code>node scripts/validate.mjs</code></td><td>Every <code>packs/*.profile.json</code>.</td></tr>
+    <tr><td><code>node scripts/validate.mjs &lt;file&gt;… [--did &lt;service.did&gt;]</code></td><td>The files named. <code>--did</code> is the interface for canister profiles; without it a canister profile gets the schema check and <diag>W_NO_INTERFACE</diag>.</td></tr>
+    <tr><td><code>--resolved</code></td><td>Print the resolved form of exactly one profile. The repository's <code>fixtures/*.resolved.json</code> are generated this way.</td></tr>
+    <tr><td><code>--json</code></td><td>Print <code>{ ok, results }</code>, one result per file with its diagnostics, instead of the report.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  It prints <code>PASS</code> or <code>FAIL</code> per file, with its <code>profile_id</code>, its
+  <code>interface_id</code> and every diagnostic, and exits with status 0 when every file passes, 1
+  when one fails, and 2 on an unexpected exception.
+</p>

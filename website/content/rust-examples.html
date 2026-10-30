@@ -1,7 +1,7 @@
 <p>
   The repository ships six small Rust programs under <code>examples/</code>. Each is a single file with
   a <code>main</code>, each drives the crate through its public API, and together they cover the
-  ideas you need before writing anything of your own: the <strong>Contract</strong> — candid-core's
+  ideas you need before writing anything of your own: the <strong>Contract</strong> — Meant's
   canonical, validated model of a Candid interface, held as a flat table of type nodes with named
   declarations and an optional actor — the content-addressed identities computed over it, the resolver
   that supplies imported sources, host values, and the limits that bound every untrusted read.
@@ -164,7 +164,7 @@ assert_ne!(
 
 <p>
   Compile a Contract, serialize it, then hand two edited copies back to <code>Contract::from_json</code>
-  — the same validation the <a href="cli-rust.html"><code>candid-core validate</code></a> subcommand
+  — the same validation the <a href="cli-rust.html"><code>meant validate</code></a> subcommand
   runs. Both edits are rejected, for two different reasons worth knowing.
 </p>
 
@@ -237,7 +237,7 @@ let compilation = compile_with_resolver(
 <h2>host_value_validation: a value against the graph</h2>
 
 <p>
-  A <em>host value</em> is candid-core's lossless, self-describing representation of a Candid value for
+  A <em>host value</em> is Meant's lossless, self-describing representation of a Candid value for
   host languages. This example builds one and checks it against a type node in the Contract graph,
   choosing two cases that most encodings damage: a <code>nat</code> above the <code>u128</code> range
   and a NaN with a payload.
@@ -273,11 +273,11 @@ validate_host_value(contract, &selector, &value, &Limits::default())?;
   identity with it, so a value cannot be validated against a type from a different Contract by accident.
 </p>
 
-<callout type="warn" title="One import in this example is not candid-core's">
+<callout type="warn" title="One import in this example is not from the meant crate">
   <p>
     <code>candid_parser::candid::idl_hash</code> computes the label ids. That resolves inside this
     repository because <code>candid_parser</code> is a dev-dependency and examples link
-    dev-dependencies. candid-core keeps its own name-hash module private and exports no hashing
+    dev-dependencies. <code>meant</code> keeps its own name-hash module private and exports no hashing
     function, so copying this file into your own crate means taking <code>candid_parser</code> as your
     own dependency.
   </p>
@@ -324,6 +324,6 @@ let starved_render = contract.to_json_pretty_with_limits(&render).unwrap_err();
   If you have run all six, the natural next steps are
   <a href="rust-compiling.html">Compiling Candid sources</a> for the full set of entry points,
   <a href="rust-limits.html">Working with limits</a> for the profiles and builders behind
-  <code>bounded_parsing</code>, and <a href="cli-rust.html">the candid-core binary</a> if what you
+  <code>bounded_parsing</code>, and <a href="cli-rust.html">the <code>meant</code> binary</a> if what you
   actually want is a JSON document on stdout rather than a Rust API.
 </p>

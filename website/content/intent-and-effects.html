@@ -1,0 +1,425 @@
+<annotation at="icrc1_transfer" tag="intent">
+title: Send tokens
+template: Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}][ paying fee {fee}]
+</annotation>
+
+<annotation at="icrc1_transfer" tag="effect">
+kind: transfer
+irreversible: true
+grant: { "to": "to", "amount": "amount" }
+</annotation>
+
+<p>
+  Two method tags from the ICRC-1 pack. The first says what an <code>icrc1_transfer</code> call
+  does, in a line a person can read; the second says what kind of change it makes, which decides
+  whether the person must confirm it. From the arguments of one call, the consent generator writes
+  the message below, and a signer shows it with the effect:
+</p>
+
+<consent standard="Consent · ICRC-21" title="Send tokens" effects="transfer irreversible">
+<field name="Amount" amount>0.29 TKA</field>
+<field name="Recipient">k2t6j-…-teztq-6ae</field>
+</consent>
+
+<p>
+  Nothing in that message was written for this call. The title and the sentence come from the
+  pack, the amount from the <a href="value-tags.html"><code>amount</code> tag</a> and the ledger's
+  decimals, the labels from <code>describe</code>, and the badges from the <code>effect</code> tag, whose
+  <a href="#grant-what-a-transfer-or-approve-lets-someone-take"><code>grant</code></a> names who is paid and how
+  much, for a wallet that checks requests against terms the person confirmed. The same
+  intent is the title of an agent tool's preview and of an MCP Apps card, so a person reads the
+  same words wherever the call is shown.
+</p>
+
+<h2>intent: the line a person reads</h2>
+
+<p>
+  <code>intent</code> has a <code>title</code> of at most 60 characters and a
+  <code>template</code>. In an ICRC-21 fields message, the intent line is the title, a colon and a
+  space, and the rendered template; in the generic (Markdown) message, the title is the heading
+  and the template the paragraph under it. This is the generic message for the call above,
+  exactly as <code>@meantjs/consent</code> writes it:
+</p>
+
+<pre data-lang="text" data-file="profile/packages/consent/test/golden/transfer-tka-basic.json">
+# Send tokens
+
+Send `0.29 TKA` to `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`
+
+- **Amount:** `0.29 TKA`
+- **Recipient:** `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`
+</pre>
+
+<p>
+  A method with no intent still gets a message: its title is the method's
+  <code>describe.label</code>, or <code>Call &lt;method&gt;</code>, followed by one row per leaf
+  of the decoded arguments. An intent is what turns that list of values into a sentence.
+</p>
+
+<h2>Templates: placeholders and optional segments</h2>
+
+<p>
+  The template rules are those of <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#6-intent-templates">spec §6</a>. A placeholder
+  <code>{relpath}</code> names a position of the call's arguments by a
+  <a href="addresses.html">relative path</a>, and is rendered with the formatter of the tag at that
+  position: <code>amount</code> as <code>1.5 ICP</code>, <code>account</code> in its textual
+  encoding, <code>timestamp</code> as a date. A position with no formatting tag renders as Candid
+  text.
+</p>
+
+<ul>
+  <li>
+    <strong>Optional segments.</strong> <code>[ … ]</code> is dropped when any placeholder inside
+    it is absent (<code>null</code>). The pack's template has three, which is why the message
+    above says nothing about subaccounts, memos or fees. With every optional present, the same
+    template gives: <code>Send 1.5 TKA to ig6pt-…-ig6-cabqh3q.7 from subaccount #1 with memo lunch
+    paying fee 0.0001 TKA</code>. Segments do not nest in v0.
+  </li>
+  <li>
+    <strong>Optional placeholders outside a segment</strong> get <diag>W_TEMPLATE_OPTIONAL</diag>,
+    because an absent value would leave a hole in the sentence; the consent generator writes
+    <code>(none)</code> there.
+  </li>
+  <li>
+    <strong>Escapes.</strong> <code>{{</code>, <code>}}</code>, <code>[[</code> and <code>]]</code>
+    write a literal brace or bracket.
+  </li>
+  <li>
+    <strong>Not every argument appears.</strong> <code>created_at_time</code> is in no
+    placeholder: it is the <a href="outcomes-and-retries.html">idempotency stamp</a>, filled by the
+    tool layer, and the message for a stamped call is the same as for an unstamped one.
+  </li>
+</ul>
+
+<p>
+  A placeholder that names no position is <diag>E_TEMPLATE_PATH</diag>; a template that does not
+  parse is <diag>E_TEMPLATE</diag>. On an EVM contract, where an ABI value is never absent, a
+  template has no <code>[ ]</code> segments (<a href="chain-evm.html">EVM contracts</a>).
+</p>
+
+<h2>Values are escaped for where they land</h2>
+
+<p>
+  A template is the author's text; the values in it are the caller's. A memo is whatever bytes
+  the caller chose, and in a Markdown consent message a memo of
+  <code>[Approve now](https://evil.example/drain)</code> must not become a link. Rendered values
+  are escaped for the target format. The generator puts every value from the call into a Markdown
+  code span, with a fence longer than any backtick run inside it, so the memo below is shown as the
+  characters it is (the spender's account is shortened here):
+</p>
+
+<pre data-lang="text" data-file="profile/packages/consent/test/golden/approve-tka-hostile-memo.json">
+# Approve spending
+
+Set `ig6pt-…-ig6-7fqknwy.1`'s allowance to `1 TKA`, replacing any existing allowance with memo ``[Approve now](https://evil.example/drain) **URGENT** <b>x</b> `y` &amp;``
+</pre>
+
+<h2>Templates make no claims about state</h2>
+
+<p>
+  A template describes what the call does with its arguments, and nothing that depends on the
+  canister's state. "Send 1.5 ICP to Alice" is allowed; "your balance after this is 3 ICP" is not.
+  ICRC-21 requires a consent message to describe every possible outcome, because time passes
+  between fetching the message and submitting the call, and the balance can change in between.
+  The consent generator has no network access and never states anything about ledger state; see
+  <a href="consent-messages.html">Generate consent messages</a>.
+</p>
+
+<h2>effect: what kind of change a call makes</h2>
+
+<p>
+  <code>effect</code> has a <code>kind</code> and an <code>irreversible</code> flag, plus an
+  optional <code>replicated</code> flag for one special case below and, on a <code>transfer</code>
+  or an <code>approve</code>, an optional <code>grant</code>.
+</p>
+
+<table>
+  <thead><tr><th>kind</th><th>What it names</th><th>Needs the person's confirmation</th></tr></thead>
+  <tbody>
+    <tr><td><effect>read</effect></td><td>Changes nothing the profile describes</td><td>No</td></tr>
+    <tr><td><effect>write</effect></td><td>A change of state</td><td>No</td></tr>
+    <tr><td><effect>transfer</effect></td><td>Moves value</td><td>Yes</td></tr>
+    <tr><td><effect>approve</effect></td><td>Lets someone else move value, as an ICRC-2 allowance does</td><td>Yes</td></tr>
+    <tr><td><effect>admin</effect></td><td>A change to who controls the canister or how it runs</td><td>Yes</td></tr>
+    <tr><td><effect>destroy</effect></td><td>Deletes something</td><td>Yes</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <effect>irreversible</effect> is separate from the kind: an ICRC-1 transfer is a
+  <code>transfer</code> that cannot be undone, and an ICRC-2 approval is an <code>approve</code>
+  that a later approval replaces (<code>irreversible: false</code>).
+</p>
+
+<h2>Defaults, and an effect that fits the method</h2>
+
+<p>
+  When a method has no <code>effect</code> tag, the default is taken from its Candid mode: a query
+  is a <code>read</code>, and an update is a <code>write</code> with
+  <code>irreversible: true</code>. The default for an update is the conservative one, since nothing
+  says the call can be undone.
+</p>
+
+<p>
+  An effect must fit the method it sits on. A query or composite query declared as anything but
+  <code>read</code> is <diag>E_EFFECT_MODE</diag>: a query cannot change state, so the profile is
+  wrong. A <code>read</code> on an update or a oneway method is <diag>W_EFFECT_MODE</diag>, since
+  the method could change state and the profile says it does not; the resolver's message points
+  at the form below.
+</p>
+
+<h2>A read-only update</h2>
+
+<p>
+  Some methods change nothing and are still called as updates, so that their answer is certified
+  by the subnet. <claim>fact</claim> The reply to an update call comes with a certificate of the
+  subnet's state, while a query's reply comes from a single replica and is signed only by that node
+  (<a href="https://docs.internetcomputer.org/references/ic-interface-spec/https-interface/">IC
+  interface specification, HTTPS interface</a>). D-038 gives these methods their own form:
+</p>
+
+<pre data-lang="json">
+{ "kind": "read", "irreversible": false, "replicated": true }
+</pre>
+
+<p>
+  It is valid only on an update method, with exactly that kind and flag. Consumers must send such a
+  method as an update call, never through the query endpoint, or the certification it declares is
+  lost; <code>@meantjs/tools</code> gives it a read tool, sent once as an update, with no preview.
+  For everything else it is a <code>read</code>, and for retries it is still an update.
+  <code>replicated: true</code> on a query, a composite query or a oneway method, or with another
+  kind or <code>irreversible: true</code>, is <diag>E_EFFECT_MODE</diag>. Like any effect, it is
+  the author's claim: the resolver cannot check that the method changes nothing.
+</p>
+
+<h2>grant: what a transfer or approve lets someone take</h2>
+
+<p>
+  An effect of kind <code>transfer</code> or <code>approve</code> may carry <code>grant</code>: who may
+  take tokens because of the call or the signature, which token, how many and until when, so that a
+  wallet can compare a request with <a href="#confirmed-terms">terms the person confirmed</a>. Its
+  values are relative paths into the method's arguments, written as a template's placeholders are
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>,
+  D-056). From the ICRC-2 pack:
+</p>
+
+<annotation at="icrc2_approve" tag="effect">
+kind: approve
+irreversible: false
+grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
+</annotation>
+
+<table>
+  <thead><tr><th>Key</th><th>The position it names</th></tr></thead>
+  <tbody>
+    <tr><td><code>spender</code> or <code>to</code>, exactly one</td><td>Who may take the tokens. <code>spender</code> for an allowance, or for a signature someone else submits; <code>to</code> for a transfer that pays them directly. An <code>approve</code>'s grant names a <code>spender</code>. The position is an EVM <code>address</code> or carries an <code>account</code> tag.</td></tr>
+    <tr><td><code>amount</code></td><td>An unsigned position with an <code>amount</code> tag, where a value at or above the tag's <code>threshold</code> means unlimited; or a <code>bool</code>, where <code>true</code> is unlimited and <code>false</code> grants nothing (DAI's permit).</td></tr>
+    <tr><td><code>ends</code>, optional</td><td>One to eight positions with a <code>timestamp</code> tag. The grant ends at the latest of them; one at or above its tag's <code>threshold</code>, or an optional one left out, means it never ends. With no <code>ends</code>, an <code>approve</code> never ends and a <code>transfer</code> ends when it is made.</td></tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><code>spender</code>, <code>to</code> and <code>amount</code> are in every call: none of them is optional, and no position of a grant is inside a case of a variant.</li>
+  <li>No position steps into <code>[]</code>. A grant covers one token, so a request that grants several, such as Permit2's <code>PermitBatch</code>, has none in v0.</li>
+  <li>The token is the one the <code>amount</code> tag names (its <code>token</code>, on EVM), else the contract or canister the call is for.</li>
+  <li>A deadline that bounds only when a signature may be used is not an end of what it grants. EIP-2612's <code>deadline</code> and DAI's <code>expiry</code> set allowances that never end, so neither is in <code>ends</code>.</li>
+</ul>
+
+<p>The standard packs carry these grants, and the resolved form keeps each inside its <code>effect</code>:</p>
+
+<table>
+  <thead><tr><th>Pack</th><th>Method or message</th><th><code>grant</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>icrc1</code></td><td><code>icrc1_transfer</code></td><td><code>{ "to": "to", "amount": "amount" }</code></td></tr>
+    <tr><td><code>icrc2</code></td><td><code>icrc2_approve</code></td><td><code class="wrap">{ "spender": "spender", "amount": "amount", "ends": ["expires_at"] }</code></td></tr>
+    <tr><td><code>erc20</code></td><td><code>transfer</code></td><td><code>{ "to": "to", "amount": "value" }</code></td></tr>
+    <tr><td><code>erc20</code></td><td><code>approve</code></td><td><code class="wrap">{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code>erc2612</code></td><td><code>Permit</code> and <code>permit</code></td><td><code class="wrap">{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code>dai-permit</code></td><td><code>Permit</code></td><td><code class="wrap">{ "spender": "spender", "amount": "allowed" }</code></td></tr>
+    <tr><td><code>permit2</code></td><td><code>PermitSingle</code></td><td><code class="wrap">{ "spender": "spender", "amount": "details.amount", "ends": ["details.expiration", "sigDeadline"] }</code></td></tr>
+    <tr><td><code>permit2</code></td><td><code>PermitTransferFrom</code></td><td><code class="wrap">{ "spender": "spender", "amount": "permitted.amount", "ends": ["deadline"] }</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  ERC-20 <code>transferFrom</code> and ICRC-2 <code>icrc2_transfer_from</code>, which spend an allowance
+  someone else gave, and Permit2's two batch messages have none. A grant on another kind, on a
+  <a href="#intents-and-effects-on-a-variant-case">case effect</a>, or whose positions break these rules
+  is <diag>E_GRANT</diag>. The example canister's <code>send</code> of
+  <a href="write-a-profile.html">Write a profile</a>, given a grant whose <code>to</code> is a bare
+  <code>principal</code>:
+</p>
+
+<pre data-lang="text">
+candid-profile: tokens.did  candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c  [2 methods]
+  applied     tokens-example   author       candid-profile:v0:sha256:040a934bbd2916cb523c0dab7a11e2d1370890a0925521307cd5ee49dd849204
+  1 error, 0 warning, 0 info
+  error   E_GRANT                    [tokens-example] send  grant to "to" is principal; it must be an address or carry an account tag
+</pre>
+
+<p>
+  A pack applied to a service where its grant does not hold keeps its effect and loses the grant,
+  with <diag>I_PACK_ANNOTATION_SKIPPED</diag>. A ledger whose <code>ApproveArgs</code> has no
+  <code>expires_at</code> still matches the ICRC-2 pack, and <code>candid-profile resolve --verbose</code>
+  says:
+</p>
+
+<pre data-lang="text">
+  info    I_PACK_ANNOTATION_SKIPPED  [icrc2] icrc2_approve  effect grant dropped, the effect kept: E_GRANT: grant ends "expires_at": no field "expires_at" in record
+</pre>
+
+<p>
+  Its <code>icrc2_approve</code> is still an <effect>approve</effect> the person confirms; with no grant,
+  no terms can cover it. A grant is the author's claim, like any effect: the resolver checks the
+  positions it names, not what the method does with them.
+</p>
+
+<h2>Intents and effects on a variant case</h2>
+
+<p>
+  A governance canister often has one method, <code>propose</code>, whose argument is a variant
+  of very different actions. One intent and one effect for the whole method would either say too
+  little about a transfer or too much about a pause. D-053 lets <code>intent</code> and
+  <code>effect</code> sit on a <strong>case</strong>:
+</p>
+
+<pre data-lang="candid" data-file="dao.did">
+type Action = variant {
+  Transfer : record { to : principal; amount : nat };
+  AddMember : record { who : principal };
+  Pause;
+};
+service : {
+  propose : (Action) -> (nat);
+}
+</pre>
+
+<pre data-lang="json" data-file="dao.profile.json">
+{ "at": "propose", "tag": "intent", "args": { "title": "Propose an action", "template": "Propose an action" } },
+{ "at": "propose", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+{ "at": "propose(0).Transfer", "tag": "intent", "args": { "title": "Propose a transfer", "template": "Send {Transfer.amount} to {Transfer.to}" } },
+{ "at": "propose(0).Transfer", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+{ "at": "propose(0).AddMember", "tag": "intent", "args": { "title": "Add a member", "template": "Add {AddMember.who} as a member" } },
+{ "at": "propose(0).Pause", "tag": "effect", "args": { "kind": "admin", "irreversible": false } }
+</pre>
+
+<p>
+  The <strong>cases a call takes</strong> are the tagged cases on the path its argument value
+  takes, and the deepest of them is the call's case for that tag. A call whose argument is
+  <code>Transfer</code> reads "Propose a transfer: Send … to …"; one whose argument is
+  <code>Pause</code> has the <code>admin</code> effect. A call's effect is its case's, else the
+  method's, else the default. The other method tags (<code>idempotency</code>,
+  <code>outcome</code>, <code>list</code>, <code>names</code>) stay on the method.
+</p>
+
+<h3>Where a case tag may sit</h3>
+
+<p>
+  A case address is an argument address whose last step selects a case of a variant. It may not
+  step into a vector element, since one call holds many elements, and it may not be a result
+  address or a <code>type:</code> address, which can reach several methods. Any of those is
+  <diag>E_TAG_TARGET</diag>. For each of the two tags, the tagged cases of one method must not
+  overlap: two case addresses overlap when one value can take both, which happens when they sit in
+  different arguments or their paths part at a record field. Cases of one variant never overlap,
+  since a value takes one case.
+</p>
+
+<pre data-lang="text">
+  error   E_CASE_OVERLAP             [local-dao] manage(0).other.P  intent on "manage(0).command.Disburse" and on "manage(0).other.P": one call can take both cases (their paths part at a record field)
+</pre>
+
+<h3>The method's effect bounds its cases'</h3>
+
+<p>
+  A consumer that does not read case tags uses the method's. So when any case effect is
+  <code>transfer</code>, <code>approve</code>, <code>admin</code> or <code>destroy</code>, the
+  method's effect must be one of those four, and when any case is irreversible, the method must be
+  too. Without the method's <code>effect</code> line above, the default <code>write</code> would
+  let a consumer that reads only method tags send a transfer unconfirmed:
+</p>
+
+<pre data-lang="text">
+  error   E_CASE_EFFECT              [local-dao] propose(0).Transfer  case effect transfer needs a person's confirmation, but the method's effect is write, irreversible (the default); declare the method's effect as transfer, approve, admin or destroy, so that a consumer that reads only method tags confirms it too
+</pre>
+
+<p>
+  The result is that reading case effects can only lift a confirmation from a call whose case is
+  weaker, never add a missing one. That lifting is the author's claim, like any effect.
+</p>
+
+<h3>Case templates name values from the method</h3>
+
+<p>
+  A case intent's placeholders are relative paths from the method's argument tuple, like a
+  method's, so <code>propose(0).Transfer</code> writes <code>{Transfer.amount}</code>, not
+  <code>{amount}</code>, and a case inside a record can name the record's other fields beside its
+  own. A placeholder that selects another case of a variant the case address passes through can
+  never be present:
+</p>
+
+<pre data-lang="text">
+  error   E_TEMPLATE_PATH            [local-dao] propose(0).Transfer  {AddMember.who}: selects case "AddMember" of a variant where this intent's case takes "Transfer", so it is never present
+</pre>
+
+<p>
+  Case tags have no doc-comment form in v0: write them in a profile.
+</p>
+
+<h2>Which calls wait for the person</h2>
+
+<p>
+  A consumer must get the person's explicit confirmation before it executes a call whose effect
+  is <code>transfer</code>, <code>approve</code>, <code>admin</code> or <code>destroy</code>,
+  unless a separately configured policy, such as a spending budget, pre-authorizes it. Policies are
+  outside v0 except one, <a href="#confirmed-terms">confirmed terms</a>, so every other such call
+  waits. <claim>open</claim> Spending policies and budgets are OQ-8 on
+  <a href="open-questions.html">Open questions</a>.
+</p>
+
+<p>
+  The person confirms; the model never does. An agent prepares a call and shows its preview, and
+  the send waits for a person's answer. <code>@meantjs/tools</code> goes further than the rule: it
+  awaits the person's confirmation before every send of a prepared call, re-sends included, and
+  has no auto-approve default (<a href="agent-tools.html">Give an agent tools</a>). Because a profile can
+  call a drain "claim reward", a consumer should also show the decoded raw arguments beside the
+  intent for these four kinds; the <a href="security-model.html">security model</a> says why.
+</p>
+
+<h2>Confirmed terms</h2>
+
+<p>
+  Terms are what the person allows one task: the token, who may take it, the most it may be (or
+  unlimited) and the latest end (or never). Terms the person confirmed for one task, before the
+  agent read the request, pre-authorize that task's request: one whose
+  <a href="#grant-what-a-transfer-or-approve-lets-someone-take">grant</a> fits them may be signed or
+  sent without a second confirmation. One that does not fit is refused with its reasons, and the
+  agent asks for new terms; a request without a grant needs its confirmation. The terms are shown
+  exactly and confirmed on the wallet's own screen, never through a tool the agent can call
+  (<a href="security-model.html">security model</a>). The steps, with
+  <code>@meantjs/consent/terms</code>: <a href="confirmed-terms.html">Confirm terms for a task</a>.
+</p>
+
+<h2>Next</h2>
+
+<div class="card-grid">
+  <a class="card" href="consent-messages.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Generate consent messages</span>
+    <p>ICRC-21 messages for any method, from a resolved form and the encoded arguments.</p>
+  </a>
+  <a class="card" href="outcomes-and-retries.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Outcomes and retries</span>
+    <p>What happens after the person confirms: classes for every result, and retries that cannot pay twice.</p>
+  </a>
+  <a class="card" href="confirmed-terms.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Confirm terms for a task</span>
+    <p>Check what each request grants against terms the person confirmed once.</p>
+  </a>
+  <a class="card" href="security-model.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Security model</span>
+    <p>Why an intent is a claim, and what a consumer shows beside it.</p>
+  </a>
+</div>

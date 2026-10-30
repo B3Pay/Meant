@@ -1,0 +1,260 @@
+<p>
+  The Internet Computer is the chain the profile spec was written for: everything in Candid Profile v0 outside §15
+  describes ICP canisters. A canister publishes a Candid interface, the <code>meant</code> compiler turns it into a
+  Contract graph with an identity, and a profile binds to that identity. The rest of this page is what each step looks
+  like on ICP, with links to the pages that explain it.
+</p>
+
+<pre data-lang="bash">
+npm install @meantjs/profile@0.4.0
+npx candid-profile resolve ledger.did --packs > ledger.resolved.json
+</pre>
+
+<h2>The interface: a .did file</h2>
+
+<ol class="steps">
+  <li><span class="step-title">Candid source</span><p>The canister's <code>.did</code> file, or the <code>candid:service</code> metadata it serves.</p></li>
+  <li><span class="step-title">The meant compiler</span><p>Parses and type-checks it through the official Candid parser and projects it into a validated Contract graph (<a href="what-is-candid-core.html">The interface layer</a>, <a href="contract-graph.html">The Contract graph</a>).</p></li>
+  <li><span class="step-title">interface_id</span><p>A SHA-256 identity over the callable interface, <code>candid-core:interface:v1:sha256:…</code>. Renaming types or reordering fields does not move it; changing a method does (<a href="identities.html">Content-addressed identities</a>).</p></li>
+  <li><span class="step-title">Profile</span><p>A canister profile binds to that <code>interface_id</code>; a pack binds to any service whose type is a subtype of its fragment (<a href="profiles.html">Profiles, layers and binding</a>).</p></li>
+</ol>
+
+<p>
+  <code>@meantjs/profile</code> compiles a <code>.did</code> with <code>@candid-core/cli</code> 0.4.0, the same compiler
+  built as WebAssembly, or reads a candid-core <code>ContractEnvelope</code> that a generator already wrote
+  (<code>--envelope</code>); the resolved form is the same either way. On the ICRC ledger's own interface (release
+  <code>ledger-suite-icrc-2026-03-09</code>, the copy in <code>profile/packages/resolver/test/fixtures/ledger.did</code>),
+  run from <code>profile/</code>:
+</p>
+
+<pre data-lang="text">
+candid-profile: packages/resolver/test/fixtures/ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+  0 error, 0 warning, 3 info
+</pre>
+
+<p>
+  Profiles address positions by the edge that leads to them (a method argument or result, then a path), not by type
+  node: the compiler interns structurally equal types, so in the ICRC-1 interface one <code>nat</code> node serves
+  <code>amount</code>, <code>fee</code> and the block index alike (<a href="addresses.html">Addresses</a>).
+</p>
+
+<h2>Values on ICP</h2>
+
+<table>
+  <thead>
+    <tr><th>Tag</th><th>Candid type</th><th>A person writes</th><th>The call carries</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>amount</code></td><td><code>nat</code> and the sized integers</td><td><code>1.5 ICP</code></td><td><code>150000000</code> with <code>decimals: 8</code>, from <code>query:icrc1_decimals</code> on a ledger</td></tr>
+    <tr><td><code>account</code></td><td><code class="wrap">record { owner : principal; subaccount : opt blob }</code></td><td>the ICRC-1 textual encoding, <code>principal-checksum.subaccounthex</code>, or a bare principal for the default subaccount</td><td>the record; the checksum is verified on input</td></tr>
+    <tr><td><code>subaccount</code></td><td><code>blob</code></td><td><code>#7</code>, <code>7</code>, or 64 hex characters</td><td>32 bytes, big-endian</td></tr>
+    <tr><td><code>timestamp</code></td><td><code>nat64</code> (ledgers use <code>unit: "ns"</code>)</td><td>an RFC 3339 time, or <code>+PT24H</code> from the canister's clock</td><td>nanoseconds since the Unix epoch</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>now</code> is always the canister's clock, never the host's: a host clock ahead of the replica produces
+  <code>CreatedInFuture</code>, one behind it <code>TooOld</code>. The rules are on
+  <a href="value-tags.html">Values and exact conversion</a>.
+</p>
+
+<h2>ICRC-1 and ICRC-2 packs</h2>
+
+<p>
+  The ICRC-1 pack applies to any canister whose service is a subtype of its fragment (<code>icrc1_symbol</code>,
+  <code>icrc1_decimals</code>, <code>icrc1_fee</code>, <code>icrc1_balance_of</code>, <code>icrc1_transfer</code>); the
+  ICRC-2 pack to <code>icrc2_approve</code>, <code>icrc2_transfer_from</code> and <code>icrc2_allowance</code>. A ledger
+  that implements both gets both, as above. Result variants may have more cases than the pack's (D-019): the extra
+  cases carry no annotations and fall back to the pack's <code>default</code> outcome. Every annotation is listed on
+  <a href="reference-packs.html">Standard packs</a>.
+</p>
+
+<annotation at="icrc1_transfer" tag="idempotency">
+mode: replay_same_payload
+stamp: created_at_time
+</annotation>
+
+<h2>Retries: created_at_time and the dedup window</h2>
+
+<p>
+  <claim>fact</claim> An ICRC-1 ledger deduplicates a transfer only when <code>created_at_time</code> is set, and only
+  within <code>TX_WINDOW</code> plus <code>PERMITTED_DRIFT</code>, which the ledger defines; different memos are never
+  treated as duplicates; a duplicate returns <code>Duplicate { duplicate_of }</code> (spec §5.3, verified against the
+  ICRC-1 standard on 2026-10-08). That is what the pack's <code>idempotency</code> tag uses: the tool layer stamps
+  <code>created_at_time</code> once per intent from the ledger's clock, encodes the arguments once, and sends exactly
+  those bytes on every retry of that intent. For the DFINITY ledger the window is 24 h 2 min:
+  <code>DEDUP_WINDOW_NS</code> in <code>@meantjs/reconcile</code> is 86,520,000,000,000 ns, for a caller that has
+  checked its ledger uses it.
+</p>
+
+<table>
+  <thead>
+    <tr><th><code>icrc1_transfer</code> result</th><th>Class</th><th>What the caller does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Ok</code></td><td><outcome>success</outcome></td><td>Done; report the block index.</td></tr>
+    <tr><td><code>Err.Duplicate</code></td><td><outcome>already_done</outcome></td><td>An identical call already executed: treat it as success and report <code>duplicate_of</code>.</td></tr>
+    <tr><td><code>Err.TemporarilyUnavailable</code></td><td><outcome>retry_same</outcome></td><td>Retry with the same bytes, a few times with backoff, before the window can close.</td></tr>
+    <tr><td><code>Err.TooOld</code>, <code>Err.CreatedInFuture</code></td><td><outcome>retry_new</outcome></td><td>Re-stamp, show the person the new intent, and retry only after they confirm. After <code>CreatedInFuture</code> the new stamp must not exceed the <code>ledger_time</code> the error reports.</td></tr>
+    <tr><td><code>Err.BadFee</code>, <code>Err.BadBurn</code></td><td><outcome>fix_input</outcome></td><td>Correct the input; the error's fields carry the hint (<code>expected_fee</code>).</td></tr>
+    <tr><td><code>Err.InsufficientFunds</code>, <code>Err.GenericError</code>, any other case</td><td><outcome>fail</outcome></td><td>Do not retry.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A rejection by the replica (a trap, a refused call) means the call did not execute, and the same bytes may be sent
+  again. An unknown outcome (a timeout, a lost connection) may be retried with the same bytes inside the window. Without
+  an <code>idempotency</code> tag, an update with an unknown outcome is never retried automatically. The full rules:
+  <a href="outcomes-and-retries.html">Outcomes and retries</a>.
+</p>
+
+<h2>Reconciliation by ICRC-3</h2>
+
+<p>
+  When an earlier attempt had an unknown outcome and a later one returns <code>TooOld</code>, the window has passed and
+  the first attempt may have executed: the caller must <outcome>reconcile</outcome> before anything is sent or
+  re-stamped. That means reading the ledger's ICRC-3 blocks since the stamp and matching the original on its operation,
+  stamp, amount, accounts, memo and caller; balances and allowances cannot settle it. If the history cannot settle it,
+  the caller asks the person.
+</p>
+
+<pre data-lang="js" data-file="profile/packages/reconcile/README.md">
+import { expectedTransaction, matchBlocks } from "@meantjs/reconcile";
+
+const expected = expectedTransaction("icrc1_transfer", arg, callerText, { minting });  // minting: icrc1_minting_account
+// Read the blocks yourself (certified, archives followed): every index from `floor` to `logLength - 1`.
+const r = matchBlocks(blocks, expected, { logLength, floor, inFlight: true, ledgerTime, windowNs });  // windowNs: the ledger's TX_WINDOW + PERMITTED_DRIFT
+r.status; // "found" (r.block) | "absent" (r.closedBy) | "not_yet" (r.openUntil) | "unreadable" (r.reason, r.lookalike?)
+</pre>
+
+<p>
+  <code>matchBlocks</code> never answers <code>absent</code> while a send may still land or a block in the range could
+  not be read. See <a href="reconcile-outcomes.html">Settle an unknown outcome</a>.
+</p>
+
+<h2>ICRC-21 consent</h2>
+
+<p>
+  ICRC-21 is the Internet Computer's consent message standard: a signer asks the canister to describe a call before the
+  person confirms it. <code>@meantjs/consent</code> answers it for any method from the resolved form and the argument
+  bytes. For the ICRC-1 pack, a transfer of 0.29 TKA on a local ledger with 8 decimals gives this generic message:
+</p>
+
+<pre data-lang="text" data-file="profile/packages/consent/test/golden/REVIEW.md">
+# Send tokens
+
+Send `0.29 TKA` to `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`
+
+- **Amount:** `0.29 TKA`
+- **Recipient:** `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`
+</pre>
+
+<consent standard="Consent · ICRC-21" title="Send tokens" effects="transfer irreversible">
+<field name="Amount" amount>0.29 TKA</field>
+<field name="Recipient">k2t6j-2nvnp-…-teztq-6ae</field>
+</consent>
+
+<table>
+  <thead>
+    <tr><th>Profile</th><th><code>FieldsDisplayMessage</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>intent.title</code> and the rendered <code>template</code></td><td><code>intent</code></td></tr>
+    <tr><td>each placeholder</td><td>one <code>(label, Value)</code> row; the label from <code>describe.label</code>, else the field name</td></tr>
+    <tr><td><code>amount</code></td><td><code>TokenAmount { decimals; amount; symbol }</code> when it fits <code>nat64</code>, else <code>Text</code></td></tr>
+    <tr><td><code>timestamp</code></td><td><code>TimestampSeconds { amount }</code> after unit conversion</td></tr>
+    <tr><td><code>duration</code></td><td><code>DurationSeconds { amount }</code> after unit conversion</td></tr>
+    <tr><td>everything else</td><td><code>Text { content }</code></td></tr>
+  </tbody>
+</table>
+
+<pre data-lang="js" data-file="profile/packages/consent/README.md">
+const response = icrc21ConsentMessage(
+  {
+    method: "icrc1_transfer",
+    arg: argBytes, // Uint8Array: the Candid-encoded argument tuple of the call
+    user_preferences: { metadata: { language: "en", utc_offset_minutes: 120 }, device_spec: { GenericDisplay: null } },
+  },
+  {
+    resolved, // fixtures/*.resolved.json shape, or the output of `candid-profile resolve`
+    refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" }, // dynamic refs, resolved by the caller
+  },
+);
+</pre>
+
+<callout type="warn" title="Decimals come from one replica">
+  <p>
+    A plain query is answered by a single replica, so a malicious one could report the wrong <code>decimals</code> and
+    every amount shown would be wrong by a power of ten. Resolve the refs used to render a <code>transfer</code> or
+    <code>approve</code> through an update call or a certified path, or cross-check with <code>icrc1_metadata</code>.
+    A consent message generated inside the canister avoids this: the canister knows its own decimals.
+  </p>
+</callout>
+
+<p>
+  <code>TokenAmount.amount</code> is a <code>nat64</code>, so an 18-decimal token above about 18.4 whole units falls back
+  to a <code>Text</code> row. <claim>open</claim> OQ-12 (owner W4/W6): propose a <code>nat</code> variant upstream, or
+  always fall back to <code>Text</code>? See <a href="consent-messages.html">Generate consent messages</a>.
+</p>
+
+<h2>Serving a profile in a custom section</h2>
+
+<p>
+  A canister can serve its own profile as the public Wasm custom section <code>icp:public candid:profile</code>, beside
+  the <code>icp:public candid:service</code> that holds its interface. A consumer reads both paths in one
+  <code>read_state</code> request and verifies the certificate, so the pair comes from one version of the module.
+</p>
+
+<ul>
+  <li><claim>fact</claim> The content of a custom section <code>icp:public &lt;name&gt;</code> is at <code>/canister/&lt;canister_id&gt;/metadata/&lt;name&gt;</code> in the state tree (<a href="https://docs.internetcomputer.org/references/ic-interface-spec/">IC interface specification</a>).</li>
+  <li><claim>fact</claim> Anyone may request that path for a public section, also when the canister has no such section, and the reply is a certificate of the subnet's state, unlike a query's reply, which one replica signs (<a href="https://docs.internetcomputer.org/references/ic-interface-spec/https-interface/">HTTPS interface</a>).</li>
+  <li><claim>fact</claim> A canister has at most 16 exported custom sections named <code>icp:…</code> and 1 MiB of exported custom sections, so a served profile is at most 1 MiB (<a href="https://docs.internetcomputer.org/references/resource-limits/">resource limits</a>).</li>
+  <li>What may be served: a profile of <code>kind: "canister"</code> and <code>origin: "author"</code>. Anything else is <diag>E_SERVED</diag>, and the profile is not applied.</li>
+  <li>It is certified, not vouched for: the certificate proves the canister serves these bytes, but the words are still the author's claim.</li>
+</ul>
+
+<pre data-lang="bash" data-file="profile/docs/profile-v0.md">
+ic-wasm canister.wasm -o canister.wasm metadata candid:profile -f my.profile.json -v public
+</pre>
+
+<p>
+  <code>readServedProfile</code> in <code>@meantjs/profile</code> checks the bytes a consumer read. The walk-through is
+  <a href="serve-a-profile.html">Serve a profile from a canister</a>.
+</p>
+
+<h2>Local tests on PocketIC</h2>
+
+<p>
+  Everything runs on a local network: no mainnet, no cycles bought, no keys. The SNS validator test in
+  <a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent/pocketic"><code>profile/packages/consent/pocketic/</code></a>
+  registers the example validator canister with the real SNS governance canister on PocketIC. It downloads its
+  artifacts into <code>.cache/</code> and refuses any whose sha256 does not match <code>artifacts.json</code>.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Pinned</th><th>Version</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>PocketIC server</td><td>16.0.0 (linux-x64 and darwin-arm64 binaries, each with its sha256)</td></tr>
+    <tr><td><code>@dfinity/pic</code></td><td>0.25.0</td></tr>
+    <tr><td><code>@icp-sdk/core</code></td><td>6.1.0</td></tr>
+    <tr><td>SNS governance wasm and <code>.did</code></td><td>built by DFINITY's CI at dfinity/ic <code>649156c2bca1315da5699e2125b34be6397c9987</code></td></tr>
+  </tbody>
+</table>
+
+<pre data-lang="bash" data-file="profile/packages/consent/README.md">
+npm ci                               # at the repository root (the test imports this package and @dfinity/didc)
+cd packages/consent/pocketic
+npm ci                               # @dfinity/pic 0.25.0, @icp-sdk/core 6.1.0; install scripts off (.npmrc)
+npm test                             # fetch + sha256-check the artifacts, build both example canisters, run
+</pre>
+
+<p>
+  <claim>fact</claim> Observed on 2026-10-12: 10 of 10 tests pass (the package README, "On SNS governance").
+  <claim>open</claim> Deployed SNSes run the governance version blessed through SNS-W, which may differ from that commit;
+  the test is re-run on a version bump. The reconciler's tests use ICRC-3 blocks in the shapes recorded from the pinned
+  DFINITY ledger wasm on PocketIC.
+</p>

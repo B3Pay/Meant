@@ -7,6 +7,8 @@
  * its three subpaths to the SOURCE in that directory, and `@candid-core/cli`
  * to its hand-written declarations, so a snippet is checked against what the
  * repository builds — exactly the four subpaths the package exports, no more.
+ * The profile packages, `@meantjs/*`, resolve to their hand-written `.d.mts`
+ * under profile/packages, again exactly the subpaths each one exports.
  *
  * Every `<pre>` whose language is ts or js is in exactly one of four classes,
  * and a block in none of them fails the gate, so an unverified snippet cannot
@@ -43,7 +45,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
@@ -145,6 +147,27 @@ export function excerptProblem(excerpt, fileText, partial = false) {
   return null;
 }
 
+/* The five profile packages, `@meantjs/*`: each code export resolves to its
+ * hand-written declarations, read from the package's own `exports` map (the
+ * `types` condition), so exactly the subpaths each one exports resolve, and a
+ * subpath a sync adds resolves with no change here. */
+const PROFILE_DIRS = ["resolver", "format", "consent", "tools", "reconcile"];
+
+function profileExports(root) {
+  const paths = {};
+  for (const dir of PROFILE_DIRS) {
+    const base = join(root, "profile", "packages", dir);
+    const manifest = JSON.parse(readFileSync(join(base, "package.json"), "utf8"));
+    for (const [subpath, target] of Object.entries(manifest.exports || {})) {
+      // Data subpaths (`./schema.json`, `./packs/*`) are strings and carry no types.
+      if (typeof target !== "object" || target === null || typeof target.types !== "string") continue;
+      const specifier = subpath === "." ? manifest.name : `${manifest.name}${subpath.slice(1)}`;
+      paths[specifier] = [join(base, target.types)];
+    }
+  }
+  return paths;
+}
+
 function tsconfig(root, cli) {
   const ts = join(root, "crates", "candid-core-ts", "ts");
   return {
@@ -166,6 +189,7 @@ function tsconfig(root, cli) {
         "@candid-core/schema/contract": [join(ts, "contract.ts")],
         "@candid-core/schema/codec": [join(ts, "codec.ts")],
         "@candid-core/cli": [cli],
+        ...profileExports(root),
       },
     },
     include: ["**/*.ts", "**/*.js"],
@@ -327,9 +351,10 @@ export async function checkSnippets({ pages, root, skipCompile = false }) {
     const known = new Set(files.map((f) => f.name));
     for (const d of diagnostics) {
       const base = d.file.split("/").pop();
-      if (!known.has(base) && !base.endsWith("ambient.d.ts") && !d.file.includes("/crates/")) {
+      const inTree = d.file.includes("/crates/") || d.file.includes("/profile/packages/");
+      if (!known.has(base) && !base.endsWith("ambient.d.ts") && !inTree) {
         report("snippets", `compiler: ${d.file}(${d.line}): ${d.code} ${d.message}`);
-      } else if (d.file.includes("/crates/")) {
+      } else if (inTree) {
         report("snippets", `compiler, in the tree: ${d.file}(${d.line}): ${d.code} ${d.message}`);
       }
     }

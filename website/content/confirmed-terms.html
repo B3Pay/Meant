@@ -1,0 +1,464 @@
+<p>
+  Alice asks her agent to let Dex, a swap app on her local replica, spend up to 500 TKA until the end of November.
+  Before the agent builds the request, Alice confirms those terms once, on her wallet's own screen. The wallet then
+  reads what the request grants and compares it with what she confirmed: a request that fits may be signed or sent
+  without a second yes, and one that does not is refused with its reasons. <code>@meantjs/consent/terms</code> holds the steps;
+  the rules are <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec
+  §5.3</a> ("What a call grants", "Confirmed terms") and
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">§11</a> item
+  10, decision D-056.
+</p>
+
+<h2>Check a request against the person's terms</h2>
+
+<pre data-lang="bash">
+npm install --save-exact @meantjs/consent@0.4.0 @meantjs/profile@0.4.0
+npx candid-profile resolve ledger.did --packs > ledger.resolved.json
+</pre>
+
+<pre data-lang="js" data-check="task">
+import { readFileSync } from "node:fs";
+import { generateConsent } from "@meantjs/consent";
+import { checkGrant, confirmTerms, readTerms, termsText } from "@meantjs/consent/terms";
+
+// What the wallet knows: its tokens, the apps the person named, its clock.
+const LEDGER = "bkyz2-fmaaa-aaaaa-qaaaq-cai"; // TKA, a ledger on your local replica
+const wallet = {
+  tokens: { TKA: { canister: LEDGER, decimals: 8 } },
+  apps: { Dex: "bd3sg-teaaa-aaaaa-qaaba-cai" },
+  now: BigInt(Date.parse("2026-11-02T12:00:00Z")) * 1_000_000n, // nanoseconds
+};
+
+// 1. The agent writes the person's terms, a tool's arguments; the wallet reads them.
+const terms = readTerms({ token: "TKA", spender: "Dex", max_amount: "500", expires_by: "2026-11-30" }, wallet);
+
+// 2. The wallet shows them on its own screen. Once the person confirms that text:
+const shown = termsText(terms);
+const confirmed = confirmTerms(terms);
+
+// 3. The agent builds its request, an icrc2_approve; the wallet receives its bytes.
+const resolved = JSON.parse(readFileSync("ledger.resolved.json", "utf8"));
+const argHex =
+  "4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b01000000000080e8eda1ba0100010080643addd0ec18010a8000000000100002010100";
+const arg = Uint8Array.from(argHex.match(/../g) ?? [], (byte) => parseInt(byte, 16));
+const { grant } = generateConsent({
+  resolved,
+  method: "icrc2_approve",
+  arg,
+  refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" },
+  canisterId: LEDGER, // the ledger called: the token the request grants
+});
+
+// 4. Does the request fit the terms?
+const verdict = checkGrant(confirmed, grant, wallet);
+console.log(JSON.stringify({ shown, grant, verdict }, null, 2));
+</pre>
+
+<pre data-lang="json">
+{
+  "shown": "Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until the end of 30 November 2026 (UTC).",
+  "grant": {
+    "kind": "approve",
+    "spender": "bd3sg-teaaa-aaaaa-qaaba-cai",
+    "token": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+    "amount": {
+      "units": "50000000000",
+      "unlimited": false
+    },
+    "ends": {
+      "at": "1796040000"
+    }
+  },
+  "verdict": {
+    "fits": true,
+    "reasons": []
+  }
+}
+</pre>
+
+<p>
+  The request lets Dex spend 500 TKA (50000000000 base units) until 30 November 2026 at 12:00 UTC (1796040000
+  seconds), inside the terms, so the wallet may send it without asking Alice again. The terms cover this one request:
+  the next task starts with new terms. A wallet keeps the steps in this order with <code>termsGate</code>
+  (<a href="#keep-the-order-with-termsgate">below</a>). Each step has its section; every export is on the
+  <a href="reference-profile-api.html">JavaScript API</a> reference.
+</p>
+
+<h2>Read the agent's terms</h2>
+
+<p>
+  The agent turns the person's words into four terms, the arguments of a tool the wallet gives it. Terms are what the
+  person allows one task: the token, who may take it, the most it may be (or unlimited) and the latest end (or never).
+  <code>readTerms(fields, wallet)</code> reads them in the wallet's own values:
+</p>
+
+<table>
+  <thead><tr><th>Field</th><th>What the agent writes</th><th>What <code>readTerms</code> makes of it</th></tr></thead>
+  <tbody>
+    <tr><td><code>token</code></td><td>A symbol the wallet knows: <code>"TKA"</code></td><td>That token's canister id or EIP-55 address, with its symbol and decimals, from <code>wallet.tokens</code></td></tr>
+    <tr><td><code>spender</code> or <code>to</code>, exactly one</td><td>An app's name as the wallet knows it (<code>"Dex"</code>), or an address or account the person gave</td><td>The app's account or address from <code>wallet.apps</code>; an address or account given is checked, and named when the wallet knows it</td></tr>
+    <tr><td><code>max_amount</code></td><td><code>"500"</code>, <code>"0.5"</code>, <code>"500 TKA"</code>, or <code>"unlimited"</code></td><td>Base units as a decimal string, never rounded</td></tr>
+    <tr><td><code>expires_by</code></td><td><code>"2026-11-30"</code>, <code>"30 days"</code>, <code>"2 weeks"</code>, <code>"1 month"</code>, <code>"1 year"</code>, <code>"2 hours"</code>, or <code>"never"</code></td><td>The latest end in exact seconds: a date allows its whole day in the person's zone, a month is a calendar month, hours are an exact time from now</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <code>spender</code> is who may spend the tokens: an allowance, or a signature someone else submits. <code>to</code>
+  is who is paid directly. <code>"unlimited"</code> and <code>"never"</code> are read only as those words. The wallet
+  argument is <code>{ tokens, apps, now, utcOffsetMinutes }</code>: <code>now</code> is the wallet's clock in
+  nanoseconds, as a <code>bigint</code>, and <code>utcOffsetMinutes</code> the person's zone, UTC when left out. The
+  functions have no clock or zone of their own.
+</p>
+
+<p>
+  Nothing is guessed. A term the wallet cannot read throws a <code>TermsError</code> whose <code>message</code> is
+  written for the agent, which fixes what it can and asks the person about the rest. With the wallet above:
+</p>
+
+<table>
+  <thead><tr><th>The agent wrote</th><th><code>code</code></th><th><code>message</code></th></tr></thead>
+  <tbody>
+    <tr><td>no <code>expires_by</code></td><td><diag>E_TERMS_MISSING</diag></td><td><code>missing parameter: expires_by</code></td></tr>
+    <tr><td><code>token: "TKB"</code></td><td><diag>E_TERMS_TOKEN</diag></td><td><code class="wrap">the wallet knows no token named "TKB"; it knows TKA. If the user named another token, or did not say which, ask the user</code></td></tr>
+    <tr><td><code>spender: "SwapCo"</code></td><td><diag>E_TERMS_PARTY</diag></td><td><code class="wrap">the wallet knows no app named "SwapCo"; it knows Dex. If the user named another app, or none, ask the user which app they mean, or for its account</code></td></tr>
+    <tr><td><code>max_amount: "500.000000001"</code></td><td><diag>E_TERMS_AMOUNT</diag></td><td><code class="wrap">max_amount: "500.000000001" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8</code></td></tr>
+    <tr><td><code>expires_by: "end of the month"</code></td><td><diag>E_TERMS_END</diag></td><td><code class="wrap">expires_by must be a date as YYYY-MM-DD, a length of time from now as a number and a unit (hours, days, weeks, months or years), such as "2 hours", "30 days" or "1 month", or "never"; got "end of the month"</code></td></tr>
+    <tr><td><code>expires_by: "2026-10-31"</code></td><td><diag>E_TERMS_END</diag></td><td><code class="wrap">expires_by 2026-10-31 is before today, 2026-11-02</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  A wallet argument that is not one (a <code>now</code> that is a number, not a <code>bigint</code>; two tokens with one
+  address) is the caller's mistake, not the agent's: <code>E_REQUEST</code>.
+</p>
+
+<callout type="warn" title="A term left out is not a loose term">
+  <p>
+    <claim>fact</claim> Observed 2026-10-29 in the everyday-wording test of Meant's signing guard (spec §11 item 10):
+    small models that wrote the terms from a user's everyday words filled a term the user had left out with the
+    loosest value ("unlimited", "never"), and a check against those terms passed requests the user never asked for;
+    the check itself held every time. So the agent asks for a missing term instead of filling it in, and the person's
+    confirmation of the exact text is what catches one it made up: <code>readTerms</code> cannot tell a "never" the
+    person said from one the agent wrote.
+  </p>
+</callout>
+
+<h2>Show the terms on the wallet's own screen</h2>
+
+<p>
+  Whoever confirms terms authorizes every request that fits them, so the person confirms them on the wallet's own
+  screen, never through a tool the agent can call (spec §11 item 10). <code>termsText(terms)</code> writes them
+  exactly: the full address or account, the amount without rounding, and "unlimited" or "never ends" written out. For
+  the terms above, the wallet shows:
+</p>
+
+<consent standard="Terms · one task" title="Confirm terms for this task" note="Only the person confirms, on the wallet's screen. The agent never does.">
+<field name="Terms">Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until the end of 30 November 2026 (UTC).</field>
+</consent>
+
+<p>The same function for other terms, as the package writes them:</p>
+
+<table>
+  <thead><tr><th>Terms</th><th><code>termsText</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>expires_by: "2 hours"</code></td><td>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until 2 November 2026 at 14:00 (UTC).</td></tr>
+    <tr><td><code>max_amount: "unlimited"</code>, <code>expires_by: "never"</code></td><td>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend any amount of TKA (unlimited), and this permission never ends.</td></tr>
+    <tr><td><code>utcOffsetMinutes: 60</code> in the wallet</td><td>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until the end of 30 November 2026 (UTC+01:00).</td></tr>
+    <tr><td>On Anvil, <code>to: "Bob"</code>, <code>max_amount: "15"</code>, <code>expires_by: "2 hours"</code></td><td>Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) may be sent at most 15 TKA, until 2 November 2026 at 14:00 (UTC).</td></tr>
+  </tbody>
+</table>
+
+<p>
+  When the person confirms that text, <code>confirmTerms(terms)</code> returns the terms frozen, with
+  <code>id</code>: the SHA-256 of their canonical JSON (RFC 8785), lowercase hex,
+  <code>18c0e36c219f1afd8f69a63dfc1f97f93a18ab6531c2f206f770fc31afd8c115</code> for Alice's. A copy changed
+  afterwards is refused: <code>checkGrant</code> and <code>termsText</code> throw <code>E_REQUEST</code>,
+  <code>terms are not the ones the user confirmed: they changed after confirmTerms: they come from readTerms, then
+  confirmTerms</code>. <code>checkGrant</code> refuses terms that were never confirmed with <code>E_REQUEST</code>
+  too.
+</p>
+
+<h2>Read what the request grants</h2>
+
+<p>
+  The wallet does not take the agent's word for what a request does. It reads the request's <code>grant</code> from
+  the consent function that writes the request's text: the profile's <code>effect</code> names the positions
+  (<a href="intent-and-effects.html">intent, effects and confirmation</a>), and the function reads their values from
+  this call or signature. The grant says who may take tokens because of the request, which token, how many and until
+  when:
+</p>
+
+<table>
+  <thead><tr><th>Key</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td><code>kind</code></td><td><code>"approve"</code> or <code>"transfer"</code></td></tr>
+    <tr><td><code>spender</code> or <code>to</code></td><td>An EIP-55 address, or an account in its ICRC-1 text</td></tr>
+    <tr><td><code>token</code></td><td>An EIP-55 address, or a canister id in its canonical text</td></tr>
+    <tr><td><code>amount</code></td><td><code>{ units, unlimited }</code>: base units as a decimal string, <code>null</code> for an unlimited grant without a count (DAI's <code>allowed: true</code>); <code>"0"</code> grants nothing</td></tr>
+    <tr><td><code>ends</code></td><td><code>{ at }</code> in exact seconds as a decimal string, never rounded; <code>{ never: true }</code>; or <code>{ now: true }</code> for a transfer, made when it is sent</td></tr>
+  </tbody>
+</table>
+
+<p>How the wallet gets it depends on the chain:</p>
+
+<chain-switch chains="icp evm"></chain-switch>
+
+<div data-chain-panel="icp">
+  <p>
+    <code>generateConsent</code> reads the grant only when you pass <code>canisterId</code>, the canister called, which
+    is the token. Without it, <code>grant</code> is <code>null</code> and nothing warns, and
+    <code>icrc21ConsentMessage</code>, the ICRC-21 call, answers as before, with no grant. Beside the message the result
+    has <code>values</code>, the decoded arguments, one value tree per argument. An <code>icrc1_transfer</code> of 1.5
+    TKA to Bob on the same ledger grants:
+  </p>
+<pre data-lang="json">
+{
+  "kind": "transfer",
+  "to": "ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6",
+  "token": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+  "amount": { "units": "150000000", "unlimited": false },
+  "ends": { "now": true }
+}
+</pre>
+  <p>
+    An <code>icrc2_approve</code> whose <code>expires_at</code> is left out never ends: <code>{ "never": true }</code>.
+  </p>
+</div>
+
+<div data-chain-panel="evm">
+  <p>
+    <code>evmConsent</code> and <code>eip712Consent</code> in <code>@meantjs/consent/evm</code> always read the grant.
+    Its token is the contract called, or the verifying contract of a signature, unless the amount's tag names a field
+    that holds the token, as Permit2's do. Beside the text the result has <code>values</code>, the decoded arguments
+    or message by name. An ERC-20 <code>approve</code> of 500 TKA to Dex, on a token at
+    <code>0x5FbD…0aa3</code> on Anvil chain 31337, grants:
+  </p>
+<pre data-lang="json">
+{
+  "kind": "approve",
+  "spender": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "token": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "amount": { "units": "500000000", "unlimited": false },
+  "ends": { "never": true }
+}
+</pre>
+  <p>
+    An <code>approve</code> has no end among its arguments, so it never ends. EIP-2612's <code>permit</code> grants the
+    same: its <code>deadline</code> bounds only when the signature may be used, so it is not an end of what it grants
+    (spec §5.3). How a message names its grant: <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div>
+
+<h2>Check the grant against the terms</h2>
+
+<p>
+  <code>checkGrant(confirmed, grant, wallet)</code> returns <code>{ fits, reasons }</code>. A grant fits when, by the
+  rules of spec §5.3:
+</p>
+
+<ul>
+  <li>its token and its <code>spender</code> or <code>to</code> are the terms', compared as values: an address by its 20 bytes, an account by its owner and its subaccount, the default subaccount equal to an absent one;</li>
+  <li>its amount is at most the terms' most; unlimited fits only unlimited terms, and a grant of nothing fits any terms;</li>
+  <li>it ends no later than the terms' latest end; one that never ends fits only terms that never end, and a transfer fits terms whose end has not passed.</li>
+</ul>
+
+<p>Alice's terms against four <code>icrc2_approve</code> requests:</p>
+
+<table>
+  <thead><tr><th>The request</th><th><code>reasons</code></th></tr></thead>
+  <tbody>
+    <tr><td>500 TKA to Dex, until 30 November 2026 at 12:00 UTC</td><td>none: <span class="pill ok">fits</span></td></tr>
+    <tr><td>600 TKA to Dex, the same end</td><td><code class="wrap">the request allows 600 TKA, the terms say at most 500 TKA</code></td></tr>
+    <tr><td>500 TKA to Dex, no <code>expires_at</code></td><td><code class="wrap">the permission never ends, the terms say until the end of 30 November 2026 (UTC)</code></td></tr>
+    <tr><td>500 TKA to <code>be2us-…-qaabq-cai</code></td><td><code class="wrap">the spender is be2us-64aaa-aaaaa-qaabq-cai, the terms say Dex (bd3sg-teaaa-aaaaa-qaaba-cai)</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  A payment is checked the same way. On Anvil, terms that let Bob be sent at most 15 TKA for two hours, against an
+  ERC-20 <code>transfer</code> of 15 TKA to him:
+</p>
+
+<table>
+  <thead><tr><th>The request</th><th><code>reasons</code></th></tr></thead>
+  <tbody>
+    <tr><td>The <code>transfer</code>, at 12:00 UTC</td><td>none: <span class="pill ok">fits</span></td></tr>
+    <tr><td>The same <code>transfer</code>, at 15:00 UTC</td><td><code class="wrap">the terms have ended: they said until 2 November 2026 at 14:00 (UTC)</code></td></tr>
+    <tr><td>An <code>approve</code> of 15 TKA to Bob instead</td><td><code class="wrap">the request lets Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) spend, the terms pay Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) directly</code>, <code class="wrap">the permission never ends, the terms say until 2 November 2026 at 14:00 (UTC)</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  A request that does not fit is refused with its reasons. The agent does not offer it to the person for a yes: it asks
+  the person for new terms, and new terms are a new task.
+</p>
+
+<h2>A request without a grant needs its confirmation</h2>
+
+<p>
+  Terms cover only what a grant says. Given <code>null</code>, <code>checkGrant</code> answers
+  <code>{ fits: false }</code> with the reason
+  <code>the request has no grant a profile describes, so no terms cover it: it needs the user's confirmation</code>.
+  The person confirms such a request on its own, as every <effect>transfer</effect>, <effect>approve</effect>,
+  <effect>admin</effect> and <effect>destroy</effect> call is confirmed without terms. A request has no grant when:
+</p>
+
+<ul>
+  <li>its profile's <code>effect</code> carries none: ERC-20 <code>transferFrom</code> and ICRC-2 <code>icrc2_transfer_from</code> in the packs, which spend an allowance someone else gave, and any method whose profile names no grant;</li>
+  <li>it grants several tokens: Permit2's <code>PermitBatch</code> and <code>PermitBatchTransferFrom</code>, since a grant covers one token in v0;</li>
+  <li><code>generateConsent</code> was not given <code>canisterId</code>;</li>
+  <li>
+    its grant cannot be read, which <diag>W_GRANT</diag> says. An <code>icrc1_transfer</code> to an account whose
+    subaccount is 2 bytes long has the diagnostic
+    <code>grant to: a subaccount is 32 bytes, got 2; the request has no grant, so terms the user confirmed cannot cover it</code>.
+    The text of the message is the same with or without a grant.
+  </li>
+</ul>
+
+<h2>Keep the order with termsGate</h2>
+
+<p>
+  The terms must be confirmed before the agent reads the request, so that the request cannot shape them, and they cannot
+  change after. <code>termsGate()</code> keeps that order for one task. Here the task is Dex's EIP-2612 permit on
+  Anvil, which the wallet signs, and Alice has said plainly that the allowance need not end, since a permit's
+  allowance never does. <code>tka.abi.json</code> is the token's ABI as on <a href="chain-evm.html">EVM contracts</a>,
+  with EIP-2612's <code>permit</code>, <code>nonces</code> and <code>DOMAIN_SEPARATOR</code>:
+</p>
+
+<pre data-lang="bash">
+npx candid-profile resolve --abi tka.abi.json --packs > tka.resolved.json
+</pre>
+
+<pre data-lang="js" data-check="gate">
+import { readFileSync } from "node:fs";
+import { eip712Consent } from "@meantjs/consent/evm";
+import { readTerms, termsGate } from "@meantjs/consent/terms";
+
+const TKA = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // a token with EIP-2612's permit, on a local Anvil chain
+const wallet = {
+  tokens: { TKA: { address: TKA, decimals: 6 } },
+  apps: { Dex: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0" },
+  now: BigInt(Date.parse("2026-11-02T12:00:00Z")) * 1_000_000n,
+};
+
+const gate = termsGate(); // one gate per task
+const shown = gate.propose(readTerms({ token: "TKA", spender: "Dex", max_amount: "500", expires_by: "never" }, wallet));
+// The wallet shows `shown` on its own screen. When the person confirms it:
+gate.confirm(shown);
+gate.read(); // only now may the agent read the request
+
+const resolved = JSON.parse(readFileSync("tka.resolved.json", "utf8")); // the ERC-20 and EIP-2612 packs apply
+const request = eip712Consent({
+  resolved,
+  typedData: {
+    types: {
+      Permit: [
+        { name: "owner", type: "address" },
+        { name: "spender", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
+      ],
+    },
+    primaryType: "Permit",
+    domain: { name: "Token A", version: "1", chainId: 31337, verifyingContract: TKA },
+    message: {
+      owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      spender: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      value: "500000000",
+      nonce: "0",
+      deadline: "1793622600",
+    },
+  },
+  chainId: 31337, // the wallet's active chain
+  refs: { "query:decimals": 6, "query:symbol": "TKA" },
+});
+const verdict = gate.check(request.grant, wallet, request.digest); // the digest names the request
+</pre>
+
+<p>
+  <code>shown</code> is <code>Dex (0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0) may spend at most 500 TKA, and this
+  permission never ends.</code>, the request's digest is
+  <code>0x2c2508888c143ec60cf4e3d7df48cd0e02972246ee3ba7163baf8f254c765294</code>, and <code>verdict</code> is
+  <code>{ fits: true, reasons: [] }</code>. The gate moves from <code>"open"</code> to <code>"proposed"</code>,
+  <code>"confirmed"</code> and <code>"read"</code>:
+</p>
+
+<ul>
+  <li><code>propose(terms)</code> takes the agent's draft and returns the text to show. A new draft replaces the old one and its confirmation.</li>
+  <li><code>confirm(shown)</code> takes the text the person confirmed on the wallet's screen, which must be exactly the draft's, and returns the confirmed terms. <code>reject()</code> drops the draft when the person says no.</li>
+  <li><code>read()</code> comes before the agent reads the request, and is refused until the person has confirmed.</li>
+  <li><code>check(grant, wallet, requestId)</code> is <code>checkGrant</code> for the request read.</li>
+</ul>
+
+<p>A step out of order throws <code>TermsError</code> <diag>E_TERMS_ORDER</diag>, with a message for the agent:</p>
+
+<table>
+  <thead><tr><th>Step</th><th><code>message</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>read()</code> on a new gate</td><td><code class="wrap">there are no terms yet: propose the user's terms, and read the request once the user confirms them</code></td></tr>
+    <tr><td><code>read()</code> after <code>propose</code></td><td><code class="wrap">the user has not confirmed the terms yet; the request can be read once they do</code></td></tr>
+    <tr><td><code>confirm()</code> with another text</td><td><code class="wrap">the text the user confirmed is not the text of the terms proposed; show termsText(gate.proposed) and ask again</code></td></tr>
+    <tr><td><code>propose()</code> after <code>read()</code></td><td><code class="wrap">the request was read under the confirmed terms, so they cannot be changed now; new terms start a new task</code></td></tr>
+    <tr><td><code>check()</code> before <code>read()</code></td><td><code class="wrap">read the request first: its grant is checked against the terms it was read under</code></td></tr>
+  </tbody>
+</table>
+
+<h2>One task, one request</h2>
+
+<p>
+  Terms cover one task: the request the agent was working on when the person confirmed them, and no other. A request is
+  named by what is signed or sent, not by its grant. <code>check</code> takes that name: <code>eip712Consent</code>'s
+  <code>digest</code> for a signature, or the wallet's own id of a call (an EVM transaction's hash, an Internet Computer
+  request's id). The same request may be checked again; another is refused even when it grants the same.
+</p>
+
+<p>
+  <claim>fact</claim> Two requests can grant the same and each be spent, as two Permit2 transfers that differ only in
+  their nonce do (spec §5.3). The same permit with <code>nonce: "1"</code> has the same grant and the digest
+  <code>0xbc5bb19c82bc8f4eb547ba6124340581f2838791a95da2690286904ff9b4843b</code>; checked on the gate above, after
+  the first, it throws <diag>E_TERMS_ORDER</diag>:
+  <code>these terms cover one request, the one already checked; another request is a new task, with new terms</code>.
+  A new task gets a new gate and the person's confirmation of its terms.
+</p>
+
+<h2>What terms do not cover</h2>
+
+<ul>
+  <li>
+    A grant is the profile's claim, like any effect (spec §11 item 1), and terms cover what a grant says. A request
+    outside its grant's words, another call or another chain, is checked by the rest of the wallet, as without terms:
+    the contract and chain an EVM consent text ends with, the deployments a profile lists, the decoded arguments shown
+    beside the intent (<a href="security-model.html">security model</a>).
+  </li>
+  <li>
+    Terms are not a budget: they cover one request of one task. <claim>open</claim> Spending policies and budgets
+    that would let an agent commit many calls without a confirmation each are OQ-8 on
+    <a href="open-questions.html">Open questions</a>.
+  </li>
+  <li>
+    The person confirms; the model never does. No tool the agent can call may confirm terms.
+    <code>@meantjs/tools</code> has no terms of its own: it awaits the host's <code>confirm(preview)</code> before
+    every send (<a href="agent-tools.html">Give an agent tools</a>).
+  </li>
+</ul>
+
+<h2>Next</h2>
+
+<div class="card-grid">
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>The <code>effect</code> tag's <code>grant</code>: the positions a profile names, and their rules.</p>
+  </a>
+  <a class="card" href="consent-messages.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Generate consent messages</span>
+    <p>The consent functions that return a request's <code>values</code> and <code>grant</code> beside its text.</p>
+  </a>
+  <a class="card" href="security-model.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Security model</span>
+    <p>Why confirmed terms authorize in advance, and who may confirm them.</p>
+  </a>
+</div>

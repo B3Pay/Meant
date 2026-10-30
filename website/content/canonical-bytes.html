@@ -5,7 +5,7 @@ order object keys freely, add whitespace anywhere, and spell the same number
 several ways; two programs that agree completely about meaning will still
 disagree about the digest.</p>
 
-<p>So candid-core does not derive its identities from a serializer. It derives
+<p>So Meant does not derive its identities from a serializer. It derives
 them from a written specification —
 <a href="https://github.com/B3Pay/Meant/blob/main/docs/canonicalization-v1.md">docs/canonicalization-v1.md</a>,
 the <code>candid-core-canon-1</code> profile — which fixes every byte of every
@@ -35,7 +35,7 @@ every persisted Contract declares four markers instead of one.</p>
   <tbody>
     <tr>
       <td><code>format</code></td>
-      <td>That this document is a candid-core Contract at all.</td>
+      <td>That this document is a Contract of the <code>candid-core</code> format at all.</td>
       <td><code>unsupported_contract_format</code> at <code>$.format</code></td>
     </tr>
     <tr>
@@ -201,7 +201,7 @@ gone, replaced by their Candid label IDs: 834174833 is <code>value</code> and
 are inside the bytes being hashed.</p>
 
 <p>This rebuilds the preimage and the digest from those bytes with nothing but
-the Python standard library — no Rust, no candid-core. Deriving the bytes
+the Python standard library — no Rust, no <code>meant</code>. Deriving the bytes
 themselves from a raw graph is the rest of the job, and the reference
 implementation described below does that for every scenario:</p>
 

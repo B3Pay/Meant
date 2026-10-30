@@ -20,7 +20,7 @@ uses, and a runtime schema object built from the <code>c</code> combinators. The
 with the alias, and because <code>Schema&lt;in out T&gt;</code> is invariant, <code>tsc</code>
 compiling that file is a proof that the two agree in both directions.</p>
 
-<p>It is a one-way consumer. The crate depends on <code>candid-core</code> with
+<p>It is a one-way consumer. The crate depends on <code>meant</code> with
 <code>default-features = false</code>, which makes the boundary structural: a generator needs no Candid
 parser, no filesystem capability and no host-value ABI, so nothing here can influence the Contract
 model, its canonical bytes, or its identities.</p>
@@ -405,7 +405,7 @@ impl TsNames {
         S: Into<String>;
 
     #[cfg(feature = "compiler")]
-    pub fn from_source_info(source_info: &candid_core::SourceInfo) -> Self;
+    pub fn from_source_info(source_info: &meant::SourceInfo) -> Self;
 }
 </pre>
     <p>The caller-supplied table of record field and variant arm names, keyed by
@@ -463,7 +463,7 @@ not share.</p>
   <tbody>
     <tr>
       <td><code>UnsupportedConstruct { declaration, kind }</code></td>
-      <td>A <code>class</code> type named by a declaration or nested inside a value type — candid-core's
+      <td>A <code>class</code> type named by a declaration or nested inside a value type — <code>meant</code>'s
       <code>class_not_actor_root</code> and <code>class_not_first_class_type</code>, shapes no Candid
       source can produce.</td>
     </tr>
@@ -536,8 +536,10 @@ same rule</a> applies to <code>schemaFromContract</code>.</p>
 
 <pre data-lang="rust" data-file="crates/candid-core-ts/tests/golden.rs">use std::path::PathBuf;
 
-use candid_core::compile_did;
-use candid_core_ts::{generate_module, TsGenError, TsNames, TsOptions};
+use candid_core_ts::{
+    generate_module, GeneratedModule, Omission, OmissionKind, OmissionReason, TsNames, TsOptions,
+};
+use meant::compile_did;
 
 fn generate_fixture(name: &str) -> String {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
@@ -551,6 +553,7 @@ fn generate_fixture(name: &str) -> String {
     );
     generate_module(compilation.contract(), &names, &TsOptions::default())
         .expect("fixture must generate")
+        .module
 }
 </pre>
 
@@ -613,13 +616,13 @@ candid-core-ts = { git = "https://github.com/B3Pay/Meant", tag = "v0.1.0", featu
 </pre>
 
 <p>The crate itself is version <code>0.0.0</code>, edition 2021, MSRV 1.78, Apache-2.0. It has exactly
-one feature, <code>compiler = ["candid-core/compiler"]</code>, and exactly one runtime dependency:
-<code>candid-core = { version = "=0.1.0", path = "../..", default-features = false }</code>. The
+one feature, <code>compiler = ["meant/compiler"]</code>, and exactly one runtime dependency:
+<code>meant = { version = "=0.1.0", path = "../..", default-features = false }</code>. The
 exact version requirement is deliberate — this is a pre-1.0 consumer of a format that is not a stable
 v1, so it pins rather than floats.</p>
 
 <callout type="warn" title="What emits TypeScript, and what does not">
-  <p><code>generate_module</code> is a library call, and the native <code>candid-core</code> binary
+  <p><code>generate_module</code> is a library call, and the native <code>meant</code> binary
   never emits TypeScript: it accepts <code>compile &lt;path&gt; [--no-source-info | --envelope]</code>
   and <code>validate &lt;path&gt;</code>, and prints JSON.</p>
   <p>The command that does emit a module is <a href="cli-npm.html"><code>@candid-core/cli</code></a>,

@@ -403,7 +403,7 @@
 </p>
 
 <pre data-lang="rust">
-use candid_core::{Limits, LimitsConfig};
+use meant::{Limits, LimitsConfig};
 
 let config: LimitsConfig = serde_json::from_str(document)?;
 let limits = Limits::try_from(config).map_err(|error| {
@@ -486,10 +486,10 @@ let limits = Limits::try_from(config).map_err(|error| {
   honour.
 </p>
 
-<h3>The <code>candid-core</code> binary has no flags for limits</h3>
+<h3>The <code>meant</code> binary has no flags for limits</h3>
 
 <p>
-  <code>candid-core compile</code> and <code>candid-core validate</code> bound their reads under
+  <code>meant compile</code> and <code>meant validate</code> bound their reads under
   <code>Limits::default()</code>, and there is no option to change that. Pass a custom policy through
   the library APIs instead. <code>compile</code> bounds each source by <code>max_source_bytes</code>
   and the bundle by <code>max_bundle_bytes</code>, failing in the <code>diagnostics</code> shape;

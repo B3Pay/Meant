@@ -1,0 +1,376 @@
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+use meant_format::{AmountFormat, IntType};
+
+// in a function that returns Result<_, meant_format::FormatError>
+let usdc = AmountFormat::new(6).with_symbol("USDC")?.with_candid(IntType::Nat64);
+assert_eq!(usdc.parse("1.5 usdc")?, "1500000");
+assert_eq!(usdc.display_u128(1_500_000)?, "1.5 USDC");
+</pre>
+
+<p>
+  <code>meant-format</code> converts between the amounts people write and the base units a contract
+  call carries, for the <code>amount</code> tag of
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>
+  (and §15 for EVM positions). Base units are canonical decimal strings, so nothing passes through a
+  float and nothing is rounded, wrapped or clamped. For the same input it gives the same answer as
+  <code>@meantjs/format</code>: <a href="format-values.html">parse and display values</a> shows both
+  side by side, <a href="value-tags.html">values and exact conversion</a> explains the rules, and the
+  JavaScript package's exports are on the <a href="reference-profile-api.html">JavaScript API</a>
+  reference.
+</p>
+
+<callout type="note" title="Which version this page describes">
+  <p>
+    This page describes <code>0.2.0</code>, published on crates.io on 2026-10-29 and the version in
+    the repository's manifest. Depend on it exactly, as on every pre-1.0 crate here:
+  </p>
+  <pre data-lang="toml" data-file="Cargo.toml">
+[dependencies]
+meant-format = "=0.2.0"
+</pre>
+  <p>
+    <code>0.1.0</code> (2026-10-27) has the ten Candid integer types, an <code>IntType</code> that is
+    not <code>#[non_exhaustive]</code> with <code>ALL</code> as an array, and no threshold.
+    <code>0.2.0</code> is breaking, as a 0.x release may be: it adds the EVM ABI integer types and
+    <code>with_threshold</code> (<a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-format/CHANGELOG.md">CHANGELOG</a>).
+  </p>
+</callout>
+
+<h2>The crate</h2>
+
+<table>
+  <thead><tr><th>Item</th><th>Kind</th><th>What it is</th></tr></thead>
+  <tbody>
+    <tr><td><code>AmountFormat</code></td><td>struct</td><td>The <code>amount</code> tag at one position: decimals, symbol, integer type, threshold.</td></tr>
+    <tr><td><code>IntType</code></td><td>enum, <code>#[non_exhaustive]</code></td><td>The 70 integer types an amount can have: 10 Candid, 60 EVM ABI.</td></tr>
+    <tr><td><code>FormatError</code></td><td>struct</td><td>A refused value: a <code>Code</code> and a message.</td></tr>
+    <tr><td><code>Code</code></td><td>enum, <code>#[non_exhaustive]</code></td><td>The 8 stable error codes.</td></tr>
+    <tr><td><code>MAX_INPUT_UTF16_LEN</code></td><td>const</td><td>1024: the longest text the crate reads, in UTF-16 code units.</td></tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>No dependencies.</strong> The decimal arithmetic is on strings, so no big-integer library is needed. <code>serde_json</code> is a dev-dependency, for the parity vectors, and never reaches a consumer.</li>
+  <li><strong><code>no_std</code>.</strong> The crate is <code>#![no_std]</code> and needs only <code>alloc</code>. It is <code>#![forbid(unsafe_code)]</code>.</li>
+  <li>
+    <strong>The <code>std</code> feature</strong>, on by default, only adds
+    <code>impl std::error::Error for FormatError</code>. <code>core::error::Error</code> would make the
+    feature unnecessary, but it needs Rust 1.81. Turn default features off for a target with no standard
+    library; CI checks the library on <code>thumbv7em-none-eabihf</code> that way.
+  </li>
+  <li><strong>MSRV.</strong> <code>rust-version = "1.78"</code>; the MSRV workflow runs the crate's tests on Rust 1.78.0.</li>
+  <li><strong>Stability.</strong> Error codes are the stable surface. Message text is written for a person or a model and may change between releases, and in 0.x so may the text <code>display</code> produces.</li>
+</ul>
+
+<h2>AmountFormat</h2>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat</span><span class="pill">struct</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AmountFormat {
+    decimals: u8,
+    symbol: Option<String>,
+    candid: IntType,
+    threshold: Option<String>,
+    threshold_message: Option<String>,
+}
+</pre>
+<p>
+  The fields are private: build one with <code>new</code> and the <code>with_*</code> methods, which take
+  and return it by value. A format with a symbol or a threshold is checked when it is built, so a format
+  you hold is always valid.
+</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::DEFAULT_THRESHOLD_MESSAGE</span><span class="pill">const</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub const DEFAULT_THRESHOLD_MESSAGE: &'static str = "Unlimited";
+</pre>
+<p>What <code>display</code> shows for a value at or above the threshold when <code>with_threshold</code> gives no message: ERC-7730's default for a token amount.</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::new</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn new(decimals: u8) -> Self
+</pre>
+<p>A token with <code>decimals</code> decimals (0 to 255), no symbol, at a <code>nat</code> position, with no threshold. It cannot fail.</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::with_symbol</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn with_symbol(mut self, symbol: &str) -> Result<Self, FormatError>
+</pre>
+<p>
+  Sets the symbol that <code>display</code> appends and <code>parse</code> accepts. It must be 1 to 32
+  characters, with no surrounding whitespace and no control or invisible characters (Unicode categories
+  Cc, Cf, Zl and Zp, from a Unicode 16.0 table), since it is shown to the person approving a call.
+  Otherwise <code>Code::Arg</code>. A canister's <code>icrc1_symbol</code> answer is untrusted text: this is
+  where a right-to-left override in it is refused.
+</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::with_candid</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn with_candid(mut self, candid: IntType) -> Self
+</pre>
+<p>Sets the integer type of the position, Candid's or the EVM ABI's. It bounds the value and decides whether it may be negative.</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::with_candid_name</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn with_candid_name(self, name: &str) -> Result<Self, FormatError>
+</pre>
+<p>
+  <code>with_candid</code> by name, as a resolved profile spells it: <code>"nat64"</code>, or
+  <code>"uint256"</code> at an EVM position. Names are case-sensitive. A name that is not an integer type
+  is <code>Code::TagType</code>, with the message
+  <code>the amount tag applies to nat, int, nat8, nat16, nat32, nat64, int8, int16, int32, int64, uint8 to uint256, int8 to int256, not &lt;name&gt;</code>.
+</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::with_threshold</span><span class="pill">fn</span><span class="pill info">0.2.0</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn with_threshold(
+    mut self,
+    threshold: &str,
+    message: Option<&str>,
+) -> Result<Self, FormatError>
+</pre>
+<p>
+  A threshold in base units at or above which <code>display</code> shows <code>message</code> and the
+  symbol instead of the number: an ERC-20 approval of 2<sup>256</sup> − 1 shows as
+  <code>"Unlimited USDC"</code>. <code>None</code> uses <code>DEFAULT_THRESHOLD_MESSAGE</code>. Parsing is
+  unchanged. <code>threshold</code> must be a canonical decimal integer, not negative, of at most 78
+  digits (2<sup>256</sup> − 1 has 78); <code>message</code> follows the rules of
+  <code>with_symbol</code>. Otherwise <code>Code::Arg</code>.
+</p>
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+let max = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+let usdc = AmountFormat::new(6)
+    .with_symbol("USDC")?
+    .with_candid(IntType::Uint256)
+    .with_threshold(max, None)?;
+assert_eq!(usdc.display(max)?, "Unlimited USDC");
+assert_eq!(usdc.display("1500000")?, "1.5 USDC");
+</pre>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">getters</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn decimals(&self) -> u8
+pub fn symbol(&self) -> Option<&str>
+pub fn candid(&self) -> IntType
+pub fn threshold(&self) -> Option<&str>
+pub fn threshold_message(&self) -> Option<&str>
+</pre>
+<p>
+  What the format was built with. <code>threshold_message</code> is the message given, or
+  <code>DEFAULT_THRESHOLD_MESSAGE</code>, and <code>None</code> when there is no threshold.
+</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::parse</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn parse(&self, input: &str) -> Result<String, FormatError>
+</pre>
+<p>
+  Reads an amount a person wrote, such as <code>"1.5"</code> or <code>"1.5 ICP"</code>, and returns the
+  exact base-unit value as a canonical decimal string. Accepted: an optional <code>-</code>, digits,
+  optionally a <code>.</code> with digits after it, and optionally whitespace and the token's symbol, in
+  any ASCII case. Surrounding whitespace is ignored; it is ECMAScript's whitespace set, which includes
+  U+FEFF and excludes U+0085, as in the reference. The checks, in order:
+</p>
+<table>
+  <thead><tr><th>Input</th><th>Code</th></tr></thead>
+  <tbody>
+    <tr><td>Longer than <code>MAX_INPUT_UTF16_LEN</code></td><td><diag>E_TOO_LONG</diag></td></tr>
+    <tr><td>Thousands separators, exponents, a leading <code>+</code>, <code>"1."</code>, <code>".5"</code></td><td><diag>E_SYNTAX</diag></td></tr>
+    <tr><td>A minus sign at an unsigned position, <code>"-0"</code> included</td><td><diag>E_NEGATIVE</diag></td></tr>
+    <tr><td>A symbol that is not the token's, or any symbol when the token has none</td><td><diag>E_SYMBOL_MISMATCH</diag></td></tr>
+    <tr><td>More fractional digits than <code>decimals</code>, even zeros</td><td><diag>E_EXCESS_PRECISION</diag></td></tr>
+    <tr><td>A value outside the integer type</td><td><diag>E_RANGE</diag></td></tr>
+  </tbody>
+</table>
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+let eth = AmountFormat::new(18).with_symbol("ckETH")?;
+assert_eq!(eth.parse("1.000000000000000001")?, "1000000000000000001");
+
+let byte = AmountFormat::new(0).with_candid(IntType::Nat8);
+assert_eq!(byte.parse("256").unwrap_err().code(), Code::Range);
+</pre>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::display</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn display(&self, base_units: &str) -> Result<String, FormatError>
+</pre>
+<p>
+  Shows a base-unit value as a person reads it: the decimal point placed by <code>decimals</code>,
+  trailing fractional zeros removed, then a space and the symbol if there is one.
+  <code>"150000000"</code> with 8 decimals is <code>"1.5 ICP"</code>; <code>"1"</code> is
+  <code>"0.00000001 ICP"</code>. A value at or above the threshold shows as the threshold message and the
+  symbol. <code>base_units</code> must be a canonical decimal integer (no leading zeros, no
+  <code>+</code>, no <code>"-0"</code>, no separators) or the error is <diag>E_SYNTAX</diag>; that rules
+  out <code>candid::Nat</code>'s <code>Display</code>, which writes <code>1_500_000</code>. A value outside
+  the integer type is <diag>E_RANGE</diag>, and text over the length bound <diag>E_TOO_LONG</diag>.
+</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">AmountFormat::display_u128, display_i128</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/amount.rs">
+pub fn display_u128(&self, base_units: u128) -> Result<String, FormatError>
+pub fn display_i128(&self, base_units: i128) -> Result<String, FormatError>
+</pre>
+<p><code>display</code> for a value held as a native integer. The range check still applies: <code>display_i128(-1)</code> at a <code>nat</code> position is <diag>E_RANGE</diag>.</p>
+</div></div>
+
+<h2>IntType</h2>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">IntType</span><span class="pill">enum</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/int_type.rs">
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum IntType {
+    Nat, Int, Nat8, Nat16, Nat32, Nat64, Int8, Int16, Int32, Int64,
+    Uint8, Uint16, Uint24, Int24, Uint32, Uint40, Int40, // … to
+    Uint248, Int248, Uint256, Int256,
+}
+</pre>
+<p>
+  The integer types the <code>amount</code> tag applies to. The enum is generated by the
+  <code>int_types!</code> macro in <code>src/int_type.rs</code>, one row per type with its name, sign and
+  inclusive bounds; it is shown here abridged. More types may come, so it is
+  <code>#[non_exhaustive]</code>: a <code>match</code> on it needs a <code>_</code> arm.
+</p>
+<table>
+  <thead><tr><th>Variants</th><th>Name in a profile</th><th>Range</th></tr></thead>
+  <tbody>
+    <tr><td><code>Nat</code></td><td><code>nat</code></td><td>0 and up, unbounded</td></tr>
+    <tr><td><code>Int</code></td><td><code>int</code></td><td>unbounded, signed</td></tr>
+    <tr><td><code>Nat8</code>, <code>Nat16</code>, <code>Nat32</code>, <code>Nat64</code></td><td><code>nat8</code> … <code>nat64</code></td><td>0 to 2<sup>N</sup> − 1</td></tr>
+    <tr><td><code>Int8</code>, <code>Int16</code>, <code>Int32</code>, <code>Int64</code></td><td><code>int8</code> … <code>int64</code></td><td>−2<sup>N−1</sup> to 2<sup>N−1</sup> − 1. Both Candid and ABI types, with the same bounds, so each appears once.</td></tr>
+    <tr><td><code>Uint8</code>, <code>Uint16</code>, <code>Uint24</code> … <code>Uint256</code> (32 variants)</td><td><code>uint8</code> … <code>uint256</code>, every multiple of 8</td><td>0 to 2<sup>N</sup> − 1 (EVM ABI)</td></tr>
+    <tr><td><code>Int24</code>, <code>Int40</code>, <code>Int48</code> … <code>Int256</code> (28 variants)</td><td><code>int24</code> … <code>int256</code>, every multiple of 8 from 24 to 256 except 32 and 64</td><td>−2<sup>N−1</sup> to 2<sup>N−1</sup> − 1 (EVM ABI)</td></tr>
+  </tbody>
+</table>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">IntType::ALL</span><span class="pill">const</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/int_type.rs">
+pub const ALL: &'static [IntType]
+</pre>
+<p>Every type, in the reference's order: the ten Candid types, then the ABI's by width, <code>uint</code> before <code>int</code>. A slice since 0.2.0, so that a later type does not change its type.</p>
+</div></div>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">IntType methods</span><span class="pill">fn</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/int_type.rs">
+pub const fn candid_name(self) -> &'static str
+pub const fn is_signed(self) -> bool
+pub fn from_candid_name(name: &str) -> Option<Self>
+</pre>
+<p>
+  <code>candid_name</code> is the name as a resolved profile spells it (<code>"nat64"</code>,
+  <code>"uint256"</code>). <code>is_signed</code> says whether the type admits negative values.
+  <code>from_candid_name</code> finds the type with exactly this name, case-sensitive as in Candid and
+  Solidity, or <code>None</code>.
+</p>
+</div></div>
+
+<h2>FormatError</h2>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">FormatError</span><span class="pill">struct</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/error.rs">
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FormatError {
+    code: Code,
+    message: String,
+}
+
+impl FormatError {
+    pub fn code(&self) -> Code
+    pub fn message(&self) -> &str
+}
+</pre>
+<p>
+  A refused value. Switch on <code>code()</code>, which is stable; <code>message()</code> says how to fix
+  the input and is not stable. Only the crate constructs one. <code>Display</code> writes the code, a
+  colon and the message:
+</p>
+<pre data-lang="text" data-file="crates/meant-format/tests/amount.rs">
+E_EXCESS_PRECISION: "0.123456789" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8
+</pre>
+<p>With the <code>std</code> feature, <code>FormatError</code> implements <code>std::error::Error</code>, with no <code>source</code>.</p>
+</div></div>
+
+<h2>Code</h2>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">Code</span><span class="pill">enum</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/error.rs">
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum Code {
+    Syntax,
+    Range,
+    TooLong,
+    Arg,
+    TagType,
+    ExcessPrecision,
+    Negative,
+    SymbolMismatch,
+}
+
+impl Code {
+    pub const fn as_str(self) -> &'static str
+}
+</pre>
+<p>
+  <code>as_str</code> spells the code as the JavaScript reference does, and <code>Display</code> writes the
+  same. More codes may come with more value tags, so the enum is <code>#[non_exhaustive]</code>.
+</p>
+<table>
+  <thead><tr><th>Variant</th><th>Code</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>Syntax</code></td><td><diag>E_SYNTAX</diag></td><td>The text does not match the grammar (<code>"1,5"</code>, <code>"1e3"</code>, <code>"+1"</code>), or a base-unit value is not a canonical decimal integer.</td></tr>
+    <tr><td><code>Range</code></td><td><diag>E_RANGE</diag></td><td>The value is outside the range of its integer type.</td></tr>
+    <tr><td><code>TooLong</code></td><td><diag>E_TOO_LONG</diag></td><td>The text is longer than <code>MAX_INPUT_UTF16_LEN</code>.</td></tr>
+    <tr><td><code>Arg</code></td><td><diag>E_ARG</diag></td><td>A tag argument is invalid: an empty symbol, a negative threshold.</td></tr>
+    <tr><td><code>TagType</code></td><td><diag>E_TAG_TYPE</diag></td><td>The tag does not apply to this type.</td></tr>
+    <tr><td><code>ExcessPrecision</code></td><td><diag>E_EXCESS_PRECISION</diag></td><td>More fractional digits than the token's decimals. Amounts are never rounded.</td></tr>
+    <tr><td><code>Negative</code></td><td><diag>E_NEGATIVE</diag></td><td>A negative amount for an unsigned type.</td></tr>
+    <tr><td><code>SymbolMismatch</code></td><td><diag>E_SYMBOL_MISMATCH</diag></td><td>The symbol in the input is not the token's symbol, or the token has no symbol.</td></tr>
+  </tbody>
+</table>
+</div></div>
+
+<h2>MAX_INPUT_UTF16_LEN</h2>
+
+<div class="api-entry"><div class="api-head"><span class="api-name">MAX_INPUT_UTF16_LEN</span><span class="pill">const</span></div><div class="api-body">
+<pre data-lang="rust" data-file="crates/meant-format/src/text.rs">
+pub const MAX_INPUT_UTF16_LEN: usize = 1024;
+</pre>
+<p>
+  The longest text <code>parse</code> and <code>display</code> read, counted in UTF-16 code units as
+  JavaScript's <code>length</code> counts them, so that work is bounded and a value the reference refuses
+  for its length is refused here too. Whitespace counts before it is trimmed. An emoji is 4 UTF-8 bytes
+  but 2 UTF-16 units: 512 of them are exactly at the bound, so the text is read and refused only as
+  <diag>E_SYNTAX</diag>; one space more is <diag>E_TOO_LONG</diag> (<code>tests/amount.rs</code>,
+  <code>the_length_bound_counts_utf16_units</code>).
+</p>
+</div></div>
+
+<h2>Parity with @meantjs/format</h2>
+
+<p>
+  <code>tests/parity.rs</code> runs every case of <code>tests/vectors/amount.json</code>, generated from
+  <code>@meantjs/format</code> 0.2.0, and requires the same value, or the same code and the same message:
+  3,412 cases, the count the README states and the test pins. The vectors are regenerated with
+  <code>node crates/meant-format/tests/vectors/generate-amount.mjs &lt;candid-profile checkout&gt;</code>,
+  never edited by hand. Where the two APIs differ in shape:
+</p>
+
+<ul>
+  <li><code>decimals</code> is a <code>u8</code>, so a value outside 0 to 255 cannot be written at all.</li>
+  <li>A threshold message is an argument of <code>with_threshold</code>, so a message without a threshold, <diag>E_ARG</diag> in JavaScript, cannot be written either.</li>
+  <li>The crate has <code>display_u128</code> and <code>display_i128</code>; JavaScript's <code>displayAmount</code> takes a <code>bigint</code>.</li>
+  <li>Only <code>amount</code>: the other five value tags are in JavaScript only.</li>
+</ul>

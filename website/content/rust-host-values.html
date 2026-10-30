@@ -13,7 +13,7 @@ encoding looks the way it does, read <a href="host-values.html">Host
 values</a> first.</p>
 
 <pre data-lang="toml">[dependencies]
-candid-core = "=0.1.0"</pre>
+meant = "=0.1.0"</pre>
 
 <p>The crate is pre-1.0, so the requirement is exact: a caret requirement
 would take a breaking 0.x release with it. Everything below also needs the
@@ -36,7 +36,7 @@ Rust type already constrains them.</p>
 exactly one accepted spelling and the constructor is where a wrong one is
 caught:</p>
 
-<pre data-lang="rust">use candid_core::{HostValue, Limits};
+<pre data-lang="rust">use meant::{HostValue, Limits};
 
 // Unbounded integers, as canonical decimal text.
 let big = HostValue::nat("340282366920938463463374607431768211456")?;
@@ -229,7 +229,7 @@ record, finds its declaration, binds a selector, builds a value whose
 <code>float64</code> is a specific NaN payload, validates it, and prints the
 tagged JSON.</p>
 
-<pre data-lang="rust" data-file="examples/host_value_validation.rs">use candid_core::{compile_did, validate_host_value, HostFieldValue, HostValue, Limits};
+<pre data-lang="rust" data-file="examples/host_value_validation.rs">use meant::{compile_did, validate_host_value, HostFieldValue, HostValue, Limits};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -289,7 +289,7 @@ type. <code>nat</code> and <code>nat8</code> are different types, and nothing
 widens. The second is a value the type accepts but the caller's policy does
 not.</p>
 
-<pre data-lang="rust">use candid_core::{compile_did, validate_host_value, Contract, HostValue, Limits};
+<pre data-lang="rust">use meant::{compile_did, validate_host_value, Contract, HostValue, Limits};
 use std::error::Error;
 
 fn declaration(contract: &Contract, name: &str) -> Option<u32> {
