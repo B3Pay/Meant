@@ -36,8 +36,9 @@ permissions: {}
 jobs:
   module:
     name: Docs module
-    # Pinned to a commit of B3Pay/b3pay.net, not a branch, like every action
-    # here: its publish job holds a token that can push to this repository.
+    # Pinned to a commit of B3Pay/b3pay.net, not a branch, as docs.yml and the
+    # release workflows pin their actions: its publish job holds a token that
+    # can push to this repository.
     uses: B3Pay/b3pay.net/.github/workflows/publish-module.yml@07de4cdc9dc27c1dcc56d7db44b08d4c9d617c3c
     with:
       manifest: website/b3pay-module.json
