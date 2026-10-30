@@ -45,7 +45,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
@@ -147,25 +147,29 @@ export function excerptProblem(excerpt, fileText, partial = false) {
   return null;
 }
 
-/* The five profile packages, `@meantjs/*`: each export resolves to its
- * hand-written declarations, exactly the subpaths its package.json exports. */
-const PROFILE_EXPORTS = {
-  "@meantjs/profile": "resolver/src/index.d.mts",
-  "@meantjs/profile/address": "resolver/src/address.d.mts",
-  "@meantjs/profile/browser": "resolver/src/browser.d.mts",
-  "@meantjs/profile/evm": "resolver/src/evm.d.mts",
-  "@meantjs/format": "format/src/index.d.mts",
-  "@meantjs/consent": "consent/src/index.d.mts",
-  "@meantjs/consent/sns": "consent/src/sns.d.mts",
-  "@meantjs/consent/evm": "consent/src/evm.d.mts",
-  "@meantjs/consent/erc7730": "consent/src/erc7730.d.mts",
-  "@meantjs/tools": "tools/src/index.d.mts",
-  "@meantjs/reconcile": "reconcile/src/index.d.mts",
-};
+/* The five profile packages, `@meantjs/*`: each code export resolves to its
+ * hand-written declarations, read from the package's own `exports` map (the
+ * `types` condition), so exactly the subpaths each one exports resolve, and a
+ * subpath a sync adds resolves with no change here. */
+const PROFILE_DIRS = ["resolver", "format", "consent", "tools", "reconcile"];
+
+function profileExports(root) {
+  const paths = {};
+  for (const dir of PROFILE_DIRS) {
+    const base = join(root, "profile", "packages", dir);
+    const manifest = JSON.parse(readFileSync(join(base, "package.json"), "utf8"));
+    for (const [subpath, target] of Object.entries(manifest.exports || {})) {
+      // Data subpaths (`./schema.json`, `./packs/*`) are strings and carry no types.
+      if (typeof target !== "object" || target === null || typeof target.types !== "string") continue;
+      const specifier = subpath === "." ? manifest.name : `${manifest.name}${subpath.slice(1)}`;
+      paths[specifier] = [join(base, target.types)];
+    }
+  }
+  return paths;
+}
 
 function tsconfig(root, cli) {
   const ts = join(root, "crates", "candid-core-ts", "ts");
-  const profile = join(root, "profile", "packages");
   return {
     compilerOptions: {
       strict: true,
@@ -185,9 +189,7 @@ function tsconfig(root, cli) {
         "@candid-core/schema/contract": [join(ts, "contract.ts")],
         "@candid-core/schema/codec": [join(ts, "codec.ts")],
         "@candid-core/cli": [cli],
-        ...Object.fromEntries(
-          Object.entries(PROFILE_EXPORTS).map(([name, file]) => [name, [join(profile, file)]]),
-        ),
+        ...profileExports(root),
       },
     },
     include: ["**/*.ts", "**/*.js"],

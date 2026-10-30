@@ -245,8 +245,10 @@ Exactly the four exported subpaths resolve, so an import of a removed one is a
 compile error, which is what the migration page's "before" blocks rely on.
 The five `@meantjs` packages, and exactly the subpaths each one exports,
 resolve to their hand-written `.d.mts` declarations under
-`profile/packages/*/src`, so a profile snippet is checked against the types
-the published tarball carries.
+`profile/packages/*/src`, read from each package's own `exports` map (its
+`types` condition), so a profile snippet is checked against the types the
+published tarball carries, and a subpath a sync adds resolves with no change
+here.
 A snippet may import `./ledger.ts`, `./shadowing.ts` or `./generated/interface`,
 which the gate supplies from the checked-in goldens, so the import resolves to
 real generated output. If the compiler is not installed the check fails and

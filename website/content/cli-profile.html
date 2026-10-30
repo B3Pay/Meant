@@ -1,4 +1,4 @@
-<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.3.0
+<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.4.0
 npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 
 <p>
@@ -89,8 +89,8 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 
 <pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
   applied     local-ledger     author       candid-profile:v0:sha256:3ab093c4e8583fc5e2efb4e7c8ce595457450bd38c7be6959998c0d17eab3b84
-  applied     icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
-  applied     icrc2            pack         candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
   0 error, 1 warning, 3 info
   warning W_OVERRIDDEN               [icrc1] icrc1_transfer(0).memo  bytes from profile "icrc1" (pack) is overridden by profile "local-ledger" (author) at "icrc1_transfer(0).memo" [icrc1_transfer(0).memo]</pre>
 
@@ -123,8 +123,8 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 
 <pre data-lang="bash">npx candid-profile resolve ledger.did --packs --verbose > ledger.resolved.json</pre>
 <pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
-  applied     icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
-  applied     icrc2            pack         candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
   0 error, 0 warning, 3 info
   info    I_PACK_MATCHED             [icrc1] icrc1  the service is a subtype of the pack's binds.requires
   info    I_PACK_MATCHED             [icrc2] icrc2  the service is a subtype of the pack's binds.requires
@@ -153,7 +153,7 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 
 <pre data-lang="bash">npx candid-profile resolve tokens.did --profile node_modules/@meantjs/profile/data/packs/icrc1.profile.json</pre>
 <pre data-lang="text">candid-profile: tokens.did  candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c  [2 methods]
-  not_matched icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
+  not_matched icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
   1 error, 0 warning, 2 info
   error   E_PACK_NOT_MATCHED         [icrc1] icrc1  the service is not a subtype of the pack's binds.requires: icrc1_balance_of: method "icrc1_balance_of" is missing from the canister; icrc1_decimals: method "icrc1_decimals" is missing from the canister; icrc1_fee: method "icrc1_fee" is missing from the canister; and 2 more</pre>
 
@@ -197,7 +197,7 @@ candid-profile: gen/tokens.envelope.json  candid-core:interface:v1:sha256:f83586
 <pre data-lang="bash">mkdir my-packs && cp node_modules/@meantjs/profile/data/packs/icrc1.profile.json my-packs/
 npx candid-profile resolve ledger.did --packs --packs-dir my-packs > ledger.resolved.json</pre>
 <pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
-  applied     icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
   0 error, 0 warning, 10 info</pre>
 
 <p>
@@ -220,7 +220,7 @@ npx candid-profile resolve ledger.did --packs --packs-dir my-packs > ledger.reso
 ]</pre>
 <pre data-lang="bash">npx candid-profile resolve --abi token.abi.json --packs > token.resolved.json</pre>
 <pre data-lang="text">candid-profile: token.abi.json  candid-profile:evm-abi:v0:sha256:64c9e8e85fd0f3cdfd86c278b8f0d9f137cf2b872c228bd349b9e73fb85ff6d4  [9 methods]
-  applied     erc20            pack         candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186
+  applied     erc20            pack         candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
   0 error, 0 warning, 1 info</pre>
 
 <p>
@@ -256,13 +256,13 @@ console.log(code, JSON.parse(resolved).interface_id);</pre>
 <pre data-lang="bash">cd profile
 node scripts/validate.mjs</pre>
 <pre data-lang="text">PASS packs/erc20.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186
+     profile_id   candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
      interface_id candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b  [7 methods, 23 annotations]
 PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
+     profile_id   candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
      interface_id candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689  [5 methods, 29 annotations]
 PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+     profile_id   candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
      interface_id candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f  [5 methods, 56 annotations]</pre>
 
 <p>

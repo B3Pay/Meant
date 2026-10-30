@@ -5,7 +5,7 @@
 
 <pre data-lang="bash">mkdir profile-quickstart && cd profile-quickstart
 npm init -y
-npm install --save-exact @meantjs/profile@0.3.0 @meantjs/format@0.3.0</pre>
+npm install --save-exact @meantjs/profile@0.4.0 @meantjs/format@0.4.0</pre>
 
 <p>
   <code>@meantjs/profile</code> checks profiles, matches the standard packs and writes the resolved
@@ -35,8 +35,8 @@ sha256sum ledger.did</pre>
     <h3>Resolve it with the standard packs</h3>
 <pre data-lang="bash">npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 <pre data-lang="text">candid-profile: ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
-  applied     icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
-  applied     icrc2            pack         candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
   0 error, 0 warning, 3 info</pre>
     <p>
       The summary goes to stderr; the resolved form goes to stdout, into
@@ -62,7 +62,11 @@ sha256sum ledger.did</pre>
   "effect": {
     "args": {
       "kind": "transfer",
-      "irreversible": true
+      "irreversible": true,
+      "grant": {
+        "to": "to",
+        "amount": "amount"
+      }
     },
     "origin": "pack",
     "profile": "icrc1"
@@ -181,7 +185,10 @@ console.log(formatter.safeParse("1.000000001 ICP"));</pre>
   <strong>The resolved form is what consumers read.</strong> Every method has a tree of positions,
   and each tag says which profile it came from (<code>"origin": "pack"</code>,
   <code>"profile": "icrc1"</code>). <code>icrc1_transfer</code> is a <effect>transfer</effect> that is
-  <effect>irreversible</effect>, so a consumer asks the person to confirm it. Its
+  <effect>irreversible</effect>, so a consumer asks the person to confirm it, and its
+  <code>grant</code> says what the call lets someone take: the <code>amount</code>, paid
+  <code>to</code> the recipient (<a href="confirmed-terms.html">checked against terms the person
+  confirmed</a>, when there are any). Its
   <code>created_at_time</code> is the idempotency stamp that makes a retry safe, and each result case
   has an outcome class: <code>Err.Duplicate</code> is <outcome>already_done</outcome>,
   <code>Err.TooOld</code> is <outcome>retry_new</outcome>, and any case the pack does not name falls

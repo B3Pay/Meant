@@ -189,7 +189,7 @@ candid-profile: tokens-memo.did  candid-core:interface:v1:sha256:7cb0945a805c17a
   <code>duration</code>, <code>account</code>, <code>subaccount</code> and <code>bytes</code>) and
   keeps the rest: <code>intent</code>, <code>effect</code>, <code>describe</code>,
   <code>default</code> and the others. The spec lists those six; the reference resolver in
-  <code>@meantjs/profile</code> 0.3.0 also leaves out a stale profile's <code>named</code> tags,
+  <code>@meantjs/profile</code> 0.4.0 also leaves out a stale profile's <code>named</code> tags,
   since a name stands in for a value. In the stale resolve above, <code>send(0).amount.e8s</code>
   still has its <code>describe</code> label and no longer has its <code>amount</code> tag, and
   <code>send</code> keeps its intent, effect, idempotency and outcome tags. Agent tools fall back to
@@ -225,8 +225,8 @@ candid-profile: tokens-memo.did  candid-core:interface:v1:sha256:7cb0945a805c17a
 
 <pre data-lang="text">
 candid-profile: wide-ledger.did  candid-core:interface:v1:sha256:269d2a66494731bcb71f47d122c6f0d7685d9fdcd6747f031273674b66d6096b  [5 methods]
-  applied     icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
-  not_matched icrc2            pack         candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  not_matched icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
   0 error, 0 warning, 3 info
   info    I_PACK_MATCHED             [icrc1] icrc1  the service is a subtype of the pack's binds.requires (result variants wider than the pack, D-019: icrc1_transfer->(0).Err has extra cases Frozen)
   info    I_PACK_NOT_MATCHED         [icrc2] icrc2  pack does not apply: icrc2_allowance: method "icrc2_allowance" is missing from the canister; icrc2_approve: method "icrc2_approve" is missing from the canister; icrc2_transfer_from: method "icrc2_transfer_from" is missing from the canister
@@ -287,8 +287,8 @@ candid-profile resolve ledger.did --profile local-ledger.profile.json --packs > 
 <pre data-lang="text">
 candid-profile: ledger.did  candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689  [5 methods]
   applied     local-ledger     author       candid-profile:v0:sha256:6ab2dc9052627172a4cce381d36a046c320ae789cea6cfd9d448f0d8b2604ccb
-  applied     icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
-  not_matched icrc2            pack         candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  not_matched icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
   0 error, 1 warning, 2 info
   warning W_OVERRIDDEN               [icrc1] icrc1_transfer(0).amount  amount from profile "icrc1" (pack) is overridden by profile "local-ledger" (author) at "icrc1_transfer(0).amount" [icrc1_transfer(0).amount]
 </pre>

@@ -130,6 +130,12 @@
           "lead": "Tool definitions in human units, a preview the person confirms, and retries that cannot pay twice."
         },
         {
+          "slug": "confirmed-terms",
+          "title": "Confirm terms for a task",
+          "nav": "Confirmed terms",
+          "lead": "Let the person confirm once what an agent's task may grant, then check each request against those terms before anything is signed or sent."
+        },
+        {
           "slug": "reconcile-outcomes",
           "title": "Settle an unknown outcome",
           "nav": "Settle an unknown outcome",
