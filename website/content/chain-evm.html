@@ -7,8 +7,8 @@
     <a href="#what-a-call-or-signature-grants">what the call or signature grants</a>, for a wallet that checks requests
     against terms the person confirmed (D-056). Agent tools, <code>outcome</code> classes over reverts,
     <code>idempotency</code> by nonce and ERC-7730 import are later phases, each its own decision; signing, checking
-    signatures and Permit2's witness messages are not in it. The preregistered eval uses none of it. Decisions D-054
-    and D-055; the text is
+    signatures and Permit2's witness messages other than x402's are not in it. The preregistered eval uses none of it.
+    Decisions D-054, D-055 and D-058; the text is
     <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>
     and its <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#159-typed-messages-eip-712-d-055">§15.9</a>.
   </p>
@@ -194,7 +194,7 @@ PASS tka.profile.json  (0 error, 0 warning, 0 info)
   <li><strong>An EVM pack</strong> has <code>kind: "pack"</code> and <code>binds.abi</code> instead of <code>binds.requires</code>. It applies to a contract that has every function of the pack with the same selector (so the same name and parameter types), the same output types and the same kind of call: a query, or an update that is payable exactly when the pack's is. There is no subtyping.</li>
   <li>A pack's addresses and placeholders use the pack's parameter names; when it applies, they are rewritten to the contract's, component by component, by position. EIP-20 names them <code>_to</code> and <code>_value</code>, WETH <code>dst</code> and <code>wad</code>: on an ABI with <code>transfer(address dst, uint256 wad)</code>, the ERC-20 pack's template reads <code>Send {wad} to {dst}</code>.</li>
   <li>A profile or pack for the other kind of interface is <diag>E_CHAIN</diag> when given explicitly, and skipped in a pack search.</li>
-  <li>The standard pack for calls is <a href="reference-packs.html#erc20">ERC-20</a>: <code>transfer</code>, <code>approve</code>, <code>transferFrom</code>, <code>balanceOf</code>, <code>allowance</code>, <code>decimals</code> and <code>symbol</code>. <claim>fact</claim> <code>decimals()</code> and <code>symbol()</code> are optional in <a href="https://eips.ethereum.org/EIPS/eip-20">EIP-20</a>, so a token without them matches no pack and needs a contract profile with literal values, like the one above. The EIP-712 standard files, an EIP-2612 pack and the Permit2 and DAI permit contract profiles, are under <a href="#standard-files">Standard files</a>.</li>
+  <li>The standard pack for calls is <a href="reference-packs.html#erc20">ERC-20</a>: <code>transfer</code>, <code>approve</code>, <code>transferFrom</code>, <code>balanceOf</code>, <code>allowance</code>, <code>decimals</code> and <code>symbol</code>. <claim>fact</claim> <code>decimals()</code> and <code>symbol()</code> are optional in <a href="https://eips.ethereum.org/EIPS/eip-20">EIP-20</a>, so a token without them matches no pack and needs a contract profile with literal values, like the one above. The EIP-712 standard files, an EIP-2612 pack and the Permit2, DAI permit, USDC and x402 contract profiles, are under <a href="#standard-files">Standard files</a>.</li>
 </ul>
 
 <callout type="danger" title="A pack matches any contract with the right functions">
@@ -438,8 +438,8 @@ console.log(descriptor.display.formats["transfer(address to,uint256 value)"], ty
 <p>
   A profile can describe those messages, so a wallet shows what a signature allows before the person signs it. This is
   the first part of phase 2 (D-055): consent text for a signing request and an ERC-7730 file of the messages. Signing,
-  checking signatures, witness messages (O9) and agent tools are not in it. An example, written for this page: a
-  payout contract on a local chain whose owner signs a list of payments, each in its own token.
+  checking signatures, witness messages other than x402's (O9) and agent tools are not in it. An example, written for
+  this page: a payout contract on a local chain whose owner signs a list of payments, each in its own token.
 </p>
 
 <pre data-lang="json" data-file="payouts.profile.json">
@@ -769,10 +769,11 @@ This is a signature, not a transaction: whoever holds it can submit it.
 <h3>Permit2</h3>
 
 <p>
-  The Permit2 profile is bound to its deployments on chains 1 and 42161, so its words appear only for a request whose
-  verifying contract is Permit2 on one of them. This is the package test's <code>PermitBatch</code> request on chain 1,
-  with each token's decimals and symbol in <code>tokens</code>; nothing is signed or sent. The first allowance expires
-  at 0, which Permit2 reads as "only in the block it is used", and the second at <code>uint48</code> max:
+  The Permit2 profile is bound to its deployments on chains 1, 8453, 42161 and 84532, so its words appear only for a
+  request whose verifying contract is Permit2 on one of them. This is the package test's <code>PermitBatch</code>
+  request on chain 1, with each token's decimals and symbol in <code>tokens</code>; nothing is signed or sent. The first
+  allowance expires at 0, which Permit2 reads as "only in the block it is used", and the second at <code>uint48</code>
+  max:
 </p>
 
 <consent standard="Consent text · EIP-712 (experimental)" title="Permit2: allow spending of several tokens" effects="approve" note="Only the owner signs. The model never does.">
@@ -789,7 +790,7 @@ This is a signature, not a transaction: whoever holds it can submit it.
   The text shows each token's full address in brackets after its amount:
   <code>1.5 USDC (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48), Unlimited WETH (0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)</code>.
   The same request with a verifying contract of <code>0x5FbD…0aa3</code> is
-  <code>E_DEPLOYMENT: profile permit2 describes 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 1, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 42161, not 0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 1</code>.
+  <code>E_DEPLOYMENT: profile permit2 describes 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 1, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 8453, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 42161, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 84532, not 0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 1</code>.
   The API: <a href="reference-profile-api.html">JavaScript API</a>.
 </p>
 
@@ -833,8 +834,8 @@ This is a signature, not a transaction: whoever holds it can submit it.
 <p>
   <code>eip712Consent</code> returns the grant with the text, and <code>values</code>, the message by member name. A
   <code>PermitSingle</code> request built for this page lets Dex (<code>0x9fE4…a6e0</code>) spend 500 TKA
-  (<code>0x5FbD…0aa3</code>), with a <code>sigDeadline</code> of 2026-11-02 12:30:00 UTC. It is on chain 1, since the
-  profile lists Permit2 on chains 1 and 42161 only; nothing is signed or sent. With an expiration of 0 it grants:
+  (<code>0x5FbD…0aa3</code>), with a <code>sigDeadline</code> of 2026-11-02 12:30:00 UTC. It is on chain 1, one of the
+  four chains the profile lists Permit2 on; nothing is signed or sent. With an expiration of 0 it grants:
 </p>
 
 <pre data-lang="json">
@@ -988,8 +989,8 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
 <h2>Standard files</h2>
 
 <p>
-  Three files ship beside the packs in <code>@meantjs/profile</code>. <code>loadPacks()</code> returns the packs only,
-  so the EIP-2612 pack joins every pack search, while the two contract profiles are read by path
+  Six files of EIP-712 messages ship beside the packs in <code>@meantjs/profile</code>. <code>loadPacks()</code> returns
+  the packs only, so the EIP-2612 pack joins every pack search, while the five contract profiles are read by path
   (<code>@meantjs/profile/packs/permit2.profile.json</code>). Every annotation: <a href="reference-packs.html">Standard packs</a>.
 </p>
 
@@ -999,15 +1000,20 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
   </thead>
   <tbody>
     <tr><td><code>erc2612.profile.json</code></td><td>pack</td><td><code>Permit</code> (<effect>approve</effect>), and the <code>permit</code> function that submits one</td><td>any token with <code>permit</code>, <code>nonces</code>, <code>DOMAIN_SEPARATOR</code>, <code>decimals</code> and <code>symbol</code>; each token's own domain</td></tr>
-    <tr><td><code>permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td><code>PermitSingle</code>, <code>PermitBatch</code> (<effect>approve</effect>); <code>PermitTransferFrom</code>, <code>PermitBatchTransferFrom</code> (<effect>transfer</effect>)</td><td>domain <code>Permit2</code>; <code>0x0000…8BA3</code> on chains 1 and 42161</td></tr>
+    <tr><td><code>permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td><code>PermitSingle</code>, <code>PermitBatch</code> (<effect>approve</effect>); <code>PermitTransferFrom</code>, <code>PermitBatchTransferFrom</code> (<effect>transfer</effect>)</td><td>domain <code>Permit2</code>; <code>0x0000…8BA3</code> on chains 1, 8453, 42161 and 84532</td></tr>
     <tr><td><code>dai-permit.profile.json</code></td><td>contract</td><td>DAI's older <code>Permit</code> (<effect>approve</effect>)</td><td>domain <code>Dai Stablecoin</code> version <code>1</code>; <code>0x6B17…1d0F</code> on chain 1</td></tr>
+    <tr><td><code>usdc.profile.json</code></td><td>contract, <code>third_party</code></td><td>USDC's <code>TransferWithAuthorization</code>, <code>ReceiveWithAuthorization</code> (<effect>transfer</effect>); <code>CancelAuthorization</code> (<effect>write</effect>)</td><td>domain <code>USD Coin</code> version <code>2</code>; USDC on chains 1, 8453 and 42161</td></tr>
+    <tr><td><code>usdc-base-sepolia.profile.json</code></td><td>contract, <code>third_party</code></td><td>the same three messages</td><td>domain <code>USDC</code> version <code>2</code>; <code>0x036C…CF7e</code> on chain 84532</td></tr>
+    <tr><td><code>x402-exact-permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td>x402's <code>PermitWitnessTransferFrom</code> (<effect>transfer</effect>), its spender pinned to x402's proxy</td><td>Permit2's domain and deployments</td></tr>
   </tbody>
 </table>
 
 <ul>
   <li><strong>EIP-2612.</strong> Amounts read the token's <code>decimals()</code> and <code>symbol()</code>, and a deadline of <code>uint256</code> max reads "Never". <claim>fact</claim> "The <code>deadline</code> argument can be set to <code>uint(-1)</code> to create <code>Permit</code>s that effectively never expire" (<a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612</a>).</li>
-  <li><strong>Permit2.</strong> Amounts are in the token each message names. <claim>fact</claim> The deployments are those of ERC-7730's own Permit2 example (O10). <claim>fact</claim> Uniswap's <code>permit2</code> (<code>Allowance.sol</code>, <code>AllowanceTransfer.sol</code>): "If the inputted expiration is 0, the allowance only lasts the duration of the block", so it reads "Only in the block it is used"; an allowance of <code>type(uint160).max</code> is never decremented, so it reads "Unlimited".</li>
+  <li><strong>Permit2.</strong> Amounts are in the token each message names. <claim>fact</claim> Chains 1 and 42161 are the deployments of ERC-7730's own Permit2 example; 8453 and 84532 were added from Permit2's code and <code>DOMAIN_SEPARATOR()</code>, read on each chain on 2026-10-30, and Uniswap's deployments page (O10). <claim>fact</claim> Uniswap's <code>permit2</code> (<code>Allowance.sol</code>, <code>AllowanceTransfer.sol</code>): "If the inputted expiration is 0, the allowance only lasts the duration of the block", so it reads "Only in the block it is used"; an allowance of <code>type(uint160).max</code> is never decremented, so it reads "Unlimited".</li>
   <li><strong>DAI.</strong> <claim>fact</claim> The address is <code>MCD_DAI</code> in the Sky chainlog, read 2026-10-28. <claim>fact</claim> MakerDAO <code>dss/src/dai.sol</code>: <code>expiry == 0</code> never expires, so 0 reads "Never"; <code>allowed</code> sets the allowance to <code>uint(-1)</code> or 0, and the text says so through its template (O12).</li>
+  <li><strong>USDC.</strong> Amounts are in 6 decimals, <code>USDC</code>. <claim>fact</claim> Each contract's <code>DOMAIN_SEPARATOR()</code>, <code>decimals()</code> and three type hashes, read on chain on 2026-10-30; Base Sepolia's USDC signs under the name <code>USDC</code>, so it has a profile of its own. <claim>fact</claim> EIP-3009 and Circle's <code>EIP3009.sol</code>: a signature is valid only after <code>validAfter</code> and before <code>validBefore</code>, both strictly, and only the payee may submit a <code>ReceiveWithAuthorization</code>.</li>
+  <li><strong>x402.</strong> <claim>fact</claim> x402's proxy, <code>0x4020…0001</code>, sends exactly <code>permitted.amount</code> to <code>witness.to</code>, not before <code>validAfter</code>, and has the same code on the four chains (<code>coinbase/x402</code> at <code>0e6e8c5</code>; read on chain on 2026-10-30). Permit2 lets the spender choose where the tokens go, so the profile pins the spender to the proxy (<a href="reference-packs.html#x402-exact-permit2">Standard packs</a>).</li>
 </ul>
 
 <table>
@@ -1021,13 +1027,20 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
     <tr><td>Permit2 <code>PermitBatch</code></td><td><code class="wrap">0xaf1b0d30d2cab0380e68f0689007e3254993c596f2fdd0aaa7f4d04f79440863</code></td></tr>
     <tr><td>Permit2 <code>PermitTransferFrom</code></td><td><code class="wrap">0x939c21a48a8dbe3a9a2404a1d46691e4d39f6583d6ec6b35714604c986d80106</code></td></tr>
     <tr><td>Permit2 <code>PermitBatchTransferFrom</code></td><td><code class="wrap">0xfcf35f5ac6a2c28868dc44c302166470266239195f02b0ee408334829333b766</code></td></tr>
+    <tr><td>USDC <code>TransferWithAuthorization</code></td><td><code class="wrap">0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267</code></td></tr>
+    <tr><td>USDC <code>ReceiveWithAuthorization</code></td><td><code class="wrap">0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8</code></td></tr>
+    <tr><td>USDC <code>CancelAuthorization</code></td><td><code class="wrap">0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429</code></td></tr>
+    <tr><td>x402 <code>PermitWitnessTransferFrom</code></td><td><code class="wrap">0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7</code></td></tr>
   </tbody>
 </table>
 
 <p>
-  <claim>fact</claim> These six type hashes, EIP-712's <code>Mail</code> type hash and digest, the consent tests'
+  <claim>fact</claim> These ten type hashes, EIP-712's <code>Mail</code> type hash and digest, the consent tests'
   digests and the exported files' <code>descriptorHash</code>es were recomputed by an independent Python EIP-712 and
-  Keccak-256, the phase 1 cross-check tool (spec §15.9).
+  Keccak-256, the phase 1 cross-check tool (spec §15.9). USDC's three type hashes and the type hash of x402's
+  <code>Witness</code> equal the contracts' own constants, read on chain; x402's example EIP-3009 signature and two
+  real x402 Permit2 payments on Base Sepolia recover to their signers over the digests the consent package computes
+  (<claim>fact</claim>, the <code>ecrecover</code> precompile through <code>eth_call</code>, 2026-10-30).
 </p>
 
 <h2>Local tests</h2>
@@ -1062,8 +1075,8 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
     <tr><td>O5, O6</td><td>settled</td><td><code>abi</code> beside <code>candid</code> with a top-level <code>chain</code>; an export that refuses what it cannot express.</td></tr>
     <tr><td>O7</td><td><claim>open</claim></td><td><claim>fact</claim> (ERC-7730): a wallet that finds no ticker "SHOULD display the raw value instead with an 'Unknown token' warning", where spec §12 rule 10 produces no message. An exported file cannot make a wallet refuse.</td></tr>
     <tr><td>O8</td><td><claim>assumption</claim></td><td>A wallet reads <code>metadata.token</code> as the token at <code>@.to</code>. ERC-7730 calls it the token "exported by this format"; the export writes it only when the caller says the contract is that token.</td></tr>
-    <tr><td>O9</td><td><claim>open</claim></td><td>Permit2 witness messages (<code>PermitWitnessTransferFrom</code> with a protocol's own witness type). Each needs its own profile; until then a request with a witness matches nothing and gets no text.</td></tr>
-    <tr><td>O10</td><td><claim>open</claim></td><td>Permit2's deployments beyond chains 1 and 42161: its address is the same on many chains, and each is added after checking Uniswap's list, never assumed.</td></tr>
+    <tr><td>O9</td><td><claim>open</claim></td><td>Permit2 witness messages (<code>PermitWitnessTransferFrom</code> with a protocol's own witness type). Each needs its own profile, which pins the protocol's settlement contract as the spender (<code>fixed</code>, §15.4) when the witness names where the tokens go. x402's <code>exact</code> payment has one (D-058); a request with any other witness matches nothing and gets no text.</td></tr>
+    <tr><td>O10</td><td><claim>open</claim></td><td>Permit2's deployments beyond chains 1, 8453, 42161 and 84532: its address is the same on many chains, and each is added after checking Uniswap's list and the chain itself, never assumed.</td></tr>
     <tr><td>O11</td><td><claim>open</claim></td><td>Domains with a <code>salt</code>, and contracts whose domain name or version changes after deployment: refused for now.</td></tr>
     <tr><td>O12</td><td><claim>open</claim></td><td>DAI's <code>allowed</code> bool reads through its template ("to all of it if allowed is true, to none if false"); a case-like reading of <code>true</code> and <code>false</code> would need D-053 for <code>bool</code>.</td></tr>
     <tr><td>O13</td><td><claim>open</claim></td><td>The signer against an <code>owner</code> or <code>holder</code> member: whether the text should say so, or refuse, when they differ. The consent function does not take the signer yet.</td></tr>

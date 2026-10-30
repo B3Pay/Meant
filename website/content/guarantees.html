@@ -131,7 +131,7 @@ python3 tests/fixtures/artifact-identity/verify_artifact_ids.py
 <table>
   <thead><tr><th>Gate</th><th>What it checks</th></tr></thead>
   <tbody>
-    <tr><td><code>npm run validate</code></td><td>The JSON Schema and the semantic checks over the standard files in <code>packs/</code> (the ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2 and DAI permit contract profiles) and the example profile, each against its interface. A pack that fails to resolve, or an annotation that no longer applies, fails the run.</td></tr>
+    <tr><td><code>npm run validate</code></td><td>The JSON Schema and the semantic checks over the standard files in <code>packs/</code> (the ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2, DAI permit, USDC and x402 contract profiles) and the example profile, each against its interface. A pack that fails to resolve, or an annotation that no longer applies, fails the run.</td></tr>
     <tr><td><code>npm test</code></td><td><code>node:test</code> over the repository scripts and the five packages, on Node <code>22.22.0</code>, <code>24.22.1</code> and <code>26.12.1</code>.</td></tr>
     <tr><td><code>npm run types</code></td><td>Strict TypeScript consumers compiled against the packages' hand-written <code>.d.mts</code>, so the declarations cannot drift from what a caller writes.</td></tr>
     <tr><td><code>npm run pack:check</code></td><td>Packs the five tarballs, compares each with the file list and exports in <code>scripts/package-check/manifest.json</code>, installs them outside the repository, uses every export there and bundles each browser entry.</td></tr>

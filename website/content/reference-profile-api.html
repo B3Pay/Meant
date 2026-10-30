@@ -19,25 +19,27 @@ npm install @meantjs/profile@0.5.0 @meantjs/format@0.5.0 \
     <tr><th>Package</th><th>Version</th><th>Depends on (exact pins)</th><th>Runs on</th></tr>
   </thead>
   <tbody>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver"><code>@meantjs/profile</code></a></td><td>0.4.0</td><td><code>@candid-core/cli</code> 0.4.0, <code>ajv</code> 8.18.0</td><td>Node 22 or later for the main entry and the CLI; <code>/browser</code> in a browser bundle; <code>/address</code> and <code>/evm</code> anywhere, with no dependency</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/format"><code>@meantjs/format</code></a></td><td>0.4.0</td><td>none</td><td>Node 22 or later and browsers</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent"><code>@meantjs/consent</code></a></td><td>0.4.0</td><td><code>@candid-core/schema</code> 0.5.0, <code>@meantjs/format</code> 0.4.0, <code>@meantjs/profile</code> 0.4.0</td><td>Node 22 or later and browsers, <code>/terms</code> included; <code>/sns</code> is Node only (it hashes with <code>node:crypto</code>)</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/tools"><code>@meantjs/tools</code></a></td><td>0.4.0</td><td><code>@meantjs/format</code> 0.4.0</td><td>Node 22 or later and browsers</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile"><code>@meantjs/reconcile</code></a></td><td>0.4.0</td><td><code>@meantjs/format</code> 0.4.0</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver"><code>@meantjs/profile</code></a></td><td>0.5.0</td><td><code>@candid-core/cli</code> 0.4.0, <code>ajv</code> 8.18.0</td><td>Node 22 or later for the main entry and the CLI; <code>/browser</code> in a browser bundle; <code>/address</code> and <code>/evm</code> anywhere, with no dependency</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/format"><code>@meantjs/format</code></a></td><td>0.5.0</td><td>none</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent"><code>@meantjs/consent</code></a></td><td>0.5.0</td><td><code>@candid-core/schema</code> 0.5.0, <code>@meantjs/format</code> 0.5.0, <code>@meantjs/profile</code> 0.5.0</td><td>Node 22 or later and browsers, <code>/terms</code> included; <code>/sns</code> is Node only (it hashes with <code>node:crypto</code>)</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/tools"><code>@meantjs/tools</code></a></td><td>0.5.0</td><td><code>@meantjs/format</code> 0.5.0</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile"><code>@meantjs/reconcile</code></a></td><td>0.5.0</td><td><code>@meantjs/format</code> 0.5.0</td><td>Node 22 or later and browsers</td></tr>
   </tbody>
 </table>
 
 <p>Each name links to its source under <code>profile/packages/</code>; <code>@meantjs/profile</code> is <code>packages/resolver</code>.</p>
 
 <p>
-  <claim>fact</claim> 0.4.0 was published to npm on 2026-10-30, all five under <code>latest</code> and each with signed
-  provenance (the npm registry, read 2026-10-30). It adds what a call grants (spec §5.3, D-056): the
-  <code>grant</code> of an <code>effect</code> in <code>@meantjs/profile</code> and its packs, the <code>grant</code> and
-  <code>values</code> the consent functions return, and the new subpath <a href="#consent-terms"><code>@meantjs/consent/terms</code></a>.
-  <code>@meantjs/format</code>, <code>@meantjs/tools</code> and <code>@meantjs/reconcile</code> did not change in 0.4.0:
-  their changelogs say "No changes in this package", and only their version and pins moved. Each package's
-  <code>CHANGELOG.md</code> lists what changed; 0.3.0 (2026-10-29) added EIP-712 typed messages (spec §15.9, D-055,
-  experimental).
+  <claim>fact</claim> 0.5.0 was published to npm on 2026-10-30, all five under <code>latest</code> and each with signed
+  provenance (the npm registry, read 2026-10-30). It adds pins and x402 payments (spec §15.4, §15.9, D-058,
+  experimental): the tag <code>fixed</code> in <code>@meantjs/profile</code>, beside the contract profiles
+  <code>usdc</code>, <code>usdc-base-sepolia</code> and <code>x402-exact-permit2</code>, and <diag>E_FIXED</diag> in
+  <code>evmConsent</code> and <code>eip712Consent</code>. <code>@meantjs/format</code> did not change in 0.5.0: its
+  changelog says "No changes in this package", and only its version moved. <code>@meantjs/tools</code> and
+  <code>@meantjs/reconcile</code> changed only a spec reference in their README files (D-057), with no change in
+  behavior. Each package's <code>CHANGELOG.md</code> lists what changed; 0.4.0 (2026-10-30) added what a call grants
+  (spec §5.3, D-056) and <a href="#consent-terms"><code>@meantjs/consent/terms</code></a>, and 0.3.0 (2026-10-29)
+  EIP-712 typed messages (spec §15.9, D-055, experimental).
 </p>
 
 <callout type="note" title="One version for all five">
@@ -344,12 +346,13 @@ parseEip712Types({ Short: [{ name: "x", type: "uint" }] }).errors;
 
 <p>
   JSON documents, not modules: <code>./schema.json</code> is the package's copy of
-  <code>spec/profile-v0.schema.json</code>, and <code>./packs/*</code> its copies of the six standard files of
+  <code>spec/profile-v0.schema.json</code>, and <code>./packs/*</code> its copies of the nine standard files of
   <code>profile/packs/</code>: the packs <code>icrc1.profile.json</code>, <code>icrc2.profile.json</code>,
   <code>erc20.profile.json</code> and <code>erc2612.profile.json</code>, and the EVM contract profiles
-  <code>permit2.profile.json</code> and <code>dai-permit.profile.json</code> (experimental, §15.9). A contract profile is
-  never tried as a pack: pass it in <code>profiles</code>. Import them with an import attribute, and pass them as
-  documents:
+  <code>permit2.profile.json</code>, <code>dai-permit.profile.json</code>, <code>usdc.profile.json</code>,
+  <code>usdc-base-sepolia.profile.json</code> and <code>x402-exact-permit2.profile.json</code> (experimental, §15.9). A
+  contract profile is never tried as a pack: pass it in <code>profiles</code>. Import them with an import attribute, and
+  pass them as documents:
 </p>
 
 <pre data-lang="js" data-file="profile/packages/resolver/README.md">
