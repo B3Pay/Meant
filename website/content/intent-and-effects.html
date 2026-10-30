@@ -199,7 +199,8 @@ Set `ig6pt-…-ig6-7fqknwy.1`'s allowance to `1 TKA`, replacing any existing all
   take tokens because of the call or the signature, which token, how many and until when, so that a
   wallet can compare a request with <a href="#confirmed-terms">terms the person confirmed</a>. Its
   values are relative paths into the method's arguments, written as a template's placeholders are
-  (spec §5.3, D-056). From the ICRC-2 pack:
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>,
+  D-056). From the ICRC-2 pack:
 </p>
 
 <annotation at="icrc2_approve" tag="effect">
@@ -230,13 +231,13 @@ grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
   <thead><tr><th>Pack</th><th>Method or message</th><th><code>grant</code></th></tr></thead>
   <tbody>
     <tr><td><code>icrc1</code></td><td><code>icrc1_transfer</code></td><td><code>{ "to": "to", "amount": "amount" }</code></td></tr>
-    <tr><td><code>icrc2</code></td><td><code>icrc2_approve</code></td><td><code>{ "spender": "spender", "amount": "amount", "ends": ["expires_at"] }</code></td></tr>
+    <tr><td><code>icrc2</code></td><td><code>icrc2_approve</code></td><td><code class="wrap">{ "spender": "spender", "amount": "amount", "ends": ["expires_at"] }</code></td></tr>
     <tr><td><code>erc20</code></td><td><code>transfer</code></td><td><code>{ "to": "to", "amount": "value" }</code></td></tr>
-    <tr><td><code>erc20</code></td><td><code>approve</code></td><td><code>{ "spender": "spender", "amount": "value" }</code></td></tr>
-    <tr><td><code>erc2612</code></td><td><code>Permit</code> and <code>permit</code></td><td><code>{ "spender": "spender", "amount": "value" }</code></td></tr>
-    <tr><td><code>dai-permit</code></td><td><code>Permit</code></td><td><code>{ "spender": "spender", "amount": "allowed" }</code></td></tr>
-    <tr><td><code>permit2</code></td><td><code>PermitSingle</code></td><td><code>{ "spender": "spender", "amount": "details.amount", "ends": ["details.expiration", "sigDeadline"] }</code></td></tr>
-    <tr><td><code>permit2</code></td><td><code>PermitTransferFrom</code></td><td><code>{ "spender": "spender", "amount": "permitted.amount", "ends": ["deadline"] }</code></td></tr>
+    <tr><td><code>erc20</code></td><td><code>approve</code></td><td><code class="wrap">{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code>erc2612</code></td><td><code>Permit</code> and <code>permit</code></td><td><code class="wrap">{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code>dai-permit</code></td><td><code>Permit</code></td><td><code class="wrap">{ "spender": "spender", "amount": "allowed" }</code></td></tr>
+    <tr><td><code>permit2</code></td><td><code>PermitSingle</code></td><td><code class="wrap">{ "spender": "spender", "amount": "details.amount", "ends": ["details.expiration", "sigDeadline"] }</code></td></tr>
+    <tr><td><code>permit2</code></td><td><code>PermitTransferFrom</code></td><td><code class="wrap">{ "spender": "spender", "amount": "permitted.amount", "ends": ["deadline"] }</code></td></tr>
   </tbody>
 </table>
 

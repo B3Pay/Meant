@@ -1,9 +1,12 @@
 <p>
   Alice asks her agent to let Dex, a swap app on her local replica, spend up to 500 TKA until the end of November.
   Before the agent builds the request, Alice confirms those terms once, on her wallet's own screen. The wallet then
-  reads what the request grants and compares it with what she confirmed: a request that fits is signed or sent without
-  a second yes, and one that does not is refused with its reasons. <code>@meantjs/consent/terms</code> holds the steps;
-  the rules are spec §5.3 ("What a call grants", "Confirmed terms") and §11 item 10, decision D-056.
+  reads what the request grants and compares it with what she confirmed: a request that fits may be signed or sent
+  without a second yes, and one that does not is refused with its reasons. <code>@meantjs/consent/terms</code> holds the steps;
+  the rules are <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec
+  §5.3</a> ("What a call grants", "Confirmed terms") and
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">§11</a> item
+  10, decision D-056.
 </p>
 
 <h2>Check a request against the person's terms</h2>
@@ -18,22 +21,22 @@ import { readFileSync } from "node:fs";
 import { generateConsent } from "@meantjs/consent";
 import { checkGrant, confirmTerms, readTerms, termsText } from "@meantjs/consent/terms";
 
-// What the wallet knows: its tokens by symbol, the apps the person has named, and its own clock.
+// What the wallet knows: its tokens, the apps the person named, its clock.
 const LEDGER = "bkyz2-fmaaa-aaaaa-qaaaq-cai"; // TKA, a ledger on your local replica
 const wallet = {
   tokens: { TKA: { canister: LEDGER, decimals: 8 } },
   apps: { Dex: "bd3sg-teaaa-aaaaa-qaaba-cai" },
-  now: BigInt(Date.parse("2026-11-02T12:00:00Z")) * 1_000_000n, // nanoseconds since the Unix epoch
+  now: BigInt(Date.parse("2026-11-02T12:00:00Z")) * 1_000_000n, // nanoseconds
 };
 
-// 1. The agent writes the person's terms as a tool's arguments; the wallet reads them.
+// 1. The agent writes the person's terms, a tool's arguments; the wallet reads them.
 const terms = readTerms({ token: "TKA", spender: "Dex", max_amount: "500", expires_by: "2026-11-30" }, wallet);
 
-// 2. The wallet shows the terms on its own screen. Once the person confirms exactly that text:
+// 2. The wallet shows them on its own screen. Once the person confirms that text:
 const shown = termsText(terms);
 const confirmed = confirmTerms(terms);
 
-// 3. The agent builds its request, icrc2_approve on the local ledger, and the wallet receives its bytes.
+// 3. The agent builds its request, an icrc2_approve; the wallet receives its bytes.
 const resolved = JSON.parse(readFileSync("ledger.resolved.json", "utf8"));
 const argHex =
   "4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b01000000000080e8eda1ba0100010080643addd0ec18010a8000000000100002010100";
@@ -116,17 +119,17 @@ console.log(JSON.stringify({ shown, grant, verdict }, null, 2));
   <thead><tr><th>The agent wrote</th><th><code>code</code></th><th><code>message</code></th></tr></thead>
   <tbody>
     <tr><td>no <code>expires_by</code></td><td><diag>E_TERMS_MISSING</diag></td><td><code>missing parameter: expires_by</code></td></tr>
-    <tr><td><code>token: "TKB"</code></td><td><diag>E_TERMS_TOKEN</diag></td><td><code>the wallet knows no token named "TKB"; it knows TKA. If the user named another token, or did not say which, ask the user</code></td></tr>
-    <tr><td><code>spender: "SwapCo"</code></td><td><diag>E_TERMS_PARTY</diag></td><td><code>the wallet knows no app named "SwapCo"; it knows Dex. If the user named another app, or none, ask the user which app they mean, or for its account</code></td></tr>
-    <tr><td><code>max_amount: "500.000000001"</code></td><td><diag>E_TERMS_AMOUNT</diag></td><td><code>max_amount: "500.000000001" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8</code></td></tr>
-    <tr><td><code>expires_by: "end of the month"</code></td><td><diag>E_TERMS_END</diag></td><td><code>expires_by must be a date as YYYY-MM-DD, a length of time from now as a number and a unit (hours, days, weeks, months or years), such as "2 hours", "30 days" or "1 month", or "never"; got "end of the month"</code></td></tr>
-    <tr><td><code>expires_by: "2026-10-31"</code></td><td><diag>E_TERMS_END</diag></td><td><code>expires_by 2026-10-31 is before today, 2026-11-02</code></td></tr>
+    <tr><td><code>token: "TKB"</code></td><td><diag>E_TERMS_TOKEN</diag></td><td><code class="wrap">the wallet knows no token named "TKB"; it knows TKA. If the user named another token, or did not say which, ask the user</code></td></tr>
+    <tr><td><code>spender: "SwapCo"</code></td><td><diag>E_TERMS_PARTY</diag></td><td><code class="wrap">the wallet knows no app named "SwapCo"; it knows Dex. If the user named another app, or none, ask the user which app they mean, or for its account</code></td></tr>
+    <tr><td><code>max_amount: "500.000000001"</code></td><td><diag>E_TERMS_AMOUNT</diag></td><td><code class="wrap">max_amount: "500.000000001" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8</code></td></tr>
+    <tr><td><code>expires_by: "end of the month"</code></td><td><diag>E_TERMS_END</diag></td><td><code class="wrap">expires_by must be a date as YYYY-MM-DD, a length of time from now as a number and a unit (hours, days, weeks, months or years), such as "2 hours", "30 days" or "1 month", or "never"; got "end of the month"</code></td></tr>
+    <tr><td><code>expires_by: "2026-10-31"</code></td><td><diag>E_TERMS_END</diag></td><td><code class="wrap">expires_by 2026-10-31 is before today, 2026-11-02</code></td></tr>
   </tbody>
 </table>
 
 <p>
-  A wallet argument that is not one (a <code>now</code> in milliseconds, two tokens with one address) is the caller's
-  mistake, not the agent's: <code>E_REQUEST</code>.
+  A wallet argument that is not one (a <code>now</code> that is a number, not a <code>bigint</code>; two tokens with one
+  address) is the caller's mistake, not the agent's: <code>E_REQUEST</code>.
 </p>
 
 <callout type="warn" title="A term left out is not a loose term">
@@ -170,8 +173,9 @@ console.log(JSON.stringify({ shown, grant, verdict }, null, 2));
   <code>id</code>: the SHA-256 of their canonical JSON (RFC 8785), lowercase hex,
   <code>18c0e36c219f1afd8f69a63dfc1f97f93a18ab6531c2f206f770fc31afd8c115</code> for Alice's. A copy changed
   afterwards is refused: <code>checkGrant</code> and <code>termsText</code> throw <code>E_REQUEST</code>,
-  <code>terms are not the ones the user confirmed: they changed after confirmTerms</code>, and terms that were never
-  confirmed are refused the same way.
+  <code>terms are not the ones the user confirmed: they changed after confirmTerms: they come from readTerms, then
+  confirmTerms</code>. <code>checkGrant</code> refuses terms that were never confirmed with <code>E_REQUEST</code>
+  too.
 </p>
 
 <h2>Read what the request grants</h2>
@@ -264,9 +268,9 @@ console.log(JSON.stringify({ shown, grant, verdict }, null, 2));
   <thead><tr><th>The request</th><th><code>reasons</code></th></tr></thead>
   <tbody>
     <tr><td>500 TKA to Dex, until 30 November 2026 at 12:00 UTC</td><td>none: <span class="pill ok">fits</span></td></tr>
-    <tr><td>600 TKA to Dex, the same end</td><td><code>the request allows 600 TKA, the terms say at most 500 TKA</code></td></tr>
-    <tr><td>500 TKA to Dex, no <code>expires_at</code></td><td><code>the permission never ends, the terms say until the end of 30 November 2026 (UTC)</code></td></tr>
-    <tr><td>500 TKA to <code>be2us-…-qaabq-cai</code></td><td><code>the spender is be2us-64aaa-aaaaa-qaabq-cai, the terms say Dex (bd3sg-teaaa-aaaaa-qaaba-cai)</code></td></tr>
+    <tr><td>600 TKA to Dex, the same end</td><td><code class="wrap">the request allows 600 TKA, the terms say at most 500 TKA</code></td></tr>
+    <tr><td>500 TKA to Dex, no <code>expires_at</code></td><td><code class="wrap">the permission never ends, the terms say until the end of 30 November 2026 (UTC)</code></td></tr>
+    <tr><td>500 TKA to <code>be2us-…-qaabq-cai</code></td><td><code class="wrap">the spender is be2us-64aaa-aaaaa-qaabq-cai, the terms say Dex (bd3sg-teaaa-aaaaa-qaaba-cai)</code></td></tr>
   </tbody>
 </table>
 
@@ -279,8 +283,8 @@ console.log(JSON.stringify({ shown, grant, verdict }, null, 2));
   <thead><tr><th>The request</th><th><code>reasons</code></th></tr></thead>
   <tbody>
     <tr><td>The <code>transfer</code>, at 12:00 UTC</td><td>none: <span class="pill ok">fits</span></td></tr>
-    <tr><td>The same <code>transfer</code>, at 15:00 UTC</td><td><code>the terms have ended: they said until 2 November 2026 at 14:00 (UTC)</code></td></tr>
-    <tr><td>An <code>approve</code> of 15 TKA to Bob instead</td><td><code>the request lets Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) spend, the terms pay Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) directly</code>, <code>the permission never ends, the terms say until 2 November 2026 at 14:00 (UTC)</code></td></tr>
+    <tr><td>The same <code>transfer</code>, at 15:00 UTC</td><td><code class="wrap">the terms have ended: they said until 2 November 2026 at 14:00 (UTC)</code></td></tr>
+    <tr><td>An <code>approve</code> of 15 TKA to Bob instead</td><td><code class="wrap">the request lets Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) spend, the terms pay Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) directly</code>, <code class="wrap">the permission never ends, the terms say until 2 November 2026 at 14:00 (UTC)</code></td></tr>
   </tbody>
 </table>
 
@@ -315,8 +319,10 @@ console.log(JSON.stringify({ shown, grant, verdict }, null, 2));
 
 <p>
   The terms must be confirmed before the agent reads the request, so that the request cannot shape them, and they cannot
-  change after. <code>termsGate()</code> keeps that order for one task. Here the agent signs Dex's EIP-2612 permit
-  on Anvil, and Alice has said plainly that the allowance need not end, since a permit's allowance never does:
+  change after. <code>termsGate()</code> keeps that order for one task. Here the task is Dex's EIP-2612 permit on
+  Anvil, which the wallet signs, and Alice has said plainly that the allowance need not end, since a permit's
+  allowance never does. <code>tka.abi.json</code> is the token's ABI as on <a href="chain-evm.html">EVM contracts</a>,
+  with EIP-2612's <code>permit</code>, <code>nonces</code> and <code>DOMAIN_SEPARATOR</code>:
 </p>
 
 <pre data-lang="bash">
@@ -390,11 +396,11 @@ const verdict = gate.check(request.grant, wallet, request.digest); // the digest
 <table>
   <thead><tr><th>Step</th><th><code>message</code></th></tr></thead>
   <tbody>
-    <tr><td><code>read()</code> on a new gate</td><td><code>there are no terms yet: propose the user's terms, and read the request once the user confirms them</code></td></tr>
-    <tr><td><code>read()</code> after <code>propose</code></td><td><code>the user has not confirmed the terms yet; the request can be read once they do</code></td></tr>
-    <tr><td><code>confirm()</code> with another text</td><td><code>the text the user confirmed is not the text of the terms proposed; show termsText(gate.proposed) and ask again</code></td></tr>
-    <tr><td><code>propose()</code> after <code>read()</code></td><td><code>the request was read under the confirmed terms, so they cannot be changed now; new terms start a new task</code></td></tr>
-    <tr><td><code>check()</code> before <code>read()</code></td><td><code>read the request first: its grant is checked against the terms it was read under</code></td></tr>
+    <tr><td><code>read()</code> on a new gate</td><td><code class="wrap">there are no terms yet: propose the user's terms, and read the request once the user confirms them</code></td></tr>
+    <tr><td><code>read()</code> after <code>propose</code></td><td><code class="wrap">the user has not confirmed the terms yet; the request can be read once they do</code></td></tr>
+    <tr><td><code>confirm()</code> with another text</td><td><code class="wrap">the text the user confirmed is not the text of the terms proposed; show termsText(gate.proposed) and ask again</code></td></tr>
+    <tr><td><code>propose()</code> after <code>read()</code></td><td><code class="wrap">the request was read under the confirmed terms, so they cannot be changed now; new terms start a new task</code></td></tr>
+    <tr><td><code>check()</code> before <code>read()</code></td><td><code class="wrap">read the request first: its grant is checked against the terms it was read under</code></td></tr>
   </tbody>
 </table>
 
@@ -409,9 +415,9 @@ const verdict = gate.check(request.grant, wallet, request.digest); // the digest
 
 <p>
   <claim>fact</claim> Two requests can grant the same and each be spent, as two Permit2 transfers that differ only in
-  their nonce do (spec §5.3). On the gate above, the same permit with <code>nonce: "1"</code> has the same grant and
-  the digest <code>0xbc5bb19c82bc8f4eb547ba6124340581f2838791a95da2690286904ff9b4843b</code>, and its check throws
-  <diag>E_TERMS_ORDER</diag>:
+  their nonce do (spec §5.3). The same permit with <code>nonce: "1"</code> has the same grant and the digest
+  <code>0xbc5bb19c82bc8f4eb547ba6124340581f2838791a95da2690286904ff9b4843b</code>; checked on the gate above, after
+  the first, it throws <diag>E_TERMS_ORDER</diag>:
   <code>these terms cover one request, the one already checked; another request is a new task, with new terms</code>.
   A new task gets a new gate and the person's confirmation of its terms.
 </p>
@@ -426,7 +432,7 @@ const verdict = gate.check(request.grant, wallet, request.digest); // the digest
     beside the intent (<a href="security-model.html">security model</a>).
   </li>
   <li>
-    Terms are not a budget. They cover one request of one task; <claim>open</claim> spending policies and budgets
+    Terms are not a budget: they cover one request of one task. <claim>open</claim> Spending policies and budgets
     that would let an agent commit many calls without a confirmation each are OQ-8 on
     <a href="open-questions.html">Open questions</a>.
   </li>

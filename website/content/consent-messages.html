@@ -101,12 +101,93 @@ const reply = decodeConsentResponse(replyBytes);
 <p>
   <code>handleConsentRequest</code> takes the Candid bytes of an
   <code>icrc21_consent_message_request</code> and returns the Candid bytes of the response. The codec
-  for the ICRC-21 types is exported too, and <code>generateConsent({ resolved, method, arg, refs, form })</code>
-  gives one form without the ICRC-21 envelope. The context takes <code>languagePolicy</code>
+  for the ICRC-21 types is exported too, and <code>generateConsent({ resolved, method, arg, refs, form, canisterId })</code>
+  gives one form without the ICRC-21 envelope, with the call's values and what it grants
+  (<a href="#values-and-what-a-call-grants">below</a>). The context takes <code>languagePolicy</code>
   (<code>"fallback"</code>, the default, or <code>"error"</code>), <code>rawArguments</code> and
   decoder <code>limits</code>. The main entry runs in a browser: it imports no Node built-in and uses
   no <code>Buffer</code>. Every export is on the <a href="reference-profile-api.html">JavaScript API</a>
   reference.
+</p>
+
+<h2>Values and what a call grants</h2>
+
+<pre data-lang="js" data-check="consent">
+import { generateConsent } from "@meantjs/consent";
+
+const { values, grant } = generateConsent({
+  resolved,
+  method: "icrc1_transfer",
+  arg,
+  refs,
+  canisterId: "bkyz2-fmaaa-aaaaa-qaaaq-cai", // the ledger called: the token the call grants
+});
+console.log(JSON.stringify(toJson({ values, grant }), null, 2));
+</pre>
+
+<pre data-lang="json">
+{
+  "values": [
+    {
+      "to": {
+        "owner": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+        "subaccount": null
+      },
+      "fee": null,
+      "memo": {
+        "hex": "6c756e6368"
+      },
+      "from_subaccount": null,
+      "created_at_time": "1791547201000000000",
+      "amount": "150000000"
+    }
+  ],
+  "grant": {
+    "kind": "transfer",
+    "to": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+    "token": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+    "amount": {
+      "units": "150000000",
+      "unlimited": false
+    },
+    "ends": {
+      "now": true
+    }
+  }
+}
+</pre>
+
+<p>
+  Beside <code>message</code>, <code>generateConsent</code> returns <code>values</code>, the decoded
+  arguments, one value tree per argument as <code>decodeArguments</code> gives them, and
+  <code>grant</code>: who may take tokens because of the call, which token, how many and until when, read
+  from the <code>grant</code> of the method's <a href="intent-and-effects.html">effect</a> (spec §5.3,
+  D-056). Addresses are EIP-55, accounts their ICRC-1 text, units a decimal string and an end exact
+  seconds, never rounded; a transfer ends <code>{ now: true }</code>, when it is made.
+</p>
+
+<ul>
+  <li>
+    The grant is read only when <code>canisterId</code> names the canister called, which is its token.
+    Without it, <code>grant</code> is <code>null</code> and nothing warns. The ICRC-21 call,
+    <code>icrc21ConsentMessage</code> and <code>handleConsentRequest</code>, takes no
+    <code>canisterId</code> and its message is unchanged.
+  </li>
+  <li>
+    A method whose effect names no grant, such as <code>icrc2_transfer_from</code>, has
+    <code>grant: null</code> and no diagnostic.
+  </li>
+  <li>
+    A grant that cannot be read is <code>null</code> with <diag>W_GRANT</diag> in
+    <code>diagnostics</code>, and the text is the same. A transfer to an account whose subaccount is 2
+    bytes long: <code>grant to: a subaccount is 32 bytes, got 2; the request has no grant, so terms the
+    user confirmed cannot cover it</code>.
+  </li>
+</ul>
+
+<p>
+  A wallet compares the grant with terms the person confirmed for one task, with
+  <code>@meantjs/consent/terms</code>: <a href="confirmed-terms.html">Confirm terms for a task</a>.
 </p>
 
 <h2>What happens, in order</h2>
@@ -169,7 +250,7 @@ const reply = decodeConsentResponse(replyBytes);
   <tbody>
     <tr><td><code>intent.title</code> and the rendered <code>template</code></td><td><code>intent</code></td></tr>
     <tr><td>each placeholder</td><td>one <code>(label, Value)</code> row; the label is <code>describe.label</code>, else the field name</td></tr>
-    <tr><td><code>amount</code></td><td><code>TokenAmount { decimals; amount; symbol }</code> when it fits <code>nat64</code>, else <code>Text</code>; <code>Text</code> at or above its <code>threshold</code></td></tr>
+    <tr><td><code>amount</code></td><td><code class="wrap">TokenAmount { decimals; amount; symbol }</code> when it fits <code>nat64</code>, else <code>Text</code>; <code>Text</code> at or above its <code>threshold</code></td></tr>
     <tr><td><code>timestamp</code></td><td><code>TimestampSeconds { amount }</code> after unit conversion; <code>Text</code> when it is shown as words</td></tr>
     <tr><td><code>duration</code></td><td><code>DurationSeconds { amount }</code> after unit conversion</td></tr>
     <tr><td>everything else</td><td><code>Text { content }</code></td></tr>
@@ -221,7 +302,7 @@ const reply = decodeConsentResponse(replyBytes);
 <table>
   <thead><tr><th>Value</th><th>Row</th></tr></thead>
   <tbody>
-    <tr><td>amount <code>999</code></td><td><code>TokenAmount {"decimals":2,"amount":"999","symbol":"EUR"}</code></td></tr>
+    <tr><td>amount <code>999</code></td><td><code class="wrap">TokenAmount {"decimals":2,"amount":"999","symbol":"EUR"}</code></td></tr>
     <tr><td>amount <code>1000</code></td><td><code>Text {"content":"Unlimited EUR"}</code></td></tr>
     <tr><td>timestamp <code>1</code></td><td><code>TimestampSeconds {"amount":"1"}</code></td></tr>
     <tr><td>timestamp <code>0</code></td><td><code>Text {"content":"Now"}</code></td></tr>
@@ -390,7 +471,7 @@ pub fn generic_consent_message(
 <table>
   <thead><tr><th>Function</th><th>Does</th></tr></thead>
   <tbody>
-    <tr><td><code>sns_validator_rendering(resolved, method, payload, refs)</code></td><td><code>Ok(text)</code> or <code>Err(text)</code>, as <code>snsValidatorRendering</code>.</td></tr>
+    <tr><td><code class="wrap">sns_validator_rendering(resolved, method, payload, refs)</code></td><td><code>Ok(text)</code> or <code>Err(text)</code>, as <code>snsValidatorRendering</code>.</td></tr>
     <tr><td><code>handle_sns_validator_call</code>, <code>encode_validator_result</code></td><td>The Candid-encoded reply a validator method returns.</td></tr>
     <tr><td><code>render_sns_payload(…, limits)</code></td><td>The same, with the error as a value and the diagnostics.</td></tr>
     <tr><td><code>generic_consent_message(…)</code></td><td>The ICRC-21 <code>GenericDisplayMessage</code> text, as <code>generateConsent</code> with <code>form: "generic"</code>.</td></tr>
@@ -470,6 +551,14 @@ Send `1.5 USDC` to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
     before anything is shown (<diag>E_DOMAIN</diag>), and so is a request no message matches
     (<diag>E_TYPE_HASH</diag>). The text ends with the verifying contract, the EIP-712 digest and "This is a
     signature, not a transaction: whoever holds it can submit it."
+  </li>
+  <li>
+    Both functions also return <code>values</code>, the decoded arguments or message by name, and
+    <code>grant</code>, what the call or signature grants, or <code>null</code>; its token is the contract
+    called, or the verifying contract, unless the amount's tag names a field that holds it. The transfer
+    above grants <code>{ kind: "transfer", to: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", token:
+    "0x5FbDB2315678afecb367f032d93F642f64180aa3", amount: { units: "1500000", unlimited: false }, ends: { now:
+    true } }</code>. A grant that cannot be read is <code>null</code> with <diag>W_GRANT</diag>.
   </li>
   <li>
     <code>tokens</code>, taken by both functions, gives the decimals and symbol of each token an amount's

@@ -3,7 +3,9 @@
     A profile can describe an EVM contract's functions. From it come consent text for a call's calldata and an
     ERC-7730 clear-signing file with its ERC-8176 <code>descriptorHash</code>. A profile can also describe the
     <a href="#typed-messages-eip-712">EIP-712 messages</a> a wallet is asked to sign, with consent text for a signing
-    request and an ERC-7730 file of the messages. Agent tools, <code>outcome</code> classes over reverts,
+    request and an ERC-7730 file of the messages. The consent text comes with
+    <a href="#what-a-call-or-signature-grants">what the call or signature grants</a>, for a wallet that checks requests
+    against terms the person confirmed (D-056). Agent tools, <code>outcome</code> classes over reverts,
     <code>idempotency</code> by nonce and ERC-7730 import are later phases, each its own decision; signing, checking
     signatures and Permit2's witness messages are not in it. The preregistered eval uses none of it. Decisions D-054
     and D-055; the text is
@@ -110,7 +112,7 @@ Send `1.5 TKA` to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
   With no types it is the hash above, so a resolved form without messages keeps its id. A token whose ABI has
   ERC-20's functions and EIP-2612's <code>permit</code>, <code>nonces</code> and <code>DOMAIN_SEPARATOR</code> resolves
   to <code>…6ad2a3fd…</code> with the ERC-20 pack alone and to <code>…c0cd422e…</code> once the EIP-2612 pack adds its
-  <code>Permit</code> type (both measured by resolving that ABI with <code>@meantjs/profile</code> 0.3.0). Whether a
+  <code>Permit</code> type (both measured by resolving that ABI with <code>@meantjs/profile</code> 0.4.0). Whether a
   contract profile is rebound or stale is decided by its functions alone, so the messages a pack adds never make it
   stale.
 </p>
@@ -300,6 +302,15 @@ PASS tka.profile.json  (0 error, 0 warning, 0 info)
     <tr><td>A Candid resolved form given to <code>@meantjs/consent/evm</code>, or an EVM one to the main entry</td><td><diag>E_RESOLVED_FORM</diag></td></tr>
   </tbody>
 </table>
+
+<p>
+  With the text, <code>evmConsent</code> returns <code>values</code>, the decoded arguments by parameter name, and
+  <code>grant</code>, what the call grants (<a href="#what-a-call-or-signature-grants">below</a>). For the transfer in the
+  first example, <code>values</code> is <code>{ to: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", value: "1500000" }</code>
+  and <code>grant</code> is <code>{ kind: "transfer", to: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", token:
+  "0x5FbDB2315678afecb367f032d93F642f64180aa3", amount: { units: "1500000", unlimited: false }, ends: { now: true }
+  }</code>: the token is the contract called.
+</p>
 
 <p>
   <code>evmConsent</code> also takes <code>tokens</code>, the decimals and symbol of each token an amount's
@@ -542,6 +553,7 @@ eip712TypeHash(dai, "Permit"); // "0xea2aa0a1be11a07ed86d755c93467f4f82362b45237
 <ul>
   <li><code>intent</code> and <code>effect</code> work as on a function. A signature runs nothing when it is signed, so <code>effect</code> says what it allows, of any kind: <effect>approve</effect> for an allowance, <effect>transfer</effect> for a one-time transfer. The default is <effect>write</effect>, irreversible.</li>
   <li><code>replicated</code> does not apply to a signature (<diag>E_EFFECT_MODE</diag>).</li>
+  <li>An <code>effect</code>'s <code>grant</code> names a message's positions from the struct, as its template does (<a href="#what-a-call-or-signature-grants">What a call or signature grants</a>).</li>
   <li>The value tags apply to a message's members as to a function's parameters (<a href="#tags-on-evm">Tags on EVM</a>), and the tags that are not defined for EVM yet are not defined here either.</li>
   <li>The interface id covers the message types with the functions (<a href="#identity">Identity</a>).</li>
 </ul>
@@ -746,11 +758,11 @@ This is a signature, not a transaction: whoever holds it can submit it.
     <tr><th>Change</th><th>Result</th></tr>
   </thead>
   <tbody>
-    <tr><td>The wallet is on chain 1</td><td><code>E_DOMAIN: the domain is for chain 31337, the wallet is on chain 1</code></td></tr>
-    <tr><td>One more member in <code>Permit</code></td><td><code>E_TYPE_HASH: no message of the resolved form has the type hash 0x556c83ad…f8f2 (Permit); a request is matched by its type hash, never by its name</code></td></tr>
-    <tr><td>No <code>refs</code></td><td><code>E_REF_UNRESOLVED: amount.decimals needs the value of "query:decimals", which the caller did not supply …</code></td></tr>
-    <tr><td><code>value</code> written <code>"02500000"</code></td><td><code>E_DECODE: message.value: uint256 needs a decimal string or a JSON integer below 2^53, got "02500000"</code></td></tr>
-    <tr><td>No <code>chainId</code> argument</td><td><code>E_REQUEST: give the wallet's active chainId: a signature for another chain is refused</code></td></tr>
+    <tr><td>The wallet is on chain 1</td><td><code class="wrap">E_DOMAIN: the domain is for chain 31337, the wallet is on chain 1</code></td></tr>
+    <tr><td>One more member in <code>Permit</code></td><td><code class="wrap">E_TYPE_HASH: no message of the resolved form has the type hash 0x556c83ad…f8f2 (Permit); a request is matched by its type hash, never by its name</code></td></tr>
+    <tr><td>No <code>refs</code></td><td><code class="wrap">E_REF_UNRESOLVED: amount.decimals needs the value of "query:decimals", which the caller did not supply …</code></td></tr>
+    <tr><td><code>value</code> written <code>"02500000"</code></td><td><code class="wrap">E_DECODE: message.value: uint256 needs a decimal string or a JSON integer below 2^53, got "02500000"</code></td></tr>
+    <tr><td>No <code>chainId</code> argument</td><td><code class="wrap">E_REQUEST: give the wallet's active chainId: a signature for another chain is refused</code></td></tr>
   </tbody>
 </table>
 
@@ -779,6 +791,88 @@ This is a signature, not a transaction: whoever holds it can submit it.
   The same request with a verifying contract of <code>0x5FbD…0aa3</code> is
   <code>E_DEPLOYMENT: profile permit2 describes 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 1, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 42161, not 0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 1</code>.
   The API: <a href="reference-profile-api.html">JavaScript API</a>.
+</p>
+
+<h2>What a call or signature grants</h2>
+
+<p>
+  An <code>effect</code> of kind <effect>transfer</effect> or <effect>approve</effect> may carry <code>grant</code>: who
+  may take tokens because of the call or the signature, which token, how many and until when
+  (<a href="intent-and-effects.html">Intent, effects and confirmation</a>; spec §5.3, D-056). On a function its paths
+  name parameters. A message's grant names its positions as its template does, from the struct. Permit2's
+  <code>PermitSingle</code>:
+</p>
+
+<pre data-lang="json" data-file="profile/packs/permit2.profile.json">
+{
+  "at": "PermitSingle",
+  "tag": "effect",
+  "args": {
+    "kind": "approve",
+    "irreversible": false,
+    "grant": {
+      "spender": "spender",
+      "amount": "details.amount",
+      "ends": [
+        "details.expiration",
+        "sigDeadline"
+      ]
+    }
+  }
+}
+</pre>
+
+<p>
+  <claim>fact</claim> Uniswap <code>permit2</code> at <code>main</code>, read 2026-10-30,
+  <code>src/libraries/Allowance.sol</code> (spec §15.9): an expiration of 0 is stored as the time of the block the
+  permit is used in, and that block may come as late as <code>sigDeadline</code>. The latest of the two is the end, so
+  0 needs no rule of its own. The token is <code>details.token</code>, the field the amount's tag names, not the
+  verifying contract.
+</p>
+
+<p>
+  <code>eip712Consent</code> returns the grant with the text, and <code>values</code>, the message by member name. A
+  <code>PermitSingle</code> request built for this page lets Dex (<code>0x9fE4…a6e0</code>) spend 500 TKA
+  (<code>0x5FbD…0aa3</code>), with a <code>sigDeadline</code> of 2026-11-02 12:30:00 UTC. It is on chain 1, since the
+  profile lists Permit2 on chains 1 and 42161 only; nothing is signed or sent. With an expiration of 0 it grants:
+</p>
+
+<pre data-lang="json">
+{
+  "kind": "approve",
+  "spender": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "token": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "amount": { "units": "500000000", "unlimited": false },
+  "ends": { "at": "1793622600" }
+}
+</pre>
+
+<table>
+  <thead>
+    <tr><th>The same request with</th><th><code>grant</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>expiration</code> 2026-11-16 12:00:00 UTC (<code>1794830400</code>)</td><td><code>ends: { at: "1794830400" }</code></td></tr>
+    <tr><td><code>expiration</code> <code>uint48</code> max, the tag's <code>threshold</code></td><td><code>ends: { never: true }</code></td></tr>
+    <tr><td><code>amount</code> <code>uint160</code> max, the tag's <code>threshold</code></td><td><code class="wrap">amount: { units: "1461501637330902918203684832716283019655932542975", unlimited: true }</code></td></tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>EIP-2612 and DAI.</strong> Their <code>deadline</code> and <code>expiry</code> bound only when the signature may be used, so they are not ends: the allowance a permit sets never ends, <code>ends: { never: true }</code>. DAI's <code>allowed</code> is a <code>bool</code>: <code>true</code> grants <code>{ units: null, unlimited: true }</code>, <code>false</code> grants <code>{ units: "0", unlimited: false }</code>, nothing.</li>
+  <li><strong>ERC-20.</strong> <code>approve</code> names its <code>spender</code> and never ends; <code>transfer</code> names <code>to</code> and ends when it is made, <code>{ now: true }</code>. <code>transferFrom</code> spends an allowance someone else gave and has no grant.</li>
+  <li>
+    <strong>Why <code>PermitBatch</code> has none.</strong> <code>PermitBatch</code> and
+    <code>PermitBatchTransferFrom</code> grant one amount per element of an array, each in its own token. A grant
+    covers one token, and none of its positions may step into <code>[]</code>, so these two messages carry no grant in
+    v0. They keep their effects, <effect>approve</effect> and <effect>transfer</effect>; <code>eip712Consent</code>
+    returns <code>grant: null</code> for them, with no diagnostic, and no terms can cover them.
+  </li>
+</ul>
+
+<p>
+  A wallet compares a grant with terms the person confirmed for one task, and names the request by its EIP-712
+  <code>digest</code>: <a href="confirmed-terms.html">Confirm terms for a task</a>.
 </p>
 
 <h2>ERC-7730 files of messages</h2>
@@ -947,6 +1041,7 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
   <li>Keccak-256 against an independent implementation (and the block boundary), the ERC-20 selectors, the ERC-8176 schema UID, EIP-55's examples and EIP-712's Mail example (<code>profile/packages/resolver/test/evm.test.mjs</code>).</li>
   <li>Every exported ERC-7730 file in the consent tests is checked against the ERC-7730 2.1.0 JSON Schema (vendored, with its sha256), and the hashes and digests the tests pin were computed by an independent implementation.</li>
   <li>EIP-712: <code>encodeType</code> and the type hash of EIP-712's Mail example, the types that are refused, the standard messages' type hashes, token paths and timestamp words (<code>profile/packages/resolver/test/eip712.test.mjs</code>); the consent text of Permit2, EIP-2612 and DAI requests and every refusal above (<code>profile/packages/consent/test/eip712.test.mjs</code>). No chain, no network, nothing signed.</li>
+  <li>Grants: the packs' grants and each way one is refused (<code>profile/packages/resolver/test/grant.test.mjs</code>); the grants of the Permit2, EIP-2612, DAI and ERC-20 requests, with real typed data and calldata, Permit2's expiration of 0, and the ways a grant is left out (<code>profile/packages/consent/test/grant.test.mjs</code>); those grants against confirmed terms (<code>profile/packages/consent/test/terms.test.mjs</code>).</li>
 </ul>
 
 <p>

@@ -209,7 +209,7 @@ result.structuredContent.outcome; // "success"
   "method": "icrc1_transfer",
   "canister": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
   "title": "Send tokens",
-  "effect": { "kind": "transfer", "irreversible": true },
+  "effect": { "kind": "transfer", "irreversible": true, "grant": { "to": "to", "amount": "amount" } },
   "arguments": {
     "to": {
       "text": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
@@ -228,7 +228,10 @@ result.structuredContent.outcome; // "success"
 <p>
   Every argument is shown formatted and raw, and <code>arg_hex</code> is the exact bytes that will be
   sent. Show the person the title, the effect and the formatted values, with the raw ones beside them
-  for a <effect>transfer</effect>. A host could render it as:
+  for a <effect>transfer</effect>. The effect is the profile's, so its <code>grant</code> names the
+  positions of who is paid and how much, not their values; a wallet that checks a request against terms
+  the person confirmed once for a task reads the values with <code>@meantjs/consent</code>
+  (<a href="confirmed-terms.html">Confirm terms for a task</a>). A host could render it as:
 </p>
 
 <consent standard="Preview · @meantjs/tools" title="Send tokens" effects="transfer irreversible">
