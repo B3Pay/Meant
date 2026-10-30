@@ -194,6 +194,21 @@
   of the consumer, as without terms.
 </p>
 
+<h2>A pin protects only the consumers that read it</h2>
+
+<p>
+  x402's Permit2 payment pays <code>witness.to</code> only when its spender is x402's proxy, so its profile pins the
+  spender (<a href="reference-tags.html#a-pin-fixed"><code>fixed</code></a>), and <code>@meantjs/consent</code> refuses
+  any other spender before it shows a word (<diag>E_FIXED</diag>). A consumer that skips <code>fixed</code> shows the
+  words, and reads the grant, for any spender, and terms for one payee would then pass a payment that another spender
+  can send anywhere. A resolved form that holds a pin must not be given to a consumer that does not read
+  <code>fixed</code>
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">spec §11</a>
+  item 11). The consent package reads it from 0.5.0, and the five packages pin each other exactly; an older consent
+  package skips the tag. <claim>open</claim> OQ-17: the resolved form does not say which tags a consumer must
+  understand, so an older consumer cannot tell that it should refuse.
+</p>
+
 <h2>Consent text makes no claims about state</h2>
 
 <p>

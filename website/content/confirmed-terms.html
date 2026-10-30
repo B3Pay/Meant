@@ -306,6 +306,7 @@ console.log(JSON.stringify({ shown, grant, verdict }, null, 2));
 <ul>
   <li>its profile's <code>effect</code> carries none: ERC-20 <code>transferFrom</code> and ICRC-2 <code>icrc2_transfer_from</code> in the packs, which spend an allowance someone else gave, and any method whose profile names no grant;</li>
   <li>it grants several tokens: Permit2's <code>PermitBatch</code> and <code>PermitBatchTransferFrom</code>, since a grant covers one token in v0;</li>
+  <li>its profile pins a position (<code>fixed</code>) and the pin does not hold in the service: the profile keeps its effects, without their grants (<a href="reference-tags.html#a-pin-fixed">Tags</a>). A request whose pinned position holds another address gets no text at all (<diag>E_FIXED</diag>);</li>
   <li><code>generateConsent</code> was not given <code>canisterId</code>;</li>
   <li>
     its grant cannot be read, which <diag>W_GRANT</diag> says. An <code>icrc1_transfer</code> to an account whose

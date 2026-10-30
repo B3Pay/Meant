@@ -221,6 +221,7 @@ PASS tka.profile.json  (0 error, 0 warning, 0 info)
     <tr><td><code>range</code></td><td>an integer type, <code>string</code>, an array</td></tr>
     <tr><td><code>describe</code>, <code>default</code>, <code>ui</code>, <code>intent</code>, <code>effect</code></td><td>as on a canister</td></tr>
     <tr><td><code>account</code>, <code>subaccount</code></td><td>none (<diag>E_TAG_NOT_APPLICABLE</diag>): an address needs no tag</td></tr>
+    <tr><td><code>fixed</code></td><td><code>address</code>, in the arguments of a function or a message: the profile describes the call or the message only with that address there (<a href="#x402-payments">below</a>; <a href="reference-tags.html#a-pin-fixed">Tags</a>)</td></tr>
     <tr><td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code>, <code>named</code></td><td>not yet (<diag>E_TAG_TARGET</diag>): they need nonces, receipts and reads that a later phase adds</td></tr>
   </tbody>
 </table>
@@ -297,6 +298,7 @@ PASS tka.profile.json  (0 error, 0 warning, 0 info)
   <tbody>
     <tr><td>A profile lists deployments, and the call's contract and chain are not among them</td><td><diag>E_DEPLOYMENT</diag></td></tr>
     <tr><td>A <code>payable</code> function (its value has no position yet, O2)</td><td><diag>E_UNSUPPORTED_TYPE</diag></td></tr>
+    <tr><td>An argument at a position a profile pins (<code>fixed</code>) holds another address</td><td><diag>E_FIXED</diag></td></tr>
     <tr><td>Calldata that is not the canonical encoding of its values</td><td><diag>E_DECODE</diag></td></tr>
     <tr><td>A selector the resolved form does not have</td><td><diag>E_METHOD_UNKNOWN</diag></td></tr>
     <tr><td>A Candid resolved form given to <code>@meantjs/consent/evm</code>, or an EVM one to the main entry</td><td><diag>E_RESOLVED_FORM</diag></td></tr>
@@ -748,6 +750,7 @@ This is a signature, not a transaction: whoever holds it can submit it.
   <li><diag>E_DOMAIN</diag>: a domain field EIP-712 does not define; a <code>salt</code> (O11); a <code>types.EIP712Domain</code> that does not list the domain's fields in EIP-712 order (it may be left out); no <code>chainId</code>, so the signature would be valid on every chain; no <code>verifyingContract</code>; a <code>chainId</code> other than the wallet's; a <code>name</code> or <code>version</code> other than that of every profile that binds a domain, absent where the profile's is absent (Permit2's domain has no version).</li>
   <li><diag>E_TYPE_HASH</diag>: no message has the request's type hash. <diag>E_DEPLOYMENT</diag>: a profile lists deployments and the verifying contract on that chain is not one of them, so a look-alike contract named "Permit2" gets none of Permit2's words.</li>
   <li><diag>E_DECODE</diag>: values that are not exactly the members, or not canonical. Integers are decimal strings without leading zeros, or JSON numbers up to 2<sup>53</sup> − 1, within their type's range. Addresses follow <a href="#values">Values</a>. <code>bytesN</code> has exactly N bytes, as <code>0x</code> hex. An array has its declared length, within the decoder's limits.</li>
+  <li><diag>E_FIXED</diag>: a member a profile pins (<code>fixed</code>) that holds another address, such as x402's Permit2 payment with a spender other than x402's proxy (<a href="#x402-payments">below</a>).</li>
   <li><diag>E_REF_UNRESOLVED</diag>: an amount in a token not in <code>tokens</code>, or a <code>query:</code> ref not in <code>refs</code>. For a pack's message the <code>query:</code> refs are calls to the verifying contract: resolve that contract's ABI with the packs, as above.</li>
 </ol>
 
@@ -792,6 +795,75 @@ This is a signature, not a transaction: whoever holds it can submit it.
   The same request with a verifying contract of <code>0x5FbD…0aa3</code> is
   <code>E_DEPLOYMENT: profile permit2 describes 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 1, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 8453, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 42161, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 84532, not 0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 1</code>.
   The API: <a href="reference-profile-api.html">JavaScript API</a>.
+</p>
+
+<h3 id="x402-payments">x402 payments</h3>
+
+<p>
+  <span class="pill warn">experimental</span> D-058. x402 pays for an HTTP request with a signature the client's wallet
+  makes, in one of two forms: USDC's EIP-3009 <code>TransferWithAuthorization</code>, the default, or, for a token
+  without EIP-3009, Permit2's <code>PermitWitnessTransferFrom</code> with x402's witness (<claim>fact</claim>
+  <code>coinbase/x402</code> at <code>0e6e8c5</code>, <code>specs/schemes/exact/scheme_exact_evm.md</code>). Three
+  standard contract profiles describe them: <a href="reference-packs.html#usdc"><code>usdc</code> and
+  <code>usdc-base-sepolia</code></a>, and
+  <a href="reference-packs.html#x402-exact-permit2"><code>x402-exact-permit2</code></a>. This is x402's own EIP-3009
+  example on Base Sepolia, from the package's test, in the fields form; nothing is signed or sent:
+</p>
+
+<consent standard="Consent text · EIP-712 (experimental)" title="Pay USDC by signature" effects="transfer irreversible" note="Only the owner signs. The model never does.">
+<field name="Amount" amount>0.01 USDC</field>
+<field name="From">0x857b…6b66</field>
+<field name="To">0x2096…287C</field>
+<field name="Valid after">2025-02-27T16:01:29Z</field>
+<field name="Expires">2025-02-27T16:02:34Z</field>
+<field name="Contract">0x036C…CF7e on chain 84532</field>
+<field name="Signature">This is a signature, not a transaction: whoever holds it can submit it</field>
+<field name="EIP-712 digest">0xf256…22e6</field>
+</consent>
+
+<p>
+  It grants <code>0x2096…287C</code> 10000 base units of USDC once, until <code>validBefore</code>: <code>{ kind:
+  "transfer", to: "0x209693Bc6afc0C5328bA36FaF03C514EF312287C", token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  amount: { units: "10000", unlimited: false }, ends: { at: "1740672154" } }</code>. The token is the verifying
+  contract.
+</p>
+
+<p>
+  The Permit2 form needs a pin. Permit2 lets the spender choose where the tokens go and never reads the witness, so the
+  witness's <code>to</code> is the payee only when the spender is x402's proxy, <code>0x4020…0001</code>, whose
+  <code>settle</code> sends exactly <code>permitted.amount</code> to <code>witness.to</code>. The profile pins the
+  spender to that proxy (<a href="reference-tags.html#a-pin-fixed"><code>fixed</code></a>), and its grant pays
+  <code>witness.to</code>. A real x402 payment on Base Sepolia, as its <code>settle</code> call carried it (transaction
+  <code>0x79b9a6c5…1472</code>), with USDC's decimals and symbol in <code>tokens</code>:
+</p>
+
+<consent standard="Consent text · EIP-712 (experimental)" title="Pay by x402 through Permit2" effects="transfer irreversible" note="Only the owner signs. The model never does.">
+<field name="Amount" amount address="0x036C…CF7e">0.011 USDC</field>
+<field name="To">0x5037…F6FD</field>
+<field name="Usable from">now</field>
+<field name="Signature expires">2026-10-29T23:58:09Z</field>
+<field name="Contract">0x0000…8BA3 on chain 84532</field>
+<field name="Signature">This is a signature, not a transaction: whoever holds it can submit it</field>
+<field name="EIP-712 digest">0xb7d4…115b</field>
+</consent>
+
+<p>
+  The spender is not shown: it can only be the proxy. The same payment with any other spender gets no text, and no
+  grant, before the token table is read:
+  <code class="wrap">E_FIXED: PermitWitnessTransferFrom(0).spender is 0x1111111111111111111111111111111111111111, but the profile describes PermitWitnessTransferFrom only with 0x402085c248EeA27D92E8b30b2C58ed07f9E20001 there, so this request gets no text</code>.
+  Permit2's own profile has no witness messages, so it gives the payment none of its words
+  (<diag>E_TYPE_HASH</diag>), and x402's <code>upto</code> scheme, whose witness names a facilitator too, has another
+  type hash and matches nothing.
+</p>
+
+<p>
+  With <a href="confirmed-terms.html">terms the person confirmed</a>, "Weather API (<code>0x5037…F6FD</code>) may be
+  sent at most 0.02 USDC, until the end of 30 October 2026 (UTC)", the payment above fits. The same grant to another
+  recipient does not (<code>the recipient is 0xbBbB…BbBB, the terms say Weather API (0x5037…F6FD)</code>), nor 0.03 USDC
+  (<code>the request allows 0.03 USDC, the terms say at most 0.02 USDC</code>). Terms for USDC on Base that end on the
+  same day pass an EIP-3009 payment valid for ten minutes and refuse the same payment valid for a year (<code>the
+  permission lasts until 29 October 2027 at 23:53:20 (UTC), the terms say until the end of 30 October 2026
+  (UTC)</code>). These runs are in <code>profile/packages/consent/test/x402.test.mjs</code>.
 </p>
 
 <h2>What a call or signature grants</h2>
@@ -962,6 +1034,7 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
   <li>Formats are keyed by <code>encode_type</code>, and the export checks that its Keccak-256 is the <code>type_hash</code>; a resolved form where it is not is <diag>E_RESOLVED_FORM</diag>.</li>
   <li>An EIP-2612 amount is <code>tokenPath: "@.to"</code>: the verifying contract is the token. An amount with <code>token</code> is <code>tokenAmount</code> with that token's path.</li>
   <li>An array whose elements hold an amount in a token of the same element is a field group, its paths relative to the element, as ERC-7730's own <code>PermitBatch</code> example writes it. A message without a title is <code>Sign &lt;name&gt;</code>.</li>
+  <li>A position a profile pins (<code>fixed</code>) is a field with <code>visible: { "mustMatch": [value] }</code>, its value with its EIP-55 checksum: a wallet hides it and refuses any other value. x402's Permit2 file writes the spender that way, labelled "x402's payment contract", and a template that names a pinned position gets no <code>interpolatedIntent</code>. <claim>assumption</claim> A wallet compares the value as an address, whatever the case of its letters; ERC-7730 does not say, and a wallet that compares the text refuses a request written in another case, which fails closed.</li>
   <li>The notes are those of <a href="#erc-7730-files-and-erc-8176-attestations">the contract file</a>. Permit2's file shows its deadlines as dates, and its two batch messages get no <code>interpolatedIntent</code>: eight notes in all.</li>
 </ul>
 
@@ -1055,6 +1128,7 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
   <li>Every exported ERC-7730 file in the consent tests is checked against the ERC-7730 2.1.0 JSON Schema (vendored, with its sha256), and the hashes and digests the tests pin were computed by an independent implementation.</li>
   <li>EIP-712: <code>encodeType</code> and the type hash of EIP-712's Mail example, the types that are refused, the standard messages' type hashes, token paths and timestamp words (<code>profile/packages/resolver/test/eip712.test.mjs</code>); the consent text of Permit2, EIP-2612 and DAI requests and every refusal above (<code>profile/packages/consent/test/eip712.test.mjs</code>). No chain, no network, nothing signed.</li>
   <li>Grants: the packs' grants and each way one is refused (<code>profile/packages/resolver/test/grant.test.mjs</code>); the grants of the Permit2, EIP-2612, DAI and ERC-20 requests, with real typed data and calldata, Permit2's expiration of 0, and the ways a grant is left out (<code>profile/packages/consent/test/grant.test.mjs</code>); those grants against confirmed terms (<code>profile/packages/consent/test/terms.test.mjs</code>).</li>
+  <li>Pins and x402: every way a pin is refused, and what its profile keeps (<code>profile/packages/resolver/test/fixed.test.mjs</code>); x402's EIP-3009 example, two real x402 Permit2 payments settled on Base Sepolia and made-up mainnet requests, each refusal, the ERC-7730 file and the terms checks (<code>profile/packages/consent/test/x402.test.mjs</code>, <code>erc7730.test.mjs</code>). The digests they pin were computed by an independent Python EIP-712.</li>
 </ul>
 
 <p>

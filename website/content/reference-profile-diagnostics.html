@@ -60,7 +60,7 @@ export interface Diagnostic {
     <tr><td><diag>E_SERVED</diag></td><td>error</td><td>A profile a canister serves (§8.1) that cannot be used: its bytes are not UTF-8 JSON (or start with a byte order mark), it is over 1 MiB, it is not one JSON object of <code>kind: "canister"</code> and <code>origin: "author"</code>, or its <code>binds.canister_id</code> names another canister. The profile is not applied; the rest of the service resolves without it.</td></tr>
     <tr><td><diag>E_ABI</diag></td><td>error</td><td>An EVM ABI (<code>binds.abi</code>, or the contract's given as the interface) that cannot be read: a fragment that does not parse, a type that does not exist, an overloaded function name (O1), two components with one field id, or no function at all (§15.1).</td></tr>
     <tr><td><diag>E_CHAIN</diag></td><td>error</td><td>A profile or pack for an EVM contract given for a Candid service, or the other way round (§15.3).</td></tr>
-    <tr><td><diag>E_ADDRESS_CHECKSUM</diag></td><td>error</td><td>A deployment address in mixed case that does not match its EIP-55 checksum (§15.3).</td></tr>
+    <tr><td><diag>E_ADDRESS_CHECKSUM</diag></td><td>error</td><td>A deployment address (§15.3) or a <code>fixed</code> value (§15.4) in mixed case that does not match its EIP-55 checksum.</td></tr>
     <tr><td><diag>E_EIP712</diag></td><td>error</td><td><code>binds.eip712.types</code> that cannot be read (a struct name that is not an identifier or reads as an ABI type or <code>EIP712Domain</code>, a member type that is not canonical or not a type, a struct that contains itself or refers to a refused one), a message that shares its name with a function, two profiles that give one type name different members, or types with no message and no function (§15.9). Experimental.</td></tr>
     <tr><td><diag>W_NO_INTERFACE</diag></td><td>warning</td><td>Canister profile checked without its <code>.did</code>; semantic checks skipped.</td></tr>
   </tbody>
@@ -77,8 +77,8 @@ export interface Diagnostic {
     <tr><td><diag>E_ADDR_UNRESOLVED</diag></td><td>error</td><td>Address does not resolve.</td></tr>
     <tr><td><diag>E_PACK_TYPE_REF</diag></td><td>error</td><td><code>type:</code> address in a pack.</td></tr>
     <tr><td><diag>E_TYPE_NODE</diag></td><td>error</td><td>Pathless <code>type:</code> address on a declaration that is not a record or a variant.</td></tr>
-    <tr><td><diag>E_TAG_TARGET</diag></td><td>error</td><td>Wrong kind of target. Includes an <code>intent</code> or <code>effect</code> at a value address that is not a case of a variant in the arguments, or that steps into <code>[]</code> (§5.2), and on an EVM contract <code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code> and <code>named</code> (not yet) (§15.4).</td></tr>
-    <tr><td><diag>E_TAG_NOT_APPLICABLE</diag></td><td>error</td><td>Wrong Candid type. Includes <code>account</code> and <code>subaccount</code> on an EVM contract (no ABI type) (§15.4).</td></tr>
+    <tr><td><diag>E_TAG_TARGET</diag></td><td>error</td><td>Wrong kind of target. Includes an <code>intent</code> or <code>effect</code> at a value address that is not a case of a variant in the arguments, or that steps into <code>[]</code> (§5.2), and on an EVM contract <code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code> and <code>named</code> (not yet) (§15.4). Also a <code>fixed</code> in a result or at a <code>type:</code> address (§15.4).</td></tr>
+    <tr><td><diag>E_TAG_NOT_APPLICABLE</diag></td><td>error</td><td>Wrong Candid type. Includes <code>account</code> and <code>subaccount</code> on an EVM contract (no ABI type), and a <code>fixed</code> on a type other than <code>address</code> or on a Candid service (§15.4).</td></tr>
     <tr><td><diag>E_REF_UNRESOLVED</diag></td><td>error</td><td>Bad dynamic value: the <code>query:</code> method is not in the interface.</td></tr>
     <tr><td><diag>E_REF_NOT_QUERY</diag></td><td>error</td><td>Bad dynamic value: the <code>query:</code> method is not a query.</td></tr>
     <tr><td><diag>E_REF_SHAPE</diag></td><td>error</td><td>Bad dynamic value: the method takes arguments, or does not return exactly one value.</td></tr>
@@ -138,7 +138,7 @@ export interface Diagnostic {
     <tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
   </thead>
   <tbody>
-    <tr><td><diag>E_CONFLICT</diag></td><td>error</td><td>Two different values for one tag at one position (within one layer, at one specificity; the first one given is kept).</td></tr>
+    <tr><td><diag>E_CONFLICT</diag></td><td>error</td><td>Two different values for one tag at one position (within one layer, at one specificity; the first one given is kept). For <code>fixed</code>, two different addresses in any layers, reported at the profile of lower precedence (§15.4).</td></tr>
     <tr><td><diag>W_DUPLICATE</diag></td><td>warning</td><td>Equal values for one tag at one position and specificity (§8); a deployment listed twice (§15.3).</td></tr>
     <tr><td><diag>W_OVERRIDDEN</diag></td><td>warning</td><td>The same tag at the same position in a lower layer, dropped (§8).</td></tr>
     <tr><td><diag>W_REBOUND</diag></td><td>warning</td><td>Interface changed; reported first, then either confirmed or followed by <diag>E_STALE</diag>.</td></tr>
@@ -150,6 +150,13 @@ export interface Diagnostic {
     <tr><td><diag>I_PACK_ANNOTATION_SKIPPED</diag></td><td>info</td><td>A matched pack names a position the service lacks, which subtyping allows; the annotation is dropped. Since 0.4.0 also a pack's <code>grant</code> that does not hold in the service it is applied to: the grant is dropped and the effect kept ("effect grant dropped, the effect kept: E_GRANT: …"; §5.3).</td></tr>
   </tbody>
 </table>
+
+<p>
+  <strong>An error at a pin</strong> (a <code>fixed</code> annotation, since 0.5.0) says so at the end of its message:
+  "this profile keeps only its effects (without grants) and its pins that hold, since its words were written for the
+  pinned value (spec section 15.4)". Its profile then supplies just that, and the error is never dropped as
+  <diag>I_PACK_ANNOTATION_SKIPPED</diag> (<a href="reference-tags.html#a-pin-fixed">Tags</a>).
+</p>
 
 <p>
   A stale canister profile loses its value-conversion tags in the resolved form and keeps the rest; see
@@ -277,9 +284,10 @@ export interface Diagnostic {
     <tr><td><diag>E_REQUEST</diag></td><td><code>UnsupportedCanisterCall</code></td><td>The ICRC-21 request itself is malformed. From <code>@meantjs/consent/evm</code>: malformed input (the calldata, <code>to</code>, <code>chainId</code>, <code>form</code> or <code>tokens</code>, or a <code>typedData</code> whose shape or types cannot be read). From <code>generateConsent</code>: a <code>canisterId</code> that is not a principal's text. From <code>@meantjs/consent/terms</code>: a wallet, terms or grant not in the shape the functions write, terms changed after <code>confirmTerms</code>, or a <code>termsGate</code> check without a request id (<a href="#meantjs-consent-terms-termserror">below</a>).</td></tr>
     <tr><td><diag>E_DEPLOYMENT</diag></td><td>(EVM only)</td><td>An EVM call's target is not a deployment its profile lists (spec §15). From <code>eip712Consent</code>: the request's verifying contract on its chain is not one the profiles list. From <code>erc7730Descriptor</code>: no deployment to bind the file to.</td></tr>
     <tr><td><diag>E_DOMAIN</diag></td><td>(EVM only)</td><td>An EIP-712 request's domain is for another chain, contract or name than its profile's (spec §15.9). <code>eip712Consent</code> also refuses a domain with a field EIP-712 does not define, a <code>salt</code>, no <code>chainId</code>, no <code>verifyingContract</code>, or a <code>types.EIP712Domain</code> that does not list the domain's fields in EIP-712 order. Experimental.</td></tr>
+    <tr><td><diag>E_FIXED</diag></td><td>(EVM only)</td><td>A position a profile pins (<code>fixed</code>) holds another address, so the profile does not describe the request (spec §15.4): <code>evmConsent</code> and <code>eip712Consent</code> refuse it before any text, and before they ask for a token's decimals. Experimental, since 0.5.0.</td></tr>
     <tr><td><diag>E_TYPE_HASH</diag></td><td>(EVM only)</td><td>No message of the resolved form has the request's EIP-712 type hash (spec §15.9): a request is matched by its type hash, never by its name. Experimental.</td></tr>
     <tr><td><diag>E_UNSUPPORTED_TYPE</diag></td><td><code>ConsentMessageUnavailable</code></td><td>A position the resolved form cannot type (recursive cut, func, service). On an EVM contract also a payable function, whose native value has no position yet.</td></tr>
-    <tr><td><diag>E_RESOLVED_FORM</diag></td><td><code>GenericError</code> 1000</td><td>The resolved form is malformed. Also an EVM resolved form given to the main entry, and a Candid one given to <code>@meantjs/consent/evm</code>; for <code>eip712Consent</code>, a message whose <code>encode_type</code> does not hash to its <code>type_hash</code>.</td></tr>
+    <tr><td><diag>E_RESOLVED_FORM</diag></td><td><code>GenericError</code> 1000</td><td>The resolved form is malformed. Also an EVM resolved form given to the main entry, and a Candid one given to <code>@meantjs/consent/evm</code>; for <code>eip712Consent</code>, a message whose <code>encode_type</code> does not hash to its <code>type_hash</code>; for both EVM functions, a pin whose value is not an address.</td></tr>
     <tr><td><diag>E_TEMPLATE</diag></td><td><code>GenericError</code> 1001</td><td>The intent template does not parse.</td></tr>
     <tr><td><diag>E_TEMPLATE_PATH</diag></td><td><code>GenericError</code> 1002</td><td>A placeholder names a position the method does not have.</td></tr>
     <tr><td><diag>E_REF_UNRESOLVED</diag></td><td><code>GenericError</code> 1100</td><td>Pass-through of the format library: a dynamic ref the caller did not supply. On EVM also an amount in a token that is not in <code>tokens</code>.</td></tr>

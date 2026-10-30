@@ -203,7 +203,7 @@
   </thead>
   <tbody>
     <tr><td><code>at</code></td><td>yes</td><td>an address (spec §3, <a href="addresses.html">Addresses</a>); which kind depends on the tag (below)</td></tr>
-    <tr><td><code>tag</code></td><td>yes</td><td>one of the 18 tags (<a href="reference-tags.html">Tags</a>)</td></tr>
+    <tr><td><code>tag</code></td><td>yes</td><td>one of the 19 tags (<a href="reference-tags.html">Tags</a>)</td></tr>
     <tr><td><code>args</code></td><td>yes</td><td>an object, checked against the tag's <code>args_*</code> definition; <code>subaccount</code> takes <code>{}</code></td></tr>
     <tr><td><code>note</code></td><td>no</td><td>text</td></tr>
   </tbody>
@@ -218,6 +218,7 @@
     <tr><td><code>intent</code>, <code>effect</code></td><td>a method address, or a value address (a case of a variant in the arguments, D-053). On an EVM contract the method address may be an EIP-712 type's name, which <code>intent</code> makes a message (§15.9).</td></tr>
     <tr><td><code>describe</code></td><td>a value address or a method address</td></tr>
     <tr><td><code>amount</code>, <code>timestamp</code>, <code>duration</code>, <code>account</code>, <code>subaccount</code>, <code>bytes</code>, <code>text</code>, <code>range</code>, <code>default</code>, <code>ui</code>, <code>named</code></td><td>a value address: <code>METHOD(i)path</code>, <code>METHOD-&gt;(i)path</code> or <code>type:DECL path</code></td></tr>
+    <tr><td><code>fixed</code></td><td>a value address in the arguments of an EVM function or message, <code>METHOD(i)path</code>, at an <code>address</code> (§15.4)</td></tr>
   </tbody>
 </table>
 
@@ -421,6 +422,42 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
 <p>
   A pack whose grant does not hold in the service it is applied to keeps its effect in the resolved form and loses
   the grant (<diag>I_PACK_ANNOTATION_SKIPPED</diag>).
+</p>
+
+<h3>A pin in the resolved form</h3>
+
+<p>
+  A <code>fixed</code> tag stays on its node, with its <code>value</code> as the profile wrote it; a consumer compares
+  the request's address there with it by their 20 bytes before it shows any text
+  (<a href="reference-tags.html#a-pin-fixed">Tags</a>). From the x402 profile's fixture, the spender of
+  <code>PermitWitnessTransferFrom</code>:
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/x402-exact-permit2.resolved.json">
+"spender": {
+  "abi": "address",
+  "tags": {
+    "fixed": {
+      "args": {
+        "value": "0x402085c248EeA27D92E8b30b2C58ed07f9E20001"
+      },
+      "origin": "third_party",
+      "profile": "x402-exact-permit2"
+    },
+    "describe": {
+      "args": {
+        "label": "x402's payment contract"
+      },
+      "origin": "third_party",
+      "profile": "x402-exact-permit2"
+    }
+  }
+},
+</pre>
+
+<p>
+  A profile whose pin does not hold keeps only its <code>effect</code> tags, without their grants, and its pins that
+  hold; its other tags are not in the resolved form.
 </p>
 
 <h3>Node fields</h3>

@@ -1,6 +1,6 @@
 <p>
   A tag gives one position of an interface a meaning. Twelve tags are <span class="pill ok">core</span>: the
-  preregistered eval depends on them, so they are stable within v0. Six are
+  preregistered eval depends on them, so they are stable within v0. Seven are
   <span class="pill warn">experimental</span> and may change. The tables below are checked against
   <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#5-tags">spec §5</a>, the JSON Schema
   (<a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/profile-v0.schema.json"><code>profile/spec/profile-v0.schema.json</code></a>,
@@ -135,6 +135,14 @@ symbol: { "from": "query:icrc1_symbol" }
       <td>
         <code>set</code>, required: a declared set (<diag>E_NAMED_SET</diag>), matching <code>^[a-z][a-z0-9_]*$</code>, at most 64 characters.<br>
         <code>by</code>, optional: <code>value</code> (default) or <code>show</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#a-pin-fixed"><code>fixed</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>an <code>address</code> in the arguments of an EVM function or message (§15.4, D-058)</td>
+      <td>
+        <code>value</code>, required: one address; in mixed case it matches its EIP-55 checksum (<diag>E_ADDRESS_CHECKSUM</diag>).
       </td>
     </tr>
   </tbody>
@@ -427,6 +435,10 @@ grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
       <td>none (<diag>E_TAG_NOT_APPLICABLE</diag>): an address needs no tag; it is shown with its EIP-55 checksum.</td>
     </tr>
     <tr>
+      <td><a href="#a-pin-fixed"><code>fixed</code></a></td>
+      <td><code>address</code>, in the arguments of a function or a message, in a tuple or in every element of an array (<a href="#a-pin-fixed">below</a>).</td>
+    </tr>
+    <tr>
       <td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code>, <code>named</code></td>
       <td>not yet (<diag>E_TAG_TARGET</diag>): they need nonces, receipts and reads that a later phase adds.</td>
     </tr>
@@ -437,6 +449,38 @@ grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
   The native value a <code>payable</code> function receives has no position yet (<claim>open</claim> O2, on
   <a href="open-questions.html">Open questions</a>).
 </p>
+
+<h3 id="a-pin-fixed">A pin: <code>fixed</code></h3>
+
+<p>
+  <span class="pill warn">experimental</span> Spec §15.4, D-058. <code>fixed</code> says that the profile describes the
+  call or the message only with one address at a position, its <code>value</code>. x402's Permit2 payment needs it:
+  Permit2 lets the spender choose where the tokens go, and only the code of x402's proxy sends them to the payee the
+  message names, so its words hold only when the spender is that proxy. From
+  <a href="reference-packs.html#x402-exact-permit2"><code>x402-exact-permit2</code></a>:
+</p>
+
+<annotation at="PermitWitnessTransferFrom(0).spender" tag="fixed">
+value: "0x402085c248EeA27D92E8b30b2C58ed07f9E20001"
+</annotation>
+
+<ul>
+  <li>It sits on an <code>address</code> in the arguments of a function or a message, in a tuple or in every element of an array. In a result or at a <code>type:</code> address it is <diag>E_TAG_TARGET</diag>; on another type, or on a Candid service, whose positions hold no EVM address, it is <diag>E_TAG_NOT_APPLICABLE</diag>. Its <code>value</code> in mixed case must match its checksum (<diag>E_ADDRESS_CHECKSUM</diag>).</li>
+  <li>A consumer refuses a call or a signing request whose value at a pinned position is another address, before it shows any text: <code>evmConsent</code> and <code>eip712Consent</code> throw <diag>E_FIXED</diag>. Addresses are compared by their 20 bytes, so their case does not matter.</li>
+  <li><strong>A pin that does not hold takes the profile's words with it.</strong> The words were written for the pinned value, so a profile with a pin that is refused (any error above, an address that does not resolve, or a conflict) supplies only its <code>effect</code> tags, without their <code>grant</code>, and its pins that hold. Its other tags are left out of the resolved form, which is still written beside the errors. The call or the request then needs the person's confirmation, and no terms can pass it. A pin's error is never dropped as <diag>I_PACK_ANNOTATION_SKIPPED</diag>.</li>
+  <li><strong>Pins do not give way to precedence.</strong> One position holds at most one pinned value across all the profiles of a service. A second, different value is <diag>E_CONFLICT</diag> at the profile of lower precedence (in one layer, the one given later), which loses its words as above; a profile that pins one position to two values loses its own. Equal pins are one pin.</li>
+  <li>The resolved form carries the tag, and the ERC-7730 export writes it as <code>visible: { "mustMatch": [value] }</code> on its field, so a wallet hides the field and refuses any other value (§15.7).</li>
+</ul>
+
+<callout type="warn" title="A pin protects only the consumers that read it">
+  <p>
+    A consumer that skips <code>fixed</code> shows x402's words, and reads its grant, for any spender, and terms for one
+    payee would then pass a payment that another spender can send anywhere. A resolved form that holds a pin must not
+    be given to a consumer that does not read <code>fixed</code>: <code>@meantjs/consent</code> reads it from 0.5.0, and
+    an older one skips the tag (spec §11 item 11). <claim>open</claim> OQ-17: the resolved form does not say which tags
+    a consumer must understand, so an older consumer cannot tell that it should refuse.
+  </p>
+</callout>
 
 <h2>Tags on EIP-712 messages</h2>
 

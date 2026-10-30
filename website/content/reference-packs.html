@@ -999,14 +999,14 @@ service : {
 <p>
   Permit2 lets the spender choose where the tokens go and never reads the witness, so the witness's <code>to</code> is
   the payee only when the spender is x402's proxy, <code>0x402085c248EeA27D92E8b30b2C58ed07f9E20001</code>. The profile
-  pins the spender to it (<code>fixed</code>, spec §15.4): a request with any other spender gets no text
-  (<diag>E_FIXED</diag>), and the grant pays <code>witness.to</code>. <claim>fact</claim> (<code>coinbase/x402</code> at
-  <code>0e6e8c5</code>, <code>contracts/evm/src/x402BasePermit2Proxy.sol</code> and
+  pins the spender to it (<a href="reference-tags.html#a-pin-fixed"><code>fixed</code></a>, spec §15.4): a request with
+  any other spender gets no text (<diag>E_FIXED</diag>), and the grant pays <code>witness.to</code>. <claim>fact</claim>
+  (<code>coinbase/x402</code> at <code>0e6e8c5</code>, <code>contracts/evm/src/x402BasePermit2Proxy.sol</code> and
   <code>x402ExactPermit2Proxy.sol</code>, as spec §15.9 records) the proxy's <code>settle</code> sends exactly
   <code>permitted.amount</code> to <code>witness.to</code> and reverts while the block's time is before
-  <code>validAfter</code>, so the text reads "Usable from". <claim>fact</claim> (read on chain on 2026-10-30) the
-  proxy has the same code on the four chains, and its <code>PERMIT2()</code> is Permit2. x402's <code>upto</code>
-  scheme signs another witness, so another type hash, and matches nothing.
+  <code>validAfter</code>, so the text reads "Usable from". <claim>fact</claim> (read on chain on 2026-10-30) the proxy
+  has the same code on the four chains, and its <code>PERMIT2()</code> is Permit2. x402's <code>upto</code> scheme signs
+  another witness, so another type hash, and matches nothing.
 </p>
 
 <ul>
