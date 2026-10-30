@@ -17,7 +17,7 @@ the [B3Pay/Meant] repository.
 API, the inferred domain types, the codec's wire behaviour, and the codes and
 `$`-rooted paths validation reports. Pin an exact version.
 
-## 0.6.0 — 2026-10-31
+## 0.6.0 — 2026-10-30
 
 Pairs with `meant` 0.1.0.
 
