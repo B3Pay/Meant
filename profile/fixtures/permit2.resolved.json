@@ -7,7 +7,7 @@
     {
       "name": "permit2",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a",
+      "profile_id": "candid-profile:v0:sha256:d85261a93989a3f9cdaf7b8f3a93a3a508a388c9d8e808696bf867ace920b0c6",
       "deployments": [
         {
           "chain_id": 1,
@@ -294,7 +294,15 @@
         "effect": {
           "args": {
             "kind": "approve",
-            "irreversible": false
+            "irreversible": false,
+            "grant": {
+              "spender": "spender",
+              "amount": "details.amount",
+              "ends": [
+                "details.expiration",
+                "sigDeadline"
+              ]
+            }
           },
           "origin": "third_party",
           "profile": "permit2"
@@ -431,7 +439,14 @@
         "effect": {
           "args": {
             "kind": "transfer",
-            "irreversible": true
+            "irreversible": true,
+            "grant": {
+              "spender": "spender",
+              "amount": "permitted.amount",
+              "ends": [
+                "deadline"
+              ]
+            }
           },
           "origin": "third_party",
           "profile": "permit2"

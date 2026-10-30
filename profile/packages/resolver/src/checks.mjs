@@ -18,7 +18,7 @@ export const CASE_TAGS = new Set(["intent", "effect"]);
 export const CONFIRM_KINDS = new Set(["transfer", "approve", "admin", "destroy"]);
 /** Tags that convert a value between its wire form and a human form; a stale profile must not supply them (spec section 7). */
 export const VALUE_CONVERSION_TAGS = new Set(["amount", "timestamp", "duration", "account", "subaccount", "bytes", "named"]);
-export const STALE_CODES = new Set(["E_ADDR_UNRESOLVED", "E_TYPE_NODE", "E_TAG_NOT_APPLICABLE", "E_REF_UNRESOLVED", "E_REF_NOT_QUERY", "E_REF_SHAPE", "E_REF_TYPE", "E_STAMP_UNTAGGED", "E_OUTCOME_NOT_CASE", "E_TEMPLATE_PATH", "E_TAG_TARGET", "E_NAMES_MODE", "E_NAMES_SHAPE", "E_NAMES_FIELD", "E_NAMED_SET", "E_NAMED_TYPE", "E_CASE_OVERLAP", "E_CASE_EFFECT", "E_TOKEN_PATH"]);
+export const STALE_CODES = new Set(["E_ADDR_UNRESOLVED", "E_TYPE_NODE", "E_TAG_NOT_APPLICABLE", "E_REF_UNRESOLVED", "E_REF_NOT_QUERY", "E_REF_SHAPE", "E_REF_TYPE", "E_STAMP_UNTAGGED", "E_OUTCOME_NOT_CASE", "E_TEMPLATE_PATH", "E_TAG_TARGET", "E_NAMES_MODE", "E_NAMES_SHAPE", "E_NAMES_FIELD", "E_NAMED_SET", "E_NAMED_TYPE", "E_CASE_OVERLAP", "E_CASE_EFFECT", "E_TOKEN_PATH", "E_GRANT"]);
 
 export function checkApplicability(iface, tag, ref) {
   const { ref: r } = iface.unwrapOpt(ref);
@@ -53,6 +53,55 @@ export function tokenPathError(iface, addr, token) {
   const same = (a, b) => a.kind === b.kind && (a.kind === "elem" || a.id === b.id);
   if (last >= 0 && (addr.segs.length <= last || !p.segs.slice(0, last + 1).every((s, i) => same(s, addr.segs[i])))) {
     return `token ${JSON.stringify(token)} must be in the same array element as the amount: its path up to its last [] must be the amount's`;
+  }
+  return null;
+}
+
+/**
+ * An effect's grant (spec 5.3, D-056): who may take the tokens, how many and until when, as positions in the arguments
+ * of the method the effect is on. `tags` is the merged view: the amount, timestamp and account tags a grant needs may
+ * come from another profile. The reason it is wrong, or null.
+ */
+export function grantError(iface, tags, methodName, { kind, grant }) {
+  if (kind !== "transfer" && kind !== "approve") return `a grant goes with effect kind transfer or approve, not ${kind}`;
+  if ((grant.spender === undefined) === (grant.to === undefined)) return "a grant names exactly one of spender and to";
+  if (kind === "approve" && grant.to !== undefined) return "an approve's grant names a spender: an allowance is taken by its spender, not paid to it";
+  const at = (name, rel, mayBeAbsent) => {
+    const p = parseRelPath(rel);
+    const r = iface.resolveRel(methodName, "args", rel);
+    const what = `grant ${name} ${JSON.stringify(rel)}`;
+    if (!p || r.error) return { error: `${what}: ${r.error ?? "not a relative path"}` };
+    if (p.segs.some((s) => s.kind === "elem")) return { error: `${what} steps into []: a grant covers one token, so a request that grants several has none` };
+    // The value must be in every call: no case of a variant on the way, and no opt unless it may be left out.
+    let cur = iface.methods.get(methodName).args[p.index ?? 0];
+    let optional = false;
+    for (const s of p.segs) {
+      const u = iface.unwrapOpt(cur);
+      optional ||= u.optional;
+      const n = iface.node(u.ref);
+      if (n.kind === "variant") return { error: `${what} passes through a case of a variant, so a call need not hold it` };
+      cur = n.fields.find((f) => f.id === s.id).type;
+    }
+    if ((optional || iface.unwrapOpt(cur).optional) && !mayBeAbsent) return { error: `${what} is optional, but a grant needs its ${name} in every call` };
+    return { r, t: tags.at(r, iface) ?? {} };
+  };
+  const who = grant.spender !== undefined ? "spender" : "to";
+  const party = at(who, grant[who], false);
+  if (party.error) return party.error;
+  if (iface.prim(party.r.ref) !== "address" && !party.t.account) {
+    return `grant ${who} ${JSON.stringify(grant[who])} is ${iface.describeType(party.r.ref)}; it must be an address or carry an account tag`;
+  }
+  const amount = at("amount", grant.amount, false);
+  if (amount.error) return amount.error;
+  const p = iface.prim(amount.r.ref);
+  if (p !== "bool") {
+    if (!amount.t.amount) return `grant amount ${JSON.stringify(grant.amount)} is ${iface.describeType(amount.r.ref)} without an amount tag; it must carry one, or be a bool`;
+    if (!/^(nat|uint)/.test(p)) return `grant amount ${JSON.stringify(grant.amount)} is ${p}; an amount granted is never negative, so its type is unsigned`;
+  }
+  for (const rel of grant.ends ?? []) {
+    const end = at("ends", rel, true);
+    if (end.error) return end.error;
+    if (!end.t.timestamp) return `grant ends ${JSON.stringify(rel)} has no timestamp tag`;
   }
   return null;
 }

@@ -131,7 +131,15 @@
       "tag": "effect",
       "args": {
         "kind": "approve",
-        "irreversible": false
+        "irreversible": false,
+        "grant": {
+          "spender": "spender",
+          "amount": "details.amount",
+          "ends": [
+            "details.expiration",
+            "sigDeadline"
+          ]
+        }
       }
     },
     {
@@ -309,7 +317,14 @@
       "tag": "effect",
       "args": {
         "kind": "transfer",
-        "irreversible": true
+        "irreversible": true,
+        "grant": {
+          "spender": "spender",
+          "amount": "permitted.amount",
+          "ends": [
+            "deadline"
+          ]
+        }
       }
     },
     {

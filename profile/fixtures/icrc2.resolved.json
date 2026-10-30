@@ -6,7 +6,7 @@
     {
       "name": "icrc2",
       "origin": "pack",
-      "profile_id": "candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae"
+      "profile_id": "candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567"
     }
   ],
   "methods": {
@@ -159,7 +159,14 @@
         "effect": {
           "args": {
             "kind": "approve",
-            "irreversible": false
+            "irreversible": false,
+            "grant": {
+              "spender": "spender",
+              "amount": "amount",
+              "ends": [
+                "expires_at"
+              ]
+            }
           },
           "origin": "pack",
           "profile": "icrc2"

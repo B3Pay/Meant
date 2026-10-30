@@ -1,7 +1,7 @@
 // Types for @meantjs/consent/evm: the consent text of an EVM call (spec section 15, D-054). Hand-written; the source is
 // src/evm.mjs. scripts/types.test.mjs keeps the declared names equal to the runtime exports.
 import type { AbiLimits, AbiValue } from "@meantjs/profile/evm";
-import type { ConsentDiagnostic, Model, Provenance, ResolvedForm } from "./index.mjs";
+import type { ConsentDiagnostic, Grant, Model, Provenance, ResolvedForm } from "./index.mjs";
 
 /** An EVM contract's resolved form: `chain: "evm"`, and each method with its selector and named signature. */
 export type EvmResolvedForm = ResolvedForm & { chain: "evm" };
@@ -50,6 +50,10 @@ export function evmConsent(input: EvmConsentInput): {
   /** The contract, in its EIP-55 form. */
   to: string;
   chainId: string | null;
+  /** The decoded arguments by parameter name, as `decodeCalldata` gives them. */
+  values: Record<string, AbiValue>;
+  /** What the call grants (its token is the contract called, unless the amount's tag names a field), or null; a W_GRANT diagnostic says why one cannot be read. */
+  grant: Grant | null;
   diagnostics: ConsentDiagnostic[];
   provenance: Provenance;
   model: Model;
@@ -100,6 +104,10 @@ export function eip712Consent(input: Eip712ConsentInput): {
   /** The verifying contract, in its EIP-55 form. */
   verifyingContract: string;
   chainId: string;
+  /** The message's values by member name, as read from the typed data: integers as decimal strings, addresses in EIP-55 form. */
+  values: Record<string, AbiValue>;
+  /** What the signature grants (its token is the verifying contract, unless the amount's tag names a member), or null; a W_GRANT diagnostic says why one cannot be read. */
+  grant: Grant | null;
   diagnostics: ConsentDiagnostic[];
   provenance: Provenance;
   model: Model;

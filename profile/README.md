@@ -28,6 +28,9 @@ npm). Meant is a B3Pay project.
   tools for EVM calls, and Solana, are planned, not supported.
 - **Try it** in B3Forge: open the [playground](https://forge.b3pay.net/playground), fetch any ICRC ledger by its
   canister id and switch to Profile.
+- **See it next to the usual tools:** [`examples/meant-vs-native`](examples/meant-vs-native) runs the published
+  packages against hand-written code, viem, ethers, @dfinity/utils, @icp-sdk/canisters and the DFINITY ledger's own
+  ICRC-21 endpoint, on PocketIC, and writes [what it found](examples/meant-vs-native/results.md).
 
 ## Packages
 
@@ -52,7 +55,7 @@ npm test
 
 ```
 PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:e5b16b51…
+     profile_id   candid-profile:v0:sha256:4eaa9312…
      interface_id candid-core:interface:v1:sha256:7fae0dd3…  [5 methods, 29 annotations]
 ```
 

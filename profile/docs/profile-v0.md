@@ -107,7 +107,7 @@ There are 18 tags. Twelve are **core**: the eval depends on them, so they are st
 | Tag | Args | Core |
 |---|---|---|
 | `intent` | `title` (≤60 chars); `template` (§6) | ✓ |
-| `effect` | `kind`: `read`/`write`/`transfer`/`approve`/`admin`/`destroy`; `irreversible`: bool; `replicated`: bool, optional (a read-only update, §5.3) | ✓ |
+| `effect` | `kind`: `read`/`write`/`transfer`/`approve`/`admin`/`destroy`; `irreversible`: bool; `replicated`: bool, optional (a read-only update, §5.3); `grant`: object, optional (what a `transfer` or `approve` lets someone take, §5.3) | ✓ |
 | `idempotency` | `mode`: `replay_same_payload`; `stamp`: relpath to the field filled once per intent | ✓ |
 | `outcome` | `classes`: `{ relpath → class }`; `default`: class (one of the two at least; §5.3) | ✓ |
 | `list` | `cursor` (args relpath); `next`, `items` (results relpaths) | exp. |
@@ -174,7 +174,44 @@ the call's case for that tag. The other method tags (`idempotency`, `outcome`, `
   of the four, so such a method declares its effect). A consumer that does not read case effects therefore confirms
   every call that one that reads them would; reading them can only lift a confirmation from a call whose case is
   weaker, and that is the author's claim, like any effect (§11.1).
-- **Confirmation:** consumers MUST require explicit human confirmation before executing a call whose effect is `transfer`, `approve`, `admin` or `destroy`, unless a separately configured policy, such as a spending budget, pre-authorizes it. Policies are outside v0.
+- **What a call grants (`grant`, D-056).** An effect of kind `transfer` or `approve` MAY carry `grant`: who may take
+  tokens because of the call or the signature, which token, how many and until when, so that a consumer can compare a
+  request with terms the user confirmed (below). Its values are relpaths into the method's arguments, written as an
+  intent template's placeholders are (§6). None may step into `[]`: a grant covers one token, so a request that grants
+  several (Permit2's `PermitBatch`) has none in v0. It names:
+  - `spender` or `to`, exactly one: who may take the tokens. `spender` is for an allowance, or for a signature someone
+    else submits; `to` is for a transfer that pays them directly. An `approve`'s grant names a `spender`. The position
+    is an `address` (§15) or carries an `account` tag.
+  - `amount`: a position with an `amount` tag, of an unsigned type, where a value at or above the tag's `threshold`
+    means unlimited; or a `bool`, where `true` is unlimited and `false` grants nothing (DAI's permit, §15.9).
+  - `ends`, optional: one to eight positions with a `timestamp` tag. The grant ends at the latest of them, and one at or
+    above its tag's `threshold`, or an optional one left out, means it never ends. With no `ends`, an `approve` never
+    ends and a `transfer` ends when it is made.
+
+  `spender`, `to` and `amount` are in every call: neither optional nor inside a case of a variant, and no position of
+  a grant is inside one. The token is the one the `amount` tag names (`token`, §15.9), else the contract or canister
+  the call is for. A deadline that bounds only when a signature may be used is not an end of what it grants:
+  EIP-2612's `deadline` and DAI's `expiry` set allowances that never end, so neither is in `ends`. A grant on another
+  kind, on a case effect (§5.2), or whose positions break these rules is `E_GRANT`; a pack applied to a service where
+  its grant does not hold keeps its effect and loses the grant (`I_PACK_ANNOTATION_SKIPPED`). A grant is the author's
+  claim, like any effect (§11.1).
+- **Confirmation:** consumers MUST require explicit human confirmation before executing a call whose effect is `transfer`, `approve`, `admin` or `destroy`, unless a separately configured policy, such as a spending budget, pre-authorizes it. Policies are outside v0, except confirmed terms, below.
+- **Confirmed terms (D-056).** Terms are what the user allows one task: the token, who may take it (`spender` or
+  `to`), the most it may be (or unlimited) and the latest end (or never). Terms the user confirmed for one task, before
+  the agent read the request, are such a policy for that task's request. A request whose grant fits them MAY be signed
+  or sent without a second confirmation. It fits when:
+  - its token and its `spender` or `to` are the terms', compared as values (an address by its 20 bytes, an account by
+    its owner and its subaccount, the default subaccount equal to an absent one);
+  - its amount is at most the terms' most; unlimited fits only unlimited terms, and a grant of nothing fits any terms;
+  - it ends no later than the terms' latest end; one that never ends fits only terms that never end, and a transfer
+    fits terms whose end has not passed.
+
+  A request that does not fit is refused with its reasons, and the agent asks the user for new terms rather than
+  offering the request for a yes. A request without a grant is not covered by terms and needs its confirmation. The
+  terms MUST be shown to the user exactly (§11 item 10), and they cover one task: the request the agent was working
+  on when the user confirmed them, and no other. A request is named by what is signed or sent (an EIP-712 request by
+  its digest), not by its grant: two requests can grant the same, as two Permit2 transfers that differ only in their
+  nonce do, and each of them can be spent.
 
 **`idempotency` (`replay_same_payload`)**
 - **The stamp field** MUST carry a `timestamp` tag (`E_STAMP_UNTAGGED`).
@@ -290,7 +327,7 @@ Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}]
 
 **`profile_id`**
 - Defined as `candid-profile:v0:sha256:<hex>`, over the RFC 8785 (JCS) canonical JSON of the document.
-- The validator prints it. Packs in this repo as of 2026-10-09: `icrc1` → `…e5b16b51…`, `icrc2` → `…5230908f…` (D-029). Any edit changes them.
+- The validator prints it. Packs in this repo as of 2026-10-30: `icrc1` → `…4eaa9312…`, `icrc2` → `…f9d75e8b…` (D-056 added their grants). Any edit changes them.
 
 **Canister profiles** bind to `interface_id`. Given a live interface:
 
@@ -468,6 +505,15 @@ node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.r
    **Fact** ([ERC-7730](https://eips.ethereum.org/EIPS/eip-7730), Security Considerations): the same risk is named
    there as "parameter injection using legitimate, high-profile contract formats". `query:` refs on an EVM contract
    are `eth_call`s answered by one RPC node, as item 2's are by one replica.
+10. **Confirmed terms authorize in advance** (§5.3, D-056). Whoever confirms terms authorizes every request that fits
+    them, so the confirmation MUST come from the user, on the wallet's own screen, never through a tool the agent can
+    call. The terms MUST be shown exactly: the full address, the amount without rounding, and "unlimited" or "never
+    ends" written out when the terms say so. **Fact** (observed 2026-10-29, the everyday-wording test of Meant's
+    signing guard): small models that wrote the terms from a user's everyday words filled a term the user had left out
+    with the loosest value ("unlimited", "never"), and a check against those terms passed requests the user never
+    asked for; the check itself held every time. A grant is the profile's claim (item 1), and terms cover what a
+    grant says: a request outside its grant's words (another call, another chain) is checked by the rest of the
+    consumer, as without terms.
 
 ## 12. Mapping to ICRC-21 (informative)
 
@@ -526,6 +572,7 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 | `E_ADDRESS_CHECKSUM` | error | A deployment address in mixed case that does not match its EIP-55 checksum (§15.3) |
 | `E_EIP712` | error | `binds.eip712.types` that cannot be read (a struct name that is not an identifier or reads as an ABI type or `EIP712Domain`, a member type that is not canonical or not a type, a struct that contains itself or refers to a refused one), a message that shares its name with a function, two profiles that give one type name different members, or types with no message and no function (§15.9) |
 | `E_TOKEN_PATH` | error | An `amount.token` that is not a relative path to an `address` in the same argument and the same array element as the amount, or that is given on a Candid service (§15.9, OQ-6) |
+| `E_GRANT` | error | A `grant` on an effect that is not a method's `transfer` or `approve` (another kind, a case effect), an `approve`'s grant with `to`, or a position that breaks §5.3: a path that does not resolve, steps into `[]` or passes through a case of a variant; a `spender` or `to` that is neither an `address` nor `account`-tagged; an `amount` that is neither an unsigned `amount`-tagged position nor a `bool`; an optional `spender`, `to` or `amount`; an `ends` position without a `timestamp` tag (§5.3, D-056) |
 | `E_NAMES_MODE` / `E_NAMES_SHAPE` / `E_NAMES_FIELD` / `E_NAMES_SET_DUPLICATE` | error | A `names` set on a method that is not a query or a read-only update / that takes arguments, or whose `items` is not a `vec` of records / whose `name` is not `text` / declared twice (§5.3) |
 | `E_NAMED_SET` / `E_NAMED_TYPE` | error | A `named` position whose set is not declared (or has no `show` for `by: "show"`) / whose type differs from the set's field (§5.3) |
 | `W_NAMED_UNPATTERNED` | warning | A `named` `text` position without a `text.pattern`: names are looked up before values (§5.3) |
@@ -754,6 +801,11 @@ optional. The EIP says a user agent should refuse to sign when `chainId` is not 
   it allows, of any kind (`approve` for an allowance, `transfer` for a one-time transfer; default `write`,
   irreversible), and `replicated` does not apply (`E_EFFECT_MODE`). The value tags and the tags that are not yet
   defined are as in §15.4.
+- **A message's grant** (§5.3, D-056) names its positions as its template does, from the struct:
+  `{ "spender": "spender", "amount": "details.amount", "ends": ["details.expiration", "sigDeadline"] }` for Permit2's
+  `PermitSingle`. **Fact** (Uniswap `permit2` at `main`, read 2026-10-30, `src/libraries/Allowance.sol`): an
+  expiration of 0 is stored as the time of the block the permit is used in, and that block may come as late as
+  `sigDeadline`; the latest of the two is the end, so 0 needs no rule of its own.
 - **Identity.** The resolved form's `interface_id` covers the struct types with the functions: §15.1's hash over the
   sorted canonical fragments and one `struct <Name>(<type> <name>,…)` line per type. With no types it is §15.1's, so a
   phase 1 form is unchanged. Whether a contract profile is rebound or stale (§15.3) is decided by its functions alone,

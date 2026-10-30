@@ -7,7 +7,7 @@
     {
       "name": "dai-permit",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:5fe7bd66c0a15a1b370d279be2aedba80f539b0c1e195f7b22ef33ff94540f5e",
+      "profile_id": "candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8",
       "deployments": [
         {
           "chain_id": 1,
@@ -37,7 +37,11 @@
         "effect": {
           "args": {
             "kind": "approve",
-            "irreversible": false
+            "irreversible": false,
+            "grant": {
+              "spender": "spender",
+              "amount": "allowed"
+            }
           },
           "origin": "third_party",
           "profile": "dai-permit"

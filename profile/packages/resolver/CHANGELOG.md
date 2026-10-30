@@ -2,6 +2,15 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.4.0 — 2026-10-30
+
+- What a call grants (spec §5.3, D-056): an `effect` of kind `transfer` or `approve` may carry `grant`, the positions of
+  who may take the tokens (`spender` or `to`), the `amount` and the `ends`. The validator checks them (new code
+  `E_GRANT`); a pack whose grant does not hold where it applies keeps its effect and loses the grant
+  (`I_PACK_ANNOTATION_SKIPPED`). The resolved form carries `grant` inside `effect`.
+- The packs carry grants: `icrc1`, `icrc2`, `erc20` and `erc2612`, and the contract profiles `permit2` and
+  `dai-permit`. Their profile ids changed with them.
+
 ## 0.3.0 — 2026-10-29
 
 - EIP-712 typed messages, experimental (spec §15.9, D-055). A contract profile or EVM pack may carry

@@ -9,7 +9,7 @@ import { TagIndex, LayeredTags, positions } from "./tags.mjs";
 import {
   NUMERIC, METHOD_TAGS, CASE_TAGS, CONFIRM_KINDS, STALE_CODES, VALUE_CONVERSION_TAGS, EVM_LATER_TAGS,
   checkApplicability, checkDynamic, parseTemplate, outcomeCoverage, caseTargetError, otherCase, overlap, defaultEffect,
-  tokenPathError,
+  tokenPathError, grantError,
 } from "./checks.mjs";
 
 /** Spec section 8, highest precedence first. */
@@ -147,6 +147,18 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
     }
   };
 
+  /**
+   * A grant that does not hold (spec 5.3, D-056). A pack applied to a service loses only its grant, never the effect:
+   * dropping the effect would leave a transfer or approve with the default effect, which needs no confirmation.
+   */
+  const grants = []; // effects whose grant holds, checked again once dropped tags are known
+  const badGrant = (e, diag, why) => {
+    if (!e.item.apply) return diag("error", "E_GRANT", e.ann.at, why);
+    const { grant, ...args } = e.entry.args;
+    e.entry.args = args;
+    e.item.diag("info", "I_PACK_ANNOTATION_SKIPPED", e.ann.at, `effect grant dropped, the effect kept: E_GRANT: ${why}`);
+  };
+
   const sets = new Map(); // names set -> { at, method, fields: { name, value, show?, kind? } } (spec 5.3, D-045)
   const named = []; // named positions, checked once every set is known
   for (const e of entries) {
@@ -167,8 +179,10 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
       const why = caseTargetError(iface, addr, res, a.tag);
       if (why) { diag("error", "E_TAG_TARGET", at, why); continue; }
       const m = iface.methods.get(addr.method);
-      if (a.tag === "effect") checkEffectMode(m, a.args, diag, at);
-      else checkTemplate(item, addr.method, a.args.template, diag, at, addr);
+      if (a.tag === "effect") {
+        checkEffectMode(m, a.args, diag, at);
+        if (a.args.grant) badGrant(e, diag, "a grant sits on the effect of a method, not of a case, in this version (D-056)");
+      } else checkTemplate(item, addr.method, a.args.template, diag, at, addr);
       caseEntries.push({ e, diag });
       continue;
     }
@@ -176,6 +190,11 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
       const m = res.method;
       const methodName = addr.method;
       if (a.tag === "effect") checkEffectMode(m, a.args, diag, at);
+      if (a.tag === "effect" && a.args.grant) {
+        const why = grantError(iface, tags, methodName, a.args);
+        if (why) badGrant(e, diag, why);
+        else grants.push({ e, diag });
+      }
       if (a.tag === "idempotency") {
         if (m.mode !== "update") diag("error", "E_IDEMPOTENCY_MODE", at, "idempotency applies to update methods");
         const r = iface.resolveRel(methodName, "args", a.args.stamp);
@@ -289,9 +308,14 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
     }
   }
 
-  // Dropping a value tag can leave an idempotency stamp without its timestamp tag: drop that idempotency too.
+  // Dropping a value tag can leave an idempotency stamp without its timestamp tag: drop that idempotency too. It can
+  // also leave a grant without the amount, timestamp or account tag it needs.
   if (dropped.size) {
     const without = buildLayers(entries, (e) => !dropped.has(e));
+    for (const { e, diag } of grants) {
+      const why = !dropped.has(e) && grantError(iface, without, e.addr.method, e.entry.args);
+      if (why) badGrant(e, diag, `${why} (a tag it needs was dropped in this service)`);
+    }
     for (const e of entries) {
       if (!e.item.apply || e.ann.tag !== "idempotency" || dropped.has(e)) continue;
       const r = iface.resolveRel(e.addr.method, "args", e.ann.args.stamp);

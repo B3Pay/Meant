@@ -2,8 +2,10 @@
 // `icrc21.mjs` wraps this into the ICRC-21 request/response shapes.
 
 import { Renderer } from "./display.mjs";
+import { canisterText, grantOf } from "./grant.mjs";
 import { buildModel } from "./model.mjs";
 import { renderFields, renderGeneric } from "./render.mjs";
+import { methodOf } from "./resolved.mjs";
 
 /**
  * @param {object} input
@@ -15,14 +17,20 @@ import { renderFields, renderGeneric } from "./render.mjs";
  * @param {number | null} [input.utcOffsetMinutes]  generic form only: show timestamps in this zone (default 0, UTC). The fields form is always UTC seconds
  * @param {boolean} [input.rawArguments]  append the decoded raw arguments (spec section 11 item 1)
  * @param {object} [input.limits]  decoder limits (maxBytes, maxDepth, maxElements)
- * @returns {{ form: "fields" | "generic", message: object, zoneSensitive: boolean, diagnostics: object[], provenance: object, model: object }}
+ * @param {string} [input.canisterId]  the canister called: the token of a grant (spec section 5.3, D-056). Without it
+ *   nothing is read: `grant` is null and no diagnostic says so, since a caller that does not name the canister is not
+ *   asking what the call grants (an ICRC-21 message, for one)
+ * @returns {{ form: "fields" | "generic", message: object, zoneSensitive: boolean, values: unknown[], grant: object | null, diagnostics: object[], provenance: object, model: object }}
  *   `message` is `{ FieldsDisplayMessage: { intent, fields } }` or `{ GenericDisplayMessage: string }` (ICRC-21 shapes,
- *   integers as bigint). `zoneSensitive` is true when a timestamp was shown in the requested zone.
+ *   integers as bigint). `zoneSensitive` is true when a timestamp was shown in the requested zone. `values` are the
+ *   decoded arguments as `decodeArguments` gives them, and `grant` what the call grants (`grant.mjs`), or null.
  */
-export function generateConsent({ resolved, method, arg, refs = {}, form = "generic", utcOffsetMinutes = null, rawArguments = false, limits }) {
+export function generateConsent({ resolved, method, arg, refs = {}, form = "generic", utcOffsetMinutes = null, rawArguments = false, limits, canisterId }) {
+  const called = canisterId === undefined ? undefined : canisterText(canisterId);
   const model = buildModel({ resolved, method, arg, limits });
   const diagnostics = model.diagnostics;
-  const done = (rest) => ({ ...rest, diagnostics: dedupe(diagnostics), provenance: model.provenance, model });
+  const grant = called === undefined ? null : grantOf({ name: method, method: methodOf(resolved, method), argValues: model.argValues, called, diagnostics });
+  const done = (rest) => ({ ...rest, values: model.argValues, grant, diagnostics: dedupe(diagnostics), provenance: model.provenance, model });
   if (form === "fields") {
     const renderer = new Renderer({ refs, utcOffsetMinutes: null, diagnostics });
     const { intent, fields } = renderFields(model, renderer, { rawArguments });

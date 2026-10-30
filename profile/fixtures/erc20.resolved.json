@@ -7,7 +7,7 @@
     {
       "name": "erc20",
       "origin": "pack",
-      "profile_id": "candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186"
+      "profile_id": "candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81"
     }
   ],
   "methods": {
@@ -102,7 +102,11 @@
         "effect": {
           "args": {
             "kind": "approve",
-            "irreversible": false
+            "irreversible": false,
+            "grant": {
+              "spender": "spender",
+              "amount": "value"
+            }
           },
           "origin": "pack",
           "profile": "erc20"
@@ -279,7 +283,11 @@
         "effect": {
           "args": {
             "kind": "transfer",
-            "irreversible": true
+            "irreversible": true,
+            "grant": {
+              "to": "to",
+              "amount": "value"
+            }
           },
           "origin": "pack",
           "profile": "erc20"

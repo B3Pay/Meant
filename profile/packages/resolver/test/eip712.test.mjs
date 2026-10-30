@@ -109,7 +109,7 @@ test("the standard files: their messages' type hashes are the standards' own", a
   assert.deepEqual(p2.methods, {});
   assert.deepEqual(p2.profiles[0].eip712_domain, { name: "Permit2" });
   assert.deepEqual(p2.messages.PermitBatch.tags.effect.args, { kind: "approve", irreversible: false });
-  assert.deepEqual(p2.messages.PermitTransferFrom.tags.effect.args, { kind: "transfer", irreversible: true });
+  assert.deepEqual(p2.messages.PermitTransferFrom.tags.effect.args, { kind: "transfer", irreversible: true, grant: { spender: "spender", amount: "permitted.amount", ends: ["deadline"] } });
   const details = p2.messages.PermitBatch.args[0].fields.details;
   assert.deepEqual([details.abi, details.element.abi, details.element.fields.amount.abi], ["array", "tuple", "uint160"]);
   assert.deepEqual(details.element.fields.amount.tags.amount.args, { token: "details[].token", threshold: "1461501637330902918203684832716283019655932542975" });

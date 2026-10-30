@@ -1,0 +1,29 @@
+{
+  "name": "meant-vs-native",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The same calls done three ways: by hand, with the usual libraries (viem, ethers, @dfinity/utils, @icp-sdk/canisters) and with the published @meantjs packages. Units, excess precision, consent text, EIP-712, previews and retry safety, on PocketIC only.",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "dependencies": {
+    "@candid-core/cli": "0.4.0",
+    "@candid-core/schema": "0.5.0",
+    "@dfinity/pic": "0.25.0",
+    "@dfinity/utils": "5.0.0",
+    "@icp-sdk/canisters": "4.0.0",
+    "@icp-sdk/core": "6.1.0",
+    "@meantjs/consent": "0.3.0",
+    "@meantjs/format": "0.3.0",
+    "@meantjs/profile": "0.3.0",
+    "@meantjs/reconcile": "0.3.0",
+    "@meantjs/tools": "0.3.0",
+    "ethers": "6.17.0",
+    "viem": "2.57.4"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch-artifacts.mjs",
+    "start": "node run.mjs"
+  }
+}
