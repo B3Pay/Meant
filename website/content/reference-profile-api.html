@@ -19,28 +19,31 @@ npm install @meantjs/profile@0.4.0 @meantjs/format@0.4.0 \
     <tr><th>Package</th><th>Version</th><th>Depends on (exact pins)</th><th>Runs on</th></tr>
   </thead>
   <tbody>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver"><code>@meantjs/profile</code></a></td><td>0.3.0</td><td><code>@candid-core/cli</code> 0.4.0, <code>ajv</code> 8.18.0</td><td>Node 22 or later for the main entry and the CLI; <code>/browser</code> in a browser bundle; <code>/address</code> and <code>/evm</code> anywhere, with no dependency</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/format"><code>@meantjs/format</code></a></td><td>0.3.0</td><td>none</td><td>Node 22 or later and browsers</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent"><code>@meantjs/consent</code></a></td><td>0.3.0</td><td><code>@candid-core/schema</code> 0.5.0, <code>@meantjs/format</code> 0.3.0, <code>@meantjs/profile</code> 0.3.0</td><td>Node 22 or later and browsers; <code>/sns</code> is Node only (it hashes with <code>node:crypto</code>)</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/tools"><code>@meantjs/tools</code></a></td><td>0.3.0</td><td><code>@meantjs/format</code> 0.3.0</td><td>Node 22 or later and browsers</td></tr>
-    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile"><code>@meantjs/reconcile</code></a></td><td>0.3.0</td><td><code>@meantjs/format</code> 0.3.0</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/resolver"><code>@meantjs/profile</code></a></td><td>0.4.0</td><td><code>@candid-core/cli</code> 0.4.0, <code>ajv</code> 8.18.0</td><td>Node 22 or later for the main entry and the CLI; <code>/browser</code> in a browser bundle; <code>/address</code> and <code>/evm</code> anywhere, with no dependency</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/format"><code>@meantjs/format</code></a></td><td>0.4.0</td><td>none</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/consent"><code>@meantjs/consent</code></a></td><td>0.4.0</td><td><code>@candid-core/schema</code> 0.5.0, <code>@meantjs/format</code> 0.4.0, <code>@meantjs/profile</code> 0.4.0</td><td>Node 22 or later and browsers, <code>/terms</code> included; <code>/sns</code> is Node only (it hashes with <code>node:crypto</code>)</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/tools"><code>@meantjs/tools</code></a></td><td>0.4.0</td><td><code>@meantjs/format</code> 0.4.0</td><td>Node 22 or later and browsers</td></tr>
+    <tr><td><a href="https://github.com/B3Pay/Meant/tree/main/profile/packages/reconcile"><code>@meantjs/reconcile</code></a></td><td>0.4.0</td><td><code>@meantjs/format</code> 0.4.0</td><td>Node 22 or later and browsers</td></tr>
   </tbody>
 </table>
 
 <p>Each name links to its source under <code>profile/packages/</code>; <code>@meantjs/profile</code> is <code>packages/resolver</code>.</p>
 
 <p>
-  <claim>fact</claim> 0.3.0 was published to npm on 2026-10-29 (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md"><code>profile/docs/releasing.md</code></a>).
-  It adds EIP-712 typed messages (spec §15.9, D-055, experimental) to <code>@meantjs/profile</code>,
-  <code>@meantjs/format</code> and <code>@meantjs/consent</code>; the changelog of <code>@meantjs/tools</code> and of
-  <code>@meantjs/reconcile</code> says "No changes in this package". Each package's <code>CHANGELOG.md</code> lists what
-  changed.
+  <claim>fact</claim> 0.4.0 was published to npm on 2026-10-30, all five under <code>latest</code> and each with signed
+  provenance (the npm registry, read 2026-10-30). It adds what a call grants (spec §5.3, D-056): the
+  <code>grant</code> of an <code>effect</code> in <code>@meantjs/profile</code> and its packs, the <code>grant</code> and
+  <code>values</code> the consent functions return, and the new subpath <a href="#consent-terms"><code>@meantjs/consent/terms</code></a>.
+  <code>@meantjs/format</code>, <code>@meantjs/tools</code> and <code>@meantjs/reconcile</code> did not change in 0.4.0:
+  their changelogs say "No changes in this package", and only their version and pins moved. Each package's
+  <code>CHANGELOG.md</code> lists what changed; 0.3.0 (2026-10-29) added EIP-712 typed messages (spec §15.9, D-055,
+  experimental).
 </p>
 
 <callout type="note" title="One version for all five">
   <p>
-    The five packages release together under one version and pin each other exactly (<code>"0.3.0"</code>, not
-    <code>"^0.3.0"</code>), so an install never mixes versions that were not tested together. A release bumps all five
+    The five packages release together under one version and pin each other exactly (<code>"0.4.0"</code>, not
+    <code>"^0.4.0"</code>), so an install never mixes versions that were not tested together. A release bumps all five
     even when only one changed. While the major is 0 the minor is the breaking digit, and any change to text the
     packages generate (consent messages, SNS renderings, tool names, descriptions, input schemas) is a breaking change.
     The procedure is <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md"><code>profile/docs/releasing.md</code></a>.
@@ -477,8 +480,9 @@ f?.display("1461501637330902918203684832716283019655932542975"); // "Unlimited U
 
 <p>
   ICRC-21 consent messages for any method, from a resolved form and the Candid-encoded argument bytes; the text an SNS
-  proposal's validator returns; and, experimental, consent text and ERC-7730 files for EVM calls and EIP-712 signing
-  requests. No network code.
+  proposal's validator returns; experimental, consent text and ERC-7730 files for EVM calls and EIP-712 signing
+  requests; and, since 0.4.0, what a request grants and the check of that grant against terms the person confirmed
+  (<a href="#consent-terms"><code>/terms</code></a>). No network code.
 </p>
 
 <h3 id="consent-main"><code>@meantjs/consent</code> (main entry)</h3>
@@ -510,11 +514,14 @@ export interface GenerateConsentInput {
   utcOffsetMinutes?: number | null;
   rawArguments?: boolean;
   limits?: DecodeLimits;
+  canisterId?: string;
 }
 export function generateConsent(input: GenerateConsentInput): {
   form: "fields" | "generic";
   message: Icrc21ConsentMessage;
   zoneSensitive: boolean;
+  values: unknown[];
+  grant: Grant | null;
   diagnostics: ConsentDiagnostic[];
   provenance: Provenance;
   model: Model;
@@ -542,7 +549,7 @@ export declare class ConsentError extends Error {
   <tbody>
     <tr><td><code class="wrap">icrc21ConsentMessage(request, context)</code></td><td>The ICRC-21 call as a function: <code class="wrap">{ Ok: { consent_message, metadata } }</code> or <code>{ Err }</code>, with non-enumerable <code>diagnostics</code> and <code>provenance</code> (which profile wrote the words).</td></tr>
     <tr><td><code class="wrap">handleConsentRequest(requestBytes, context)</code></td><td>Candid bytes of <code>icrc21_consent_message_request</code> in, Candid bytes of the response out: what a canister endpoint returns.</td></tr>
-    <tr><td><code>generateConsent(input)</code></td><td>One form without the ICRC-21 envelope: <code>"generic"</code> (Markdown, the default) or <code>"fields"</code>.</td></tr>
+    <tr><td><code>generateConsent(input)</code></td><td>One form without the ICRC-21 envelope: <code>"generic"</code> (Markdown, the default) or <code>"fields"</code>. Since 0.4.0 it also returns <code>values</code>, the decoded arguments as <code>decodeArguments</code> gives them, and <code>grant</code>, what the call grants (below), or null. It reads the grant only when <code>canisterId</code> names the canister called, the grant's token; without it <code>grant</code> is null with no diagnostic, so an ICRC-21 message is unchanged. A <code>canisterId</code> that is not a principal's text is <diag>E_REQUEST</diag>.</td></tr>
     <tr><td><code>encodeConsentRequest</code>, <code>decodeConsentRequest</code>, <code>encodeConsentResponse</code>, <code>decodeConsentResponse</code>, <code>toJson</code></td><td>The Candid codec for the ICRC-21 types, and a JSON-safe copy (bigint as a decimal string, <code>Uint8Array</code> as <code>{ hex }</code>).</td></tr>
     <tr><td><code>toIcrc21Error</code>, <code>CODES</code>, <code>GENERIC_ERROR_CODES</code>, <code>ConsentError</code>, <code>SUPPORTED_LANGUAGE</code></td><td>Errors and their ICRC-21 mapping (<a href="reference-profile-diagnostics.html#meantjs-consent-consenterror">ConsentError</a>; 0.3.0 adds <code>DOMAIN</code> and <code>TYPE_HASH</code>, used by <code>/evm</code> only); <code>"en"</code>, the only language v0 emits.</td></tr>
     <tr><td><code>buildModel</code>, <code>decodeArguments</code>, <code>schemaFor</code>, <code>parseTemplate</code>, <code>resolvePath</code>, <code>valuesAt</code>, <code>Renderer</code>, <code>zoneName</code>, <code>renderFields</code>, <code>renderGeneric</code>, <code>codeSpan</code>, <code>escapeMarkdown</code>, <code>visible</code></td><td>The parts: decode, model, render and escape.</td></tr>
@@ -570,6 +577,39 @@ const response = icrc21ConsentMessage(
   },
 );
 </pre>
+
+<p>
+  The <code>grant</code> the consent functions return, here and in <a href="#consent-evm"><code>/evm</code></a>, is
+  read from the <code>grant</code> of the method's or message's <code>effect</code> (spec §5.3, D-056;
+  <a href="reference-tags.html#what-a-call-grants">Tags</a>) and the decoded values. It is null for a request with no
+  grant, and for one whose grant cannot be read, which also adds a <diag>W_GRANT</diag> diagnostic; the consent text is
+  the same either way. Addresses are EIP-55, accounts their ICRC-1 text, and nothing is rounded:
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/consent/src/index.d.mts">
+export interface Grant {
+  kind: "transfer" | "approve";
+  /** Who may take the tokens: an EIP-55 address, or an account in its ICRC-1 text. Exactly one of `spender` and `to`. */
+  spender?: string;
+  /** Who is paid directly: an EIP-55 address, or an account in its ICRC-1 text. */
+  to?: string;
+  /** The token: an EIP-55 address, or a canister id in its canonical text. */
+  token: string;
+  /** Base units as a decimal string; `null` when unlimited without a count (DAI's `allowed: true`). A grant of nothing is `"0"`. */
+  amount: { units: string | null; unlimited: boolean };
+  /** `at`: exact seconds since the Unix epoch as a decimal string, never rounded ("1767225600.123456789"). `now`: a transfer, made when it is sent. */
+  ends: { at: string } | { never: true } | { now: true };
+}
+</pre>
+
+<p>
+  <code>amount.unlimited</code> is true at or above the <code>amount</code> tag's <code>threshold</code>, or for a
+  <code>bool</code> amount that is <code>true</code>. <code>ends</code> is the latest of the grant's <code>ends</code>
+  positions, <code>{ never: true }</code> when one is at its <code>timestamp</code> tag's <code>threshold</code> or an
+  optional one is left out, and, with no <code>ends</code>, <code>{ never: true }</code> for an approve and
+  <code>{ now: true }</code> for a transfer (<code>src/grant.mjs</code>). Compare it with terms the person confirmed in
+  <a href="#consent-terms"><code>/terms</code></a>.
+</p>
 
 <h3 id="consent-sns"><code>@meantjs/consent/sns</code></h3>
 
@@ -641,6 +681,10 @@ export function evmConsent(input: EvmConsentInput): {
   selector: string;
   to: string;
   chainId: string | null;
+  /** The decoded arguments by parameter name, as `decodeCalldata` gives them. */
+  values: Record<string, AbiValue>;
+  /** What the call grants (its token is the contract called, unless the amount's tag names a field), or null; a W_GRANT diagnostic says why one cannot be read. */
+  grant: Grant | null;
   diagnostics: ConsentDiagnostic[];
   provenance: Provenance;
   model: Model;
@@ -670,6 +714,10 @@ export function eip712Consent(input: Eip712ConsentInput): {
   digest: string;
   verifyingContract: string;
   chainId: string;
+  /** The message's values by member name, as read from the typed data: integers as decimal strings, addresses in EIP-55 form. */
+  values: Record<string, AbiValue>;
+  /** What the signature grants (its token is the verifying contract, unless the amount's tag names a member), or null; a W_GRANT diagnostic says why one cannot be read. */
+  grant: Grant | null;
   diagnostics: ConsentDiagnostic[];
   provenance: Provenance;
   model: Model;
@@ -683,6 +731,7 @@ export function eip712Consent(input: Eip712ConsentInput): {
   <tbody>
     <tr><td><code class="wrap">decodeCalldata(resolved, calldata, limits?)</code></td><td>The function a selector names and its arguments, keyed by parameter name. Strict: <diag>E_DECODE</diag> on anything but the canonical encoding; <diag>E_RESOLVED_FORM</diag> for a form that is not an EVM one; <diag>E_METHOD_UNKNOWN</diag> for an unknown selector.</td></tr>
     <tr><td><code>evmConsent(input)</code></td><td>The same model and two layouts as an ICRC-21 message, without its envelope, ending with the contract's address and chain. A call to a contract its profiles do not list is <diag>E_DEPLOYMENT</diag>; a payable function is <diag>E_UNSUPPORTED_TYPE</diag>.</td></tr>
+    <tr><td><code>values</code>, <code>grant</code> (both functions, since 0.4.0)</td><td>The decoded arguments or message values by name, and what the call or signature grants (the <a href="#consent-main"><code>Grant</code></a> above), or null. The grant's token is the contract called or the verifying contract, unless the amount's tag names a field that holds it (<code>amount.token</code>). Permit2's batch messages carry no grant, so theirs is null.</td></tr>
     <tr><td><code>tokens</code> (both functions)</td><td>For an amount whose <code>token</code> names its token by a field: each token's <code>decimals()</code> and <code>symbol()</code>, keyed by its address, which the caller reads. An amount in a token not listed is <diag>E_REF_UNRESOLVED</diag>; a listed one is shown with its token's address beside the symbol.</td></tr>
     <tr><td><code>eip712Consent(input)</code></td><td>The consent text of a signing request (<code>eth_signTypedData_v4</code>'s JSON; <code>types.EIP712Domain</code> may be left out), matched to a message by its type hash, never its name. <code>chainId</code> is the wallet's active chain. Refused before anything is shown: a domain for another chain, without <code>chainId</code> or <code>verifyingContract</code>, with a <code>salt</code>, or whose name or version is not its profiles' (<diag>E_DOMAIN</diag>); a contract its profiles do not list (<diag>E_DEPLOYMENT</diag>); no message with the request's type hash (<diag>E_TYPE_HASH</diag>); values that are not exactly the members, canonically written (<diag>E_DECODE</diag>); a token not in <code>tokens</code> (<diag>E_REF_UNRESOLVED</diag>). The text ends with the verifying contract and its chain, the EIP-712 digest, and "This is a signature, not a transaction: whoever holds it can submit it." For a pack's message, <code>query:</code> refs are calls to the verifying contract.</td></tr>
   </tbody>
@@ -693,7 +742,7 @@ export function eip712Consent(input: Eip712ConsentInput): {
   deployments, and the token's <code>decimals()</code> and <code>symbol()</code> come in as <code>refs</code>:
 </p>
 
-<pre data-lang="js" data-check>
+<pre data-lang="js" data-check="permit">
 import { createSchemaValidator, loadPacks, validateProfile } from "@meantjs/profile";
 import { eip712Consent } from "@meantjs/consent/evm";
 
@@ -729,11 +778,14 @@ const r = eip712Consent({
 });
 r.typeHash; // "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9": EIP-2612's Permit
 r.message; // "# Permit token spending\n\nAllow `0x3C44…93BC` to spend up to `1.5 TKA` from `0x7099…79C8`. Signature expires: `Never`. …"
+r.grant; // { kind: "approve", spender: "0x3C44…93BC", token: "0x5FbD…0aa3", amount: { units: "1500000000000000000", unlimited: false }, ends: { never: true } }
 </pre>
 
 <p>
   The message then names the contract and its chain (<code>0x5FbD…0aa3</code> on chain 31337), the EIP-712 digest and
-  the signature note; the comments above are its real output, with the addresses shortened here. The same request with
+  the signature note; the comments above are its real output, with the addresses shortened here. The grant never ends:
+  a permit's <code>deadline</code> bounds only when the signature may be used, and the allowance it sets has no end
+  (spec §5.3), so the pack's grant names no <code>ends</code>. The same request with
   <code>chainId: 1</code> in its domain, to a wallet on chain 31337, is refused with <diag>E_DOMAIN</diag>: "the domain
   is for chain 1, the wallet is on chain 31337".
 </p>
@@ -784,6 +836,169 @@ export function erc8176Attestation(input: Erc8176Input): { typedData: Erc8176Typ
     <tr><td><code>ERC7730_SCHEMA_URL</code>, <code>ERC8176_SCHEMA_UID</code>, <code>EAS_ADDRESS</code></td><td>The exact-version schema every file names; ERC-8176's schema UID; the canonical EAS contract.</td></tr>
   </tbody>
 </table>
+
+<h3 id="consent-terms"><code>@meantjs/consent/terms</code></h3>
+
+<p>
+  New in 0.4.0 (spec §5.3, "Confirmed terms", and §11 item 10, D-056): terms the person confirms for one task (the
+  token, who may take it, the most and the latest end), and the check of a request's <code>grant</code> against them.
+  A request whose grant fits terms the person confirmed before the agent read it may be signed or sent without a second
+  confirmation; one that does not is refused with its reasons. Pure: the wallet passes its clock and zone in, nothing
+  is rounded, and it runs in browsers. The guide is <a href="confirmed-terms.html">Confirm terms for a task</a>.
+</p>
+
+<pre data-lang="ts" data-file="profile/packages/consent/src/terms.d.mts">
+import type { Grant } from "./index.mjs";
+
+/** A term the agent wrote that cannot be read, or a step out of order: `message` is written for the agent. */
+export declare class TermsError extends Error {
+  constructor(code: string, message: string);
+  readonly code: TermsCode;
+}
+export declare const TERMS_CODES: {
+  /** A field is missing or empty, or both spender and to are given. */
+  readonly MISSING: "E_TERMS_MISSING";
+  /** A token the wallet does not know. */
+  readonly TOKEN: "E_TERMS_TOKEN";
+  /** An app the wallet does not know, or an address or account that is not one. */
+  readonly PARTY: "E_TERMS_PARTY";
+  /** An amount that cannot be read, or has more decimals than its token: never rounded. */
+  readonly AMOUNT: "E_TERMS_AMOUNT";
+  /** An end that cannot be read, or a date before today. */
+  readonly END: "E_TERMS_END";
+  /** termsGate: a step out of order. */
+  readonly ORDER: "E_TERMS_ORDER";
+};
+export type TermsCode = (typeof TERMS_CODES)[keyof typeof TERMS_CODES];
+
+/** What the terms functions read from the wallet. Pure: the wallet's clock and zone come in here. */
+export interface Wallet {
+  /** The tokens it knows, by symbol: an EVM token's address or a ledger's canister id, and its decimals. */
+  tokens: Record<string, { address: string; decimals: number } | { canister: string; decimals: number }>;
+  /** The apps and people it knows by name: an address, or an account in its ICRC-1 text. */
+  apps?: Record<string, string>;
+  /** Nanoseconds since the Unix epoch. */
+  now: bigint;
+  /** The user's zone (default 0, UTC): a date allows its whole day there. */
+  utcOffsetMinutes?: number;
+}
+
+/** The terms as the agent writes them, a tool's arguments: `spender` or `to`, exactly one. */
+export interface TermsFields {
+  /** The token, by the symbol the wallet knows. */
+  token: string;
+  /** Who may spend the tokens: an app's name as the wallet knows it, or an address or account the user gave. */
+  spender?: string;
+  /** Who is paid directly: a name the wallet knows, or an address or account the user gave. */
+  to?: string;
+  /** The most, in tokens ("100", "0.5", "100 USDC"), or "unlimited". */
+  max_amount: string;
+  /** YYYY-MM-DD (the whole day counts), a length from today ("30 days", "2 weeks", "1 month", "1 year"), hours from now ("2 hours", an exact time), or "never". */
+  expires_by: string;
+}
+
+/** What the user allows for one task, in the wallet's own values: `spender` or `to`, exactly one. */
+export interface Terms {
+  /** The token: an EIP-55 address, or a canister id in its canonical text. */
+  token: string;
+  symbol: string;
+  decimals: number;
+  spender?: string;
+  to?: string;
+  /** The app's name in the wallet's list, or null. */
+  name: string | null;
+  /** The most, in base units as a decimal string; `null` when unlimited. */
+  amount: { units: string; unlimited: false } | { units: null; unlimited: true };
+  /** `at`: the latest end, exact seconds since the Unix epoch as a decimal string; `day`: the local date whose whole day counts. */
+  ends: { at: string; day?: string } | { never: true };
+  utcOffsetMinutes: number;
+  /** The fields as the agent wrote them, trimmed. */
+  written: Record<string, string>;
+}
+/** Terms the user confirmed: `id` is the SHA-256 of their canonical JSON (RFC 8785), lowercase hex. */
+export type ConfirmedTerms = Readonly<Terms & { id: string }>;
+</pre>
+
+<pre data-lang="ts" data-file="profile/packages/consent/src/terms.d.mts">
+/** Reads the agent's terms. Throws TermsError when a term cannot be read; it never guesses a token, an app, decimals or a date. */
+export function readTerms(fields: TermsFields | Record<string, unknown>, wallet: Wallet): Terms;
+/** The terms in words, exactly, for the user to confirm on the wallet's own screen. */
+export function termsText(terms: Terms | ConfirmedTerms): string;
+/** The terms once the user has confirmed exactly `termsText(terms)`: frozen, with their `id`. */
+export function confirmTerms(terms: Terms): ConfirmedTerms;
+/** Whether a request's grant fits confirmed terms, and if not, why, in words. A null grant is not covered by terms. */
+export function checkGrant(confirmed: ConfirmedTerms, grant: Grant | null, wallet: Wallet): { fits: boolean; reasons: string[] };
+
+/** The order of one task: propose, confirm on the wallet's screen, read, check. Steps out of order throw TermsError E_TERMS_ORDER. */
+export interface TermsGate {
+  readonly state: "open" | "proposed" | "confirmed" | "read";
+  readonly proposed: Readonly<Terms> | null;
+  readonly confirmed: ConfirmedTerms | null;
+  /** The agent's draft; replaces an earlier one and its confirmation. Returns the text to show the user. Refused once the request was read. */
+  propose(terms: Terms): string;
+  /** The user confirmed `shown`, which must be exactly the draft's text. */
+  confirm(shown: string): ConfirmedTerms;
+  /** The user said no: the draft is dropped. */
+  reject(): void;
+  /** Before the agent reads the request: refused until the user has confirmed terms. */
+  read(): void;
+  /**
+   * The grant of the request read. `requestId` names the request the wallet will sign or send: eip712Consent's `digest`,
+   * or for a call the wallet's own id of it. The terms cover one request, the first checked: another is refused, even
+   * one that grants the same.
+   */
+  check(grant: Grant | null, wallet: Wallet, requestId: string): { fits: boolean; reasons: string[] };
+}
+export function termsGate(): TermsGate;
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Export</th><th>Does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">readTerms(fields, wallet)</code></td><td>The agent's terms in the wallet's values: a token by its symbol and an app by its name from the wallet's lists (case, spaces and punctuation set aside), never guessed; an address or account the person gave, checked; the most with <code>parseAmount</code>, never rounded; the end as a date (its whole day in the person's zone), a length (days and weeks count days, months and years calendar months), hours from now (an exact time) or <code>"never"</code>. <code>"unlimited"</code> and <code>"never"</code> only as those words. Throws <code>TermsError</code>.</td></tr>
+    <tr><td><code class="wrap">termsText(terms)</code></td><td>The terms in words, exactly, for the wallet's own screen: the full address, the amount without rounding, and "any amount of … (unlimited)" or "and this permission never ends" written out.</td></tr>
+    <tr><td><code class="wrap">confirmTerms(terms)</code></td><td>Called once the person confirmed exactly <code>termsText(terms)</code> on the wallet's own screen, never through a tool the agent can call: the terms deep-frozen, with <code>id</code>. <code>checkGrant</code> refuses terms whose <code>id</code> no longer matches.</td></tr>
+    <tr><td><code class="wrap">checkGrant(confirmed, grant, wallet)</code></td><td><code>{ fits, reasons }</code>. A grant fits when its token and its spender or recipient are the terms', its amount is at most the terms' most (unlimited only under unlimited terms; a grant of nothing under any), and it ends no later than the terms' end (one that never ends only under terms that never end; a transfer while the terms have not ended). A null grant never fits: it is not covered by terms and needs its confirmation.</td></tr>
+    <tr><td><code>termsGate()</code></td><td>The order of one task: <code>propose(terms)</code> returns the text to show, <code>confirm(shown)</code> takes the text the person confirmed, <code>read()</code> comes before the agent reads the request, <code>check(grant, wallet, requestId)</code>. Terms cannot change once the request is read, and they cover one request, named by <code>requestId</code> (<code>eip712Consent</code>'s <code>digest</code>, or the wallet's own id of a call): another is refused even when it grants the same. Out of order is <diag>E_TERMS_ORDER</diag>.</td></tr>
+    <tr><td><code>TermsError</code>, <code>TERMS_CODES</code>, <code>TermsCode</code></td><td>The six codes and their messages, written for the agent (<a href="reference-profile-diagnostics.html#meantjs-consent-terms-termserror">TermsError</a>). A wallet, terms or grant not in the shape these functions write is a <code>ConsentError</code> <diag>E_REQUEST</diag> instead.</td></tr>
+    <tr><td><code>Wallet</code>, <code>TermsFields</code>, <code>Terms</code>, <code>ConfirmedTerms</code>, <code>TermsGate</code></td><td>The types above.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  The permit of the <a href="#consent-evm"><code>/evm</code></a> example, checked against two sets of terms. The token
+  and Bob are the local Anvil addresses above, and <code>now</code> is the wallet's clock:
+</p>
+
+<pre data-lang="js" data-check="permit">
+import { checkGrant, confirmTerms, readTerms, termsGate, termsText } from "@meantjs/consent/terms";
+
+const wallet = {
+  tokens: { TKA: { address: "0x5FbDB2315678afecb367f032d93F642f64180aa3", decimals: 18 } },
+  apps: { Bob: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC" },
+  now: 1_793_620_800_000_000_000n, // 2026-11-02T12:00:00Z, in nanoseconds
+};
+const month = readTerms({ token: "TKA", spender: "Bob", max_amount: "2", expires_by: "30 days" }, wallet);
+termsText(month); // "Bob (0x3C44…93BC) may spend at most 2 TKA, until the end of 2 December 2026 (UTC)."
+checkGrant(confirmTerms(month), r.grant, wallet);
+// { fits: false, reasons: ["the permission never ends, the terms say until the end of 2 December 2026 (UTC)"] }
+
+const gate = termsGate();
+const shown = gate.propose(readTerms({ token: "TKA", spender: "Bob", max_amount: "2", expires_by: "never" }, wallet));
+// "Bob (0x3C44…93BC) may spend at most 2 TKA, and this permission never ends."
+gate.confirm(shown); // the person confirmed exactly `shown` on the wallet's own screen
+gate.read(); // in a wallet, the agent reads the request only after this
+gate.check(r.grant, wallet, r.digest); // { fits: true, reasons: [] }
+</pre>
+
+<p>
+  The comments are the real output, with the address shortened here. The first terms end; the permit never does, so it
+  does not fit them. A second request checked through the same gate, under another <code>requestId</code>, is refused
+  with <diag>E_TERMS_ORDER</diag>: "these terms cover one request, the one already checked; another request is a new
+  task, with new terms".
+</p>
 
 <h2 id="meantjs-tools"><code>@meantjs/tools</code></h2>
 

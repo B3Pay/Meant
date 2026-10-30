@@ -234,6 +234,53 @@ METHOD, DECL, IDENT = [A-Za-z_][A-Za-z0-9_]*
 U32          = decimal integer, 0 … 4294967295
 </pre>
 
+<h3>grant, inside effect</h3>
+
+<p>
+  Since 0.4.0 (spec §5.3, D-056), an <code>effect</code> of kind <code>transfer</code> or <code>approve</code> may carry
+  <code>grant</code> in its <code>args</code>: who may take tokens because of the call, how many and until when, as
+  relpaths into the method's arguments. The ICRC-2 pack's:
+</p>
+
+<pre data-lang="json" data-file="profile/packs/icrc2.profile.json">
+{
+  "at": "icrc2_approve",
+  "tag": "effect",
+  "args": {
+    "kind": "approve",
+    "irreversible": false,
+    "grant": {
+      "spender": "spender",
+      "amount": "amount",
+      "ends": [
+        "expires_at"
+      ]
+    }
+  }
+},
+</pre>
+
+<table>
+  <thead>
+    <tr><th>Field of <code>grant</code></th><th>Required</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>spender</code></td><td>exactly one of <code>spender</code> and <code>to</code></td><td>a relpath: who may take the tokens through an allowance, or with a signature someone else submits</td></tr>
+    <tr><td><code>to</code></td><td>exactly one of <code>spender</code> and <code>to</code></td><td>a relpath: who a transfer pays directly</td></tr>
+    <tr><td><code>amount</code></td><td>yes</td><td>a relpath to an <code>amount</code>-tagged position, or a <code>bool</code></td></tr>
+    <tr><td><code>ends</code></td><td>no</td><td>an array of 1–8 relpaths to <code>timestamp</code>-tagged positions</td></tr>
+  </tbody>
+</table>
+
+<p>
+  No other field is allowed (<code>additionalProperties: false</code>, the schema's <code>grant</code> definition), and
+  the schema's <code>oneOf</code> takes exactly one of <code>spender</code> and <code>to</code>; anything else is
+  <diag>E_SCHEMA</diag>. What the positions must be, and <diag>E_GRANT</diag> when they are not, is on
+  <a href="reference-tags.html#what-a-call-grants">Tags</a>. A grant is part of its effect annotation, not an annotation of
+  its own, so the validator's annotation counts do not include it; the profile's <code>profile_id</code> changes with
+  it, as with any edit.
+</p>
+
 <h2>profile_id</h2>
 
 <p>
@@ -317,7 +364,7 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
   </thead>
   <tbody>
     <tr><td><code>mode</code></td><td><code>query</code>, <code>composite_query</code>, <code>update</code> or <code>oneway</code>. An EVM <code>view</code> or <code>pure</code> function is a <code>query</code>, <code>nonpayable</code> and <code>payable</code> an <code>update</code>.</td></tr>
-    <tr><td><code>tags</code></td><td>the method tags. <code>effect</code> is always present: when no profile sets it, the resolver writes the §5.3 default with <code>"origin": "default"</code>.</td></tr>
+    <tr><td><code>tags</code></td><td>the method tags. <code>effect</code> is always present: when no profile sets it, the resolver writes the §5.3 default with <code>"origin": "default"</code>. Its <code>args</code> carry <code>grant</code> as the profile wrote it, when one is given and holds (<a href="#a-grant-in-the-resolved-form">below</a>).</td></tr>
     <tr><td><code>args</code></td><td>one node per argument</td></tr>
     <tr><td><code>results</code></td><td>one node per result</td></tr>
     <tr><td><code>selector</code>, <code>signature</code>, <code>state_mutability</code></td><td>EVM only: <code>"0xa9059cbb"</code>, <code>"transfer(address to,uint256 value)"</code>, <code>"nonpayable"</code></td></tr>
@@ -344,6 +391,37 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
   ]
 },
 </pre>
+
+<h3>A grant in the resolved form</h3>
+
+<p>
+  A grant stays inside <code>effect.args</code>, unchanged; the consumer reads it there and the decoded values it names
+  (<code>@meantjs/consent</code> returns it as <code>grant</code>, see
+  <a href="reference-profile-api.html#consent-main">JavaScript API</a>). From the ICRC-2 pack's fixture:
+</p>
+
+<pre data-lang="json" data-file="profile/fixtures/icrc2.resolved.json">
+"effect": {
+  "args": {
+    "kind": "approve",
+    "irreversible": false,
+    "grant": {
+      "spender": "spender",
+      "amount": "amount",
+      "ends": [
+        "expires_at"
+      ]
+    }
+  },
+  "origin": "pack",
+  "profile": "icrc2"
+},
+</pre>
+
+<p>
+  A pack whose grant does not hold in the service it is applied to keeps its effect in the resolved form and loses
+  the grant (<diag>I_PACK_ANNOTATION_SKIPPED</diag>).
+</p>
 
 <h3>Node fields</h3>
 
@@ -503,7 +581,11 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
     "effect": {
       "args": {
         "kind": "transfer",
-        "irreversible": true
+        "irreversible": true,
+        "grant": {
+          "to": "to",
+          "amount": "value"
+        }
       },
       "origin": "pack",
       "profile": "erc20"
@@ -595,7 +677,11 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
       "effect": {
         "args": {
           "kind": "approve",
-          "irreversible": false
+          "irreversible": false,
+          "grant": {
+            "spender": "spender",
+            "amount": "value"
+          }
         },
         "origin": "pack",
         "profile": "erc2612"

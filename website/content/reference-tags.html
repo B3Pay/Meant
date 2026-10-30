@@ -246,7 +246,8 @@ threshold: "1461501637330902918203684832716283019655932542975"
       <td>
         <code>kind</code>, required: <effect>read</effect> <effect>write</effect> <effect>transfer</effect> <effect>approve</effect> <effect>admin</effect> <effect>destroy</effect><br>
         <code>irreversible</code>, required: boolean.<br>
-        <code>replicated</code>, optional: boolean; <code>true</code> only with <code>kind: "read"</code> and <code>irreversible: false</code> on an update method (a read-only update, D-038).
+        <code>replicated</code>, optional: boolean; <code>true</code> only with <code>kind: "read"</code> and <code>irreversible: false</code> on an update method (a read-only update, D-038).<br>
+        <code>grant</code>, optional: an object, what a <code>transfer</code> or <code>approve</code> lets someone take: <code>spender</code> or <code>to</code>, <code>amount</code>, and <code>ends</code>, optional, as argument relpaths. Only on a method's effect, not a case's (<diag>E_GRANT</diag>; <a href="#what-a-call-grants">below</a>, D-056).
       </td>
     </tr>
     <tr>
@@ -325,6 +326,61 @@ threshold: "1461501637330902918203684832716283019655932542975"
   </tbody>
 </table>
 
+<h3>What a call grants</h3>
+
+<p>
+  Spec §5.3, D-056. An <code>effect</code> of kind <effect>transfer</effect> or <effect>approve</effect> may carry
+  <code>grant</code>: who may take tokens because of the call or the signature, which token, how many and until when,
+  so that a consumer can compare a request with terms the person confirmed (<a href="confirmed-terms.html">Confirm
+  terms for a task</a>). Its values are relpaths into the method's arguments, written as an intent template's
+  placeholders are (§6). From the ICRC-2 pack:
+</p>
+
+<annotation at="icrc2_approve" tag="effect">
+kind: "approve"
+irreversible: false
+grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
+</annotation>
+
+<table>
+  <thead>
+    <tr><th>Key</th><th>Required</th><th>The position it names</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>spender</code> or <code>to</code></td>
+      <td>exactly one</td>
+      <td>Who may take the tokens. <code>spender</code> is for an allowance, or for a signature someone else submits; <code>to</code> is for a transfer that pays them directly. An <code>approve</code>'s grant names a <code>spender</code>. The position is an <code>address</code> (EVM, §15) or carries an <code>account</code> tag.</td>
+    </tr>
+    <tr>
+      <td><code>amount</code></td>
+      <td>yes</td>
+      <td>A position with an <code>amount</code> tag, of an unsigned type, where a value at or above the tag's <code>threshold</code> means unlimited; or a <code>bool</code>, where <code>true</code> is unlimited and <code>false</code> grants nothing (DAI's permit, §15.9).</td>
+    </tr>
+    <tr>
+      <td><code>ends</code></td>
+      <td>no</td>
+      <td>One to eight positions with a <code>timestamp</code> tag. The grant ends at the latest of them, and one at or above its tag's <code>threshold</code>, or an optional one left out, means it never ends. With no <code>ends</code>, an <code>approve</code> never ends and a <code>transfer</code> ends when it is made.</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><code>spender</code>, <code>to</code> and <code>amount</code> are in every call: neither optional nor inside a case of a variant, and no position of a grant is inside one.</li>
+  <li>No position steps into <code>[]</code>: a grant covers one token, so a request that grants several (Permit2's <code>PermitBatch</code>) has none in v0.</li>
+  <li>The token is the one the <code>amount</code> tag names (<code>token</code>, §15.9), else the contract or canister the call is for.</li>
+  <li>A deadline that bounds only when a signature may be used is not an end of what it grants: EIP-2612's <code>deadline</code> and DAI's <code>expiry</code> set allowances that never end, so neither is in <code>ends</code>.</li>
+  <li>The <code>amount</code>, <code>timestamp</code> and <code>account</code> tags a grant needs may come from another profile of the merge: the resolver checks the grant against the merged tags.</li>
+</ul>
+
+<p>
+  A grant on another kind, on a case effect (§5.2), or whose positions break these rules is <diag>E_GRANT</diag>. A
+  pack applied to a service where its grant does not hold keeps its effect and loses the grant
+  (<diag>I_PACK_ANNOTATION_SKIPPED</diag>): dropping the effect would leave a transfer or approve with the default
+  effect. A grant is the author's claim, like any effect (§11.1). The grants the standard packs carry are on
+  <a href="reference-packs.html#what-the-packs-grant">Standard packs</a>.
+</p>
+
 <h2>Tags on an EVM contract</h2>
 
 <callout type="warn" title="Experimental">
@@ -364,7 +420,7 @@ threshold: "1461501637330902918203684832716283019655932542975"
     </tr>
     <tr>
       <td><a href="value-tags.html"><code>describe</code></a>, <a href="value-tags.html"><code>default</code></a>, <a href="value-tags.html"><code>ui</code></a>, <a href="intent-and-effects.html"><code>intent</code></a>, <a href="intent-and-effects.html"><code>effect</code></a></td>
-      <td>as on a canister. A template has no <code>[ ]</code> segments (<diag>E_TEMPLATE</diag>): an ABI value is never absent. <code>effect</code> defaults as in §5.3.</td>
+      <td>as on a canister. A template has no <code>[ ]</code> segments (<diag>E_TEMPLATE</diag>): an ABI value is never absent. <code>effect</code> defaults as in §5.3; a grant's <code>spender</code> or <code>to</code> is an <code>address</code>.</td>
     </tr>
     <tr>
       <td><code>account</code>, <code>subaccount</code></td>
@@ -407,7 +463,7 @@ template: "Let {spender} spend up to {details.amount}. Allowance expires: {detai
     </tr>
     <tr>
       <td><a href="intent-and-effects.html"><code>effect</code></a></td>
-      <td>A signature runs nothing when it is signed, so <code>effect</code> says what it allows, of any kind: <effect>approve</effect> for an allowance, <effect>transfer</effect> for a one-time transfer. Default <effect>write</effect>, irreversible. <code>replicated</code> does not apply (<diag>E_EFFECT_MODE</diag>).</td>
+      <td>A signature runs nothing when it is signed, so <code>effect</code> says what it allows, of any kind: <effect>approve</effect> for an allowance, <effect>transfer</effect> for a one-time transfer. Default <effect>write</effect>, irreversible. <code>replicated</code> does not apply (<diag>E_EFFECT_MODE</diag>). Its <code>grant</code> names the struct's members, as its template does (<a href="#a-message-s-grant">below</a>).</td>
     </tr>
     <tr>
       <td>every other tag</td>
@@ -421,6 +477,27 @@ template: "Let {spender} spend up to {details.amount}. Allowance expires: {detai
   later profile is invalid): each is <diag>E_EIP712</diag>. A signing request matches a message by its type hash, never
   by its name: DAI's <code>Permit</code> and EIP-2612's share a name and not a hash. The standard messages are on
   <a href="reference-packs.html">Standard packs</a>.
+</p>
+
+<h3>A message's grant</h3>
+
+<p>
+  Spec §15.9, D-056. A message's grant names its positions as its template does, from the struct. Permit2's
+  <code>PermitSingle</code>:
+</p>
+
+<annotation at="PermitSingle" tag="effect">
+kind: "approve"
+irreversible: false
+grant: { "spender": "spender", "amount": "details.amount", "ends": ["details.expiration", "sigDeadline"] }
+</annotation>
+
+<p>
+  <claim>fact</claim> (Uniswap <code>permit2</code> at <code>main</code>, read 2026-10-30,
+  <code>src/libraries/Allowance.sol</code>, as spec §15.9 records) An expiration of 0 is stored as the time of the block
+  the permit is used in, and that block may come as late as <code>sigDeadline</code>; the latest of the two is the end,
+  so 0 needs no rule of its own. The token is the one <code>amount.token</code> names
+  (<code>details.token</code>), not the verifying contract.
 </p>
 
 <h2>Where to read more</h2>
