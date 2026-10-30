@@ -6,8 +6,8 @@ ICRC-21 consent messages, and the text an SNS proposal's validator returns, from
 npm install @meantjs/consent
 ```
 
-- **Runs on:** Node 22 or later and browsers for the main entry and the EVM subpaths (no Node built-in, no `Buffer`;
-  checked with esbuild). `@meantjs/consent/sns` hashes with `node:crypto` and is Node only.
+- **Runs on:** Node 22 or later and browsers for the main entry, the EVM subpaths and `./terms` (no Node built-in, no
+  `Buffer`; checked with esbuild). `@meantjs/consent/sns` hashes with `node:crypto` and is Node only.
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
 - **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
 - **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
@@ -47,7 +47,7 @@ bundles it with esbuild for the browser platform). The three SNS rows below are 
 | `snsValidatorRendering({ payload, resolved, method, refs, limits })` | An SNS generic-function validator as a function: payload bytes in, `{ Ok: text }` or `{ Err: text }` out (section below). Non-enumerable `diagnostics` and `provenance`, as above. |
 | `handleSnsValidatorCall(payload, context)` / `encodeValidatorResult` / `decodeValidatorResult` | The canister-side wrapper and the codec of `variant { Ok : text; Err : text }`. |
 | `verifySnsRendering({ payloadTextRendering, payload, resolved, targetCanisterId, method, refs })`, `parseGovernanceRendering(text)` | The reviewer's check of a stored proposal rendering; `SNS_RENDERING_RULES` names the rules. |
-| `generateConsent({ resolved, method, arg, refs, form, utcOffsetMinutes, rawArguments })` | One form without the ICRC-21 envelope; returns `{ message, zoneSensitive, diagnostics, provenance, model }`. |
+| `generateConsent({ resolved, method, arg, refs, form, utcOffsetMinutes, rawArguments, canisterId })` | One form without the ICRC-21 envelope; returns `{ message, zoneSensitive, values, grant, diagnostics, provenance, model }`. `values`: the decoded arguments. `grant`: what the call grants (section "Terms the user confirms"), read only when `canisterId` names the canister called, its token; else null. |
 | `decodeArguments(method, bytes, limits)` | Step 1 alone: argument bytes to the value tree. |
 | `parseTemplate`, `resolvePath`, `valuesAt`, `Renderer`, `renderFields`, `renderGeneric`, `codeSpan`, `escapeMarkdown`, `visible` | The parts. |
 
@@ -72,6 +72,7 @@ a Candid one.
 | `decodeCalldata(resolved, calldata, limits)` (`/evm`) | The function a selector names and its arguments, keyed by parameter name. Strict: values read from anything but their canonical ABI encoding are `E_DECODE`. |
 | `evmConsent({ resolved, calldata, to, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of a call: the same model and the same two forms as ICRC-21, without its envelope (`"generic"` Markdown, or `"fields"` as an intent line and `[label, text]` rows), ending with the contract's address and chain, which a person must see because a pack matches any contract with the right functions. A call to a contract its profiles do not list is `E_DEPLOYMENT`; a payable function is `E_UNSUPPORTED_TYPE` (its native value has no position yet). `tokens`: the decimals and symbol of each token an amount's `token` field names, by address; the address is shown beside the symbol. |
 | `eip712Consent({ resolved, typedData, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of an EIP-712 signing request (`eth_signTypedData_v4`'s JSON), matched to a message of the resolved form by its type hash, never its name. Refused before anything is shown: a domain for another chain than the wallet's, without `chainId` or `verifyingContract`, with a salt, or whose name or version is not its profiles' (`E_DOMAIN`); a contract its profiles do not list (`E_DEPLOYMENT`); no message with the type hash (`E_TYPE_HASH`); values that are not exactly the members, canonically written (`E_DECODE`); a token not in `tokens` (`E_REF_UNRESOLVED`). Ends with the verifying contract, the EIP-712 digest and "This is a signature, not a transaction: whoever holds it can submit it." Returns `typeHash`, `digest`, `verifyingContract` and `chainId` with the text. |
+| `values`, `grant` (both, `/evm`) | `evmConsent` and `eip712Consent` also return the decoded arguments or message by name (`values`), and what the call or signature grants (`grant`, below), or null. |
 | `erc7730Descriptor(resolved, { context, deployments, owner, contractName, info, token })` (`/erc7730`) | The contract's ERC-7730 clear-signing file and its ERC-8176 `descriptorHash`: deterministic, `$schema` pinned to the exact 2.1.0 file, one entry per function a transaction calls, or with `context: "eip712"` one per message, keyed by its `encodeType`. What an ERC-7730 file cannot say (a time in ms, `utf8` bytes, an amount in another token, an unnamed parameter) is `E_EXPORT`, never written as something near it; no deployment is `E_DEPLOYMENT`. What it cannot say but changes no value (a timestamp's "Never", a template over an array) is left out and listed in `notes`. The mapping is spec §15.7 and §15.9. |
 | `descriptorHash(descriptor)` (`/erc7730`) | Keccak-256 of the RFC 8785 form: the hash of a file someone edited. |
 | `erc8176Attestation({ descriptorHash, time, expirationTime, salt, refUID })` (`/erc7730`) | The unsigned ERC-8176 attestation (EAS offchain v2 typed data) and its EIP-712 digest, for a reviewer to sign with their own key. Nothing is signed or sent. |
@@ -95,6 +96,55 @@ Every exported file in the tests is checked against the ERC-7730 2.1.0 JSON Sche
 independent implementation. **Fact** (ERC-7730): a wallet that finds no ticker for a `tokenAmount` "SHOULD display the
 raw value instead with an 'Unknown token' warning"; this package would produce no message there, and a file cannot make
 a wallet refuse. The Rust version does not cover EVM.
+
+## Terms the user confirms (`src/terms.mjs`, `@meantjs/consent/terms`)
+
+Spec §5.3 ("What a call grants", "Confirmed terms") and §11 item 10, D-056. An agent that signs for a user should sign
+only what the user asked for. The consent functions above return each request's `grant`, read from the profile's
+`effect.grant`:
+
+```js
+{ kind: "approve", spender: "0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af", token: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+  amount: { units: "500000000", unlimited: false }, ends: { at: "1796083199" } } // or { never: true }, or { now: true } for a transfer
+```
+
+Addresses are EIP-55, accounts their ICRC-1 text, a canister's token its canonical id, units a decimal string and ends
+exact seconds, never rounded. A Permit2 allowance whose expiration is 0 ends at `sigDeadline`, and an EIP-2612 or DAI
+permit never ends (their deadlines are the signature's). A batch, a request without a grant, or a grant that cannot be
+read is null; the last with a `W_GRANT` diagnostic, and the text is the same.
+
+The subpath compares a grant with terms the user confirmed for one task:
+
+| Function | Does |
+|---|---|
+| `readTerms(fields, wallet)` | The agent's terms (`token`, `spender` or `to`, `max_amount`, `expires_by`, as a tool takes them) in the wallet's values: a token by its symbol and an app by its name from the wallet's lists, never guessed; an address or account the user gave, checked; the most never rounded; the end as a date (its whole day in the user's zone), a length ("30 days", "1 month", calendar months), hours from now (an exact time) or "never". "unlimited" and "never" only as those words. Throws `TermsError` with a code and a message for the agent. `wallet`: `{ tokens, apps, now, utcOffsetMinutes }`, `now` in nanoseconds as a bigint. |
+| `termsText(terms)` | The terms in words, exactly, for the wallet's own screen: "Uniswap (0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af) may spend at most 500 USDC, until the end of 30 November 2026 (UTC)." "any amount (unlimited)" and "never ends" are written out. |
+| `confirmTerms(terms)` | Once the user confirmed exactly that text, never through a tool the agent can call: the terms frozen, with `id`, the SHA-256 of their canonical JSON. |
+| `checkGrant(confirmed, grant, wallet)` | `{ fits, reasons }`. A grant fits when its token and its spender or recipient are the terms', its amount is at most the most (unlimited only under unlimited terms; a grant of nothing under any), and it ends no later than the terms (never only under never; a transfer while the terms have not ended). A request that fits needs no second yes; one that does not is refused with the reasons, and the agent asks the user for new terms. A null grant is not covered by terms. |
+| `termsGate()` | The order, kept: `propose(terms)` returns the text to show, `confirm(shown)` takes the text the user confirmed, `read()` before the agent reads the request, `check(grant, wallet, requestId)`. The request cannot be read before the terms are confirmed, the terms cannot change once it is read, and they cover one request: `requestId` names it (`eip712Consent`'s `digest`, or the wallet's own id of a call), and another is refused even when it grants the same. Out of order is `E_TERMS_ORDER`. |
+
+```js
+import { checkGrant, readTerms, termsGate, termsText } from "@meantjs/consent/terms";
+import { eip712Consent } from "@meantjs/consent/evm";
+
+const wallet = {
+  tokens: { USDC: { address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", decimals: 6 } },
+  apps: { Uniswap: "0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af" },
+  now: BigInt(Date.now()) * 1_000_000n,
+};
+const gate = termsGate();
+const shown = gate.propose(readTerms({ token: "USDC", spender: "Uniswap", max_amount: "500", expires_by: "2026-11-30" }, wallet));
+// the wallet shows `shown` on its own screen; when the user confirms it:
+gate.confirm(shown);
+gate.read(); // now the agent may read the request
+const { grant, digest } = eip712Consent({ resolved: permit2, typedData, chainId: 1, tokens });
+gate.check(grant, wallet, digest); // { fits: true, reasons: [] }, or { fits: false, reasons: ["the request is unlimited, the terms say at most 500 USDC"] }
+```
+
+The rules come from Meant's signing test, where the comparison in code held every time and the terms agents wrote from
+everyday words were the weak point (spec §11 item 10); hence the user's confirmation. The checks cover the eight
+requests of the proposal (Permit2 `PermitSingle` and `PermitTransferFrom`, EIP-2612, DAI, ERC-20 `approve` and
+`transfer`, ICRC-2 `icrc2_approve`, ICRC-1 `icrc1_transfer`) end to end, both traps, and the test's planted faults.
 
 ## SNS proposal validators (`src/sns.mjs`)
 

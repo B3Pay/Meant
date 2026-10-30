@@ -1,0 +1,12 @@
+[package]
+name = "meant-vs-native-rust"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "The units table's Rust column: meant-format from crates.io, as a canister or a hardware signer would use it."
+
+[dependencies]
+meant-format = "=0.2.0"
+
+# Not a member of any workspace around it.
+[workspace]

@@ -6,7 +6,7 @@
     {
       "name": "icrc1",
       "origin": "pack",
-      "profile_id": "candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b"
+      "profile_id": "candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6"
     }
   ],
   "methods": {
@@ -153,7 +153,11 @@
         "effect": {
           "args": {
             "kind": "transfer",
-            "irreversible": true
+            "irreversible": true,
+            "grant": {
+              "to": "to",
+              "amount": "amount"
+            }
           },
           "origin": "pack",
           "profile": "icrc1"

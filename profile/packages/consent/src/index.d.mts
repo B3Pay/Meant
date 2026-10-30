@@ -126,6 +126,24 @@ export interface Model {
   [key: string]: unknown;
 }
 
+/**
+ * What a call or a signature grants (spec section 5.3, D-056): who may take tokens because of it, which token, how many
+ * and until when, read from its effect's `grant`. Compare it with terms the user confirmed (`@meantjs/consent/terms`).
+ */
+export interface Grant {
+  kind: "transfer" | "approve";
+  /** Who may take the tokens: an EIP-55 address, or an account in its ICRC-1 text. Exactly one of `spender` and `to`. */
+  spender?: string;
+  /** Who is paid directly: an EIP-55 address, or an account in its ICRC-1 text. */
+  to?: string;
+  /** The token: an EIP-55 address, or a canister id in its canonical text. */
+  token: string;
+  /** Base units as a decimal string; `null` when unlimited without a count (DAI's `allowed: true`). A grant of nothing is `"0"`. */
+  amount: { units: string | null; unlimited: boolean };
+  /** `at`: exact seconds since the Unix epoch as a decimal string, never rounded ("1767225600.123456789"). `now`: a transfer, made when it is sent. */
+  ends: { at: string } | { never: true } | { now: true };
+}
+
 export interface GenerateConsentInput {
   resolved: ResolvedForm;
   method: string;
@@ -138,12 +156,21 @@ export interface GenerateConsentInput {
   utcOffsetMinutes?: number | null;
   rawArguments?: boolean;
   limits?: DecodeLimits;
+  /**
+   * The canister called, the token of a grant. Without it nothing asks what the call grants: `grant` is null, with no
+   * diagnostic. Any spelling of a principal; anything else is E_REQUEST.
+   */
+  canisterId?: string;
 }
 /** One form without the ICRC-21 envelope. `zoneSensitive` is true when a timestamp was shown in the requested zone. */
 export function generateConsent(input: GenerateConsentInput): {
   form: "fields" | "generic";
   message: Icrc21ConsentMessage;
   zoneSensitive: boolean;
+  /** The decoded arguments, one value tree per argument, as `decodeArguments` gives them. */
+  values: unknown[];
+  /** What the call grants, or null: no `canisterId`, no grant in its effect, or one that cannot be read (a W_GRANT diagnostic says why). */
+  grant: Grant | null;
   diagnostics: ConsentDiagnostic[];
   provenance: Provenance;
   model: Model;

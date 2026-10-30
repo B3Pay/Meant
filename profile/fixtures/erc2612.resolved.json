@@ -7,7 +7,7 @@
     {
       "name": "erc2612",
       "origin": "pack",
-      "profile_id": "candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810"
+      "profile_id": "candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705"
     }
   ],
   "methods": {
@@ -100,7 +100,11 @@
         "effect": {
           "args": {
             "kind": "approve",
-            "irreversible": false
+            "irreversible": false,
+            "grant": {
+              "spender": "spender",
+              "amount": "value"
+            }
           },
           "origin": "pack",
           "profile": "erc2612"
@@ -242,7 +246,11 @@
         "effect": {
           "args": {
             "kind": "approve",
-            "irreversible": false
+            "irreversible": false,
+            "grant": {
+              "spender": "spender",
+              "amount": "value"
+            }
           },
           "origin": "pack",
           "profile": "erc2612"

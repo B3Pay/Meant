@@ -22,6 +22,7 @@
 import { AbiError, DEFAULT_ABI_LIMITS, decodeParams, eip712TypeHash, keccak256Hex, parseEip712Types, parseSignature, readAddress, typedDataDigest } from "@meantjs/profile/evm";
 import { Renderer, TokenAmount } from "./display.mjs";
 import { CODES, ConsentError, fail } from "./errors.mjs";
+import { grantOf } from "./grant.mjs";
 import { modelOf } from "./model.mjs";
 import { resolvePath } from "./paths.mjs";
 import { renderGeneric, renderPlain } from "./render.mjs";
@@ -149,7 +150,9 @@ function withTokens(name, viewed, args, tokens) {
  * @param {number | null} [input.utcOffsetMinutes]  generic form only (default 0, UTC)
  * @param {boolean} [input.rawArguments]  append the decoded arguments (spec section 11 item 1)
  * @param {object} [input.limits]  decoder limits (maxBytes, maxDepth, maxElements)
- * @returns {{ form: string, message: string | { intent: string, fields: Array<[string, string]> }, method: string, selector: string, to: string, chainId: string | null, diagnostics: object[], provenance: object, model: object }}
+ * @returns {{ form: string, message: string | { intent: string, fields: Array<[string, string]> }, method: string, selector: string, to: string, chainId: string | null, values: Record<string, unknown>, grant: object | null, diagnostics: object[], provenance: object, model: object }}
+ *   `values` are the decoded arguments as `decodeCalldata` gives them, and `grant` what the call grants (spec section
+ *   5.3, D-056; its token is the contract called unless the amount's tag names a field), or null.
  */
 export function evmConsent({ resolved, calldata, to, chainId, refs = {}, tokens = {}, form = "generic", utcOffsetMinutes = null, rawArguments = false, limits }) {
   if (form !== "generic" && form !== "fields") fail(CODES.REQUEST, `form must be "generic" or "fields", got ${JSON.stringify(form)}`);
@@ -167,8 +170,9 @@ export function evmConsent({ resolved, calldata, to, chainId, refs = {}, tokens 
   if (method.state_mutability === "payable") fail(CODES.UNSUPPORTED_TYPE, `${name} is payable: the native value a call sends has no position in a profile yet (spec section 15, O2)`);
   const viewed = { ...method, args: method.args.map((n, i) => abiView(n, `${name}(${i})`)) };
   const model = modelOf(resolved, name, viewed, viewed.args.length ? withTokens(name, viewed, [values], tokenTable(tokens)) : []);
+  const grant = grantOf({ name, method: viewed, argValues: viewed.args.length ? [values] : [], called: target, diagnostics: model.diagnostics });
   const where = `${target}${chain === null ? "" : ` on chain ${chain}`}`;
-  const done = (rest) => ({ ...rest, method: name, selector, to: target, chainId: chain, diagnostics: model.diagnostics, provenance: model.provenance, model });
+  const done = (rest) => ({ ...rest, method: name, selector, to: target, chainId: chain, values, grant, diagnostics: model.diagnostics, provenance: model.provenance, model });
   if (form === "fields") {
     const plain = renderPlain(model, new Renderer({ refs, diagnostics: model.diagnostics }), { rawArguments });
     plain.fields.push(["Contract", where]);
@@ -312,6 +316,9 @@ function checkDomain(resolved, domain) {
  * @param {number | null} [input.utcOffsetMinutes]  generic form only (default 0, UTC)
  * @param {boolean} [input.rawArguments]  append the message's values (spec section 11 item 1)
  * @param {{ maxBytes?: number, maxElements?: number }} [input.limits]
+ * @returns the text, `primaryType`, `typeHash`, `digest`, `verifyingContract`, `chainId`, `values` (the message as read
+ *   from the typed data, by member name), `grant` (what the signature grants, spec section 5.3, D-056; its token is
+ *   the verifying contract unless the amount's tag names a field), or null, `diagnostics`, `provenance` and `model`
  */
 export function eip712Consent({ resolved, typedData, chainId, refs = {}, tokens = {}, form = "generic", utcOffsetMinutes = null, rawArguments = false, limits = {} }) {
   if (form !== "generic" && form !== "fields") fail(CODES.REQUEST, `form must be "generic" or "fields", got ${JSON.stringify(form)}`);
@@ -342,8 +349,9 @@ export function eip712Consent({ resolved, typedData, chainId, refs = {}, tokens 
   }
   const viewed = { ...message, args: message.args.map((n, i) => abiView(n, `${name}(${i})`)) };
   const model = modelOf(resolved, name, viewed, withTokens(name, viewed, [values], tokenTable(tokens)));
+  const grant = grantOf({ name, method: viewed, argValues: [values], called: contract, diagnostics: model.diagnostics });
   const where = `${contract} on chain ${chain}`;
-  const done = (rest) => ({ ...rest, primaryType: name, typeHash, digest, verifyingContract: contract, chainId: chain, diagnostics: model.diagnostics, provenance: model.provenance, model });
+  const done = (rest) => ({ ...rest, primaryType: name, typeHash, digest, verifyingContract: contract, chainId: chain, values, grant, diagnostics: model.diagnostics, provenance: model.provenance, model });
   if (form === "fields") {
     const plain = renderPlain(model, new Renderer({ refs, diagnostics: model.diagnostics }), { rawArguments });
     plain.fields.push(["Contract", where], ["Signature", SIGNATURE_NOTE], ["EIP-712 digest", digest]);
