@@ -21,10 +21,14 @@ npm). Meant is a B3Pay project.
 
 - The spec is **Draft 0.2**. Breaking changes are expected until the preregistered eval reports; its tasks stay
   private so that no model trains on them.
-- **0.4.0 is on npm** (2026-10-30), published from this repository with provenance (`docs/releasing.md`).
+- **0.5.0 is on npm** (2026-10-30), published from this repository with provenance (`docs/releasing.md`).
 - **Terms the user confirms** (spec §5.3, since 0.4.0): a profile says what a transfer or approve grants (who may take
   the tokens, how many, until when), and `@meantjs/consent/terms` checks a request against terms the user confirmed
   for one task, so a request that fits them needs no second yes and one that does not is refused with its reasons.
+- **x402 payments** (spec §15.9, since 0.5.0): profiles of USDC's EIP-3009 authorizations and of x402's Permit2
+  payment. A new tag, `fixed`, pins that payment's spender to x402's proxy, the contract that sends the tokens to the
+  payee the signature names, so the grant names the payee; consent refuses a request whose pinned field holds another
+  address (`E_FIXED`).
 - **Internet Computer first; EVM contracts experimental** (spec §15, on npm since 0.2.0). A profile can describe an EVM
   contract's functions and, since 0.3.0, the EIP-712 messages it asks a wallet to sign (Permit, Permit2). From it come
   consent text for a call or a signature and an ERC-7730 clear-signing file with its ERC-8176 `descriptorHash`. Agent
