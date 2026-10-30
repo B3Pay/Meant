@@ -1,0 +1,50 @@
+# Publishes the documentation site (website/) to b3pay.net, where it is served
+# at https://b3pay.net/docs/meant/, as website/b3pay-module.json describes.
+#
+# b3pay.net's reusable workflow runs `node website/build.mjs --out <dir>` in a
+# checkout of this repository with nothing installed, checks what it wrote,
+# and builds the whole of b3pay.net with it, links checked, so a page that
+# would break that site fails here. On main it also commits the built pages to
+# this repository's `b3pay-site` branch, which b3pay.net serves, and asks
+# b3pay.net to rebuild (the B3PAY_SITE_DEPLOY_HOOK secret; without it the pages
+# go live with b3pay.net's next deploy). It never writes to B3Pay/b3pay.net.
+# docs.yml stays the gate for a page's content: this checks only that b3pay.net
+# can serve it.
+#
+# build.mjs reads nothing outside website/, so that is the whole trigger.
+# Three triggers, one of which publishes, as in docs.yml:
+# - `pull_request` builds and checks only.
+# - `push` to main publishes.
+# - `workflow_dispatch` republishes on demand, for a change no commit here
+#   caused; from any ref but main it builds and checks only.
+name: Docs on b3pay.net
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - ".github/workflows/b3pay-site.yml"
+  pull_request:
+    paths:
+      - "website/**"
+      - ".github/workflows/b3pay-site.yml"
+
+permissions: {}
+
+jobs:
+  module:
+    name: Docs module
+    # Pinned to a commit of B3Pay/b3pay.net, not a branch, like every action
+    # here: its publish job holds a token that can push to this repository.
+    uses: B3Pay/b3pay.net/.github/workflows/publish-module.yml@07de4cdc9dc27c1dcc56d7db44b08d4c9d617c3c
+    with:
+      manifest: website/b3pay-module.json
+      # A pull request runs on refs/pull/<n>/merge, so this is false for it
+      # and for a dispatch from any other ref.
+      publish: ${{ github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: write
+    secrets:
+      deploy-hook: ${{ secrets.B3PAY_SITE_DEPLOY_HOOK }}

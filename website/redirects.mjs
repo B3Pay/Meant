@@ -2,8 +2,9 @@
 /* Redirect pages for the site's old address.
  *
  * The site is published at the address content/_site.json names as "url"
- * (ic-reactor.b3pay.net/candid-core/): B3Pay/ic-reactor's docs deploy builds
- * this repository's main with build.mjs and serves website/dist there. These
+ * (b3pay.net/docs/meant/): .github/workflows/b3pay-site.yml publishes what
+ * build.mjs writes to b3pay.net. B3Pay/ic-reactor's docs deploy still builds a
+ * copy at the address before it, ic-reactor.b3pay.net/candid-core/. These
  * pages were made for the site's first address, b3hr4d.github.io/candid-core/:
  * for each page build.mjs wrote, a page of the same name that sends the
  * reader to that page at the new address, its query and #fragment kept, and a
@@ -14,8 +15,9 @@
  * repository's Pages site, b3pay.github.io/Meant/, still serves them, where
  * nothing links.
  *
- * The new address must keep the site's path (/candid-core/) and must not be
- * the old host, whose pages would then send readers to themselves.
+ * The new address must be a folder, its path ending in "/", since each page's
+ * address is resolved against it, and must not be the old host, whose pages
+ * would then send readers to themselves.
  *
  * Zero dependencies. Run after build.mjs:
  *
@@ -38,8 +40,8 @@ const OLD_BASE = "/candid-core/";
 
 const site = JSON.parse(await readFile(join(HERE, "content", "_site.json"), "utf8"));
 const url = new URL(site.url);
-if (url.protocol !== "https:" || url.pathname !== OLD_BASE || url.search || url.hash) {
-  throw new Error(`_site.json "url" must be an https address whose path is ${OLD_BASE}, not ${site.url}`);
+if (url.protocol !== "https:" || !url.pathname.endsWith("/") || url.search || url.hash) {
+  throw new Error(`_site.json "url" must be an https address whose path ends in "/", not ${site.url}`);
 }
 if (url.host === OLD_HOST) {
   throw new Error(`_site.json "url" is the old address, ${site.url}; its redirects would loop`);
