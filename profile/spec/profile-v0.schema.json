@@ -422,7 +422,8 @@
             "outcome",
             "list",
             "names",
-            "named"
+            "named",
+            "fixed"
           ]
         },
         "args": {
@@ -495,7 +496,8 @@
                   "range",
                   "default",
                   "ui",
-                  "named"
+                  "named",
+                  "fixed"
                 ]
               }
             }
@@ -815,6 +817,22 @@
             "properties": {
               "args": {
                 "$ref": "#/$defs/args_named"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tag": {
+                "const": "fixed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "$ref": "#/$defs/args_fixed"
               }
             }
           }
@@ -1306,6 +1324,21 @@
             "value",
             "show"
           ]
+        }
+      }
+    },
+    "args_fixed": {
+      "type": "object",
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false,
+      "description": "An EVM address position the profile describes only with this value (spec section 15.4, D-058): a consumer refuses any other value before it shows text (E_FIXED). x402's Permit2 message pins its spender to x402's proxy this way.",
+      "properties": {
+        "value": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$",
+          "description": "The address, `0x` and 40 hex digits; in mixed case it must match its EIP-55 checksum (spec section 15.2)."
         }
       }
     }

@@ -1,0 +1,356 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "chain": "evm",
+  "interface_id": "candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c",
+  "profiles": [
+    {
+      "name": "usdc",
+      "origin": "third_party",
+      "profile_id": "candid-profile:v0:sha256:7977fab1ca0436abbe34d947800859afeb279337f44d85e5efdf6ce269d9d3e6",
+      "deployments": [
+        {
+          "chain_id": 1,
+          "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        },
+        {
+          "chain_id": 8453,
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        },
+        {
+          "chain_id": 42161,
+          "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+        }
+      ],
+      "eip712_domain": {
+        "name": "USD Coin",
+        "version": "2"
+      }
+    }
+  ],
+  "methods": {},
+  "messages": {
+    "CancelAuthorization": {
+      "encode_type": "CancelAuthorization(address authorizer,bytes32 nonce)",
+      "type_hash": "0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Cancel a USDC payment signature",
+            "template": "Cancel the unused USDC payment signature of {authorizer} with nonce {nonce}."
+          },
+          "origin": "third_party",
+          "profile": "usdc"
+        },
+        "effect": {
+          "args": {
+            "kind": "write",
+            "irreversible": true
+          },
+          "origin": "third_party",
+          "profile": "usdc"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "authorizer": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Signer of the payment"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "nonce": {
+              "abi": "bytes32",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Nonce"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ReceiveWithAuthorization": {
+      "encode_type": "ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)",
+      "type_hash": "0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Pay USDC by signature, collected by the payee",
+            "template": "Send {value} from {from} to {to}, once; only {to} can submit it. Valid after {validAfter}. Expires: {validBefore}."
+          },
+          "origin": "third_party",
+          "profile": "usdc"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true,
+            "grant": {
+              "to": "to",
+              "amount": "value",
+              "ends": [
+                "validBefore"
+              ]
+            }
+          },
+          "origin": "third_party",
+          "profile": "usdc"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "from": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "From"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "to": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "To"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "value": {
+              "abi": "uint256",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": 6,
+                    "symbol": "USDC"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "validAfter": {
+              "abi": "uint256",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Valid after"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "validBefore": {
+              "abi": "uint256",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix",
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                    "message": "Never"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Expires"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "nonce": {
+              "abi": "bytes32",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Nonce"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "TransferWithAuthorization": {
+      "encode_type": "TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)",
+      "type_hash": "0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Pay USDC by signature",
+            "template": "Send {value} from {from} to {to}, once. Valid after {validAfter}. Expires: {validBefore}."
+          },
+          "origin": "third_party",
+          "profile": "usdc"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true,
+            "grant": {
+              "to": "to",
+              "amount": "value",
+              "ends": [
+                "validBefore"
+              ]
+            }
+          },
+          "origin": "third_party",
+          "profile": "usdc"
+        }
+      },
+      "args": [
+        {
+          "abi": "tuple",
+          "fields": {
+            "from": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "From"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "to": {
+              "abi": "address",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "To"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "value": {
+              "abi": "uint256",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": 6,
+                    "symbol": "USDC"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "validAfter": {
+              "abi": "uint256",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Valid after"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "validBefore": {
+              "abi": "uint256",
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "s",
+                    "epoch": "unix",
+                    "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                    "message": "Never"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Expires"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            },
+            "nonce": {
+              "abi": "bytes32",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Nonce"
+                  },
+                  "origin": "third_party",
+                  "profile": "usdc"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": []
+}

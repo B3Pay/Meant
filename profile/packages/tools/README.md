@@ -1,6 +1,6 @@
 # @meantjs/tools
 
-Agent tools from any Candid Profile resolved form, for an app or an agent host: MCP tool definitions, input reading in human units, a preview that a person confirms before every send, and the retry and reconcile rules of spec section 7.3. The design and the readings it takes on open questions are in `docs/proposals/w3b-tools-package.md` in the repository; the eval's own tool arm (arm C) is a separate, frozen copy.
+Agent tools from any Candid Profile resolved form, for an app or an agent host: MCP tool definitions, input reading in human units, a preview that a person confirms before every send, and the retry and reconcile rules of spec section 5.3 (the outcome handling rules for consumers). The design and the readings it takes on open questions are in `docs/proposals/w3b-tools-package.md` in the repository; the eval's own tool arm (arm C) is a separate, frozen copy.
 
 ```sh
 npm install @meantjs/tools

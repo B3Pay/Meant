@@ -5,7 +5,7 @@
   "name": "permit2",
   "origin": "third_party",
   "language": "en",
-  "description": "Uniswap's Permit2 (spec section 15.9, experimental): its AllowanceTransfer messages (PermitSingle, PermitBatch), which set allowances, and its SignatureTransfer messages (PermitTransferFrom, PermitBatchTransferFrom), which authorize one transfer. Witness messages (PermitWitnessTransferFrom) are left out: each protocol adds its own witness type (O1). Bound to the deployments ERC-7730's own Permit2 example lists, so a look-alike contract named \"Permit2\" gets none of these words. Amounts are in the token the message names: a consumer supplies that token's decimals() and symbol(), and shows its address beside the symbol.",
+  "description": "Uniswap's Permit2 (spec section 15.9, experimental): its AllowanceTransfer messages (PermitSingle, PermitBatch), which set allowances, and its SignatureTransfer messages (PermitTransferFrom, PermitBatchTransferFrom), which authorize one transfer. Witness messages (PermitWitnessTransferFrom) are left out: each protocol adds its own witness type, in a profile of its own (O9; x402's is x402-exact-permit2). Bound to the deployments ERC-7730's own Permit2 example lists (chains 1 and 42161) and to Base and Base Sepolia (8453 and 84532), whose Permit2 code and domain were read on chain on 2026-10-30, so a look-alike contract named \"Permit2\" gets none of these words. Amounts are in the token the message names: a consumer supplies that token's decimals() and symbol(), and shows its address beside the symbol.",
   "binds": {
     "eip712": {
       "domain": {
@@ -112,7 +112,15 @@
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       },
       {
+        "chain_id": 8453,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
         "chain_id": 42161,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 84532,
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       }
     ]

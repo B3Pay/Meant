@@ -136,6 +136,31 @@ function withTokens(name, viewed, args, tokens) {
 }
 
 /**
+ * Every position a profile pins (`fixed`, spec section 15.4, D-058) holds its value: the profile describes the call or
+ * the message only with it, as x402's Permit2 message holds x402's proxy as its spender. Anything else is refused
+ * before any text (E_FIXED), since the words would be wrong for it.
+ */
+function checkFixed(name, viewed, args) {
+  const walk = (node, value, where) => {
+    if (node.candid === "record") return entriesOf(node.fields).forEach(([k, child]) => walk(child, value[k], `${where}.${k}`));
+    if (node.candid === "vec") return value.forEach((e) => walk(node.element, e, `${where}[]`));
+    const fixed = tagArgs(node, "fixed");
+    if (fixed === undefined) return;
+    let want;
+    try {
+      want = readAddress(String(fixed.value));
+    } catch (e) {
+      if (e instanceof AbiError) fail(CODES.RESOLVED_FORM, `${where}: fixed: ${e.message}`);
+      throw e;
+    }
+    if (typeof value !== "string" || value.toLowerCase() !== want.toLowerCase()) {
+      fail(CODES.FIXED, `${where} is ${String(value)}, but the profile describes ${name} only with ${want} there, so this request gets no text`);
+    }
+  };
+  args.forEach((v, i) => walk(viewed.args[i], v, `${name}(${i})`));
+}
+
+/**
  * The consent text of an EVM call.
  *
  * @param {object} input
@@ -169,6 +194,7 @@ export function evmConsent({ resolved, calldata, to, chainId, refs = {}, tokens 
   const method = methodOf(resolved, name, "evm");
   if (method.state_mutability === "payable") fail(CODES.UNSUPPORTED_TYPE, `${name} is payable: the native value a call sends has no position in a profile yet (spec section 15, O2)`);
   const viewed = { ...method, args: method.args.map((n, i) => abiView(n, `${name}(${i})`)) };
+  if (viewed.args.length) checkFixed(name, viewed, [values]);
   const model = modelOf(resolved, name, viewed, viewed.args.length ? withTokens(name, viewed, [values], tokenTable(tokens)) : []);
   const grant = grantOf({ name, method: viewed, argValues: viewed.args.length ? [values] : [], called: target, diagnostics: model.diagnostics });
   const where = `${target}${chain === null ? "" : ` on chain ${chain}`}`;
@@ -348,6 +374,7 @@ export function eip712Consent({ resolved, typedData, chainId, refs = {}, tokens 
     throw e;
   }
   const viewed = { ...message, args: message.args.map((n, i) => abiView(n, `${name}(${i})`)) };
+  checkFixed(name, viewed, [values]);
   const model = modelOf(resolved, name, viewed, withTokens(name, viewed, [values], tokenTable(tokens)));
   const grant = grantOf({ name, method: viewed, argValues: [values], called: contract, diagnostics: model.diagnostics });
   const where = `${contract} on chain ${chain}`;

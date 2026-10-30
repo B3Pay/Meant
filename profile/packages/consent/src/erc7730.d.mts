@@ -21,6 +21,8 @@ export interface Erc7730Field {
   format: "tokenAmount" | "amount" | "date" | "duration" | "addressName" | "raw";
   /** `tokenPath`: `@.to` (the contract, or a message's verifying contract) or a path to the token's address field. */
   params?: Record<string, unknown>;
+  /** A position the profile pins (`fixed`): hidden, and a wallet refuses any other value (EIP-55 text). */
+  visible?: { mustMatch: string[] };
 }
 /** The fields of each element of an array whose elements carry their own token (`path: "details.[]"`); paths relative. */
 export interface Erc7730FieldGroup {

@@ -1,6 +1,7 @@
 /**
  * Per-annotation semantic checks (spec sections 3 to 6). Moved verbatim from scripts/validate.mjs.
  */
+import { AbiError, readAddress } from "./abi.mjs";
 import { parseRelPath } from "./address.mjs";
 
 /** EVM integer types (spec section 15): uint8 to uint256 and int8 to int256. int8 to int64 are also Candid's, with the same bounds. */
@@ -20,6 +21,24 @@ export const CONFIRM_KINDS = new Set(["transfer", "approve", "admin", "destroy"]
 export const VALUE_CONVERSION_TAGS = new Set(["amount", "timestamp", "duration", "account", "subaccount", "bytes", "named"]);
 export const STALE_CODES = new Set(["E_ADDR_UNRESOLVED", "E_TYPE_NODE", "E_TAG_NOT_APPLICABLE", "E_REF_UNRESOLVED", "E_REF_NOT_QUERY", "E_REF_SHAPE", "E_REF_TYPE", "E_STAMP_UNTAGGED", "E_OUTCOME_NOT_CASE", "E_TEMPLATE_PATH", "E_TAG_TARGET", "E_NAMES_MODE", "E_NAMES_SHAPE", "E_NAMES_FIELD", "E_NAMED_SET", "E_NAMED_TYPE", "E_CASE_OVERLAP", "E_CASE_EFFECT", "E_TOKEN_PATH", "E_GRANT"]);
 
+/**
+ * Why a pin (`fixed`, spec 15.4, D-058) does not hold, as `{ code, message }`, or null. A pin sits on an `address` in the
+ * arguments of an EVM function or message, where a consumer reads it from what is sent or signed before any text, and
+ * its value is an address (§15.2: in mixed case, with its EIP-55 checksum).
+ */
+export function pinError(iface, addr, res, value) {
+  if (res.method || addr.kind !== "arg") return { code: "E_TAG_TARGET", message: "fixed pins a value in the arguments of a function or a message, where a consumer reads it before it shows text" };
+  const wrong = checkApplicability(iface, "fixed", res.ref);
+  if (wrong) return { code: "E_TAG_NOT_APPLICABLE", message: wrong };
+  try {
+    readAddress(String(value));
+  } catch (e) {
+    if (!(e instanceof AbiError)) throw e;
+    return { code: "E_ADDRESS_CHECKSUM", message: `fixed: ${e.message}` };
+  }
+  return null;
+}
+
 export function checkApplicability(iface, tag, ref) {
   const { ref: r } = iface.unwrapOpt(ref);
   const p = iface.prim(r);
@@ -33,6 +52,9 @@ export function checkApplicability(iface, tag, ref) {
     case "bytes": return iface.isBlob(r) ? null : `${tag} needs ${iface.chain === "evm" ? "bytes or bytesN" : "blob"}, found ${iface.describeType(ref)}`;
     case "text": return TEXT.has(p) ? null : `text needs ${iface.chain === "evm" ? "string" : "text"}, found ${iface.describeType(ref)}`;
     case "range": return NUMERIC.has(p) || TEXT.has(p) || iface.node(r).kind === "vec" ? null : `range needs numeric, text or vec, found ${iface.describeType(ref)}`;
+    case "fixed":
+      if (iface.chain !== "evm") return "fixed pins an EVM address; a Candid position cannot carry it yet (spec section 15.4)";
+      return p === "address" ? null : `fixed needs an address, found ${iface.describeType(ref)}`;
     default: return null;
   }
 }

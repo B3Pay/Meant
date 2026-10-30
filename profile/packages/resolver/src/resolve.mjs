@@ -141,7 +141,9 @@ async function resolveWith(iface, opts, diagnostics, statuses, rebuild = null) {
         continue;
       }
       checkDeployments(doc, note);
-      items.push({ doc, pid, rebinding: doc.binds.abi !== undefined && abiInterfaceId(own.functions) !== iface.abiId, apply: false, status, eip712 });
+      // It binds by the identity of its own ABI (spec section 15.1), compared with the given ABI's functions only.
+      const bound = doc.binds.abi === undefined ? null : { at: "binds.abi", id: abiInterfaceId(own.functions), given: iface.abiId };
+      items.push({ doc, pid, rebinding: bound !== null && bound.id !== bound.given, bound, apply: false, status, eip712 });
     } else if (doc.kind === "pack") {
       const m = await matchPack(iface, doc);
       if (m.error) {

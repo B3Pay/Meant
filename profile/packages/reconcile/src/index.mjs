@@ -1,7 +1,7 @@
-// Consumer rule 1 (docs/profile-v0.md section 7.3) without a transport. After an unknown outcome, before any new
-// attempt, look for the original in the ledger's history: the ICRC-3 blocks since the first send, matched on the
-// operation, the stamp, the amount, the fee, the accounts (the caller's included), the memo and, for an approval,
-// its expiry and expected allowance.
+// Consumer rule 1 (docs/profile-v0.md section 5.3, outcome handling rules for consumers) without a transport. After
+// an unknown outcome, before any new attempt, look for the original in the ledger's history: the ICRC-3 blocks since
+// the first send, matched on the operation, the stamp, the amount, the fee, the accounts (the caller's included), the
+// memo and, for an approval, its expiry and expected allowance.
 //
 // The caller reads the blocks (certified, and from archives when it needs them) and passes them in; this module
 // only maps a call to the block it leaves and judges the blocks. It imports no Node built-in and needs no codec:

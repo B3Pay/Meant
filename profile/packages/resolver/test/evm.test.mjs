@@ -243,10 +243,18 @@ test("a contract profile whose ABI differs from the contract's is rebound, and s
   const renamed = VAULT.map((f) => f.replace("uint256 assets", "uint256 amount"));
   const r = await resolveService({ abi: renamed, validateSchema, profiles: [{ doc }] });
   assert.deepEqual(r.profiles.map((p) => p.status), ["stale"]);
-  assert.ok(r.diagnostics.some((d) => d.code === "W_REBOUND"));
+  // It is bound by the identity of its binds.abi (spec section 15.1); it has no binds.interface_id.
+  const own = evm.abiInterfaceId(evm.parseAbi(VAULT).functions);
+  const given = evm.abiInterfaceId(evm.parseAbi(renamed).functions);
+  const rebound = r.diagnostics.find((d) => d.code === "W_REBOUND");
+  assert.equal(rebound.at, "binds.abi");
+  assert.equal(rebound.message, `profile is bound to ${own} but the given ABI is ${given}; checking whether every address still resolves`);
+  assert.match(own, /^candid-profile:evm-abi:v0:sha256:[0-9a-f]{64}$/);
+  assert.equal(r.diagnostics.find((d) => d.code === "E_STALE").at, "binds.abi");
   const added = [...VAULT, "function pause()"];
   const ok = await resolveService({ abi: added, validateSchema, profiles: [{ doc }] });
   assert.deepEqual(ok.profiles.map((p) => p.status), ["rebound"]);
+  assert.deepEqual(ok.diagnostics.filter((d) => d.code === "W_REBOUND").map((d) => d.at), ["binds.abi"]);
 });
 
 test("profiles and packs of the other chain: an error when given, skipped in a pack search", async () => {

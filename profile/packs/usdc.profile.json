@@ -1,0 +1,309 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "contract",
+  "name": "usdc",
+  "origin": "third_party",
+  "language": "en",
+  "description": "USDC's EIP-3009 messages on Ethereum, Base and Arbitrum (spec section 15.9, experimental). TransferWithAuthorization and ReceiveWithAuthorization pay `to` once, by a signature that someone else submits (only the payee, for ReceiveWithAuthorization), and CancelAuthorization cancels one that is unused (EIP-3009; Circle stablecoin-evm, FiatTokenV2.sol). x402's `exact` scheme pays by TransferWithAuthorization by default (coinbase/x402, specs/schemes/exact/scheme_exact_evm.md). Only the messages are described: USDC's ABI names transferWithAuthorization, receiveWithAuthorization, cancelAuthorization and permit twice each, which the resolver refuses (O1). Bound to USDC's domain (`USD Coin`, version `2`) and to its contracts, each read on chain on 2026-10-30 (DOMAIN_SEPARATOR, decimals 6, the three type hashes), so a look-alike token gets none of these words.",
+  "binds": {
+    "eip712": {
+      "domain": {
+        "name": "USD Coin",
+        "version": "2"
+      },
+      "types": {
+        "CancelAuthorization": [
+          {
+            "name": "authorizer",
+            "type": "address"
+          },
+          {
+            "name": "nonce",
+            "type": "bytes32"
+          }
+        ],
+        "ReceiveWithAuthorization": [
+          {
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "validAfter",
+            "type": "uint256"
+          },
+          {
+            "name": "validBefore",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "bytes32"
+          }
+        ],
+        "TransferWithAuthorization": [
+          {
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "validAfter",
+            "type": "uint256"
+          },
+          {
+            "name": "validBefore",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "bytes32"
+          }
+        ]
+      }
+    },
+    "deployments": [
+      {
+        "chain_id": 1,
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      {
+        "chain_id": 8453,
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      },
+      {
+        "chain_id": 42161,
+        "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+      }
+    ]
+  },
+  "annotations": [
+    {
+      "at": "TransferWithAuthorization",
+      "tag": "intent",
+      "args": {
+        "title": "Pay USDC by signature",
+        "template": "Send {value} from {from} to {to}, once. Valid after {validAfter}. Expires: {validBefore}."
+      }
+    },
+    {
+      "at": "TransferWithAuthorization",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true,
+        "grant": {
+          "to": "to",
+          "amount": "value",
+          "ends": [
+            "validBefore"
+          ]
+        }
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).from",
+      "tag": "describe",
+      "args": {
+        "label": "From"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).to",
+      "tag": "describe",
+      "args": {
+        "label": "To"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": 6,
+        "symbol": "USDC"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validAfter",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validAfter",
+      "tag": "describe",
+      "args": {
+        "label": "Valid after"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validBefore",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validBefore",
+      "tag": "describe",
+      "args": {
+        "label": "Expires"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization",
+      "tag": "intent",
+      "args": {
+        "title": "Pay USDC by signature, collected by the payee",
+        "template": "Send {value} from {from} to {to}, once; only {to} can submit it. Valid after {validAfter}. Expires: {validBefore}."
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true,
+        "grant": {
+          "to": "to",
+          "amount": "value",
+          "ends": [
+            "validBefore"
+          ]
+        }
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).from",
+      "tag": "describe",
+      "args": {
+        "label": "From"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).to",
+      "tag": "describe",
+      "args": {
+        "label": "To"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": 6,
+        "symbol": "USDC"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validAfter",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validAfter",
+      "tag": "describe",
+      "args": {
+        "label": "Valid after"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validBefore",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validBefore",
+      "tag": "describe",
+      "args": {
+        "label": "Expires"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "CancelAuthorization",
+      "tag": "intent",
+      "args": {
+        "title": "Cancel a USDC payment signature",
+        "template": "Cancel the unused USDC payment signature of {authorizer} with nonce {nonce}."
+      }
+    },
+    {
+      "at": "CancelAuthorization",
+      "tag": "effect",
+      "args": {
+        "kind": "write",
+        "irreversible": true
+      }
+    },
+    {
+      "at": "CancelAuthorization(0).authorizer",
+      "tag": "describe",
+      "args": {
+        "label": "Signer of the payment"
+      }
+    },
+    {
+      "at": "CancelAuthorization(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    }
+  ]
+}

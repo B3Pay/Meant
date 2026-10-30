@@ -9,7 +9,7 @@ import { TagIndex, LayeredTags, positions } from "./tags.mjs";
 import {
   NUMERIC, METHOD_TAGS, CASE_TAGS, CONFIRM_KINDS, STALE_CODES, VALUE_CONVERSION_TAGS, EVM_LATER_TAGS,
   checkApplicability, checkDynamic, parseTemplate, outcomeCoverage, caseTargetError, otherCase, overlap, defaultEffect,
-  tokenPathError, grantError,
+  tokenPathError, grantError, pinError,
 } from "./checks.mjs";
 
 /** Spec section 8, highest precedence first. */
@@ -29,7 +29,9 @@ function buildLayers(entries, keep = () => true) {
 
 /**
  * @param iface  the interface every address resolves against
- * @param items  [{ doc, pid, rebinding, apply }]; `apply` marks a pack that matched a service and is applied to it
+ * @param items  [{ doc, pid, rebinding, bound, apply }]; `apply` marks a pack that matched a service and is applied to it;
+ *   `bound` is { at, id, given }, what a profile binds to against what was given, when it is not `binds.interface_id`
+ *   against the interface's id (a contract profile binds by its own ABI, spec section 15.3)
  * @param opts.attribute  add `profile` to each diagnostic (multi-profile output)
  * @returns { diagnostics, layered, ordered, stale }  `ordered` is items by precedence; `stale` the stale items
  */
@@ -44,11 +46,24 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
       item.diags.push(d);
     };
   }
-  const interfaceId = iface.interfaceId;
+  const boundOf = (item) => item.bound ?? { at: "binds.interface_id", id: item.doc.binds.interface_id, given: iface.interfaceId };
+
+  // A pin (`fixed`, spec 15.4, D-058) holds the value the profile's words were written for. A profile with a pin that
+  // does not hold keeps only its effects, without grants, and its pins that hold: never its words without the pin. A
+  // pin's problem is always an error, never a pack annotation skipped.
+  const unpinned = new Set();
+  const pinFailed = (item, code, at, message) => {
+    unpinned.add(item);
+    item.diag("error", code, at, `${message}; this profile keeps only its effects (without grants) and its pins that hold, since its words were written for the pinned value (spec section 15.4)`);
+  };
+  const pins = new Map(); // position key -> { value, item, at }: every profile pins a position to one value (spec 15.4)
+  const badPins = new Set(); // pin entries that do not hold, left out of the resolved form
 
   for (const item of ordered) {
     if (item.rebinding) {
-      item.diag("warning", "W_REBOUND", "binds.interface_id", `profile is bound to ${item.doc.binds.interface_id} but the given interface is ${interfaceId}; checking whether every address still resolves`);
+      const { at, id, given } = boundOf(item);
+      const what = at === "binds.abi" ? "ABI" : "interface";
+      item.diag("warning", "W_REBOUND", at, `profile is bound to ${id} but the given ${what} is ${given}; checking whether every address still resolves`);
     }
   }
 
@@ -64,15 +79,27 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
       let a = original;
       const at = a.at;
       const addr = parseAddress(at);
-      if (!addr) { diag("error", "E_ADDR_SYNTAX", at, "address does not parse"); continue; }
-      if (doc.kind === "pack" && addr.kind === "type") { diag("error", "E_PACK_TYPE_REF", at, "packs must use method addresses (declaration names are not standardized)"); continue; }
+      const pinned = a.tag === "fixed";
+      const fail = pinned ? (code, message) => pinFailed(item, code, at, message) : (code, message) => diag("error", code, at, message);
+      if (!addr) { fail("E_ADDR_SYNTAX", "address does not parse"); continue; }
+      if (doc.kind === "pack" && addr.kind === "type") { fail("E_PACK_TYPE_REF", "packs must use method addresses (declaration names are not standardized)"); continue; }
       const res = iface.resolve(addr);
       if (res.error) {
         // A pack applied to a service that is a narrower subtype (fewer result cases, fewer optional fields) cannot
         // address what is not there. That is expected, not an error in the pack.
-        if (item.apply) diag("info", "I_PACK_ANNOTATION_SKIPPED", at, `${a.tag}: ${res.error}`);
-        else diag("error", res.code ?? "E_ADDR_UNRESOLVED", at, res.error);
+        if (item.apply && !pinned) diag("info", "I_PACK_ANNOTATION_SKIPPED", at, `${a.tag}: ${res.error}`);
+        else fail(res.code ?? "E_ADDR_UNRESOLVED", res.error);
         continue;
+      }
+      if (pinned) {
+        const prev = pins.get(res.key);
+        const value = String(a.args.value).toLowerCase();
+        if (prev && prev.value !== value) {
+          const where = prev.item === item ? `"${prev.at}"` : `profile "${prev.item.doc.name}" "${prev.at}"`;
+          pinFailed(item, "E_CONFLICT", at, `fixed pins this position to ${a.args.value}, where ${where} pins it to another value`);
+          continue;
+        }
+        if (!prev) pins.set(res.key, { value, item, at });
       }
       if (addr.kind === "type") {
         const others = (iface.aliases.get(iface.decls.get(addr.decl)) ?? []).filter((n) => n !== addr.decl);
@@ -252,6 +279,14 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
       }
       continue;
     }
+    if (a.tag === "fixed") {
+      const why = pinError(iface, addr, res, a.args.value);
+      if (why) {
+        badPins.add(e);
+        pinFailed(item, why.code, at, why.message);
+      }
+      continue;
+    }
     if (res.method) {
       if (a.tag !== "describe") diag("error", "E_TAG_TARGET", at, `${a.tag} is a value tag; address a value, not a method`);
       continue;
@@ -326,12 +361,19 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
     }
   }
 
-  // Binding (spec section 7): a canister profile whose interface changed is stale when anything no longer holds.
+  // Binding (spec sections 7 and 15.3): a canister or contract profile whose interface changed is stale when anything
+  // no longer holds.
   const stale = new Set(ordered.filter((item) => item.rebinding && item.diags.some((d) => STALE_CODES.has(d.code))));
   // A stale profile must not supply value-conversion tags, and a dropped pack annotation is not applied: keep both
-  // out of the merged result.
-  const keep = (e) => !dropped.has(e) && !(stale.has(e.item) && VALUE_CONVERSION_TAGS.has(e.ann.tag));
-  const final = stale.size || dropped.size ? buildLayers(entries, keep) : tags;
+  // out of the merged result. A profile with a pin that does not hold supplies its effects, without grants, and its
+  // pins that hold (spec 15.4, D-058).
+  for (const e of entries) {
+    if (!unpinned.has(e.item) || e.ann.tag !== "effect" || e.entry.args.grant === undefined) continue;
+    const { grant, ...args } = e.entry.args;
+    e.entry.args = args;
+  }
+  const keep = (e) => !dropped.has(e) && !badPins.has(e) && !(stale.has(e.item) && VALUE_CONVERSION_TAGS.has(e.ann.tag)) && !(unpinned.has(e.item) && e.ann.tag !== "effect" && e.ann.tag !== "fixed");
+  const final = stale.size || dropped.size || unpinned.size ? buildLayers(entries, keep) : tags;
 
   // Overrides: the same tag at the same position in a lower layer (W_OVERRIDDEN, spec section 8).
   if (final.layers.length > 1) {
@@ -372,7 +414,7 @@ export function analyzeProfiles(iface, items, { attribute = true } = {}) {
   }
 
   for (const item of stale) {
-    item.diag("error", "E_STALE", "binds.interface_id", "the interface changed and some annotations no longer hold; value-conversion tags must not be used (the resolved form omits this profile's value-conversion tags)");
+    item.diag("error", "E_STALE", boundOf(item).at, "the interface changed and some annotations no longer hold; value-conversion tags must not be used (the resolved form omits this profile's value-conversion tags)");
   }
   return { diagnostics, layered: final, ordered, stale };
 }

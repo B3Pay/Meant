@@ -146,7 +146,7 @@ const r = await resolveService({ did, validateSchema, profiles: doc ? [{ doc }] 
 
 A canister serves its profile as the public custom section `icp:public candid:profile`. Reading the bytes is the
 consumer's job (one certified `read_state` of `/canister/<id>/metadata/candid:service` and `.../candid:profile`;
-`packages/kit` `fetch` does it with `@icp-sdk/core`); this package checks what came back:
+the project's kit, not public yet, does it with `@icp-sdk/core`); this package checks what came back:
 
 ```js
 import { readServedProfile, resolveService } from "@meantjs/profile";
@@ -162,7 +162,7 @@ const r = await resolveService({ did: serviceText, profiles: served.ok ? [{ doc:
   installed yet (a module does not know the id it will run as); any other non-string throws.
 - Binding is the resolver's usual rule (spec section 7): resolve against the `candid:service` the same canister
   serves, so a profile for another interface is `rebound` or `stale` as any other.
-- Tests: `test/served.test.mjs`; end to end on PocketIC in `packages/kit/pocketic/`.
+- Tests: `test/served.test.mjs`; end to end on PocketIC in the kit's tests, which are not public yet.
 
 ## EVM contracts (experimental, spec section 15, D-054 and D-055)
 
@@ -186,8 +186,12 @@ r.resolved.methods.transfer.tags.intent.args.template; // "Send {wad} to {dst}":
   (`PermitSingle(0).details.amount`) and listed under the resolved form's `messages` with its `encode_type` and
   `type_hash`. `amount.token` names an amount's token by an `address` field (`E_TOKEN_PATH` otherwise). Bad types, a
   message named like a function and two meanings for one type name are `E_EIP712`. Standard files: the `erc2612`
-  pack, and the `permit2` and `dai-permit` contract profiles shipped beside the packs
-  (`@meantjs/profile/packs/permit2.profile.json`); `loadPacks()` returns the packs only.
+  pack, and the contract profiles `permit2`, `dai-permit`, `usdc`, `usdc-base-sepolia` and `x402-exact-permit2`
+  shipped beside the packs (`@meantjs/profile/packs/permit2.profile.json`); `loadPacks()` returns the packs only.
+- **Pins** (`fixed`, spec §15.4, D-058): an `address` in the arguments of a function or a message that the profile
+  describes only with one value, as x402's Permit2 payment holds x402's proxy as its spender. A pin that does not hold
+  (another place or type, a bad checksum, an address that does not resolve, another value pinned by any profile) is
+  an error, and its profile then supplies only its effects, without grants, and its pins that hold.
 - **Refused for now:** overloaded function names and unreadable fragments (`E_ABI`); `idempotency`, `outcome`, `list`,
   `names` and `named` on a contract (`E_TAG_TARGET`); `account` and `subaccount` (`E_TAG_NOT_APPLICABLE`); `[ ]`
   template segments (`E_TEMPLATE`).

@@ -17,7 +17,7 @@ A **profile** attaches *meaning* to positions in a Candid interface: what a numb
 | MCP Apps cards | The same intent and fields, rendered as an approval or inspection card |
 | Web UI (ic-reactor, Rust SSR) | Input widgets, labels, formatting |
 
-**Non-goals for v0:** page layout or views (MCP Apps and host renderers own presentation), cross-canister references, multi-language templates, EVM ABI support (planned for v1 via ERC-7730 import and export).
+**Non-goals for v0:** page layout or views (MCP Apps and host renderers own presentation), cross-canister references, multi-language templates. EVM contracts are in, as an experimental binding (§15: profiles of an ABI and of EIP-712 messages, consent text, the ERC-7730 export); what is still out for them is ERC-7730 import, agent tools, `outcome` classes over reverts and `idempotency` by nonce, later phases of §15 that each need their own decision.
 
 ## 2. Relationship to candid-core
 
@@ -83,7 +83,7 @@ U32          = decimal integer, 0 … 4294967295
 
 ## 5. Tags
 
-There are 18 tags. Twelve are **core**: the eval depends on them, so they are stable within v0. Six are **experimental** and may change.
+There are 19 tags. Twelve are **core**: the eval depends on them, so they are stable within v0. Seven are **experimental** and may change.
 
 ### 5.1 Value tags
 
@@ -101,12 +101,13 @@ There are 18 tags. Twelve are **core**: the eval depends on them, so they are st
 | `range` | numeric, `text`, `vec` | `min`, `max` (decimal strings, base units); `min_len`, `max_len` | exp. |
 | `ui` | any position | `order`, `group`, `hidden`, `widget` (UI only; agents ignore it) | exp. |
 | `named` | a position a name from a `names` set can stand for (D-045) | `set` (required); `by`: `value`/`show` | exp. |
+| `fixed` | an `address` in the arguments of an EVM function or message (§15.4, D-058) | `value`: one address (required) | exp. |
 
 ### 5.2 Method tags (address = bare method name)
 
 | Tag | Args | Core |
 |---|---|---|
-| `intent` | `title` (≤60 chars); `template` (§6) | ✓ |
+| `intent` | `title` (≤60 chars) and `template` (§6), both required | ✓ |
 | `effect` | `kind`: `read`/`write`/`transfer`/`approve`/`admin`/`destroy`; `irreversible`: bool; `replicated`: bool, optional (a read-only update, §5.3); `grant`: object, optional (what a `transfer` or `approve` lets someone take, §5.3) | ✓ |
 | `idempotency` | `mode`: `replay_same_payload`; `stamp`: relpath to the field filled once per intent | ✓ |
 | `outcome` | `classes`: `{ relpath → class }`; `default`: class (one of the two at least; §5.3) | ✓ |
@@ -179,9 +180,10 @@ the call's case for that tag. The other method tags (`idempotency`, `outcome`, `
   request with terms the user confirmed (below). Its values are relpaths into the method's arguments, written as an
   intent template's placeholders are (§6). None may step into `[]`: a grant covers one token, so a request that grants
   several (Permit2's `PermitBatch`) has none in v0. It names:
-  - `spender` or `to`, exactly one: who may take the tokens. `spender` is for an allowance, or for a signature someone
-    else submits; `to` is for a transfer that pays them directly. An `approve`'s grant names a `spender`. The position
-    is an `address` (§15) or carries an `account` tag.
+  - `spender` or `to`, exactly one: who may take the tokens. `spender` is for an allowance, or for a signature whose
+    submitter chooses where the tokens go; `to` is for a transfer whose recipient is fixed, by a call or by a signature
+    (EIP-3009's signatures and x402's Permit2 payment, §15.9). An `approve`'s grant names a `spender`. The position is
+    an `address` (§15) or carries an `account` tag.
   - `amount`: a position with an `amount` tag, of an unsigned type, where a value at or above the tag's `threshold`
     means unlimited; or a `bool`, where `true` is unlimited and `false` grants nothing (DAI's permit, §15.9).
   - `ends`, optional: one to eight positions with a `timestamp` tag. The grant ends at the latest of them, and one at or
@@ -334,7 +336,7 @@ Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}]
 1. **Same `interface_id`:** the profile is valid.
 2. **Different `interface_id`:** re-resolve every address against the new interface and re-check tag applicability.
    - **Everything still holds:** the profile is `rebound` (`W_REBOUND`).
-   - **Anything fails:** the profile is `stale` (`E_STALE`, reported in addition to the specific errors). Consumers MUST NOT use its value-conversion tags (`amount`, `timestamp`, `duration`, `account`, `subaccount`, `bytes`), and agent tools fall back to raw Candid for those positions. A resolver MUST NOT emit those tags in the resolved form: it leaves the stale profile's value-conversion tags out and keeps the rest (`intent`, `effect`, `describe`, `default`, …).
+   - **Anything fails:** the profile is `stale` (`E_STALE`, reported in addition to the specific errors). Consumers MUST NOT use its value-conversion tags (`amount`, `timestamp`, `duration`, `account`, `subaccount`, `bytes`, and `named`, since a name stands in for a value, D-045), and agent tools fall back to raw Candid for those positions. A resolver MUST NOT emit those tags in the resolved form: it leaves the stale profile's value-conversion tags out and keeps the rest (`intent`, `effect`, `describe`, `default`, …).
 
 **Packs** bind structurally:
 - `binds.requires` holds a Candid service fragment, and a pack applies to a canister whose service type is a **subtype** of that fragment.
@@ -389,8 +391,8 @@ A canister serves its own profile, so that a consumer who knows only the caniste
   profile too, read from the same certificate. A consumer that reads both applies both in the `author` layer, where two
   different values for one tag at one position are `E_CONFLICT` (§8).
 - **Adding it** needs no code change: the section can be added to a built module, for example with
-  `ic-wasm canister.wasm -o canister.wasm metadata candid:profile -f my.profile.json -v public` or
-  `candid-profile-kit embed canister.wasm --profile my.profile.json`, and is served from the next install or upgrade.
+  `ic-wasm canister.wasm -o canister.wasm metadata candid:profile -f my.profile.json -v public` (the project's kit,
+  not public yet, does the same as `candid-profile-kit embed`), and is served from the next install or upgrade.
   A profile served this way changes with the module only: editing it changes the module hash and needs an upgrade.
 - **Other channels.** A profile read through a query method, or fetched from any host but the canister's certified
   state, is not certified (§11.2). A consumer MAY still apply it in the `author` layer when it trusts that channel, as
@@ -514,6 +516,13 @@ node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.r
     asked for; the check itself held every time. A grant is the profile's claim (item 1), and terms cover what a
     grant says: a request outside its grant's words (another call, another chain) is checked by the rest of the
     consumer, as without terms.
+11. **A pin protects only the consumers that read it** (`fixed`, §15.4, D-058). x402's Permit2 payment pays
+    `witness.to` only when its spender is x402's proxy; a consumer that skips `fixed` shows the words, and reads the
+    grant, for any spender, and terms for one payee would then pass a payment that another spender can send anywhere.
+    A resolved form that holds a pin MUST NOT be given to a consumer that does not read `fixed`. The reference consent
+    package reads it from 0.5.0, and the five reference packages pin each other exactly; an older consent package
+    skips the tag. **Open** (OQ-17): the resolved form does not say which tags a consumer must understand, so an older
+    consumer cannot tell that it should refuse.
 
 ## 12. Mapping to ICRC-21 (informative)
 
@@ -531,7 +540,7 @@ For `device_spec = FieldsDisplay`:
 For `GenericDisplay`, the output is the rendered template as Markdown, followed by the same fields as a list.
 
 **Rendering rules (D-028, reference implementation `packages/consent`):**
-1. The fields-form `intent` is the title of the **call's intent**, a colon and a space, and the rendered template; the title alone when that intent has no template. The call's intent is the intent of the case the call takes (§5.2, D-053), else the method's.
+1. The fields-form `intent` is the title of the **call's intent**, a colon and a space, and the rendered template. The call's intent is the intent of the case the call takes (§5.2, D-053), else the method's. The title stands alone when the template renders as empty text (every part of it sits in a `[ ]` segment the call drops) or fails at consent time (rule 12). An intent without a template does not occur: the schema requires both `title` and `template`.
 2. Rows are in the order of first appearance in the call's template, one per distinct path. A placeholder in a dropped `[ ]` segment contributes none; an absent placeholder outside a segment renders as `(none)`.
 3. A placeholder whose path crosses a variant case is absent unless the value holds that case. A placeholder over `[]` renders its elements joined with `, `; more than 256 elements is refused.
 4. Untagged values render in Candid text syntax, except that a principal on its own renders as its textual form.
@@ -542,7 +551,7 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 9. A request for a language the profile does not have is answered in the profile's language, and the metadata says which (ICRC-21 prefers a message over an error). An absent `device_spec` means `GenericDisplay`.
 10. A value a formatter refuses is shown as raw Candid text with a diagnostic; a formatter that cannot be built (unresolved dynamic ref, bad tag argument) produces no message, so a number is never shown without its decimals.
 11. The consent message carries the decoded raw arguments only on request. The signer that displays the message is the consumer that SHOULD show them (§11 item 1).
-12. Nothing the resolved form cannot carry is guessed at. A position it cuts (`recursive: true`) is decoded as `reserved`, so the bytes there are skipped without trusting their type; a call whose value reaches a cut position (the chosen case of a variant, a present `opt`, a field of a record the value holds, an element of a `vec`) is `ConsentMessageUnavailable`, and a call whose value avoids every cut gets its message (D-042). `func`, `service` and `opt opt T` positions make the whole method `ConsentMessageUnavailable`. A template that fails at consent time falls back to the generic intent with `W_TEMPLATE_FALLBACK`.
+12. Nothing the resolved form cannot carry is guessed at. A position it cuts (`recursive: true`) is decoded as `reserved`, so the bytes there are skipped without trusting their type; a call whose value reaches a cut position (the chosen case of a variant, a present `opt`, a field of a record the value holds, an element of a `vec`) is `ConsentMessageUnavailable`, and a call whose value avoids every cut gets its message (D-042). `func`, `service` and `opt opt T` positions make the whole method `ConsentMessageUnavailable`. A template that fails at consent time falls back to the generic intent's rows (rule 8) under the intent's own title, with `W_TEMPLATE_FALLBACK`.
 
 ## 13. Diagnostics
 
@@ -555,7 +564,7 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 | `E_ADDR_SYNTAX` / `E_ADDR_UNRESOLVED` | error | Address does not parse / resolve |
 | `E_PACK_TYPE_REF` | error | `type:` address in a pack |
 | `E_TYPE_NODE` | error | Pathless `type:` address on a declaration that is not a record or a variant |
-| `E_TAG_TARGET` / `E_TAG_NOT_APPLICABLE` | error | Wrong kind of target / wrong Candid type. Includes an `intent` or `effect` at a value address that is not a case of a variant in the arguments, or that steps into `[]` (§5.2), and on an EVM contract `idempotency`, `outcome`, `list`, `names` and `named` (not yet) and `account` and `subaccount` (no ABI type) (§15.4) |
+| `E_TAG_TARGET` / `E_TAG_NOT_APPLICABLE` | error | Wrong kind of target / wrong Candid type. Includes an `intent` or `effect` at a value address that is not a case of a variant in the arguments, or that steps into `[]` (§5.2), on an EVM contract `idempotency`, `outcome`, `list`, `names` and `named` (not yet) and `account` and `subaccount` (no ABI type), and a `fixed` that is not on an `address` in the arguments of an EVM function or message: in a result or at a `type:` address / on another type or a Candid position (§15.4) |
 | `E_REF_UNRESOLVED` / `E_REF_NOT_QUERY` / `E_REF_SHAPE` / `E_REF_TYPE` / `E_DYNAMIC_KIND` | error | Bad dynamic value |
 | `E_DEFAULT_NULL` | error | `null` default on a non-optional position |
 | `E_EFFECT_MODE` | error | An effect that does not fit the method: a query or composite query declared as something other than `read`, or `replicated: true` anywhere but on an update method with `kind: "read"` and `irreversible: false` (§5.3) |
@@ -564,12 +573,12 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 | `E_TEMPLATE` / `E_TEMPLATE_PATH` | error | Template syntax, or a `[ ]` segment on an EVM contract (§15.4) / unknown placeholder, or one through another case of a variant on a case intent's path (§6) |
 | `E_CASE_OVERLAP` | error | Two tagged cases of one method, for the same tag, that one value can take both (§5.2) |
 | `E_CASE_EFFECT` | error | A case effect that needs confirmation, or is irreversible, under a method effect that does not or is not (§5.3) |
-| `E_CONFLICT` | error | Two different values for one tag at one position |
+| `E_CONFLICT` | error | Two different values for one tag at one position. For `fixed`, two different addresses in any layers, reported at the lower one (§15.4) |
 | `E_STALE` | error | Bound interface changed and some address or tag no longer holds |
 | `E_PACK_NOT_MATCHED` | error | A pack the caller asked for explicitly does not apply to the service |
 | `E_ABI` | error | An EVM ABI (`binds.abi`, or the contract's given as the interface) that cannot be read: a fragment that does not parse, a type that does not exist, an overloaded function name (O1), two components with one field id, or no function at all (§15.1) |
 | `E_CHAIN` | error | A profile or pack for an EVM contract given for a Candid service, or the other way round (§15.3) |
-| `E_ADDRESS_CHECKSUM` | error | A deployment address in mixed case that does not match its EIP-55 checksum (§15.3) |
+| `E_ADDRESS_CHECKSUM` | error | A deployment address (§15.3) or a `fixed` value (§15.4) in mixed case that does not match its EIP-55 checksum |
 | `E_EIP712` | error | `binds.eip712.types` that cannot be read (a struct name that is not an identifier or reads as an ABI type or `EIP712Domain`, a member type that is not canonical or not a type, a struct that contains itself or refers to a refused one), a message that shares its name with a function, two profiles that give one type name different members, or types with no message and no function (§15.9) |
 | `E_TOKEN_PATH` | error | An `amount.token` that is not a relative path to an `address` in the same argument and the same array element as the amount, or that is given on a Candid service (§15.9, OQ-6) |
 | `E_GRANT` | error | A `grant` on an effect that is not a method's `transfer` or `approve` (another kind, a case effect), an `approve`'s grant with `to`, or a position that breaks §5.3: a path that does not resolve, steps into `[]` or passes through a case of a variant; a `spender` or `to` that is neither an `address` nor `account`-tagged; an `amount` that is neither an unsigned `amount`-tagged position nor a `bool`; an optional `spender`, `to` or `amount`; an `ends` position without a `timestamp` tag (§5.3, D-056) |
@@ -584,6 +593,8 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 | `I_PACK_ANNOTATION_SKIPPED` | info | A matched pack names a position the service lacks, which subtyping allows; the annotation is dropped |
 | `W_OUTCOME_UNCLASSIFIED` | warning, or info when `default` is set | A result case without a class |
 | `I_UNTAGGED_NUMERIC` | info | A numeric update argument has no meaning attached |
+
+**An error at a pin** (a `fixed` annotation, §15.4) says so at the end of its message, and its profile then supplies only its `effect` tags, without their grants, and its pins that hold. It is never dropped as `I_PACK_ANNOTATION_SKIPPED`.
 
 **Not checked by the v0 validator:** whether `default.value` literals other than `null` type-check against their position. Consumers MUST check this before using a default.
 
@@ -656,7 +667,9 @@ Template placeholders read `{to}` and `{value}`, as ERC-7730's do.
   which contracts the profile describes, as ERC-7730's `context.contract.deployments` does. An address in mixed case
   that does not match its EIP-55 checksum is `E_ADDRESS_CHECKSUM`; a deployment listed twice is `W_DUPLICATE`.
 - A contract profile is checked against its own `binds.abi`. Resolved against another ABI (`candid-profile resolve
-  --abi`), it is rebound or stale by the rules of §7 for a canister profile, with the identity of §15.1.
+  --abi`), it is rebound or stale by the rules of §7 for a canister profile, with the identity of §15.1: `W_REBOUND`
+  and `E_STALE` are reported at `binds.abi` and name the identity of its ABI, since a contract profile has no
+  `binds.interface_id`.
 - **An EVM pack** has `kind: "pack"` and `binds.abi` instead of `binds.requires`. It applies to a contract that has
   every function of the pack with the same selector (so the same name and parameter types), the same output types and
   the same kind of call (a query; or an update that is payable exactly when the pack's is). There is no subtyping. A
@@ -679,11 +692,35 @@ Template placeholders read `{to}` and `{value}`, as ERC-7730's do.
 | `text` | `string` |
 | `range` | an integer type, `string`, an array |
 | `describe`, `default`, `ui`, `intent`, `effect` | as §5 says |
+| `fixed` | `address`, in the arguments of a function or a message (below) |
 | `account`, `subaccount` | none (`E_TAG_NOT_APPLICABLE`): an address needs no tag (§15.2) |
 | `idempotency`, `outcome`, `list`, `names`, `named` | not yet (`E_TAG_TARGET`): they need nonces, receipts and reads that a later phase adds |
 
 An ABI value is never absent, so an EVM template MUST NOT use `[ ]` segments (`E_TEMPLATE`); the escapes of §6 are
 unchanged. `effect` defaults as in §5.3. The native value a `payable` function receives has no position yet (O2).
+
+**A pin (`fixed`, D-058).** `fixed` says that the profile describes the call or the message only with one address at a
+position, its `value`. x402's Permit2 payment needs it (§15.9): Permit2 lets the spender choose where the tokens go,
+and only the code of x402's proxy sends them to the payee the message names, so its words hold only when the spender
+is that proxy.
+
+- It sits on an `address` in the arguments of a function or a message, in a tuple or in every element of an array. In
+  a result or at a `type:` address it is `E_TAG_TARGET`; on another type, or on a Candid service, whose positions hold
+  no EVM address, it is `E_TAG_NOT_APPLICABLE`. Its `value` follows §15.2: in mixed case it MUST match its checksum
+  (`E_ADDRESS_CHECKSUM`).
+- A consumer MUST refuse a call or a signing request whose value at a pinned position is another address, before it
+  shows any text (`E_FIXED`, §15.6 and §15.9). Addresses are compared by their 20 bytes.
+- **A pin that does not hold takes the profile's words with it.** The words were written for the pinned value, so a
+  profile with a pin that is refused (any error above, an address that does not resolve, or a conflict) supplies only
+  its `effect` tags, without their `grant`, and its pins that hold. Its other tags are left out of the resolved form,
+  which is still written beside the errors. The call or the request then needs a person's confirmation, and no terms
+  can pass it (§5.3). A pin's error is never dropped as a pack annotation that does not apply
+  (`I_PACK_ANNOTATION_SKIPPED`).
+- **Pins do not give way to precedence** (§8). One position holds at most one pinned value across all the profiles of
+  a service. A second, different value is `E_CONFLICT` at the profile of lower precedence (in one layer, the one given
+  later), which loses its words as above; a profile that pins one position to two values loses its own. Equal pins
+  are one pin.
+- The ERC-7730 export writes a pin as `visible: { "mustMatch": [value] }` (§15.7).
 
 ### 15.5 Resolved form
 
@@ -703,7 +740,8 @@ ICRC-21 is the Internet Computer's, so an EVM call gets the same model and the s
 ICRC-21 envelope (`@meantjs/consent/evm`, `evmConsent`): the generic form as Markdown, and the fields form as an intent
 line and `(label, text)` rows. The selector picks the function, calldata is decoded strictly (§15.2), and the text ends
 with the contract's address and chain (§11 item 9). When a profile lists deployments, the call's contract and chain
-MUST be one of them (`E_DEPLOYMENT`). A `payable` function is refused until its value has a position (O2).
+MUST be one of them (`E_DEPLOYMENT`). A `payable` function is refused until its value has a position (O2). An
+argument whose position is pinned and holds another address is `E_FIXED` (§15.4), before any text.
 
 ### 15.7 ERC-7730 files and ERC-8176 attestations
 
@@ -732,6 +770,7 @@ of their own):
 | an untagged `address` | `addressName` |
 | anything else | `raw` |
 | a `payable` function | one more field, `@.value` as `amount` (the native value, which an ERC-7730 wallet knows) |
+| `fixed` (§15.4) | `visible: { "mustMatch": [value] }` on its field, the value with its EIP-55 checksum |
 | `binds.deployments` | `context.contract.deployments` (the caller may pick a subset; a file needs at least one) |
 
 What a profile says that an ERC-7730 file cannot say is refused (`E_EXPORT`), never written as something near it: a
@@ -741,14 +780,23 @@ form; the file carries what a call says, not what it does.
 
 Some words have no ERC-7730 form but change no value, and are left out with a note (the export's `notes`) instead of
 refusing the file (D-055): a timestamp's `threshold`, `message` and `labels` (the file shows the date), and a template
-ERC-7730 cannot interpolate (a placeholder over an array or a whole tuple), which gets no `interpolatedIntent`.
+ERC-7730 cannot interpolate (a placeholder over an array, a whole tuple or a pinned position), which gets no
+`interpolatedIntent`.
 **Fact** (ERC-7730): `interpolatedIntent` is optional, and a wallet falls back to `intent` when interpolation fails.
 Phase 1 refused the whole file for such a template; every file phase 1 wrote is written the same now.
+
+**Fact** (ERC-7730 v2.1.0, the field's `visible` rules): `mustMatch` makes "the field always hidden AND check its
+value against the list. Wallet should raise an error if the value does not match the list", and "Interpolated intents
+MUST only refer to paths that are noted as always visible", so a template that names a pinned position has no
+`interpolatedIntent`. **Assumption:** a wallet compares a `mustMatch` address as an address, whatever the case of its
+letters. ERC-7730 does not say; a wallet that compares the text refuses a request written in another case, which
+fails closed.
 
 `erc8176Attestation` gives the unsigned offchain attestation (EAS offchain v2 typed data: domain `EAS Attestation`,
 version `0.26`, chain 1, the canonical EAS contract; `data` is the hash) and its EIP-712 digest. A reviewer signs it
 with their own key. This repository never signs or posts one: it holds no reviewer's key, and an onchain attestation
-spends mainnet ETH (AGENTS.md rule 4). Checking attestations is a later phase.
+spends mainnet ETH, which the project never does (no mainnet funds, ever; every test runs on a local network).
+Checking attestations is a later phase.
 
 ### 15.8 Open items
 
@@ -768,8 +816,8 @@ spends mainnet ETH (AGENTS.md rule 4). Checking attestations is a later phase.
 
 **Status:** experimental, the first part of phase 2 (`proposals/w0-evm-eip712.md`, Q1 to Q5 as recommended). A
 profile can describe the EIP-712 messages a wallet is asked to sign; from it come consent text for a signing request
-and an ERC-7730 file of the messages. Signing, checking signatures, witness messages (O9) and agent tools are not in
-it.
+and an ERC-7730 file of the messages. Signing, checking signatures, witness messages other than x402's (O9) and agent
+tools are not in it.
 
 **Fact** ([EIP-712](https://eips.ethereum.org/EIPS/eip-712), Final): a signing request (`eth_signTypedData_v4`) has
 `types`, `primaryType`, `domain` and `message`. The signature signs `keccak256(0x1901 ‖ domainSeparator ‖
@@ -838,7 +886,9 @@ rawArguments, limits })`, takes the wallet's active chain. It refuses before any
 3. `E_DECODE`: values that are not exactly the members, or not canonical. Integers are decimal strings without
    leading zeros, or JSON numbers up to 2^53 − 1, within their type's range. Addresses follow §15.2. `bytesN` has
    exactly N bytes, as `0x` hex. An array has its declared length, within the decoder's limits.
-4. `E_REF_UNRESOLVED`: an amount in a token not in `tokens`, or a `query:` ref not in `refs`. For a pack's message
+4. `E_FIXED`: a pinned member (`fixed`, §15.4) that holds another address, such as x402's Permit2 payment with a
+   spender other than x402's proxy.
+5. `E_REF_UNRESOLVED`: an amount in a token not in `tokens`, or a `query:` ref not in `refs`. For a pack's message
    the `query:` refs are calls to the verifying contract: the consumer resolves that contract's ABI with the packs.
 
 The text is §15.6's model and two forms, then the verifying contract and its chain, the EIP-712 digest (a hardware
@@ -871,25 +921,54 @@ must match; for a message, `@.to` is the verifying contract.
   Permit2's `PermitSingle` and `PermitBatch` (an allowance, `approve`) and `PermitTransferFrom` and
   `PermitBatchTransferFrom` (one transfer, `transfer`), amounts in the token each message names. Bound to domain
   `Permit2` and to `0x000000000022D473030F116dDEE9F6B43aC78BA3` on chains 1 and 42161 (**Fact**: ERC-7730's own
-  Permit2 example; O10). **Fact** (Uniswap `permit2`, `Allowance.sol` and `AllowanceTransfer.sol`): "If the inputted
-  expiration is 0, the allowance only lasts the duration of the block", so it reads "Only in the block it is used";
-  an allowance of `type(uint160).max` is never decremented, so it reads "Unlimited".
+  Permit2 example) and on Base and Base Sepolia, 8453 and 84532 (**Fact**: its code and `DOMAIN_SEPARATOR()`, read on
+  chain on 2026-10-30, and Uniswap's deployments page; D-058, O10). **Fact** (Uniswap `permit2`, `Allowance.sol` and
+  `AllowanceTransfer.sol`): "If the inputted expiration is 0, the allowance only lasts the duration of the block", so
+  it reads "Only in the block it is used"; an allowance of `type(uint160).max` is never decremented, so it reads
+  "Unlimited".
 - [`packs/dai-permit.profile.json`](../packs/dai-permit.profile.json), a contract profile: DAI's older `Permit`, bound
   to domain `Dai Stablecoin` version `1` and to `0x6B175474E89094C44Da98b954EedeAC495271d0F` on chain 1 (**Fact**:
   `MCD_DAI` in the Sky chainlog, read 2026-10-28). **Fact** (MakerDAO `dss/src/dai.sol`): `expiry == 0` never expires,
   `allowed` sets the allowance to `uint(-1)` or 0, and `PERMIT_TYPEHASH` is
   `0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb`, which the resolver's hash matches.
+- [`packs/usdc.profile.json`](../packs/usdc.profile.json) and
+  [`packs/usdc-base-sepolia.profile.json`](../packs/usdc-base-sepolia.profile.json), contract profiles (D-058): USDC's
+  EIP-3009 messages. `TransferWithAuthorization` and `ReceiveWithAuthorization` pay `to` once (`transfer`, with a
+  grant to `to` that ends at `validBefore`), and `CancelAuthorization` cancels an unused one (`write`, no grant).
+  `usdc` is bound to domain `USD Coin` version `2` and to USDC on chains 1, 8453 and 42161; `usdc-base-sepolia` to
+  domain `USDC` version `2` on Base Sepolia (84532), whose USDC signs under that name. Amounts are in 6 decimals,
+  `USDC`. **Fact** (read on chain on 2026-10-30): each contract's `DOMAIN_SEPARATOR()`, `decimals()` and three type
+  hashes. **Fact** (EIP-3009; Circle's `EIP3009.sol` at `fc85788`): a signature is valid only after `validAfter` and
+  before `validBefore`, both strictly, so the text reads "Valid after" and "Expires", and only the payee may submit a
+  `ReceiveWithAuthorization`. USDC's ABI names each of its four signature functions twice, so the profiles describe
+  the messages only (O1). x402's `exact` scheme pays by `TransferWithAuthorization` by default (**Fact**:
+  `coinbase/x402` at `0e6e8c5`, `specs/schemes/exact/scheme_exact_evm.md`).
+- [`packs/x402-exact-permit2.profile.json`](../packs/x402-exact-permit2.profile.json), a contract profile (D-058):
+  x402's `exact` payment through Permit2, the `PermitWitnessTransferFrom` with x402's witness `Witness(address
+  to,uint256 validAfter)` (type hash `0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7`), bound to
+  Permit2's domain and deployments. Its spender is pinned (`fixed`, §15.4) to x402's proxy,
+  `0x402085c248EeA27D92E8b30b2C58ed07f9E20001`, and its grant pays `witness.to`. **Fact** (`coinbase/x402` at
+  `0e6e8c5`, `contracts/evm/src/x402BasePermit2Proxy.sol` and `x402ExactPermit2Proxy.sol`): the proxy's `settle`
+  sends exactly `permitted.amount` to `witness.to` and reverts while the block's time is before `validAfter`, so the
+  text reads "Usable from". **Fact** (read on chain on 2026-10-30): the proxy has the same code on the four chains,
+  and its `PERMIT2()` is Permit2. x402's `upto` scheme signs another witness, so another type hash, and matches
+  nothing.
 
-The type hashes of the six standard messages, EIP-712's `Mail` type hash and digest, the consent goldens' digests and
+The type hashes of the ten standard messages, EIP-712's `Mail` type hash and digest, the consent goldens' digests and
 the exported files' `descriptorHash`es were recomputed by an independent Python EIP-712 and Keccak-256 (the phase 1
-cross-check tool).
+cross-check tool). USDC's three type hashes and the type hash of x402's `Witness` equal the contracts' own constants,
+read on chain; x402's example EIP-3009 signature and two real x402 Permit2 payments on Base Sepolia recover to their
+signers over the digests the consent package computes (**Fact**, the `ecrecover` precompile through `eth_call`,
+2026-10-30).
 
 #### Open items
 
 - **O9.** Permit2 witness messages (`PermitWitnessTransferFrom` with a protocol's own witness type). Each needs its
-  own profile; until then a request with a witness matches nothing and gets no text.
-- **O10.** Permit2's deployments beyond chains 1 and 42161: its address is the same on many chains, and each is added
-  after checking Uniswap's list, never assumed.
+  own profile, which pins the protocol's settlement contract as the spender (`fixed`, §15.4) when the witness names
+  where the tokens go. x402's `exact` payment has one (D-058); a request with any other witness matches nothing and
+  gets no text.
+- **O10.** Permit2's deployments beyond chains 1, 8453, 42161 and 84532: its address is the same on many chains, and
+  each is added after checking Uniswap's list and the chain itself, never assumed.
 - **O11.** Domains with a `salt`, and contracts whose domain name or version changes after deployment: refused for
   now.
 - **O12.** DAI's `allowed` bool reads through its template ("to all of it if allowed is true, to none if false");
