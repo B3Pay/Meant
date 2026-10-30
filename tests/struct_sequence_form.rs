@@ -3,8 +3,8 @@
 //! Serde's derived `Deserialize` reads a struct written as a JSON array of its
 //! field values in declaration order, and an internally tagged enum written
 //! as `[tag, field…]`, at any depth. The Contract format is objects only:
-//! candid-core writes nothing else, its DTOs deny unknown keys, and
-//! `@candid-core/schema`'s `schemaFromContract` refuses the array form. These
+//! meant writes nothing else, its DTOs deny unknown keys, and
+//! `@meantjs/schema`'s `schemaFromContract` refuses the array form. These
 //! tests write each struct position of every document a bounded loader reads
 //! (Contract, envelope, Compilation and its `SourceInfo` sidecar) in that
 //! form, otherwise unchanged, and require a refusal with the error a value of

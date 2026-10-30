@@ -405,13 +405,20 @@ gh workflow run release.yml \
 `0.1.0` was published by hand, before the workflow took a crate, and has no tag.
 
 
-## npm: `@candid-core/schema`
+## npm: `@meantjs/schema`
+
+Published as `@candid-core/schema` through 0.5.0, and as `@meantjs/schema`
+from 0.6.0 (issue #306): the project ships under two names, ic-reactor and
+Meant, and the npm pair took the `@meantjs` scope of the profile packages. A
+new name is a new package, so the first-publish steps below apply to it
+again; [renaming a package](#npm-renaming-a-package) has the rest.
 
 npm names and versions are as permanent as crates.io's; the same three
 properties hold. **Prerequisites, once, all three required before the first dispatch:**
 
-1. Register the `@candid-core` npm organization — scope ownership is the
-   anti-squat measure.
+1. Hold the npm organization of the package's scope, `@meantjs` — scope
+   ownership is the anti-squat measure. `@candid-core`, the scope of the
+   names before the rename, stays registered for the same reason.
 2. Enable OIDC trusted publishing for this repository on the package; no
    token is created, stored, or reachable from any PR-triggered workflow.
 3. **Create the `npm-publish` environment with required reviewers.** GitHub
@@ -494,7 +501,7 @@ gh workflow run npm-release.yml \
   --field commit=<40-character SHA> --field version=0.3.0 --field dist-tag=latest
 
 # A prerelease: it lands under its own dist-tag, and consumers opt in with
-# `npm i @candid-core/schema@beta`. `latest` does not move.
+# `npm i @meantjs/schema@beta`. `latest` does not move.
 gh workflow run npm-release.yml \
   --field commit=<40-character SHA> --field version=0.3.0-beta.1 --field dist-tag=beta
 ```
@@ -563,10 +570,11 @@ measured the artifact it shipped, not the one a later PR packs. Once the
 section is renamed, every figure the entry being released states must match
 the artifact exactly, and the gate refuses a stale one.
 
-## npm: `@candid-core/cli`
+## npm: `@meantjs/cli`
 
-The second package under the scope (name recorded with owner sign-off on
-issue #153, per the #106 precedent), publishing from
+The second package of the pair (the name `@candid-core/cli` recorded with
+owner sign-off on issue #153, per the #106 precedent; `@meantjs/cli`, with
+the command `meant`, from 0.5.0, issue #306), publishing from
 `crates/candid-core-wasm/npm` through
 [`.github/workflows/npm-release-cli.yml`](../.github/workflows/npm-release-cli.yml)
 — a faithful mirror of `npm-release.yml`: dispatch-only `{commit, version,
@@ -584,8 +592,9 @@ the trusted-publisher configuration with **workflow filename
 The packaged-consumer verification is this package's own,
 [`verify_npm_cli_package.py`](../tests/fixtures/packaging/verify_npm_cli_package.py):
 what the tarball actually ships, that the wasm is in it and is a real
-artifact, and that a clean consumer can install it, run `gen` end to end, and
-compile against the `@candid-core/schema` peer it declares — with no DOM lib,
+artifact, that it installs exactly one command, `meant`, and that a clean
+consumer can install it, run `gen` end to end through that command, and
+compile against the `@meantjs/schema` peer it declares — with no DOM lib,
 which is the shape a Node consumer of a CLI actually uses. It runs in the
 release verify job *and* on every pull request through the `wasm CLI`
 workflow, so its first execution is never the dispatch itself.
@@ -620,13 +629,13 @@ taken from the ref the workflow runs from (`main`), not from the commit being
 released: a release from a commit older than the check still gets it, and the
 check that judges a release is the reviewed one.
 
-1. It packs `@candid-core/schema` and `@candid-core/cli` from the commit, both
+1. It packs `@meantjs/schema` and `@meantjs/cli` from the commit, both
    of them whichever package is being released, because the pair releases
    from one commit. The toolchains are the release workflows' pins.
 2. It regenerates every module ic-reactor checks in with that CLI and compares
    the result with the checked-in bytes. A module is a `.ts` file whose first
    line is the generator's header, and its source is either the
-   `candid-core-cli gen` script of its package (each example's `gen`) or the
+   `meant gen` script of its package (each example's `gen`) or the
    `.did` of the same name beside it (`packages/core/tests/fixtures`,
    `scripts/check-snippets/app/generated`). A module with no source is listed
    and not regenerated, and modules outside ic-reactor's pnpm workspace (its
@@ -634,10 +643,11 @@ check that judges a release is the reviewed one.
    CLI it pins, so the drift covers every change since that release, not only
    the last one.
 3. It repins ic-reactor to the tarballs' versions the way ic-reactor's own
-   repin does: it writes them into `stack.json` and runs `pnpm sync:stack`,
-   which rewrites every `@candid-core` pin, the vite-plugin's CLI version
-   constant included. Then it installs the tarballs through `pnpm.overrides`,
-   checks that every `@candid-core` package the install links holds exactly
+   repin does: it writes them into `stack.json`, under the `meant` key, and
+   runs `pnpm sync:stack`, which rewrites every pin of the pair, the
+   vite-plugin's CLI version constant included. Then it installs the tarballs
+   through `pnpm.overrides`, checks that every `@meantjs/schema` and
+   `@meantjs/cli` the install links holds exactly
    the files of its tarball, and runs ic-reactor's `pnpm build`, `typecheck`,
    `test`, `typecheck:examples` and `check:snippets` against the regenerated
    modules. Every step runs even when an earlier one failed, so one run shows
@@ -647,18 +657,20 @@ The check fails on ic-reactor's side (the script's exit 1) when ic-reactor
 cannot be checked out or its pnpm enabled, when a step fails (the repin
 included), when the new CLI
 refuses one of ic-reactor's `.did` files, when a `gen` script is anything but
-a plain `candid-core-cli gen <.did>... -o <dir>` (the regenerated set would be
-a guess), or when the install would load other bytes than the tarballs'. It
+a plain `meant gen <.did>... -o <dir>` (the regenerated set would be
+a guess), when its `stack.json` has no `meant` pins (an ic-reactor that still
+installs the `@candid-core` pair), or when the install would load other
+bytes than the tarballs'. It
 fails on candid-core's side when a toolchain or the wasm does not build, when
 the two packages cannot be built, packed or installed, when the packed CLI
 writes another header than the one the script looks for (exit 2), or when the
 script itself crashes (exit 3). It allows one registry link and reports it:
 where a project depends on the CLI and not on the schema (the vite-plugin) and
 the registry already has the schema's version (a release of the CLI alone),
-pnpm resolves the CLI's optional `@candid-core/schema` peer from the registry,
+pnpm resolves the CLI's optional `@meantjs/schema` peer from the registry,
 because an override to a tarball is not a peer range. Only the CLI's own code
 could load that copy, and the check reads the CLI's shipped JavaScript and
-declarations to confirm that they name no `@candid-core/schema`.
+declarations to confirm that they name no `@meantjs/schema`.
 
 ic-reactor pins stable releases only, and `pnpm sync:stack` refuses a
 prerelease, so for a beta the repin step fails, on ic-reactor's side. The run
@@ -736,6 +748,11 @@ vite-plugin tests makes a directory read-only and expects a write into it to
 fail, and a write by root succeeds.
 
 ## npm: a coordinated beta of the pair
+
+The 0.3 beta line below was published under the names of the time,
+`@candid-core/schema` and `@candid-core/cli`, which its commands and examples
+keep. A beta of the renamed pair is the same procedure with
+`@meantjs/schema`, `@meantjs/cli` and the command `meant`.
 
 While `@candid-core/schema` changes shape for its downstream (the 0.3 line),
 the two packages release as a pair of betas: `@candid-core/schema`
@@ -890,8 +907,8 @@ to 7, with these differences:
   release, rebuilt from its `gitHead` as in item 5; a line says what moved
   since the last beta.
 - The package READMEs describe the stable release with plain install lines,
-  `npm install --save-exact @candid-core/schema` and
-  `npm install --save-dev --save-exact @candid-core/cli`, and say what the
+  `npm install --save-exact @meantjs/schema` and
+  `npm install --save-dev --save-exact @meantjs/cli`, and say what the
   previous stable version lacks.
 - `UNPUBLISHED_NPM_SPECS` names the two exact versions only: `latest` and
   `beta` both resolve already.
@@ -902,7 +919,7 @@ to 7, with these differences:
   from the tag", with the stable versions: `npm view <package> dist-tags`
   shows `latest` at the stable pair and `beta` unmoved on the last betas, and
   the clean consumer installs with a plain
-  `npm install --save-exact @candid-core/schema @candid-core/cli` (no
+  `npm install --save-exact @meantjs/schema @meantjs/cli` (no
   `@beta`), which must resolve without `ERESOLVE`, then runs `gen` and
   `gen --check`.
 - Between the two publishes, `latest` pairs the new schema with the previous
@@ -920,7 +937,7 @@ to 7, with these differences:
   forward (a commit on `main`, the CLI dispatched from it, and both release
   notes corrected on publish day where they say both packages come from one
   commit), or put `latest` back by hand,
-  `npm dist-tag add @candid-core/schema@<previous stable> latest`, with the
+  `npm dist-tag add @meantjs/schema@<previous stable> latest`, with the
   interactive login of "Promoting to `latest`", until the CLI is out.
 - On publish day the follow-up pull request empties `UNPUBLISHED_NPM_SPECS`,
   turns the prose install lines into blocks, and rewrites the release note on
@@ -1005,7 +1022,7 @@ above, and these:
   previous pair's versions (here 0.3.0 and 0.2.0):
   `git grep -n -E 'latest|previous stable' -- README.md website/README.md website/content`
   and
-  `git grep -n -E '<code>0\.(2|3)\.0</code>|published <code>@candid-core' -- README.md website/content`.
+  `git grep -n -E '<code>0\.(2|3)\.0</code>|published <code>@(candid-core|meantjs)' -- README.md website/content`.
   Every hit the second one finds that says what the registry holds now, as
   a table row or a sentence like "the published `@candid-core/schema` is
   0.2.0", names the new pair. The pull request then turns the migration
@@ -1022,12 +1039,12 @@ with an interactive login exactly as for the bootstrap:
 
 ```bash
 npm login                                             # interactive, 2FA
-npm dist-tag add @candid-core/schema@<schema-version> latest
-npm dist-tag add @candid-core/cli@<cli-version> latest   # the CLI that pairs with it
-npm dist-tag rm @candid-core/schema beta              # only if the tag should go
-npm dist-tag rm @candid-core/cli beta                 # likewise
-npm view @candid-core/schema dist-tags
-npm view @candid-core/cli dist-tags
+npm dist-tag add @meantjs/schema@<schema-version> latest
+npm dist-tag add @meantjs/cli@<cli-version> latest   # the CLI that pairs with it
+npm dist-tag rm @meantjs/schema beta              # only if the tag should go
+npm dist-tag rm @meantjs/cli beta                 # likewise
+npm view @meantjs/schema dist-tags
+npm view @meantjs/cli dist-tags
 npm logout
 ```
 
@@ -1039,6 +1056,59 @@ is the CLI release whose exact peer is `<schema-version>`.
 
 No guard checks this path: `npm dist-tag add` will point `latest` at a
 prerelease, which makes a plain `npm install` resolve a beta.
+
+## npm: renaming a package
+
+npm cannot rename a package: a new name is a new package, with its own
+versions, dist-tags and trusted publisher, and the old name keeps every
+version it published. The pair is renamed once, from `@candid-core/schema`
+and `@candid-core/cli` to `@meantjs/schema` and `@meantjs/cli`, with the
+command `candid-core-cli` becoming `meant` (issue #306), in this order:
+
+1. A version-bump pull request like any other
+   ([the version-bump pull request](#the-version-bump-pull-request), with
+   the differences of [a stable release of the pair](#a-stable-release-of-the-pair)),
+   which also changes the `name` in both manifests and their lockfiles, the
+   CLI's `bin` and exact peer, the import and header the generator writes
+   (so the goldens), and the names the packaging gates and the downstream
+   check expect. The new versions continue the old lines, 0.6.0 and 0.5.0,
+   because the generated modules change: the same numbers would name
+   different artifacts under the two names.
+2. After the merge, the owner's first publish of each new name by hand,
+   [as above](#the-first-publish-of-a-new-package-is-manual-once), from the
+   merge commit; then a trusted publisher for each, `npm-release.yml` for the
+   schema and `npm-release-cli.yml` for the CLI. npm drops a new trusted
+   publisher that no publish uses within 48 hours, so each is added right
+   before its dispatch.
+3. Both releases, dispatched from the merge commit, schema first, as for any
+   stable pair. The downstream check builds ic-reactor's repin branch, which
+   installs the new names (`--field downstream-ref=<that branch>`): until it
+   merges, ic-reactor's `main` installs the old pair, so a run against `main`
+   fails on ic-reactor's side, at the repin.
+4. The publish-day pull request, as for any release, which here also moves
+   the pages to the new names. Until then the site and the root README
+   teach the published pair, and only generated modules show the new header
+   and import. That pull request turns every install line, import and
+   `candid-core-cli` command on the site and in the root README to the new
+   names (`git grep -n -E '@candid-core/|candid-core-cli' -- README.md website/content`
+   lists them; the migration pages' history stays), gives the two blocks
+   that quote the schema README, on `quickstart-typescript.html` and
+   `schema-codec.html`, their `data-file` back, drops the old names from
+   `PAIR_NAMES` in `website/snippets.mjs`, empties `UNPUBLISHED_NPM` in
+   `website/check.mjs`, and rewords what says "the `@meantjs` packages" of
+   the five profile packages alone (`git grep -n '@meantjs' -- website/content`),
+   since the scope then holds seven.
+5. Once ic-reactor has released on the new pair, the owner deprecates the old
+   names, with the interactive login of "Promoting to `latest`":
+
+   ```bash
+   npm deprecate "@candid-core/schema@*" "Renamed to @meantjs/schema"
+   npm deprecate "@candid-core/cli@*" "Renamed to @meantjs/cli, whose command is meant"
+   ```
+
+   A deprecation only warns at install: every version stays installable. The
+   `@candid-core` scope stays registered, so nobody else can publish under
+   it.
 
 ## Moving the repository
 
@@ -1059,8 +1129,9 @@ can renew those:
     Its 0.1.0 was published by hand, as the first version of a name has to
     be, so it may have no trusted publisher yet; `candid-core`'s named the
     old repository.
-  - npm: `@candid-core/schema` with `npm-release.yml`, and `@candid-core/cli`
-    with `npm-release-cli.yml`, both with the `npm-publish` environment.
+  - npm: `@meantjs/schema` with `npm-release.yml`, and `@meantjs/cli`
+    with `npm-release-cli.yml`, both with the `npm-publish` environment (the
+    names were `@candid-core/schema` and `@candid-core/cli` at the move).
 - **Provenance.** npm compares the `repository.url` of a package published
   with `--provenance` with the repository that signed the provenance, and
   refuses a mismatch with E422. Both `package.json` files name

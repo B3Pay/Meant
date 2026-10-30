@@ -1,6 +1,6 @@
 //! Doc attributes v1 end to end (`docs/doc-attributes.md`): compiled from real
 //! `.did` text, read back from the SourceInfo the compiler records, and pinned
-//! in the serialized shape `@candid-core/cli` hands out.
+//! in the serialized shape `@meantjs/cli` hands out.
 #![cfg(feature = "compiler")]
 
 use meant::{

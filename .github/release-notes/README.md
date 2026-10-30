@@ -50,8 +50,10 @@ release is tagged `meant-format-v<version>`. `0.1.0` predates the workflow's
 ## npm packages
 
 The two npm packages keep their notes under `npm/<package>/<version>.md` —
-`npm/schema/0.3.0-beta.1.md` for `@candid-core/schema`, `npm/cli/0.2.0-beta.1.md`
-for `@candid-core/cli` — never at this directory's top level. The npm versions
+`npm/schema/0.6.0.md` for `@meantjs/schema`, `npm/cli/0.5.0.md` for
+`@meantjs/cli`, and the same two directories for the versions published as
+`@candid-core/schema` and `@candid-core/cli` before the rename — never at this
+directory's top level. The npm versions
 are independent of the crate's, so a top-level `0.2.0-beta.1.md` written for the
 CLI is exactly the file the `Release` workflow would read, and publish as the
 crate's GitHub release body, if the crate ever released that number.

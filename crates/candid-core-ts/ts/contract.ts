@@ -5,7 +5,7 @@
 // runtime without generated code.
 //
 // Since issue #152 the same entry point also accepts a `ContractEnvelope`
-// document — `{ contract, extensions }`, as `candid-core compile --envelope`
+// document — `{ contract, extensions }`, as `meant compile --envelope`
 // emits — and consumes the field-name table its
 // `org.candid-core.field-names/v1` extension carries, so one self-describing
 // document replaces the contract-plus-table pair. Envelope-carried names are
@@ -36,7 +36,7 @@
 //   the class actor root denotes its running service (init args are
 //   install-time metadata). A class is legal *only* as the actor root: a
 //   named declaration targeting a class node is refused, mirroring
-//   candid-core's `class_not_actor_root` (issue #129). The actor interface,
+//   meant's `class_not_actor_root` (issue #129). The actor interface,
 //   when present, is built as a service schema and returned as `actor`.
 //
 // # Omission, in parity with the generator
@@ -60,7 +60,7 @@
 // options object is code, and a malformed one throws `TypeError`), and
 // every malformed shape is an issue in the same `{code, path, message,
 // resource_limit?}` shape `validate.ts` documents, with codes reused from
-// candid-core's own Contract validation where the condition is the same
+// meant's own Contract validation where the condition is the same
 // (`unsupported_contract_format`, `unsupported_format_version`,
 // `unsupported_semantics_profile`, `unsupported_canonicalization_profile`,
 // `dangling_type_ref`, `duplicate_field_id`, `empty_declaration_name`,
@@ -72,11 +72,11 @@
 // `unknown_key` issue at that key's path (issue #228). `identities` and
 // `producer` are not read (see below), so their insides are not checked.
 // Every type node must be reachable from a declaration or the actor, and a
-// non-empty arena needs at least one of them, as in candid-core's own
+// non-empty arena needs at least one of them, as in meant's own
 // reachability rule; the walk is an explicit stack, linear in nodes plus
 // edges. Arena size,
 // total field count, and declaration count are capped by the same defaults
-// as candid-core's `Limits` (`max_type_nodes` 100_000, `max_fields` 500_000,
+// as meant's `Limits` (`max_type_nodes` 100_000, `max_fields` 500_000,
 // `max_declarations` 100_000), and the caller's name table by its own
 // entry cap. Checks run in one pass over the arena before anything is
 // built, so construction is non-recursive: every edge becomes a lazy
@@ -93,7 +93,7 @@
 //
 // What is deliberately *not* checked: the `identities` hashes. Verifying
 // `candid-core:contract:v1` requires the canonicalization procedure, which is
-// candid-core's job (and no unkeyed content ID authenticates itself). The
+// meant's job (and no unkeyed content ID authenticates itself). The
 // four format/profile markers are required to match exactly; identities and
 // producer are carried by canonical documents but not consulted here.
 
@@ -139,7 +139,7 @@ export interface ContractIssue {
 /**
  * The envelope extension carrying field-name triples: its value is exactly a
  * `FieldNameEntry[]` — named labels only, sorted, deduplicated — as
- * `candid-core compile --envelope` emits it. Extensions are non-semantic by
+ * `meant compile --envelope` emits it. Extensions are non-semantic by
  * the envelope's design: `contract_id` and `interface_id` are computed over
  * the Contract alone, so carrying names (or any extension) never moves an
  * identity.
@@ -191,7 +191,7 @@ export interface ContractSchemaOptions {
 /**
  * Why a declaration or actor method was left out. Closed: a new reason is
  * an API change. The same snake_case codes the generator reports
- * (`@candid-core/cli`'s `ModuleSuccess.omitted`):
+ * (`@meantjs/cli`'s `ModuleSuccess.omitted`):
  *
  * - `reserved_field_name`: a record field or variant arm name shaped like
  *   the `_N_` id rendering. Erased to a key it would read back as numeric id
@@ -259,14 +259,14 @@ export type SchemaFromContractResult =
     }
   | { readonly ok: false; readonly issues: readonly ContractIssue[] };
 
-/** Default `maxTypeNodes`, mirroring candid-core's `max_type_nodes`. */
+/** Default `maxTypeNodes`, mirroring meant's `max_type_nodes`. */
 export const DEFAULT_MAX_TYPE_NODES = 100_000;
-/** Default `maxFields`, mirroring candid-core's `max_fields`. */
+/** Default `maxFields`, mirroring meant's `max_fields`. */
 export const DEFAULT_MAX_FIELDS = 500_000;
-/** Default `maxDeclarations`, mirroring candid-core's `max_declarations`. */
+/** Default `maxDeclarations`, mirroring meant's `max_declarations`. */
 export const DEFAULT_MAX_DECLARATIONS = 100_000;
 /**
- * The name table is caller-side input with no candid-core counterpart; it
+ * The name table is caller-side input with no meant counterpart; it
  * addresses fields, so it shares the field cap's magnitude.
  */
 export const DEFAULT_MAX_NAME_TABLE_ENTRIES = 500_000;
@@ -327,7 +327,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 // The closed key sets of the format's objects: `RawContract`, `TypeNode`,
-// `Field`, `ServiceMethod`, `Declaration`, and `Actor` in candid-core's
+// `Field`, `ServiceMethod`, `Declaration`, and `Actor` in meant's
 // `src/model`, each `deny_unknown_fields`. A key outside its set is refused
 // (`unknown_key`): a future format revision must be adopted deliberately,
 // not half-read — the rule unknown node kinds already follow.
@@ -388,7 +388,7 @@ function unknownKeys(object: Record<string, unknown>, allowed: ReadonlySet<strin
  * leaving out — and listing in `omitted` — exactly what a generated module
  * leaves out for the same Contract.
  *
- * Accepts either document the `candid-core` binary emits: a bare canonical
+ * Accepts either document the `meant` binary emits: a bare canonical
  * Contract, or a `ContractEnvelope` — recognised by its `contract` key, which
  * no canonical Contract document carries — whose
  * `extensions[FIELD_NAMES_EXTENSION]` table is consumed as the field names.
@@ -599,7 +599,7 @@ function buildFromContract(
   }
   closed(contract, CONTRACT_KEYS, "$");
 
-  // The four self-identification markers, checked exactly the way candid-core
+  // The four self-identification markers, checked exactly the way meant
   // checks them. A document claiming a different format or profile is not
   // half-read on the assumption it is compatible.
   if (contract.format !== "candid-core") {
@@ -655,7 +655,7 @@ function buildFromContract(
   }
 
   // The third mirrored cap: a tiny arena with millions of uniquely named
-  // declarations must fail closed exactly as candid-core's own validator
+  // declarations must fail closed exactly as meant's own validator
   // fails it (resource "declarations", `Limits::max_declarations`).
   const maxDeclarations = options.maxDeclarations ?? DEFAULT_MAX_DECLARATIONS;
   if (declarations.length > maxDeclarations) {
@@ -827,7 +827,7 @@ function buildFromContract(
           );
           break;
         }
-        // candid-core's oneway_has_results rule: a oneway function cannot
+        // meant's oneway_has_results rule: a oneway function cannot
         // carry results — an actor built from one would await a reply the
         // call never provides.
         if (mode === "oneway" && Array.isArray(node.results) && node.results.length > 0) {
@@ -883,7 +883,7 @@ function buildFromContract(
             sound = false;
             continue;
           }
-          // candid-core's empty_method_name rule; hash("") is 0, so the
+          // meant's empty_method_name rule; hash("") is 0, so the
           // hash-consistency check below cannot catch this on its own.
           if (method.name.length === 0) {
             push(
@@ -994,7 +994,7 @@ function buildFromContract(
   }
 
   // Declarations: names bind schemas, so emptiness and duplication are the
-  // same defects candid-core rejects, under the same codes.
+  // same defects meant rejects, under the same codes.
   interface ParsedDeclaration {
     readonly name: string;
     readonly type: number;
@@ -1120,7 +1120,7 @@ function buildFromContract(
 
   // Reference-type structural constraints (issue #104): a service method
   // must denote a func node, and a class must denote a service node — the
-  // same constraints candid-core's own Contract validation enforces, so a
+  // same constraints meant's own Contract validation enforces, so a
   // hand-built document cannot smuggle a mis-kinded reference past the
   // builder.
   for (let index = 0; index < types.length; index += 1) {
@@ -1262,7 +1262,7 @@ function buildFromContract(
     }
   };
 
-  // candid-core restricts class nodes to the actor root
+  // meant restricts class nodes to the actor root
   // (`class_not_actor_root`); mirror it so the two loaders refuse the same
   // documents.
   const actorClassTarget = (() => {
@@ -1285,7 +1285,7 @@ function buildFromContract(
       );
       return { ok: false, issues };
     }
-    // candid-core's class_not_first_class_type rule: no type edge — func
+    // meant's class_not_first_class_type rule: no type edge — func
     // args/results and a class's own init/service included — may target a
     // class, actor-root or not. Opt/vec inners and record/variant fields
     // are already refused by the pass-two nested checks.
@@ -1318,7 +1318,7 @@ function buildFromContract(
   }
   // The declaration half of the same rule (`class_not_actor_root`): a named
   // declaration must never target a class node. The actor-root exemption
-  // above covers the node's existence, not names — candid-core refuses
+  // above covers the node's existence, not names — meant refuses
   // `X : class` even when that class is the actor root (issue #129).
   // Reaching this point implies zero issues so far, so `parsedDeclarations`
   // aligns index-for-index with `$.declarations`.
@@ -1378,7 +1378,7 @@ function buildFromContract(
     actorService = node.kind === "class" ? node.service : target;
   }
 
-  // candid-core's reachability rule (`validate_reachability`): a non-empty
+  // meant's reachability rule (`validate_reachability`): a non-empty
   // arena needs a root, and every node must be reachable from one. The
   // roots are the declarations and the actor, all in range by now.
   const roots = parsedDeclarations.map((declaration) => declaration.type);
@@ -1428,7 +1428,7 @@ function buildFromContract(
 }
 
 /**
- * candid-core's reachability rule over a validated arena, reporting through
+ * meant's reachability rule over a validated arena, reporting through
  * `push`; true when the arena passes. An empty arena needs no root. A
  * non-empty one with no root is `rootless_type_arena` at `$.types`, and each
  * node no root reaches is `orphan_type_node` at `$.types[i]`, in arena order

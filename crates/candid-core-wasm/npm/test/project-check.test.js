@@ -621,7 +621,7 @@ test("usage errors exit 64 without touching anything", () => {
     const result = cli(args, root);
     assert.equal(result.status, 64, args.join(" "));
     assert.equal(result.stdout, "", args.join(" "));
-    assert.match(result.stderr, /usage: candid-core-cli gen/, args.join(" "));
+    assert.match(result.stderr, /usage: meant gen/, args.join(" "));
   }
   assert.equal(readFileSync(path.join(root, "live", "ledger.did"), "utf8"), LEDGER);
   assert.equal(existsSync(path.join(root, "app", "x.did")), false);

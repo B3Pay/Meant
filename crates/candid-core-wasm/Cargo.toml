@@ -1,4 +1,4 @@
-# The wasm-bindgen artifact behind the `@candid-core/cli` npm package
+# The wasm-bindgen artifact behind the `@meantjs/cli` npm package
 # (issue #153): the `compiler`-feature surface of `meant` plus the
 # `candid-core-ts` generator, compiled once and consumed by the Node CLI and
 # by browsers alike. Unpublishable on crates.io by design, exactly like the
@@ -15,7 +15,7 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 license = "Apache-2.0"
-description = "wasm-bindgen build of candid-core's compiler surface plus the TypeScript generator, for the @candid-core/cli npm package"
+description = "wasm-bindgen build of meant's compiler surface plus the TypeScript generator, for the @meantjs/cli npm package"
 
 [workspace]
 

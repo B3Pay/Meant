@@ -98,7 +98,7 @@ const CONFIG_SOURCE = JSON.stringify({
     module: "esnext",
     moduleResolution: "bundler",
     allowImportingTsExtensions: true,
-    paths: { "@candid-core/schema": [SCHEMA] },
+    paths: { "@meantjs/schema": [SCHEMA] },
   },
   files: ["consumer.ts"],
 });

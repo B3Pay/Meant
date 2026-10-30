@@ -19,8 +19,13 @@ and therefore the identities computed over them. Pin an exact version.
   `"meant"`. The `producer` is outside `contract_id` and `interface_id`, so
   those identities do not move; `artifact_id` over a newly written document
   does, because it hashes the exact bytes. The Contract `format`, the
-  `candid-core:` identity prefixes, the `org.candid-core.field-names/v1`
-  extension and the `@candid-core/*` npm packages are unchanged by this rename.
+  `candid-core:` identity prefixes and the `org.candid-core.field-names/v1`
+  extension are unchanged by this rename.
+- **The npm pair follows** ([issue #306]). `@candid-core/schema` and
+  `@candid-core/cli` are `@meantjs/schema` from 0.6.0 and `@meantjs/cli` from
+  0.5.0, and the CLI's command is `meant`, the name of this crate's binary.
+  They version independently of the crate, and their changelogs record the
+  change.
 - **The repository is `B3Pay/Meant`** ([issue #287]). The owner moved it on
   2026-10-28 from the `b3hr4d` account, where it was `candid-core`, to the
   B3Pay organization. The published manifest's `repository` and `homepage`
@@ -813,3 +818,4 @@ have seen them:
 [issue #256]: https://github.com/B3Pay/Meant/issues/256
 [issue #263]: https://github.com/B3Pay/Meant/issues/263
 [issue #287]: https://github.com/B3Pay/Meant/issues/287
+[issue #306]: https://github.com/B3Pay/Meant/issues/306

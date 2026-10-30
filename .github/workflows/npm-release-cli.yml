@@ -1,4 +1,5 @@
-# Publishing @candid-core/cli — dispatch-only, mirroring npm-release.yml's
+# Publishing @meantjs/cli (published as @candid-core/cli through 0.4.0) —
+# dispatch-only, mirroring npm-release.yml's
 # discipline exactly, because this second npm name is just as permanent:
 #
 # - inputs are shape-checked before anything touches the network, and every
@@ -21,7 +22,8 @@
 # docs/releasing.md is the procedure of record. This workflow was prepared
 # per the issue #153 decision, with the @candid-core/cli name recorded with
 # owner sign-off; a dispatch of it, the owner's explicit act, published
-# 0.1.0 on 2026-08-27.
+# 0.1.0 on 2026-08-27. The owner renamed the pair to the @meantjs scope on
+# 2026-10-30.
 name: npm release (cli)
 # The acceptance of a downstream failure is part of the run's name, so the
 # runs list keeps it.

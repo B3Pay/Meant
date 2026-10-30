@@ -17,7 +17,7 @@
 // golden type-check red.
 //
 // This file lives inside the crate's type-check harness for now, imported as
-// `@candid-core/schema` via tsconfig paths. Extracting it into a published npm
+// `@meantjs/schema` via tsconfig paths. Extracting it into a published npm
 // package is its own future slice: npm names are as permanent as crates.io
 // names, and the name is not yet decided.
 
@@ -50,7 +50,7 @@ declare const principalBrand: unique symbol;
  * The brand exists only in the type system, so an arbitrary string cannot
  * stand in for a principal without a check, at no runtime cost. The name
  * matches the SDK's class: code that imports both aliases one, as in
- * `import type { Principal as CandidPrincipal } from "@candid-core/schema"`,
+ * `import type { Principal as CandidPrincipal } from "@meantjs/schema"`,
  * and code that needs an SDK instance converts at its own boundary with the
  * SDK's `Principal.fromText(value)`.
  *
@@ -368,7 +368,7 @@ export interface RecSchema<T> extends Schema<T> {
 
 /**
  * A Candid `func` *value*: a reference to a method on some service, as the
- * `{ principal, method }` pair candid-core's value domain uses. Invoking one
+ * `{ principal, method }` pair meant's value domain uses. Invoking one
  * is the job of whatever call layer sits on top of this package — the value
  * itself stays inert data — a plain object of two strings, so it serializes,
  * clones and compares field by field like the rest of a decoded value — and

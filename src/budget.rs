@@ -235,8 +235,8 @@ enum Frame {
 /// `direction`) written as a map from the variant's name to a unit:
 /// `{"nat": null}`, and, inside a tagged enum's buffered content,
 /// `{"nat": {}}`. The Contract format writes every struct as an object and
-/// every unit variant as a string: candid-core writes nothing else, the DTOs
-/// deny unknown keys, and `@candid-core/schema`'s `schemaFromContract`
+/// every unit variant as a string: meant writes nothing else, the DTOs
+/// deny unknown keys, and `@meantjs/schema`'s `schemaFromContract`
 /// refuses both forms. So the bounded loaders refuse them too, with the error
 /// a value of the wrong type gets.
 ///

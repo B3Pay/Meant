@@ -78,7 +78,7 @@
 // Nothing here throws on any value or byte string: hostile values produce
 // issues via the same choke-point pattern as `validate` (`unreadable_value`),
 // and malformed or adversarial bytes produce issues with explicit budgets in
-// candid-core's `Limits` spirit: `maxBytes` caps input size up front,
+// meant's `Limits` spirit: `maxBytes` caps input size up front,
 // `maxTypeTableEntries` mirrors `max_type_nodes`, `maxDepth`/`maxElements`
 // mirror the validate walk (every decoded or skipped value charges the same
 // budget — a zero-byte-per-element wire vector cannot decode more than
@@ -98,7 +98,7 @@
 // only bounds: with `maxDepth` raised, a 100,000-level value encodes and
 // decodes. The encoder's type table charges `maxDepth` for Candid nesting
 // depth — each combinator level at which it opens an entry, never a `rec`
-// hop — so any type the candid-core compiler accepts encodes through its
+// hop — so any type the meant compiler accepts encodes through its
 // generated module at the default limits, and a hand-built static schema
 // deeper than the limit is refused with `value_depth` like a deep value.
 // What can still
@@ -493,7 +493,7 @@ interface Failing {
  * walks of encode and decode (issue #231). A hop is an alias, a declaration
  * reference or a lazy edge, not a level of the value, so it charges neither
  * `maxDepth` nor `maxElements`: a value is charged for its constructors
- * alone, as `validate` charges it and as candid-core counts a HostValue,
+ * alone, as `validate` charges it and as meant counts a HostValue,
  * whether its schema was generated, loaded from a Contract or built with no
  * `rec` at all. What bounds a chain of thunks is the cap the type-table walk
  * applies (`resolveType`): more than `maxDepth` consecutive hops resolving one
@@ -1172,7 +1172,7 @@ class Encoder {
    * argument's own type at 0, its children at 1, and so on), and nothing for
    * `rec` hops, which are aliases and lazy edges rather than nesting
    * (`resolveType` bounds those by chain instead). That is the count the
-   * candid-core compiler bounds with `max_type_depth` (default 256, the
+   * meant compiler bounds with `max_type_depth` (default 256, the
    * default `maxDepth` here), where an alias adds no depth either, so any
    * type the compiler accepts encodes through its generated module at the
    * default limits, however it is split into declarations. A hand-built

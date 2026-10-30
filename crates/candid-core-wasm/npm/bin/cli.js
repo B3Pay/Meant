@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// The @candid-core/cli entry point:
+// The @meantjs/cli entry point:
 //
-//   candid-core-cli gen <service.did>... [-o <dir>] [--json] [--check]
-//   candid-core-cli project <in.did> --methods <a,b,...> -o <out.did> [--json]
-//   candid-core-cli check <written.did> --against <live.did> [--json]
+//   meant gen <service.did>... [-o <dir>] [--json] [--check]
+//   meant project <in.did> --methods <a,b,...> -o <out.did> [--json]
+//   meant check <written.did> --against <live.did> [--json]
 //
 // `project` writes a `.did` holding only the named methods and the types
 // they reach; `check` exits 0 when the live interface is still a Candid
@@ -19,7 +19,7 @@
 // stdout. Nothing is read from stdin, ever, and nothing is written outside
 // `-o`.
 //
-// Conventions follow the native `candid-core` binary: anything outside the
+// Conventions follow the native `meant` binary: anything outside the
 // grammar is a usage error (exit 64, usage on stderr, nothing on stdout);
 // any entry that fails (a compile or generation failure, an unreadable
 // entry, a determinism mismatch) makes the run exit 1 while the other
@@ -49,9 +49,9 @@ import {
 } from "../lib/index.js";
 
 const USAGE = [
-  "usage: candid-core-cli gen <service.did>... [-o <dir>] [--json] [--check]",
-  "       candid-core-cli project <in.did> --methods <a,b,...> -o <out.did> [--json]",
-  "       candid-core-cli check <written.did> --against <live.did> [--json]",
+  "usage: meant gen <service.did>... [-o <dir>] [--json] [--check]",
+  "       meant project <in.did> --methods <a,b,...> -o <out.did> [--json]",
+  "       meant check <written.did> --against <live.did> [--json]",
 ].join("\n");
 
 // The `--json` document's version. It changes only when an existing field's
@@ -461,7 +461,7 @@ function printFailure(failure, json, extra = {}) {
   }
 }
 
-/** `candid-core-cli project`. Returns the exit code. */
+/** `meant project`. Returns the exit code. */
 async function runProject({ entry, output, methods, json }) {
   let result;
   try {
@@ -499,7 +499,7 @@ async function runProject({ entry, output, methods, json }) {
   return 0;
 }
 
-/** `candid-core-cli check`. Returns the exit code. */
+/** `meant check`. Returns the exit code. */
 async function runCheck({ written, live, json }) {
   let report;
   try {
@@ -725,7 +725,7 @@ if (parsed.command === "project") {
   process.exitCode = await runGen(parsed);
 }
 
-/** `candid-core-cli gen`. Returns the exit code. */
+/** `meant gen`. Returns the exit code. */
 async function runGen({ entries, outDir, json, check }) {
   const reports = [];
   const drift = [];

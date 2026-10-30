@@ -1,5 +1,5 @@
 // The decoder's subtype relation against `checkCompatible`, the service-level
-// compatibility check of `@candid-core/cli`.
+// compatibility check of `@meantjs/cli`.
 //
 // `tests/goldens/compat/agreement.json` is written by the Rust tests of the
 // wasm crate (`crates/candid-core-wasm/tests/compatibility.rs`): hand-written

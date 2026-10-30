@@ -1,6 +1,6 @@
 // The issue #153 browser smoke: `didToContract` runs inside a real headless
 // page — wasm fetched over HTTP, compiled and executed by the browser — and
-// its envelope feeds `@candid-core/schema`'s `schemaFromContract`, field
+// its envelope feeds `@meantjs/schema`'s `schemaFromContract`, field
 // names included. This is the half of the browser story the Node tests
 // cannot claim: no `node:` builtin exists in the page, so everything the
 // library needs in a browser is proven present.

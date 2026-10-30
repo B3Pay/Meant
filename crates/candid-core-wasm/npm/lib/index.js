@@ -1,10 +1,10 @@
-// The library surface of @candid-core/cli: data in, data out.
+// The library surface of @meantjs/cli: data in, data out.
 // Every function hands one JSON-serializable request to the wasm compiler and
 // return its parsed JSON response verbatim — no eval and no network, nothing
 // thrown for data errors, and no filesystem access from the wasm side (this
 // module reads the embedded artifact itself on Node):
 // a failure is the same `{ ok: false, diagnostics }` document the native
-// `candid-core` CLI prints, passed through byte-for-byte.
+// `meant` CLI prints, passed through byte-for-byte.
 
 import initWasm, {
   checkCompatible as wasmCheckCompatible,
@@ -63,7 +63,7 @@ export async function didToContract(sources) {
 }
 
 /**
- * Generate the `@candid-core/schema` TypeScript module for Candid sources.
+ * Generate the `@meantjs/schema` TypeScript module for Candid sources.
  * Returns `{ ok: true, module, omitted }` with the generated text —
  * byte-identical to what the Rust-native generator emits — and the
  * declarations and methods it left out, or `{ ok: false, diagnostics }`.
@@ -75,7 +75,7 @@ export async function didToModule(sources) {
 
 /**
  * Compile Candid sources and read the `@name(key = value, …)` attributes in
- * their doc comments (`docs/doc-attributes.md` in the candid-core
+ * their doc comments (`docs/doc-attributes.md` in the Meant
  * repository). Returns `{ ok: true, contract, source_info, doc_attributes }`
  * — the Contract and SourceInfo `meant compile <path>` prints, plus
  * every documented item's prose and attributes keyed by its SourceInfo path

@@ -6,26 +6,26 @@
 //
 // Every failure is a `ValidationIssue`: `{ code, path, message }` plus a
 // `resource_limit` triple when a bound was hit — deliberately the serialized
-// shape of candid-core's own `Diagnostic` (`{code, path, message,
-// resource_limit?}`), so a consumer that already understands candid-core
+// shape of meant's own `Diagnostic` (`{code, path, message,
+// resource_limit?}`), so a consumer that already understands meant
 // violations understands these. Codes are stable snake_case strings from the
 // closed `ValidationCode` union; paths are `$`-rooted, with `.name` for
 // ASCII-identifier-shaped keys and `["…"]`/`[3]` otherwise, matching the
-// `$.declarations[3].name` style candid-core emits.
+// `$.declarations[3].name` style meant emits.
 //
 // # Bounded, fail-closed, no exceptions for control flow
 //
 // Validation never throws on any input value (a malformed *options* object
 // is a programmer error and throws `TypeError`; see `validate`): malformed
 // values produce issues, and hostile ones — cyclic objects, huge arrays, adversarially deep
-// nesting — hit explicit limits that mirror candid-core's `Limits` defaults
+// nesting — hit explicit limits that mirror meant's `Limits` defaults
 // (`maxDepth` 256 like `max_value_depth`, `maxElements` 1_000_000). A limit
 // failure is itself an issue (`resource_limit_exceeded`, resource
 // `value_depth` or `value_elements`) and terminates the walk, so a truncated
 // validation can never report `ok`. Depth counts the value's constructors,
 // the root at 0 and each child one below its parent — a variant's `null`
 // payload included, as `{ tag }` — so linked-list-shaped data consumes depth
-// per element, exactly as it does in candid-core's value domain. A `rec` hop
+// per element, exactly as it does in meant's value domain. A `rec` hop
 // charges nothing (issue #231): it is an indirection, so a value is judged
 // alike whether its schema was built with `c.rec`, generated, or loaded from
 // a Contract. A chain of more than `maxDepth` consecutive hops resolving one
@@ -154,9 +154,9 @@ export type ValidationCode =
   | "resource_limit_exceeded";
 
 /**
- * The `{resource, limit, observed}` triple, as candid-core serializes it.
+ * The `{resource, limit, observed}` triple, as meant serializes it.
  *
- * `stack` is the one resource with no candid-core counterpart: the host
+ * `stack` is the one resource with no meant counterpart: the host
  * JavaScript stack ran out mid-walk. The walks keep their own work on explicit
  * stacks, so no depth of value or schema causes it; what does is
  * user code a walk calls — a getter, a Proxy trap, a rec thunk — recursing
@@ -173,12 +173,12 @@ export interface ResourceLimitInfo {
 }
 
 /**
- * One failure. Deliberately the serialized shape of candid-core's own
+ * One failure. Deliberately the serialized shape of meant's own
  * diagnostic, so a consumer that already reads those reads these.
  */
 export interface ValidationIssue {
   readonly code: ValidationCode;
-  /** `$`-rooted path to the offending value, candid-core style. */
+  /** `$`-rooted path to the offending value, meant style. */
   readonly path: string;
   readonly message: string;
   readonly resource_limit?: ResourceLimitInfo;
@@ -218,7 +218,7 @@ export interface ValidateOptions {
 export type ValidateResult =
   { readonly ok: true } | { readonly ok: false; readonly issues: readonly ValidationIssue[] };
 
-/** Default `maxDepth`, mirroring candid-core's `max_value_depth`. */
+/** Default `maxDepth`, mirroring meant's `max_value_depth`. */
 export const DEFAULT_MAX_DEPTH = 256;
 /** Default `maxElements`: the whole-value traversal budget. */
 export const DEFAULT_MAX_ELEMENTS = 1_000_000;
@@ -1024,7 +1024,7 @@ class Walk {
     const tagOnly = arm.kind === "primitive" && arm.primitive === "null";
     if (tagOnly) {
       // The `null` payload is a value one level down, though `{ tag }`
-      // spells it by absence, so its depth is checked as candid-core checks
+      // spells it by absence, so its depth is checked as meant checks
       // a HostValue variant's payload node. It is charged no element: there
       // is nothing to read, and the examined `tag` key below is charged.
       if (!this.reach(path, depth + 1)) {

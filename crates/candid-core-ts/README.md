@@ -44,7 +44,7 @@ IDs — with a `compiler`-feature bridge from a compilation's provenance sidecar
 `vec nat8` (`blob`) renders `Uint8Array`; principals type as `Principal`, the
 canonical principal text as a branded string — what the runtime actually
 decodes and the only principal value it encodes — referenced from
-`@candid-core/schema` by default (`TsOptions::principal_import`; issue #150
+`@meantjs/schema` by default (`TsOptions::principal_import`; issue #150
 replaced the SDK-class import, and issue #187 the `{ toText }` carrier with
 canonical text). This deliberately diverges from the
 shapes the agent-js runtime produces (`[] | [T]` opts, single-key variant
@@ -98,7 +98,7 @@ being emitted. See the crate docs.
 **The generated artifact is a runtime schema, not just types.** Each
 declaration emits an invariantly-annotated builder alongside its alias —
 `const $X: $.Schema<X> = $.c.rec(() => …)` — targeting the schema core in
-`ts/schema.ts` (imported as `@candid-core/schema`, the published npm package's name). Because `Schema<in out T>` is invariant,
+`ts/schema.ts` (imported as `@meantjs/schema`, the published npm package's name). Because `Schema<in out T>` is invariant,
 the annotation makes `tsc` itself prove on every golden that the builder infers
 exactly the reviewed alias. The builders carry the structure the Zod-style
 runtime recorded on issue #38 will walk: validation, form metadata, and the
@@ -123,7 +123,7 @@ beyond the pinned TypeScript.
 
 **Every value is a `$`-prefixed local (issue #188); every type is its
 Candid name (issue #245).** A generated module imports the schema core as the
-namespace `$` (`import * as $ from "@candid-core/schema"`), binds each
+namespace `$` (`import * as $ from "@meantjs/schema"`), binds each
 declaration `X`'s builder as the local `$X`, declares its alias under the
 Candid name itself (`export type X = …`), and adds the value to that export
 name with `export { $X as X }`, so a consumer's compiler errors name the type
@@ -191,7 +191,7 @@ one refusal the two do not share.
 in `tests/goldens/`; regenerate deliberately with `UPDATE_GOLDENS=1` and review
 the diff. The goldens are additionally compiled by the exact TypeScript pinned
 in `ts/package-lock.json` under `strict` (`npm ci && npx tsc --noEmit` in
-`ts/`). Generated modules import only `@candid-core/schema` — the principal
+`ts/`). Generated modules import only `@meantjs/schema` — the principal
 type included, as `$.Principal` since issue #187 — so the check needs no peer and no stub; the
 `@icp-sdk/core` in `ts/`'s devDependencies exists only for the suite proving
 real SDK `Principal` values convert through `principal()` to the same bytes, not
