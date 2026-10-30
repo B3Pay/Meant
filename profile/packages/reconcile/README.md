@@ -1,8 +1,8 @@
 # @meantjs/reconcile
 
-Consumer rule 1 (`docs/profile-v0.md` section 7.3) without a transport: after an unknown outcome, before any new
-attempt, is the original in the ledger's ICRC-3 history? One dependency: `@meantjs/format` (principal
-text to bytes).
+Consumer rule 1 (`docs/profile-v0.md` section 5.3, outcome handling rules for consumers) without a transport: after an
+unknown outcome, before any new attempt, is the original in the ledger's ICRC-3 history? One dependency:
+`@meantjs/format` (principal text to bytes).
 
 ```sh
 npm install @meantjs/reconcile
@@ -54,8 +54,8 @@ Rules, all in the safe direction (`src/index.mjs` header):
   an approval and writes the capped amount). A block of the same operation naming another recipient or spender is
   another call. `notOriginal` takes blocks the person rejected out of the next read.
 - `absent` only when nothing can still land: every send answered (`answered`), a TooOld (`too_old`), or the
-  ledger's clock past stamp + `windowNs` (`window_passed`). `windowNs` is the ledger's own window (spec section 7.3:
-  the ledger defines it); without it nothing closes by the clock and the answer is `not_yet` with a `reason`.
+  ledger's clock past stamp + `windowNs` (`window_passed`). `windowNs` is the ledger's own window (spec section 5.3,
+  `idempotency`: the ledger defines it); without it nothing closes by the clock and the answer is `not_yet` with a `reason`.
   `DEDUP_WINDOW_NS` (24 h 2 min, the DFINITY ledger's default) is exported for a caller that has checked its ledger
   uses it. Otherwise `not_yet`. Without a ledger clock, the later of `ledgerTimeAtLeast` and the tip block's time stands in.
 - Blocks that do not cover `floor..logLength-1`, or a block in that range whose operation or amount (or stamp, when

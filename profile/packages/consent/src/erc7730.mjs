@@ -110,11 +110,26 @@ function keysOf(method, relpath) {
 const startsWith = (keys, prefix) => prefix.length <= keys.length && prefix.every((k, i) => keys[i] === k);
 
 /**
+ * ERC-7730 `visible` of a position a profile pins (`fixed`, spec section 15.4, D-058): `mustMatch` hides the field and
+ * makes a wallet refuse any other value, as `evmConsent` and `eip712Consent` do (E_FIXED). Empty for any other position.
+ */
+function pinOf(node, where) {
+  const fixed = tagArgs(node, "fixed");
+  if (fixed === undefined) return {};
+  try {
+    return { visible: { mustMatch: [readAddress(String(fixed.value))] } };
+  } catch (e) {
+    if (e instanceof AbiError) fail(CODES.RESOLVED_FORM, `${where}: fixed: ${e.message}`);
+    throw e;
+  }
+}
+
+/**
  * One ERC-7730 field for a leaf of a function's parameters or a message's members. `at` is where the leaf is:
  * `{ method, abs, base }`, its keys from the root and the keys of the field group it is in (its path is relative to it).
  */
 function fieldOf(node, path, label, ctx, where, at) {
-  const field = { path, label };
+  const field = { path, label, ...pinOf(node, where) };
   const amount = tagArgs(node, "amount");
   if (amount?.token !== undefined) {
     // In the token a field of the same value names (spec section 15.9): its path, relative to the group.
@@ -225,6 +240,7 @@ function interpolated(template, method, ctx, where) {
       if (rp.error) return ctx.problem(where, `{${p.path}}: ${rp.error}`);
       if (rp.steps.some((s) => s.kind === "elem")) return leftOut(`{${p.path}} reads every element of an array; an ERC-7730 interpolation shows one value`);
       if (rp.node.candid === "record" || rp.node.candid === "vec") return leftOut(`{${p.path}} is a whole ${rp.node.abi}; an ERC-7730 interpolation shows one formatted field`);
+      if (tagArgs(rp.node, "fixed") !== undefined) return leftOut(`{${p.path}} is pinned (fixed), so its field is hidden (mustMatch); an ERC-7730 interpolation names only fields that are always shown`);
       out += `{${rp.steps.map((s) => s.key).join(".")}}`;
     }
   }

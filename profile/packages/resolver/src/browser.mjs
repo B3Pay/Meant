@@ -35,7 +35,8 @@ export const PROFILE_SCHEMA = schema;
 
 /**
  * The standard packs (copies of packs/*.profile.json whose kind is "pack"), sorted by file name, in the shape
- * `loadPacks` returns. The standard contract profiles there (Permit2, DAI's permit) are under `./packs/*` too.
+ * `loadPacks` returns. The standard contract profiles there (Permit2, DAI's permit, USDC, x402's Permit2 payment) are
+ * under `./packs/*` too.
  */
 export const STANDARD_PACKS = Object.freeze([
   { file: "erc20.profile.json", doc: erc20 },

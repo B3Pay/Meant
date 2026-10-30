@@ -2,6 +2,20 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.5.0 — 2026-10-30
+
+- Pins (spec §15.4, D-058): `evmConsent` and `eip712Consent` refuse a call or a signing request whose value at a
+  position a profile pins (`fixed`) is another address, before any text (new code `E_FIXED`). x402's Permit2 payment
+  needs it: its words hold only when the spender is x402's proxy. A pin whose value is not an address is
+  `E_RESOLVED_FORM`.
+- `erc7730Descriptor` writes a pinned position as a field with `visible: { mustMatch: [address] }`, which a wallet
+  hides and checks; a template that names one gets no `interpolatedIntent`, and `notes` says why.
+- x402 payments read with the new contract profiles of `@meantjs/profile` (`usdc`, `usdc-base-sepolia`,
+  `x402-exact-permit2`), and their grants pay the payee directly (`to`), so terms for one payee pass no payment to
+  another.
+- The ERC-7730 file of the `permit2` profile's messages lists its two new deployments (Base and Base Sepolia), so its
+  `descriptorHash` changed; a caller that passes the earlier `deployments` gets the earlier file.
+
 ## 0.4.0 — 2026-10-30
 
 - What a request grants (spec §5.3, D-056). `evmConsent`, `eip712Consent` and `generateConsent` also return `values`,

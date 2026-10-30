@@ -28,6 +28,25 @@ test("the packs' grants: the eight requests of the proposal, as the fixtures car
   for (const name of ["PermitBatch", "PermitBatchTransferFrom"]) assert.equal(permit2.messages[name].tags.effect.args.grant, undefined, name);
 });
 
+test("x402's payments grant one transfer to the payee the message names, until it can no longer be submitted (D-058)", async () => {
+  const usdcGrant = { to: "to", amount: "value", ends: ["validBefore"] };
+  for (const [pack, name, grant] of [
+    ["usdc", "TransferWithAuthorization", usdcGrant],
+    ["usdc", "ReceiveWithAuthorization", usdcGrant],
+    ["usdc-base-sepolia", "TransferWithAuthorization", usdcGrant],
+    ["usdc-base-sepolia", "ReceiveWithAuthorization", usdcGrant],
+    ["x402-exact-permit2", "PermitWitnessTransferFrom", { to: "witness.to", amount: "permitted.amount", ends: ["deadline"] }],
+  ]) {
+    const fixture = await readJson(`fixtures/${pack}.resolved.json`);
+    assert.deepEqual(fixture.messages[name].tags.effect.args, { kind: "transfer", irreversible: true, grant }, `${pack} ${name}`);
+  }
+  // cancelling a payment signature grants nothing, so no terms cover it
+  for (const pack of ["usdc", "usdc-base-sepolia"]) {
+    const fixture = await readJson(`fixtures/${pack}.resolved.json`);
+    assert.deepEqual(fixture.messages.CancelAuthorization.tags.effect.args, { kind: "write", irreversible: true }, pack);
+  }
+});
+
 // ------------------------------------------------------------------------------------------------ an EIP-712 message
 
 const TYPES = {

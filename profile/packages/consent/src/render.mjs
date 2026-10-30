@@ -2,7 +2,7 @@
 //
 // FieldsDisplayMessage (plain text, no formatting; times are UTC seconds, so the message does not depend on the
 // user's time zone):
-//   intent  = title + ": " + the rendered template      (no template: the title alone)
+//   intent  = title + ": " + the rendered template      (the title alone when the template renders empty or fell back)
 //   fields  = one (label, Value) row per placeholder; label = describe.label, else the field name
 //
 // GenericDisplayMessage (Markdown, the layout of the ICRC-21 examples: a `#` title, one paragraph, then

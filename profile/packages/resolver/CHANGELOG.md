@@ -2,6 +2,26 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.5.0 — 2026-10-30
+
+- Pins, experimental (spec §15.4, D-058): the new tag `fixed`, with `value` one address, says that a profile describes
+  a call or an EIP-712 message only with that address at an `address` position of its arguments. Elsewhere it is
+  `E_TAG_TARGET` or `E_TAG_NOT_APPLICABLE`, a value with a bad checksum `E_ADDRESS_CHECKSUM`, and two profiles that pin
+  one position to different addresses conflict in any layers (`E_CONFLICT`, at the lower one). A profile with a pin
+  that does not hold supplies only its effects, without grants, and its pins that hold; a pin's error is never an
+  `I_PACK_ANNOTATION_SKIPPED`. The resolved form carries the tag.
+- New standard contract profiles, shipped beside the packs: `usdc` and `usdc-base-sepolia` (USDC's EIP-3009
+  messages `TransferWithAuthorization`, `ReceiveWithAuthorization` and `CancelAuthorization` on Ethereum, Base and
+  Arbitrum, and on Base Sepolia, whose USDC signs under another domain name), and `x402-exact-permit2` (x402's
+  `exact` payment through Permit2, its spender pinned to x402's proxy). The `permit2` profile also lists Base and Base
+  Sepolia (chains 8453 and 84532), so its profile id changed.
+- A contract profile resolved against another ABI (`resolveService({ abi })`, `candid-profile resolve --abi`) reports
+  `W_REBOUND` and `E_STALE` at `binds.abi`, naming the identity of its ABI (spec §15.3, D-057). They were reported at
+  `binds.interface_id`, which a contract profile does not have, and `W_REBOUND` read "profile is bound to undefined".
+  Canister profiles are unchanged.
+- Docs: the spec now lists `named` among the tags a stale profile does not supply, as the resolver has done since D-045;
+  the README and `served.mjs` no longer point at the kit, which is not public yet.
+
 ## 0.4.0 — 2026-10-30
 
 - What a call grants (spec §5.3, D-056): an `effect` of kind `transfer` or `approve` may carry `grant`, the positions of

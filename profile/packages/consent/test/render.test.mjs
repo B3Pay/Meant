@@ -148,6 +148,17 @@ test("template: a placeholder the method lacks drops its optional segment, and o
   assert.equal(r.diagnostics[0].code, "W_TEMPLATE_FALLBACK");
 });
 
+test("template: one that renders as empty text leaves the title alone, with no paragraph (spec section 12 rule 1)", () => {
+  const resolved = syntheticResolved("note", [{ candid: "record", fields: { text: { candid: "text", optional: true } } }], {
+    intent: tag({ title: "Note", template: "[Say {text}]" }),
+  });
+  const arg = encodeCall("note", `(record { text = null })`, `service : { note : (record { text : opt text }) -> () }`);
+  assert.deepEqual(fields(generateConsent({ resolved, method: "note", arg, form: "fields" })), { intent: "Note", fields: [] });
+  const r = generateConsent({ resolved, method: "note", arg, form: "generic" });
+  assert.equal(generic(r), "# Note");
+  assert.deepEqual(r.diagnostics, []);
+});
+
 test("generic intent: a method without an intent tag uses describe.label or the method name, and lists its arguments", () => {
   const balanceArgs = `(record { owner = principal "${ALICE}"; subaccount = opt ${subaccountText(2)} })`;
   const labelled = generateConsent({ resolved: icrc1, method: "icrc1_balance_of", arg: encodeCall("icrc1_balance_of", balanceArgs), refs: TKA, form: "generic" });

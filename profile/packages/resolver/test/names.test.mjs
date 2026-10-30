@@ -90,3 +90,16 @@ test("a named text position without a text.pattern is W_NAMED_UNPATTERNED, and a
   assert.deepEqual(byCode(r, "W_NAMED_UNPATTERNED"), []);
   assert.equal(r.ok, true, JSON.stringify(errors(r)));
 });
+
+test("a stale profile does not supply named, since a name stands in for a value (spec section 7), and keeps names", async () => {
+  const changed = DID.replace("count : () -> (nat) query;", "total : () -> (nat) query;");
+  const r = await resolve(changed, { profiles: [canisterProfile({ interfaceId, annotations: [
+    ACCOUNTS,
+    { at: "propose(0).from", tag: "named", args: { set: "account" } },
+    { at: "count", tag: "describe", args: { label: "Count" } },
+  ] })] });
+  assert.equal(r.profiles[0].status, "stale");
+  assert.deepEqual(byCode(r, "E_ADDR_UNRESOLVED").map((d) => d.at), ["count"]);
+  assert.equal(r.resolved.methods.propose.args[0].fields.from.tags?.named, undefined);
+  assert.deepEqual(r.resolved.methods.accounts.tags.names.args, ACCOUNTS.args, "names is a method tag, not a value conversion");
+});

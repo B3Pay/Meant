@@ -2,11 +2,11 @@
  * A profile served by its canister (spec section 8.1, D-048): the public custom section `icp:public candid:profile`,
  * read by a consumer through a certified `read_state` at `/canister/<id>/metadata/candid:profile`.
  *
- * This module reads the section's bytes; it does not fetch them, so the library keeps no agent dependency (the kit's
- * `fetch` does the network part). What it checks is what only a served profile can get wrong: the bytes are UTF-8
- * JSON of at most 1 MiB, the document is a `canister` profile of origin `author`, and its `binds.canister_id`, when
- * given, is the canister that served it. Everything else (the schema, the binding to the interface the same canister
- * serves as `candid:service`, every tag) is `resolveService`'s, as for any profile.
+ * This module reads the section's bytes; it does not fetch them, so the library keeps no agent dependency (the caller
+ * does the network part, for example with `@icp-sdk/core`'s `readState`). What it checks is what only a served profile
+ * can get wrong: the bytes are UTF-8 JSON of at most 1 MiB, the document is a `canister` profile of origin `author`,
+ * and its `binds.canister_id`, when given, is the canister that served it. Everything else (the schema, the binding to
+ * the interface the same canister serves as `candid:service`, every tag) is `resolveService`'s, as for any profile.
  *
  * New diagnostic code (spec section 13): E_SERVED.
  */
@@ -23,7 +23,7 @@ const decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 /**
  * @param bytes          the content of the canister's `candid:profile` metadata (a Uint8Array)
  * @param opts.canisterId the textual id of the canister that served it; null only before the module is installed
- *                       anywhere (the kit's `embed`), which leaves `binds.canister_id` unchecked
+ *                       anywhere (a section added to a built module), which leaves `binds.canister_id` unchecked
  * @param opts.label     how diagnostics name the input (default "candid:profile")
  * @returns { ok, doc, diagnostics }  `doc` is the parsed profile, or null when it cannot be used (E_SERVED)
  */

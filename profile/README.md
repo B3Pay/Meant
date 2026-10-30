@@ -76,7 +76,7 @@ with `candid:service` in one certified request (spec section 8.1).
 
 | | |
 |---|---|
-| [`docs/profile-v0.md`](docs/profile-v0.md) | The spec: addresses, the 18 tags, templates, binding, precedence, security |
+| [`docs/profile-v0.md`](docs/profile-v0.md) | The spec: addresses, the 19 tags, templates, binding, precedence, security |
 | [`spec/profile-v0.schema.json`](spec/profile-v0.schema.json) | The JSON Schema of a profile |
 | [`packs/`](packs) | The standard packs, ICRC-1 and ICRC-2 |
 | [`docs/open-questions.md`](docs/open-questions.md) | What is not settled yet |
