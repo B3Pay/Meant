@@ -1,6 +1,6 @@
-# @candid-core/schema
+# @meantjs/schema
 
-A Zod-style schema runtime for [Candid], driven by [candid-core]'s canonical
+A Zod-style schema runtime for [Candid], driven by [Meant]'s canonical
 Contract model: schema builders with static inference, structural validation,
 a TypeScript-native Candid binary codec, and a loader that builds the same
 schemas from a Contract document at runtime. It is the Candid layer only —
@@ -8,35 +8,42 @@ calling a canister (transports, identity, actors) belongs to the layer you
 build on top of it ([below](#services-and-func-references)).
 
 ```sh
-npm install --save-exact @candid-core/schema
+npm install --save-exact @meantjs/schema
 ```
 
 That is the whole install: no runtime dependencies and no peers, principal
 handling included ([principal values](#principal-values) below).
 
-> **0.5.0, the `latest` release.** This README describes 0.5.0. Upgrading
-> from 0.4.0 changes nothing at run time but one omission rule of
-> [`schemaFromContract`](#from-a-did-file), and breaks code only at
-> the type level: `decode` and `decodeArgs` from `./codec` now type their
-> values by their schemas, so a cast from a decoded value to a
-> type its schema does not describe stops compiling. Move the two packages
-> together: `@candid-core/cli` 0.4.0 pairs with exactly this release.
-> Upgrading from 0.3.0 adds the type-only
-> [`WithMode` and `ModeOf`](#services-and-func-references), which the modules
-> the CLI generates since 0.3.0 use. Upgrading from 0.2.0 is a breaking
-> change: 0.2.0 also exports `./actor`,
+> **0.6.0, the `latest` release, and the first under the name
+> `@meantjs/schema`.** Through 0.5.0 this package was published as
+> `@candid-core/schema`. 0.6.0 is 0.5.0's code under the new name, so
+> upgrading from `@candid-core/schema` 0.5.0 changes the name you import and
+> nothing else: replace `@candid-core/schema` with `@meantjs/schema` in every
+> import, regenerate committed modules with `@meantjs/cli` 0.5.0 (the new
+> name of `@candid-core/cli`, whose command is now `meant`), which pairs with
+> exactly this release, and uninstall the old package. The strings inside
+> Contract documents keep their names, such as the
+> `candid-core:interface:v1:sha256:…` identities. Upgrading from 0.4.0 also
+> changes one omission rule of [`schemaFromContract`](#from-a-did-file), and
+> breaks code at the type level: `decode` and `decodeArgs` from `./codec`
+> type their values by their schemas, so a cast from a decoded value to a
+> type its schema does not describe stops compiling. Upgrading from 0.3.0
+> adds the type-only [`WithMode` and `ModeOf`](#services-and-func-references),
+> which the modules the CLI generates since its 0.3.0 use. Upgrading from
+> 0.2.0 is a breaking change: 0.2.0 also exports `./actor`,
 > `./transport-icp`, `./forms` and `./labels`, declares an optional
 > `@icp-sdk/core` peer, types a principal as `{ toText(): string }`, and
 > refuses `opt opt T`, `opt null` and `opt reserved`. Keep `--save-exact`:
 > the package is pre-1.0, so any minor release may break the next, and
-> `@candid-core/cli` pairs with exactly one release of it.
+> `@meantjs/cli` pairs with exactly one release of it.
 >
 > `@candid-core/schema` 0.3 breaks the 0.2 API (principal values are canonical text, collapsing opts are boxed, every `vec nat8` is a `Uint8Array`, generated modules use a new binding layout and may omit declarations, and the `./actor`, `./transport-icp`, `./forms` and `./labels` subpaths are gone); there is no compatibility layer.
 >
 > Every change is recorded in the [changelog](./CHANGELOG.md), which ships
-> in the tarball: since 0.4.0 under `0.5.0`, since 0.3.0 under `0.5.0` and
-> `0.4.0`, and since 0.2.0 under those, `0.3.0` and `0.3.0-beta.1`. The
-> migration notes
+> in the tarball: since 0.5.0 under `0.6.0`, since 0.4.0 under `0.6.0` and
+> `0.5.0`, since 0.3.0 under those and `0.4.0`, and since 0.2.0 under those,
+> `0.3.0` and `0.3.0-beta.1`. The migration notes
+> [from 0.5.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-5.html),
 > [from 0.4.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-4.html),
 > [from 0.3.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-3.html)
 > and [from 0.2.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-2.html)
@@ -44,9 +51,9 @@ handling included ([principal values](#principal-values) below).
 > the compiler shows it.
 
 ```ts
-import { c, principal, type Infer } from "@candid-core/schema";
-import { validate } from "@candid-core/schema/validate";
-import { encode, decode } from "@candid-core/schema/codec";
+import { c, principal, type Infer } from "@meantjs/schema";
+import { validate } from "@meantjs/schema/validate";
+import { encode, decode } from "@meantjs/schema/codec";
 
 const Account = c.record({ owner: c.principal, balance: c.nat });
 type Account = Infer<typeof Account>; // { owner: Principal; balance: bigint }
@@ -120,8 +127,8 @@ too. This is the contract in both directions:
   with `principal()`, which takes text or anything with `toText()`:
 
 ```ts
-import { c, isPrincipal, principal, type Principal } from "@candid-core/schema";
-import { encode } from "@candid-core/schema/codec";
+import { c, isPrincipal, principal, type Principal } from "@meantjs/schema";
+import { encode } from "@meantjs/schema/codec";
 
 declare const sdkPrincipal: { toText(): string }; // an @icp-sdk/core Principal, say
 
@@ -146,21 +153,21 @@ string cannot stand in for a principal without that check, at no runtime
 cost.
 
 The name matches the SDK's class. Code that imports both aliases one:
-`import type { Principal as CandidPrincipal } from "@candid-core/schema"`.
+`import type { Principal as CandidPrincipal } from "@meantjs/schema"`.
 
 ## From a `.did` file
 
 Two routes compile Candid source into the document `schemaFromContract`
 consumes, and both produce exactly the schemas the generated modules carry.
 
-With no Rust toolchain, [`@candid-core/cli`](https://www.npmjs.com/package/@candid-core/cli)
+With no Rust toolchain, [`@meantjs/cli`](https://www.npmjs.com/package/@meantjs/cli)
 runs the same compiler and generator as WebAssembly. It writes the generated
 module and a `ContractEnvelope` document, `./generated/service.envelope.json`,
 which is byte-identical to the `compile --envelope` output below:
 
 ```sh
-# The CLI release that pairs with this one: it peers exactly 0.5.0.
-npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
+# The CLI release that pairs with this one: it peers exactly 0.6.0.
+npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
 ```
 
 With the Rust crate, it is two commands. Install the compiler, `meant`, which
@@ -182,7 +189,7 @@ identities by design, so carrying them never moves a `contract_id`.
 
 ```ts
 import { readFileSync } from "node:fs";
-import { schemaFromContract } from "@candid-core/schema/contract";
+import { schemaFromContract } from "@meantjs/schema/contract";
 
 const built = schemaFromContract(JSON.parse(readFileSync("./service.json", "utf8")));
 if (!built.ok) {
@@ -200,7 +207,7 @@ The two-file flow also works: plain `compile` (no `--envelope`) prints
 the `names` option alongside the bare `contract`:
 
 ```ts
-import { schemaFromContract, type FieldNameEntry } from "@candid-core/schema/contract";
+import { schemaFromContract, type FieldNameEntry } from "@meantjs/schema/contract";
 
 declare const compiled: { contract: unknown };
 declare const names: FieldNameEntry[];
@@ -252,8 +259,8 @@ schemas — and the codec turns each call's arguments and reply into Candid
 bytes, which is everything a call layer needs from this package:
 
 ```ts
-import { c, principal, serviceMethods } from "@candid-core/schema";
-import { encodeArgs, decodeArgs } from "@candid-core/schema/codec";
+import { c, principal, serviceMethods } from "@meantjs/schema";
+import { encodeArgs, decodeArgs } from "@meantjs/schema/codec";
 
 const Account = c.record({ owner: c.principal, subaccount: c.opt(c.vec(c.nat8)) });
 const Ledger = c.service({
@@ -291,7 +298,7 @@ intersected with `WithMode<mode>`, and `ModeOf` reads the mode back, so a call
 layer can refuse an update where it builds a read at compile time.
 
 ```ts
-import type { ModeOf, WithMode } from "@candid-core/schema";
+import type { ModeOf, WithMode } from "@meantjs/schema";
 
 type Actor = {
   fee: (() => Promise<bigint>) & WithMode<"query">;
@@ -314,8 +321,8 @@ those field names, and one that cannot type the error payload. Whether a reply
 *is* a result, and what each arm carries, is a schema fact:
 
 ```ts
-import { c, type Infer } from "@candid-core/schema";
-import { isResultSchema, unwrapResult } from "@candid-core/schema/validate";
+import { c, type Infer } from "@meantjs/schema";
+import { isResultSchema, unwrapResult } from "@meantjs/schema/validate";
 
 const TransferError = c.variant({
   bad_fee: c.record({ expected_fee: c.nat }),
@@ -389,7 +396,7 @@ is claimed.
 
 **From CommonJS**, the two floors are independent. At runtime, `require()` of
 an ES module is what Node added in 20.19 and 22.12; below those it throws
-`ERR_REQUIRE_ESM`, while `await import("@candid-core/schema")` succeeded on
+`ERR_REQUIRE_ESM`, while `await import("@meantjs/schema")` succeeded on
 every version tested. At the type level, a `"type": "commonjs"` project needs
 TypeScript 5.8 *and* `"module": "nodenext"` — `"module": "node16"` is pinned
 to Node 16 semantics and still refuses with `TS1479` on every compiler tested,
@@ -435,5 +442,5 @@ release, the compiler crate version it pairs with (`meant`, published as
 `candid-core` before its rename).
 
 [Candid]: https://github.com/dfinity/candid
-[candid-core]: https://github.com/B3Pay/Meant
+[Meant]: https://github.com/B3Pay/Meant
 [B3Pay/Meant]: https://github.com/B3Pay/Meant

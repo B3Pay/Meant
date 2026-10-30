@@ -5,8 +5,8 @@
 //! string the Contract format writes: `{"nat": null}` for `"nat"`. Inside the
 //! buffered content of an internally tagged enum (a type node's `primitive`
 //! and a func's `mode`), serde also reads `{"nat": {}}`. The format writes
-//! every unit variant as a string: candid-core writes nothing else, and
-//! `@candid-core/schema`'s `schemaFromContract` refuses the map form. These
+//! every unit variant as a string: meant writes nothing else, and
+//! `@meantjs/schema`'s `schemaFromContract` refuses the map form. These
 //! tests write each unit-variant position of every document a bounded loader
 //! reads (Contract, envelope, Compilation and its `SourceInfo` sidecar) in
 //! each spelling, otherwise unchanged. A spelling serde read before is now

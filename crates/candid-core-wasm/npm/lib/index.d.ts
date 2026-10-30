@@ -1,5 +1,5 @@
 /**
- * The library surface of `@candid-core/cli`: data in, data out.
+ * The library surface of `@meantjs/cli`: data in, data out.
  *
  * Every type here describes what the wasm compiler actually serializes. In
  * particular a {@link Diagnostic} carries only `code` and `message`
@@ -63,7 +63,7 @@ export interface Diagnostic {
 }
 
 /**
- * The failure document, identical to what the native `candid-core` CLI
+ * The failure document, identical to what the native `meant` CLI
  * prints. Nothing is thrown for a data error.
  */
 export interface Failure {
@@ -169,7 +169,7 @@ export function init(input?: unknown): Promise<void>;
 export function didToContract(sources: Sources): Promise<ContractEnvelope | Failure>;
 
 /**
- * Generate the `@candid-core/schema` TypeScript module for Candid sources,
+ * Generate the `@meantjs/schema` TypeScript module for Candid sources,
  * byte-identical to what the Rust-native generator emits, with the list of
  * declarations and methods it had to leave out.
  *
@@ -435,7 +435,7 @@ export function checkCompatible(
 ): Promise<CompatibilityReport | CheckFailure>;
 
 /**
- * What happened to one entry of `candid-core-cli gen`.
+ * What happened to one entry of `meant gen`.
  *
  * - `written`: the entry generated and at least one of its two files was
  *   created or changed on disk.
@@ -494,7 +494,7 @@ export interface CliEntryReport {
 }
 
 /**
- * The one document `candid-core-cli gen … --json` prints on stdout, and
+ * The one document `meant gen … --json` prints on stdout, and
  * nothing else: stderr stays empty. The process exit code is 0 exactly when
  * `ok` is true, and 1 otherwise. A usage error exits 64 and prints no
  * document.

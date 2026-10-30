@@ -7,7 +7,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "paths": {
-      "@candid-core/schema": [
+      "@meantjs/schema": [
         "./schema.ts"
       ]
     }

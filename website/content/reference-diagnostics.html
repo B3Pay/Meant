@@ -453,7 +453,7 @@ match Contract::from_slice_with_context(document, &context) {
     The stable release before those, <code>0.2.0</code>, has
     the old surface: its closed unions differ (no <code>stack</code> resource, and a contract code for
     <code>opt opt</code>), and a bad options object does not throw.
-    <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The Rust half is unchanged. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since.
+    <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The Rust half is unchanged. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code>, with <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which is this package&rsquo;s code under a new name: an import on this page changes name, its subpath keeps its own, and nothing else changes. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
   </p>
 </callout>
 
@@ -468,7 +468,7 @@ match Contract::from_slice_with_context(document, &context) {
 <pre data-lang="ts" data-file="crates/candid-core-ts/ts/validate.ts" data-partial>
 export interface ValidationIssue {
   readonly code: ValidationCode;
-  /** `$`-rooted path to the offending value, candid-core style. */
+  /** `$`-rooted path to the offending value, meant style. */
   readonly path: string;
   readonly message: string;
   readonly resource_limit?: ResourceLimitInfo;

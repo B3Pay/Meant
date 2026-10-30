@@ -20,7 +20,7 @@ This document is the syntax and the data model. It gives no attribute a meaning:
 arguments say belongs to the tool that reads them (Candid Profile, for example, reads `@amount`, `@intent` and the rest
 of its tags). candid-core parses every attribute the same way, refuses a malformed one, and hands each out with the
 place it was written. `DocAttributes::from_source_info` is the Rust entry point and `didToDocAttributes` the
-`@candid-core/cli` one.
+`@meantjs/cli` one (`@candid-core/cli` through 0.4.0).
 
 Attributes live in the [`SourceInfo`](contract-graph.md) sidecar, never in the Contract: adding, changing or removing
 one changes `source_bundle_id` (the source text changed) and never `contract_id` or `interface_id`.

@@ -1,27 +1,38 @@
-# @candid-core/cli
+# @meantjs/cli
 
-Candid `.did` interfaces to [`@candid-core/schema`] runtimes, with no Rust
-toolchain: the [candid-core] compiler and its TypeScript generator compiled
+Candid `.did` interfaces to [`@meantjs/schema`] runtimes, with no Rust
+toolchain: the [Meant] compiler and its TypeScript generator compiled
 to WebAssembly, usable as a Node CLI and as a browser library. Data in, data
 out — no eval, no network, and nothing generated is ever executed.
 
-> **0.4.0, the `latest` release.** This README describes 0.4.0. Upgrading
-> from 0.3.0 adds [`didToDocAttributes`](#doc-attributes), which reads
-> `@name(…)` attributes in a `.did`'s doc comments, and an `identities`
-> object on each entry of `gen --json`. It changes every envelope `gen`
-> writes, whose `producer` now names `meant` 0.1.0, the compiler crate
-> published as `candid-core` before its rename; and it changes the module
-> text where a declared `blob`, `record {}` or `variant {}` is used, which
-> now renders as itself. So regenerate committed files: `gen --check`
-> reports each envelope 0.3.0 wrote as drifted. No Contract and no identity
-> moves. The modules this release emits pair with `@candid-core/schema`
-> 0.5.0 exactly, which is the optional peer it declares; install the two as
-> a pair, each with `--save-exact`: `npm install --save-exact
-> @candid-core/schema` and `npm install --save-dev --save-exact
-> @candid-core/cli`. Upgrading from 0.2.0 also changes the text of every
-> module with a declaration or an actor (each type is declared under its
-> Candid name, and each method of `Actor` carries its mode) and adds the
-> `project` and `check` commands
+> **0.5.0, the `latest` release, and the first under the name
+> `@meantjs/cli`.** Through 0.4.0 this package was published as
+> `@candid-core/cli`, with the command `candid-core-cli`. 0.5.0 is 0.4.0's
+> code under new names: the command is `meant`, and the modules it writes
+> import `@meantjs/schema`, the new name of `@candid-core/schema`. To upgrade
+> from 0.4.0, install the new pair in place of the old one, each with
+> `--save-exact`: `npm install --save-exact @meantjs/schema` and
+> `npm install --save-dev --save-exact @meantjs/cli`. Replace
+> `candid-core-cli` with `meant` in your scripts, and run `meant gen` again:
+> each module's header line and import change and nothing else in it does,
+> and the envelopes are byte-identical to 0.4.0's. Until then, `gen --check`
+> reports each module 0.4.0 wrote as drifted. Run the command as
+> `npx @meantjs/cli`, or as `meant` from a script in your `package.json`;
+> never as a bare `npx meant`, which, where this package is not installed,
+> would offer to download another author's package of that name. In a shell,
+> a bare `meant` is whichever comes first on the `PATH`, which can be the Rust
+> compiler's binary, with `compile` and `validate` only. The strings
+> inside Contract documents keep their names, such as the
+> `candid-core:interface:v1:sha256:…` identities the command prints.
+> Upgrading from 0.3.0 also adds [`didToDocAttributes`](#doc-attributes),
+> which reads `@name(…)` attributes in a `.did`'s doc comments, and an
+> `identities` object on each entry of `gen --json`; it changes every
+> envelope, whose `producer` names `meant` 0.1.0, and the module text where a
+> declared `blob`, `record {}` or `variant {}` is used, which renders as
+> itself. No Contract and no identity moves. Upgrading from 0.2.0 also
+> changes the text of every module with a declaration or an actor (each type
+> is declared under its Candid name, and each method of `Actor` carries its
+> mode) and adds the `project` and `check` commands
 > ([Projection and compatibility](#projection-and-compatibility)).
 > Upgrading from 0.1.0 is a larger break: 0.1.0 emits modules in an older
 > layout with an object-shaped principal type, refuses a whole interface
@@ -31,9 +42,10 @@ out — no eval, no network, and nothing generated is ever executed.
 > `@candid-core/schema` 0.3 breaks the 0.2 API (principal values are canonical text, collapsing opts are boxed, every `vec nat8` is a `Uint8Array`, generated modules use a new binding layout and may omit declarations, and the `./actor`, `./transport-icp`, `./forms` and `./labels` subpaths are gone); there is no compatibility layer.
 >
 > Every change is recorded in the [changelog](./CHANGELOG.md), which ships
-> in the tarball: since 0.3.0 under `0.4.0`, since 0.2.0 under `0.4.0` and
-> `0.3.0`, and since 0.1.0 under those, `0.2.0` and `0.2.0-beta.1`. The
-> migration notes
+> in the tarball: since 0.4.0 under `0.5.0`, since 0.3.0 under `0.5.0` and
+> `0.4.0`, since 0.2.0 under those and `0.3.0`, and since 0.1.0 under those,
+> `0.2.0` and `0.2.0-beta.1`. The migration notes
+> [from 0.4.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-5.html),
 > [from 0.3.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-4.html),
 > [from 0.2.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-3.html)
 > and [from 0.1.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-2.html)
@@ -41,7 +53,7 @@ out — no eval, no network, and nothing generated is ever executed.
 > the compiler shows it.
 
 ```sh
-npx @candid-core/cli gen ./service.did -o ./generated
+npx @meantjs/cli gen ./service.did -o ./generated
 ```
 
 `gen` takes one or more entries (`gen <a.did> [<b.did> …]`), and two flags:
@@ -50,7 +62,7 @@ and `--check` compares instead of writing. See [The command](#the-command).
 
 That emits three things:
 
-- **`service.ts`** — the generated `@candid-core/schema` module: one reviewed
+- **`service.ts`** — the generated `@meantjs/schema` module: one reviewed
   type alias and one invariantly-annotated schema builder per declaration,
   both exported under its Candid name (the alias declared as that name, so
   compiler errors read it; the builder bound as a `$`-prefixed local), with
@@ -86,7 +98,7 @@ enforced, not assumed.
 ## The command
 
 ```text
-candid-core-cli gen <service.did>... [-o <dir>] [--json] [--check]
+meant gen <service.did>... [-o <dir>] [--json] [--check]
 ```
 
 **Several entries.** Each entry generates its own module and envelope, named
@@ -137,7 +149,7 @@ output file is missing or differs, listing each on stderr (`missing <path>` or
 `drifted <path>`):
 
 ```sh
-npx @candid-core/cli gen ./service.did -o ./generated --check
+npx @meantjs/cli gen ./service.did -o ./generated --check
 ```
 
 Use it in CI to fail when committed output is stale. A compile error is a
@@ -216,7 +228,7 @@ host path: an absolute path appears only if you passed one.
 ## The library
 
 ```js
-import { didToContract, didToModule } from "@candid-core/cli";
+import { didToContract, didToModule } from "@meantjs/cli";
 
 const envelope = await didToContract("service : { ping : () -> () };");
 // → the ContractEnvelope document ("contract" in envelope), or
@@ -237,12 +249,12 @@ Both functions accept either a string of Candid text or
 `{ entry, files: { name: text } }` for a multi-file bundle. In a browser the
 wasm is fetched relative to the module automatically; call
 `init(bytesOrUrl)` first to supply it yourself. Feed `didToContract`'s
-result straight to `schemaFromContract` from [`@candid-core/schema`] — the
+result straight to `schemaFromContract` from [`@meantjs/schema`] — the
 envelope carries the field names, so one document is the whole hand-off:
 
 ```js
-import { didToContract } from "@candid-core/cli";
-import { schemaFromContract } from "@candid-core/schema/contract";
+import { didToContract } from "@meantjs/cli";
+import { schemaFromContract } from "@meantjs/schema/contract";
 
 const built = schemaFromContract(await didToContract(didText));
 ```
@@ -258,8 +270,8 @@ Two commands for an interface you do not own, such as a canister's published
 so getting the live interface is your build step's job.
 
 ```text
-candid-core-cli project <in.did> --methods <a,b,...> -o <out.did> [--json]
-candid-core-cli check <written.did> --against <live.did> [--json]
+meant project <in.did> --methods <a,b,...> -o <out.did> [--json]
+meant check <written.did> --against <live.did> [--json]
 ```
 
 **`project`** writes a `.did` holding only the methods you name and every
@@ -301,7 +313,7 @@ file of another size is replaced without being read; `--json` prints
 and `{ ok: false, diagnostics }` for any failure.
 
 ```sh
-npx @candid-core/cli project ./live/ledger.did --methods icrc1_balance_of,icrc1_transfer -o ./src/ledger.did
+npx @meantjs/cli project ./live/ledger.did --methods icrc1_balance_of,icrc1_transfer -o ./src/ledger.did
 ```
 
 **`check`** exits `0` when the live interface is still a Candid subtype of the
@@ -372,7 +384,7 @@ changed compatibly: `project` prints the input's, so record it when you write
 the projection, and compare it with what `check` prints later.
 
 ```js
-import { checkCompatible, projectDid } from "@candid-core/cli";
+import { checkCompatible, projectDid } from "@meantjs/cli";
 
 const projected = await projectDid(liveDid, ["icrc1_balance_of", "icrc1_transfer"]);
 // → { ok: true, did, methods, input, projection } — the text, the methods it
@@ -390,7 +402,7 @@ const report = await checkCompatible(writtenDid, liveDid);
 Both take Candid text or `{ entry, files }`, as `didToModule` does. The check
 is one Rust implementation compiled into this package's WebAssembly, tested
 against the subtype check of the `candid` crate it pins and against the one
-`@candid-core/schema`'s decoder runs on a `func` or `service` reference. Where the `candid` crate accepts a pair that is not a
+`@meantjs/schema`'s decoder runs on a `func` or `service` reference. Where the `candid` crate accepts a pair that is not a
 subtype (its coinductive memo can keep a pair proven under an assumption it
 later retracted), this check refuses it, as the decoder does.
 
@@ -413,7 +425,7 @@ service : {
 ```
 
 ```js
-import { didToDocAttributes } from "@candid-core/cli";
+import { didToDocAttributes } from "@meantjs/cli";
 
 const result = await didToDocAttributes(didText);
 if (result.ok) {
@@ -471,7 +483,7 @@ contract and lists them the same way.
 ## Failures
 
 Nothing throws for data errors and nothing half-succeeds: a compile failure
-is `{ ok: false, diagnostics }` with [candid-core]'s structured diagnostics
+is `{ ok: false, diagnostics }` with [Meant]'s structured diagnostics
 passed through verbatim (stable codes such as `did_parse_error`,
 `did_file_read_error` analogues, resource bounds included), a malformed
 request is `invalid_request`, and `ts_generation_refused` is reserved for a
@@ -493,10 +505,10 @@ issue tracker) are built from one repository commit, and the parity gates
 prove the emitted module and contract are byte-identical to that commit's
 Rust-native outputs over the golden fixtures.
 
-The `@candid-core/schema` peer is an exact version, not a range, while the two
+The `@meantjs/schema` peer is an exact version, not a range, while the two
 packages move in lockstep: each schema release is paired with a new release
 of this package that names it, so a generated module always meets the runtime
 it was generated for.
 
-[candid-core]: https://github.com/B3Pay/Meant
-[`@candid-core/schema`]: https://www.npmjs.com/package/@candid-core/schema
+[Meant]: https://github.com/B3Pay/Meant
+[`@meantjs/schema`]: https://www.npmjs.com/package/@meantjs/schema

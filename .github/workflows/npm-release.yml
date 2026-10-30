@@ -1,4 +1,5 @@
-# Publishing @candid-core/schema — dispatch-only, mirroring release.yml's
+# Publishing @meantjs/schema (published as @candid-core/schema through
+# 0.5.0) — dispatch-only, mirroring release.yml's
 # discipline for crates.io, because npm names and versions are just as
 # permanent:
 #

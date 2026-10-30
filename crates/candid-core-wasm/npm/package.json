@@ -1,7 +1,7 @@
 {
-  "name": "@candid-core/cli",
-  "version": "0.4.0",
-  "description": "Candid .did to canonical Contract envelopes and @candid-core/schema modules, compiled to WebAssembly: a JavaScript-only on-ramp with no Rust toolchain, for Node CLIs and browsers alike.",
+  "name": "@meantjs/cli",
+  "version": "0.5.0",
+  "description": "Candid .did to canonical Contract envelopes and @meantjs/schema modules, compiled to WebAssembly: a JavaScript-only on-ramp with no Rust toolchain, for Node CLIs and browsers alike.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
   "type": "module",
   "sideEffects": false,
   "bin": {
-    "candid-core-cli": "./bin/cli.js"
+    "meant": "./bin/cli.js"
   },
   "exports": {
     ".": {
@@ -39,10 +39,10 @@
     "playwright-core": "1.62.1"
   },
   "peerDependencies": {
-    "@candid-core/schema": "0.5.0"
+    "@meantjs/schema": "0.6.0"
   },
   "peerDependenciesMeta": {
-    "@candid-core/schema": {
+    "@meantjs/schema": {
       "optional": true
     }
   }

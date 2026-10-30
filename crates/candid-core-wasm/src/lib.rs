@@ -1,4 +1,4 @@
-//! The library half of `@candid-core/cli` (issue #153): `.did` sources in,
+//! The library half of `@meantjs/cli` (issue #153): `.did` sources in,
 //! data out — an envelope JSON document or generated TypeScript text — with
 //! no eval, no dynamic import, and no filesystem. The JS host does all I/O
 //! and hands sources to [`did_to_contract`] / [`did_to_module`]; compilation

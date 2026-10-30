@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The packaged-consumer smoke for @candid-core/schema (issue #106).
+"""The packaged-consumer smoke for @meantjs/schema (issue #106).
 
 Builds the package, packs the exact artifact `npm publish` would ship,
 extracts it into a scratch consumer, and proves the artifact stands up on
@@ -26,7 +26,7 @@ block needs one today).
 
 The changelog is treated as an artifact claim rather than a courtesy. It ships
 in the tarball, and the gate refuses one that does not document the version
-being packed together with the `candid-core` version it pairs with — the
+being packed together with the `meant` version it pairs with — the
 README promises exactly that, and a promise about an artifact belongs in the
 artifact's gate.
 
@@ -60,6 +60,11 @@ import tempfile
 
 REPO = pathlib.Path(__file__).resolve().parents[3]
 PACKAGE = REPO / "crates" / "candid-core-ts" / "ts"
+
+# The npm name the artifact publishes under. It was `@candid-core/schema`
+# through 0.5.0; the packed manifest must carry exactly this one, so a name
+# changed by accident fails here instead of reaching the registry.
+NAME = "@meantjs/schema"
 
 # The export map, exactly: the Candid layer and nothing else.
 EXPORTED = [".", "./validate", "./contract", "./codec"]
@@ -132,7 +137,7 @@ def main():
             text=True,
         )
         tarball = scratch / json.loads(pack.stdout)[0]["filename"]
-        extracted = scratch / "node_modules" / "@candid-core" / "schema"
+        extracted = scratch / "node_modules" / NAME
         extracted.parent.mkdir(parents=True)
         run(["tar", "-xzf", str(tarball), "-C", str(scratch)], scratch)
         (scratch / "package").rename(extracted)
@@ -171,6 +176,11 @@ def main():
             )
 
         manifest = json.loads((extracted / "package.json").read_text())
+        if manifest.get("name") != NAME:
+            raise SystemExit(
+                f"package.json names {manifest.get('name')!r}; the package "
+                f"publishes as {NAME!r}"
+            )
 
         # The export surface and the dependency surface, stated exactly. A
         # removed subpath left in the map, or a peer re-added, fails here
@@ -215,7 +225,7 @@ def main():
             )
 
         # The README tells a reader that the changelog records, for every
-        # release, the candid-core version it pairs with. That is a claim
+        # release, the crate version it pairs with. That is a claim
         # about this artifact, so the artifact's gate is where it is checked.
         #
         # Headings are parsed rather than substring-matched: `"## 0.1.2" in
@@ -353,10 +363,10 @@ def main():
         consumer.mkdir()
         (consumer / "package.json").write_text('{ "type": "module" }\n')
         (consumer / "main.ts").write_text(
-            'import { c, isPrincipal, principal, type Infer, type Principal } from "@candid-core/schema";\n'
-            'import { validate, unwrapResult } from "@candid-core/schema/validate";\n'
-            'import { encode, decode } from "@candid-core/schema/codec";\n'
-            'import { schemaFromContract } from "@candid-core/schema/contract";\n'
+            f'import {{ c, isPrincipal, principal, type Infer, type Principal }} from "{NAME}";\n'
+            f'import {{ validate, unwrapResult }} from "{NAME}/validate";\n'
+            f'import {{ encode, decode }} from "{NAME}/codec";\n'
+            f'import {{ schemaFromContract }} from "{NAME}/contract";\n'
             "\n"
             "class SdkStylePrincipal {\n"
             "  private readonly _isPrincipal = true;\n"
@@ -479,7 +489,7 @@ def main():
         # the map does not export it either.
         refused = []
         for subpath in REMOVED + DEEP:
-            specifier = "@candid-core/schema" + subpath[1:]
+            specifier = NAME + subpath[1:]
             probe = subprocess.run(
                 [
                     "node",
@@ -506,7 +516,7 @@ def main():
         removed_types.mkdir()
         (removed_types / "package.json").write_text('{ "type": "module" }\n')
         for index, subpath in enumerate(REMOVED):
-            specifier = "@candid-core/schema" + subpath[1:]
+            specifier = NAME + subpath[1:]
             (removed_types / f"removed{index}.ts").write_text(
                 f"import * as removed from {json.dumps(specifier)};\n"
                 "void removed;\n"
@@ -541,7 +551,7 @@ def main():
             for index, subpath in enumerate(REMOVED)
             if not re.search(
                 rf"removed{index}\.ts\(\d+,\d+\): error TS2307: .*"
-                + re.escape("@candid-core/schema" + subpath[1:]),
+                + re.escape(NAME + subpath[1:]),
                 diagnostics,
             )
         ]

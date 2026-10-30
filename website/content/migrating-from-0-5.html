@@ -1,0 +1,144 @@
+<p>
+  This page is for code written against <code>@candid-core/schema</code> <code>0.5.0</code> and
+  <code>@candid-core/cli</code> <code>0.4.0</code>, the pair under the npm <code>latest</code>
+  dist-tag today, published on 2026-10-27. The repository is prepared as the next stable pair, under
+  new names: <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code>
+  <code>0.5.0</code>, which npm does not hold yet. Every change is recorded under those two versions
+  in the
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md">schema package's changelog</a>
+  and the
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
+  Coming from an earlier pair, read
+  <a href="migrating-from-0-4.html">Migrating from 0.4.0</a>,
+  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
+  <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> first.
+</p>
+
+<p>
+  The upgrade changes names, not code. The project ships under two names, ic-reactor for the
+  Internet Computer and Meant, which is not tied to one chain; the compiler crate is
+  <code>meant</code> already, and the pair takes the same name, in the <code>@meantjs</code> scope
+  of the profile packages. <code>@meantjs/schema</code> <code>0.6.0</code> is
+  <code>@candid-core/schema</code> <code>0.5.0</code>'s code under the new name: with comments
+  removed, every file it ships is identical to <code>0.5.0</code>'s. <code>@meantjs/cli</code>
+  <code>0.5.0</code> is <code>@candid-core/cli</code> <code>0.4.0</code> under the new name, with the
+  command <code>meant</code>: its library exports the same names with the same declarations, and its
+  commands take the same arguments and exit with the same codes. No wire byte, Contract, identity or
+  envelope changes. What changes in the output is the first two lines of every generated module.
+</p>
+
+<table>
+  <thead>
+    <tr><th>What changed</th><th>What it breaks</th><th>Where</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>The packages are <code>@meantjs/schema</code> and <code>@meantjs/cli</code></td><td>Every install line, and every import of the old names</td><td><a href="#names">Names</a></td></tr>
+    <tr><td>The CLI's command is <code>meant</code></td><td>Scripts that call <code>candid-core-cli</code></td><td><a href="#the-command">The command</a></td></tr>
+    <tr><td>Generated modules open with a new header and import <code>@meantjs/schema</code></td><td>Committed modules, which <code>gen --check</code> now reports as drifted</td><td><a href="#generated-modules">Generated modules</a></td></tr>
+    <tr><td>The CLI peers exactly <code>@meantjs/schema</code> <code>0.6.0</code></td><td>A program that mixes the old pair with the new one</td><td><a href="#order-of-upgrade">Order of upgrade</a></td></tr>
+  </tbody>
+</table>
+
+<h2 id="names">Names</h2>
+
+<p>
+  Replace <code>@candid-core/schema</code> with <code>@meantjs/schema</code> in every import of your
+  own code, and <code>@candid-core/cli</code> with <code>@meantjs/cli</code> where you import the
+  CLI's library. The subpaths keep their names: <code>@meantjs/schema/validate</code>,
+  <code>@meantjs/schema/contract</code> and <code>@meantjs/schema/codec</code>. No exported name
+  changes, and no signature does.
+</p>
+
+<p>
+  Do not mix the two packages in one program. Each declares its own brands, so a value typed by one
+  is not always assignable to the other's type: a <code>Principal</code> from
+  <code>@candid-core/schema</code> <code>0.5.0</code> passed where <code>@meantjs/schema</code>
+  <code>0.6.0</code>'s <code>Principal</code> is expected fails with <code>TS2322</code> (measured
+  with TypeScript 7.0.2, <code>strict</code>). A generated module left on the old import therefore
+  does not type-check against code written for the new one, which is the compiler pointing at
+  <a href="#generated-modules">the regeneration below</a>. Uninstall <code>@candid-core/schema</code>
+  and <code>@candid-core/cli</code> once nothing imports them.
+</p>
+
+<h2 id="the-command">The command</h2>
+
+<p>
+  The package installs one command, <code>meant</code>, where <code>0.4.0</code> installs
+  <code>candid-core-cli</code>. Replace <code>candid-core-cli</code> with <code>meant</code> in your
+  scripts: <code>meant gen</code>, <code>meant project</code> and <code>meant check</code> take the
+  same arguments and flags as before, exit with the same codes, and print <code>--json</code>
+  documents whose <code>schemaVersion</code> is still <code>1</code>. Outside a script, run it as
+  <code>npx @meantjs/cli gen …</code>, which always names this package. Never run a bare
+  <code>npx meant</code>: the unscoped <code>meant</code> package on npm belongs to another author,
+  so where this package is not installed, npx would offer to download and run that one.
+</p>
+
+<p>
+  <code>meant</code> is also the name of the Rust compiler's binary, whose commands are
+  <code>compile</code> and <code>validate</code>. In a shell, a bare <code>meant</code> runs
+  whichever comes first on the <code>PATH</code>; a <code>package.json</code> script puts this
+  package's command first.
+</p>
+
+<h2 id="generated-modules">Generated modules</h2>
+
+<p>Every module CLI <code>0.4.0</code> writes opens with these two lines:</p>
+
+<pre data-lang="ts" data-unchecked="the two lines CLI 0.4.0 writes, which this tree no longer generates">
+// Generated by candid-core-ts from a candid-core Contract. Do not edit.
+import * as $ from "@candid-core/schema";
+</pre>
+
+<p>and every module CLI <code>0.5.0</code> writes opens with these:</p>
+
+<pre data-lang="ts" data-file="crates/candid-core-ts/tests/goldens/ledger.ts">
+// Generated by Meant from a Meant Contract. Do not edit.
+import * as $ from "@meantjs/schema";
+</pre>
+
+<p>
+  A module's other lines are unchanged, and so is every envelope. But <code>meant gen --check</code>
+  compares bytes, so it reports every module <code>0.4.0</code> wrote as <code>drifted</code>, exit
+  1, until <code>meant gen</code> runs again; the envelopes beside them it reports
+  <code>unchanged</code>. Measured on the repository's tracked <code>.did</code> files, both releases
+  compile the same 40 and refuse the same 4 with the same failure documents, the 40 envelopes are
+  byte-identical, and each of the 40 modules differs from <code>0.4.0</code>'s in these two lines and
+  in no other.
+</p>
+
+<h2 id="what-keeps-the-old-name">What keeps the old name</h2>
+
+<p>
+  The strings inside a Contract document are not package names, and this release changes none of
+  them: the <code>format</code> <code>candid-core</code>, the canonical form
+  <code>candid-core-canon-1</code>, the <code>candid-core:contract:v1</code> and
+  <code>candid-core:interface:v1</code> identity domains, and the
+  <code>org.candid-core.field-names/v1</code> envelope extension. The two domains are hashed into
+  every <code>contract_id</code> and <code>interface_id</code>, so renaming them would move every
+  identity. <code>schemaFromContract</code> checks these strings exactly as <code>0.5.0</code> does,
+  so a Contract or envelope that loaded before loads the same.
+</p>
+
+<p>
+  The five profile packages at <code>0.4.0</code> depend on the old pair:
+  <code>@meantjs/profile</code> on <code>@candid-core/cli</code> <code>0.4.0</code>, and
+  <code>@meantjs/consent</code> on <code>@candid-core/schema</code> <code>0.5.0</code>. Their
+  declared types take no value of either pair, so your own code can move to the new names while the
+  old pair stays installed as their dependency, until a release of theirs moves too.
+</p>
+
+<h2 id="order-of-upgrade">Order of upgrade</h2>
+
+<p>
+  Move both packages in one step. The CLI peers its schema release exactly: <code>@meantjs/cli</code>
+  <code>0.5.0</code> peers <code>@meantjs/schema</code> <code>0.6.0</code>, as
+  <code>@candid-core/cli</code> <code>0.4.0</code> peers <code>@candid-core/schema</code>
+  <code>0.5.0</code>. Because the names differ and both peers are optional, npm does not refuse a
+  mixed install, so the order is yours to keep: install the new pair, replace
+  <code>candid-core-cli</code> with <code>meant</code> in your scripts, run <code>meant gen</code>
+  over every committed module, replace the old imports in your own code, run <code>tsc</code>, and
+  uninstall the old pair. Once both are published, the plain
+  <code>npm install --save-exact @meantjs/schema</code> and
+  <code>npm install --save-dev --save-exact @meantjs/cli</code> select them from
+  <code>latest</code>; until then npm holds no release under either name.
+</p>

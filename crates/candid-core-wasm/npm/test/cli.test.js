@@ -3,7 +3,7 @@
 // WebAssembly — the "same code compiled twice" half the host-side Rust
 // parity tests cannot cover. Outputs are compared byte-for-byte against the
 // repository's reviewed artifacts: the generator's golden `.ts` modules and
-// the committed envelope fixture the native `candid-core compile --envelope`
+// the committed envelope fixture the native `meant compile --envelope`
 // binary produced.
 
 import { test } from "node:test";
@@ -228,7 +228,7 @@ test("usage errors exit 64 with the usage text on stderr", () => {
     const run = gen(argv);
     assert.strictEqual(run.status, 64, JSON.stringify(argv));
     assert.strictEqual(run.stdout, "", JSON.stringify(argv));
-    assert.match(run.stderr, /^usage: candid-core-cli gen/, JSON.stringify(argv));
+    assert.match(run.stderr, /^usage: meant gen/, JSON.stringify(argv));
   }
 });
 
@@ -504,7 +504,7 @@ test("duplicate output stems are a usage error before any work", () => {
     assert.strictEqual(result.status, 64, JSON.stringify(args));
     assert.strictEqual(result.stdout, "", JSON.stringify(args));
     assert.match(result.stderr, /would both write .*service\.ts/i, JSON.stringify(args));
-    assert.match(result.stderr, /^usage: candid-core-cli gen/m, JSON.stringify(args));
+    assert.match(result.stderr, /^usage: meant gen/m, JSON.stringify(args));
     assert.strictEqual(existsSync(path.join(scratch, "out")), false, "nothing was written");
   }
   // Distinct stems from different directories are fine.

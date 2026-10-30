@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""What `@candid-core/cli` actually ships, verified against the tarball.
+"""What `@meantjs/cli` actually ships, verified against the tarball.
 
 `npm pack` silently drops a `files` entry naming a path that does not exist,
 and this package's `wasm/` outputs are build products excluded from git. So a
@@ -9,7 +9,7 @@ warning — that 404s on its own core at first import. npm versions are
 permanent, so that cannot be corrected in place.
 
 The sibling gate (`verify_npm_package.py`) proves the same class of claim for
-`@candid-core/schema`. This is a separate script rather than a parameter on
+`@meantjs/schema`. This is a separate script rather than a parameter on
 that one: the two packages ship different things (a bin and a wasm artifact
 here, four subpath exports there) and share no assertion beyond "pack it and
 look", so one script serving both would be a switch statement wearing a
@@ -30,6 +30,13 @@ import tempfile
 REPO = pathlib.Path(__file__).resolve().parents[3]
 PACKAGE = REPO / "crates" / "candid-core-wasm" / "npm"
 SCHEMA = REPO / "crates" / "candid-core-ts" / "ts"
+
+# The npm names and the command, exactly. Through 0.4.0 the package was
+# `@candid-core/cli`, its peer `@candid-core/schema` and its command
+# `candid-core-cli`; a manifest that drifts from these fails here.
+NAME = "@meantjs/cli"
+SCHEMA_NAME = "@meantjs/schema"
+BIN = "meant"
 
 # Big enough that a truncated or placeholder artifact fails, far enough below
 # the real size (~1.6 MB unoptimised) that an optimisation pass does not.
@@ -53,6 +60,21 @@ def pack(directory, into):
 
 def main():
     manifest = json.loads((PACKAGE / "package.json").read_text())
+    if manifest.get("name") != NAME:
+        raise SystemExit(
+            f"package.json names {manifest.get('name')!r}; the package "
+            f"publishes as {NAME!r}"
+        )
+    if manifest.get("bin") != {BIN: "./bin/cli.js"}:
+        raise SystemExit(
+            f"package.json declares the bin {manifest.get('bin')!r}; the "
+            f"package installs exactly one command, `{BIN}`"
+        )
+    if list(manifest.get("peerDependencies", {})) != [SCHEMA_NAME]:
+        raise SystemExit(
+            f"package.json peers {sorted(manifest.get('peerDependencies', {}))}; "
+            f"the package peers exactly {SCHEMA_NAME}"
+        )
 
     if not (PACKAGE / "wasm" / "candid_core_wasm_bg.wasm").exists():
         raise SystemExit(
@@ -226,9 +248,16 @@ def main():
             cwd=consumer,
         )
 
+        # The first run goes through the command npm linked, as a script
+        # in a consumer's package.json would call it.
+        command = consumer / "node_modules" / ".bin" / BIN
+        if not command.exists():
+            raise SystemExit(
+                f"installing the tarball linked no `{BIN}` command into "
+                "node_modules/.bin"
+            )
         run(
-            ["node", "node_modules/@candid-core/cli/bin/cli.js",
-             "gen", "./service.did", "-o", "./out"],
+            [str(command), "gen", "./service.did", "-o", "./out"],
             cwd=consumer,
             stdout=subprocess.DEVNULL,
         )
@@ -250,7 +279,7 @@ def main():
         #     one document on stdout (stderr empty), several entries work, and
         #     `--check` exits 0 on a clean tree, exits 1 after one byte of
         #     drift while writing nothing.
-        cli = ["node", "node_modules/@candid-core/cli/bin/cli.js"]
+        cli = ["node", f"node_modules/{NAME}/bin/cli.js"]
         (consumer / "sub").mkdir()
         (consumer / "sub" / "second.did").write_text("service : { ping : () -> () };\n")
         gen_json = run(
@@ -436,9 +465,9 @@ def main():
         # make this probe fail for a reason that has nothing to do with the
         # package's own declarations.
         (consumer / "check.ts").write_text(
-            'import { checkCompatible, didToContract, didToDocAttributes, didToModule, projectDid } from "@candid-core/cli";\n'
-            'import type { CliIdentities, CliReport, CompatibilityDiagnostic, DocItem, DocValue } from "@candid-core/cli";\n'
-            'import { schemaFromContract } from "@candid-core/schema/contract";\n'
+            f'import {{ checkCompatible, didToContract, didToDocAttributes, didToModule, projectDid }} from "{NAME}";\n'
+            f'import type {{ CliIdentities, CliReport, CompatibilityDiagnostic, DocItem, DocValue }} from "{NAME}";\n'
+            f'import {{ schemaFromContract }} from "{SCHEMA_NAME}/contract";\n'
             "\n"
             "export async function main(): Promise<string[]> {\n"
             "  const notes: string[] = [];\n"
@@ -537,7 +566,7 @@ def main():
         f"({size} bytes), self-contained prose, end-to-end gen, --json and "
         "--check from the tarball, project and check from the tarball, "
         "envelope shape, DOM-less strict compile, emitted module compiles against "
-        f"the declared peer {manifest['peerDependencies']['@candid-core/schema']}"
+        f"the declared peer {manifest['peerDependencies'][SCHEMA_NAME]}"
     )
 
 

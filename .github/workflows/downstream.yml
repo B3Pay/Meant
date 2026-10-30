@@ -2,7 +2,7 @@
 # a commit would publish, not against the releases it pins.
 #
 # tests/fixtures/packaging/verify_downstream.py does the work: it packs
-# @candid-core/schema and @candid-core/cli, regenerates every module
+# @meantjs/schema and @meantjs/cli, regenerates every module
 # B3Pay/ic-reactor checks in and reports the difference, then installs the
 # tarballs through pnpm overrides and runs ic-reactor's build, type checks and
 # tests. A failed step fails the check; drift does not, because a candid-core

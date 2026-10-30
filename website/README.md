@@ -3,7 +3,9 @@
 One site for everything in this repository, in two layers: **Interfaces** (the
 `meant` crate, `@candid-core/schema`, `@candid-core/cli`, the generator) and
 **Profiles** (the Candid Profile spec under `profile/`, the five `@meantjs`
-packages and the `meant-format` crate). The navigation follows the Meant Docs
+profile packages and the `meant-format` crate). The pair is prepared under new
+names, `@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0 (issue #306); until
+they are published, the pages teach the published names. The navigation follows the Meant Docs
 design system's site structure: Learn, Guides, Concepts, Reference, Chains,
 then Project, with each page of one layer marked by that layer's icon.
 
@@ -157,8 +159,9 @@ node website/build.mjs && node website/check.mjs
   effect, a claim, a chain or a layer), a chain panel without a switcher, or a
   `<diag>` code that the profile spec, the profile packages' sources and
   `meant-format` define nowhere;
-- an `@meantjs/<name>@<version>` that is not one of the five packages or not
-  the version its `package.json` in `profile/packages/` holds;
+- an `@meantjs/<name>@<version>` that is not one of the `@meantjs` packages
+  this repository builds (the five profile packages and the pair) or not the
+  version its `package.json` holds;
 - a name `@candid-core/schema` 0.2.0 has and 0.3.0 removes (and so `latest`,
   0.5.0, lacks)
   (`createActor`, `httpTransport`, `PrincipalValue`, the four removed
@@ -167,9 +170,11 @@ node website/build.mjs && node website/check.mjs
   a block that shows one teaches it as surely as a sentence does;
 - a page that describes the TypeScript packages without carrying exactly one
   `Upgrading from an earlier release` callout (`NOTE_TITLE` in `check.mjs`)
-  that links the three migration pages, `migrating-from-0-4.html`,
-  `migrating-from-0-3.html` and `migrating-from-0-2.html`, inside the callout
-  itself (`NOTE_LINKS`). The site describes the surface the repository
+  that links the four migration pages, `migrating-from-0-5.html`,
+  `migrating-from-0-4.html`, `migrating-from-0-3.html` and
+  `migrating-from-0-2.html`, inside the callout itself (`NOTE_LINKS`). While
+  the renamed pair is prepared, each note ends by saying so, with
+  `migrating-from-0-5.html`. The site describes the surface the repository
   builds, which is what the `latest` dist-tag holds (`@candid-core/schema`
   0.5.0 and `@candid-core/cli` 0.4.0, published on 2026-10-27). Each page's
   note names what the previous stable pair (0.4.0 / 0.3.0) lacks of what the
@@ -184,8 +189,13 @@ broken spellings, and a copyable line is the thing that must work:
 
 - an install, `npx` or bare `import` line for any name in `UNPUBLISHED_NPM`
   in `check.mjs` — the list this repository keeps of names it has prepared but
-  not published. The list is empty today; adding a name is what preparing the
-  next package does, and emptying it is what publishing one does;
+  not published. It holds the pair's new names, `@meantjs/schema` and
+  `@meantjs/cli`, until their publish; adding a name is what preparing the
+  next package does, and emptying it is what publishing one does. A block
+  whose first line is the header the generator writes (`GENERATED_HEADER`,
+  read from a golden) is the generator's output, so the import rule skips it:
+  a generated module shows the import the generator in this repository
+  writes. Install lines get no such exemption;
 - an install, `npx` or import line naming a spec in `UNPUBLISHED_NPM_SPECS` —
   a version or dist-tag of a published name that the registry does not hold
   yet, such as a prepared beta (`@candid-core/schema@0.3.0-beta.2`, or
@@ -193,8 +203,9 @@ broken spellings, and a copyable line is the thing that must work:
   request adds its specs; the publish-day pull request removes them;
 - the crate's old name: `use candid_core::`, a `candid-core = …` dependency
   line, or `cargo add`/`cargo install candid-core`. The crate is `meant`
-  since the rename; the Contract format's own `candid-core` strings and the
-  `@candid-core/` npm names are unchanged and untouched by these rules;
+  since the rename; the Contract format's own `candid-core` strings are
+  unchanged, and the `@candid-core/` npm names stay published, so these rules
+  touch none of them;
 - a `meant` or `meant-format` dependency requirement that is anything other
   than the exact pin. The required spelling is derived from the `version` in
   each crate's own `Cargo.toml` rather than written down here, so a release
@@ -239,12 +250,16 @@ reader copying it would get.
 
 Compilation uses the TypeScript pinned in `crates/candid-core-ts/ts`
 (`npm ci` there installs it; the site itself still takes no dependency) with
-`strict`, resolving `@candid-core/schema` and its three subpaths to the source
-in that directory and `@candid-core/cli` to its hand-written declarations.
+`strict`, resolving `@meantjs/schema` and its three subpaths to the source in
+that directory and `@meantjs/cli` to its hand-written declarations. Until the
+new names are published, `@candid-core/schema` and `@candid-core/cli`, which
+the pages still teach, resolve to the same files (`PAIR_NAMES` in
+`snippets.mjs`): 0.6.0 and 0.5.0 are 0.5.0 and 0.4.0's code under new names,
+as their release notes measure.
 Exactly the four exported subpaths resolve, so an import of a removed one is a
 compile error, which is what the migration page's "before" blocks rely on.
-The five `@meantjs` packages, and exactly the subpaths each one exports,
-resolve to their hand-written `.d.mts` declarations under
+The five `@meantjs` profile packages, and exactly the subpaths each one
+exports, resolve to their hand-written `.d.mts` declarations under
 `profile/packages/*/src`, read from each package's own `exports` map (its
 `types` condition), so a profile snippet is checked against the types the
 published tarball carries, and a subpath a sync adds resolves with no change

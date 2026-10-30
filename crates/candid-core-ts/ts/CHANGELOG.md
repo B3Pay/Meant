@@ -1,8 +1,10 @@
 # Changelog
 
-What changed between released versions of `@candid-core/schema`. This file
-ships inside the published tarball, so the record travels with the artifact and
-survives registry mirrors and offline installs.
+What changed between released versions of `@meantjs/schema`, which was
+published as `@candid-core/schema` through 0.5.0; the entries for those
+releases name it so. This file ships inside the published tarball, so the
+record travels with the artifact and survives registry mirrors and offline
+installs.
 
 The package versions independently of the compiler crate whose Contract
 model and generator produce its bindings, so **every entry names the crate
@@ -11,18 +13,65 @@ published as `candid-core` before, under which the earlier entries name it.
 The release procedure that produces an entry here is [docs/releasing.md] in
 the [B3Pay/Meant] repository.
 
-`@candid-core/schema` is pre-1.0. Until 1.0 any release may change the builder
+`@meantjs/schema` is pre-1.0. Until 1.0 any release may change the builder
 API, the inferred domain types, the codec's wire behaviour, and the codes and
 `$`-rooted paths validation reports. Pin an exact version.
 
-## Unreleased
+## 0.6.0 — 2026-10-31
+
+Pairs with `meant` 0.1.0.
+
+**The first release under the name `@meantjs/schema`.** Through 0.5.0 this
+package was published as `@candid-core/schema`; 0.6.0 is 0.5.0's code under
+the new name. With comments removed, every shipped `.js` and `.d.ts` file is
+identical to 0.5.0's, so no export, type, verdict, byte, issue code or path
+changes. The package moved to the `@meantjs` scope beside the profile
+packages, so that the project ships under two names: ic-reactor, for the
+Internet Computer, and Meant, which is not tied to one chain.
+`@candid-core/schema` keeps every version it published and gets no new one.
+
+A stable release, published under the npm `latest` dist-tag, so a plain
+`npm install @meantjs/schema` selects it; keep it pinned,
+`npm install --save-exact @meantjs/schema`.
+
+**Upgrading from `@candid-core/schema` 0.5.0 changes the name you import,
+and nothing else.** Install `@meantjs/schema`, replace `@candid-core/schema`
+with `@meantjs/schema` in every import (the subpaths keep their names:
+`@meantjs/schema/validate`, `@meantjs/schema/contract` and
+`@meantjs/schema/codec`), and uninstall `@candid-core/schema` once nothing
+imports it. A module that still imports the old name keeps loading the old
+package, so regenerate the modules the CLI wrote (below) before you
+uninstall it.
+
+**The CLI pairs with this exact version.** `@meantjs/cli` 0.5.0, the next
+release of `@candid-core/cli`, declares this package as a peer at exactly
+`0.6.0`, and its command is `meant` where it was `candid-core-cli`. The
+modules it writes import `@meantjs/schema` and start with a new header line,
+so regenerate committed modules with it; `meant gen --check` reports each
+module `@candid-core/cli` wrote as drifted until you do. The envelopes it
+writes are unchanged.
+
+**What keeps the old name.** The strings inside Contract documents are not
+package names, and this release changes none of them: the `format`
+`candid-core`, the canonical form `candid-core-canon-1`, the
+`candid-core:contract:v1:sha256:…` and `candid-core:interface:v1:sha256:…`
+identities, and the `org.candid-core.field-names/v1` extension. The two
+identity prefixes are hashed into every identity, so renaming them would
+move every `contract_id` and `interface_id`; the loader checks all of these
+strings exactly as before.
 
 ### Changed
 
+- **BREAKING: the package is `@meantjs/schema`.** Import from
+  `@meantjs/schema` and its three subpaths where you imported from
+  `@candid-core/schema`. The export map, the exports and their declarations
+  are 0.5.0's.
+- Documentation comments in the shipped files name the compiler crate
+  `meant` and the packages `@meantjs/schema` and `@meantjs/cli`, where they
+  named `candid-core` and the old packages.
 - `repository` and `homepage` in `package.json` name
   `https://github.com/B3Pay/Meant`, where the repository moved on
-  2026-10-28; GitHub redirects the old address. Nothing in the package's code
-  changed.
+  2026-10-28; GitHub redirects the old address.
 
 ## 0.5.0 — 2026-10-27
 

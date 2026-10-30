@@ -1,4 +1,4 @@
-# The @candid-core/cli gates (issue #153): the wasm artifact over
+# The @meantjs/cli gates (issue #153): the wasm artifact over
 # candid-core's compiler surface plus the candid-core-ts generator, asserted
 # — not assumed — to be the same code compiled twice.
 #
