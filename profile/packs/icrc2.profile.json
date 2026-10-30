@@ -25,7 +25,14 @@
       "tag": "effect",
       "args": {
         "kind": "approve",
-        "irreversible": false
+        "irreversible": false,
+        "grant": {
+          "spender": "spender",
+          "amount": "amount",
+          "ends": [
+            "expires_at"
+          ]
+        }
       }
     },
     {

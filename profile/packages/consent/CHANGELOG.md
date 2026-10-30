@@ -2,6 +2,23 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.4.0 — 2026-10-30
+
+- What a request grants (spec §5.3, D-056). `evmConsent`, `eip712Consent` and `generateConsent` also return `values`,
+  the decoded arguments or message, and `grant`: who may take tokens because of the request, which token, how many
+  and until when, read from the effect's `grant` (`{ kind, spender | to, token, amount: { units, unlimited }, ends }`),
+  or null. Addresses are EIP-55, accounts their ICRC-1 text, units a decimal string and ends exact seconds, never
+  rounded. A grant that cannot be read is null with a `W_GRANT` diagnostic, and the text is the same.
+  `generateConsent` takes `canisterId`, the ledger called, and reads the grant only then, so an ICRC-21 message is
+  unchanged.
+- `@meantjs/consent/terms`, new: terms the user confirms for one task, and the check of a request's grant against them
+  (spec §5.3, "Confirmed terms"; §11 item 10). `readTerms` reads an agent's terms in the wallet's values (a token by
+  its symbol, an app by its name, an amount never rounded, an end as a date, a length, hours or "never") or throws a
+  `TermsError` with a message for the agent; `termsText` writes them out exactly for the wallet's own screen;
+  `confirmTerms` freezes them with an id; `checkGrant` says whether a grant fits, and why not; `termsGate` keeps the
+  order (confirmed before the request is read, fixed after, one request, named by the id the wallet gives it). It runs
+  in browsers.
+
 ## 0.3.0 — 2026-10-29
 
 - `@meantjs/consent/evm`: `eip712Consent`, the consent text of an EIP-712 signing request (spec §15.9, D-055),

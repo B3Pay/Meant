@@ -97,7 +97,7 @@ Send `1.5 TKA` to `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-i
 
 **Rendered from:**
 
-- Profile `icrc1` (pack): `candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b`
+- Profile `icrc1` (pack): `candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6`
 - Interface: `candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689`
 - Rules: `candid-profile-sns/v0`
 ~~~
@@ -133,7 +133,7 @@ Send `0.001 TKB` to `ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf
 
 **Rendered from:**
 
-- Profile `icrc1` (pack): `candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b`
+- Profile `icrc1` (pack): `candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6`
 - Interface: `candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689`
 - Rules: `candid-profile-sns/v0`
 ~~~
@@ -169,7 +169,7 @@ Send `0.123456789012345678 TKC` to `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj
 
 **Rendered from:**
 
-- Profile `icrc1` (pack): `candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b`
+- Profile `icrc1` (pack): `candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6`
 - Interface: `candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689`
 - Rules: `candid-profile-sns/v0`
 ~~~
@@ -205,7 +205,7 @@ Set `un4fu-tqaaa-aaaab-qadjq-cai`'s allowance to `5 TKB`, replacing any existing
 
 **Rendered from:**
 
-- Profile `icrc2` (pack): `candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae`
+- Profile `icrc2` (pack): `candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567`
 - Interface: `candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f`
 - Rules: `candid-profile-sns/v0`
 ~~~

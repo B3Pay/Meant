@@ -1140,8 +1140,61 @@
         },
         "replicated": {
           "type": "boolean"
+        },
+        "grant": {
+          "$ref": "#/$defs/grant",
+          "description": "What a transfer or approve lets someone take (spec section 5.3, D-056), for a check against terms the user confirmed."
         }
       }
+    },
+    "grant": {
+      "type": "object",
+      "description": "Who may take the tokens, how many and until when, as relative paths into the method's arguments (spec section 5.3, D-056). Exactly one of spender and to.",
+      "required": [
+        "amount"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "spender": {
+          "$ref": "#/$defs/relpath",
+          "description": "Who may take the tokens through an allowance, or with a signature someone else submits: an address, or a position with an account tag."
+        },
+        "to": {
+          "$ref": "#/$defs/relpath",
+          "description": "Who a transfer pays directly: an address, or a position with an account tag."
+        },
+        "amount": {
+          "$ref": "#/$defs/relpath",
+          "description": "A position with an amount tag, whose threshold means unlimited; or a bool, where true is unlimited and false grants nothing."
+        },
+        "ends": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/relpath"
+          },
+          "description": "Positions with a timestamp tag; the grant ends at the latest of them, and one at its threshold or left out means never. Without ends, an approve never ends and a transfer ends when it is done."
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "spender"
+          ],
+          "properties": {
+            "spender": true
+          }
+        },
+        {
+          "required": [
+            "to"
+          ],
+          "properties": {
+            "to": true
+          }
+        }
+      ]
     },
     "args_idempotency": {
       "type": "object",

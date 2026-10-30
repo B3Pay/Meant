@@ -25,7 +25,11 @@
       "tag": "effect",
       "args": {
         "kind": "transfer",
-        "irreversible": true
+        "irreversible": true,
+        "grant": {
+          "to": "to",
+          "amount": "amount"
+        }
       }
     },
     {

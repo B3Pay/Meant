@@ -57,7 +57,11 @@
       "tag": "effect",
       "args": {
         "kind": "approve",
-        "irreversible": false
+        "irreversible": false,
+        "grant": {
+          "spender": "spender",
+          "amount": "value"
+        }
       }
     },
     {
@@ -131,7 +135,11 @@
       "tag": "effect",
       "args": {
         "kind": "approve",
-        "irreversible": false
+        "irreversible": false,
+        "grant": {
+          "spender": "spender",
+          "amount": "value"
+        }
       }
     },
     {

@@ -1,0 +1,32 @@
+{
+  "notes": [
+    "Every file is untrusted until its sha256 matches. scripts/fetch-artifacts.mjs downloads into .cache/ (git-ignored) and verifies; src/world.mjs verifies again before use.",
+    "The digests are the ones eval/harness/artifacts.json and packages/consent/pocketic/artifacts.json pin; the unpacked linux-x64 and darwin-arm64 PocketIC digests were observed by those workstreams."
+  ],
+  "pocket_ic": {
+    "version": "16.0.0",
+    "platforms": {
+      "linux-x64": {
+        "url": "https://github.com/dfinity/pocketic/releases/download/16.0.0/pocket-ic-x86_64-linux.gz",
+        "gz_sha256": "268ba79ec7fe9a563a575adf4983c69627093cce2711d142e476cdc7ad04249e",
+        "sha256": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+      },
+      "darwin-arm64": {
+        "url": "https://github.com/dfinity/pocketic/releases/download/16.0.0/pocket-ic-arm64-darwin.gz",
+        "gz_sha256": "41cf77e24effc381e21f5e07e908ed078783646e6de05ed52fd6973221f07e64",
+        "sha256": "781f643d4b16105e7544ca810a972f99c0ef1919016c680faa93f10909a14496"
+      }
+    }
+  },
+  "ledger": {
+    "release": "ledger-suite-icrc-2026-03-09",
+    "wasm": {
+      "url": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-ledger.wasm.gz",
+      "sha256": "354dd6ecfdc72b5409805b31dea22c9db11df6e14095a5a68924eb63535e6d8a"
+    },
+    "did": {
+      "url": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ledger.did",
+      "sha256": "02a42599e3d2036a19dcfa53db04ad5a5271b0bd78ac1a5986b3dd361f33a99c"
+    }
+  }
+}
