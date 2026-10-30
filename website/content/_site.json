@@ -220,6 +220,12 @@
           "lead": "Building the same schemas dynamically from canonical Contract JSON, with no code generation step."
         },
         {
+          "slug": "migrating-from-0-5",
+          "title": "Migrating from 0.5.0",
+          "nav": "Migrating from 0.5.0",
+          "lead": "What changes in @meantjs/schema 0.6.0 and @meantjs/cli 0.5.0, prepared for the latest dist-tag and not yet published, for code written against @candid-core/schema 0.5.0 and @candid-core/cli 0.4.0: the same code under new package names, a CLI command named meant, and two new lines at the top of every generated module."
+        },
+        {
           "slug": "migrating-from-0-4",
           "title": "Migrating from 0.4.0",
           "nav": "Migrating from 0.4.0",

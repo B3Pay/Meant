@@ -3,12 +3,19 @@
  * Zero dependencies of its own: it writes the page snippets to a scratch
  * directory and runs the compiler this repository already pins, from
  * crates/candid-core-ts/ts (`npm ci` there installs it; the site itself takes
- * no dependency). The compiler is asked to resolve `@candid-core/schema` and
- * its three subpaths to the SOURCE in that directory, and `@candid-core/cli`
- * to its hand-written declarations, so a snippet is checked against what the
+ * no dependency). The compiler is asked to resolve `@meantjs/schema` and its
+ * three subpaths to the SOURCE in that directory, and `@meantjs/cli` to its
+ * hand-written declarations, so a snippet is checked against what the
  * repository builds — exactly the four subpaths the package exports, no more.
- * The profile packages, `@meantjs/*`, resolve to their hand-written `.d.mts`
- * under profile/packages, again exactly the subpaths each one exports.
+ * The five profile packages under the same scope resolve to their hand-written
+ * `.d.mts` under profile/packages, again exactly the subpaths each one exports.
+ *
+ * Until the new names are published, the pages teach the published ones,
+ * `@candid-core/schema` and `@candid-core/cli`, and those resolve to the same
+ * files: `@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0 are `@candid-core/schema`
+ * 0.5.0 and `@candid-core/cli` 0.4.0's code under new names, which their
+ * release notes measure (issue #306). The publish-day change moves the pages to
+ * the new names and drops the old ones from PAIR_NAMES below.
  *
  * Every `<pre>` whose language is ts or js is in exactly one of four classes,
  * and a block in none of them fails the gate, so an unverified snippet cannot
@@ -147,7 +154,7 @@ export function excerptProblem(excerpt, fileText, partial = false) {
   return null;
 }
 
-/* The five profile packages, `@meantjs/*`: each code export resolves to its
+/* The five profile packages, also `@meantjs/*`: each code export resolves to its
  * hand-written declarations, read from the package's own `exports` map (the
  * `types` condition), so exactly the subpaths each one exports resolve, and a
  * subpath a sync adds resolves with no change here. */
@@ -168,8 +175,26 @@ function profileExports(root) {
   return paths;
 }
 
-function tsconfig(root, cli) {
+/* The names the pair resolves under, the new one first; see the header. */
+const PAIR_NAMES = [
+  { schema: "@meantjs/schema", cli: "@meantjs/cli" },
+  { schema: "@candid-core/schema", cli: "@candid-core/cli" },
+];
+
+function pairExports(root, cli) {
   const ts = join(root, "crates", "candid-core-ts", "ts");
+  const paths = {};
+  for (const names of PAIR_NAMES) {
+    paths[names.schema] = [join(ts, "schema.ts")];
+    paths[`${names.schema}/validate`] = [join(ts, "validate.ts")];
+    paths[`${names.schema}/contract`] = [join(ts, "contract.ts")];
+    paths[`${names.schema}/codec`] = [join(ts, "codec.ts")];
+    paths[names.cli] = [cli];
+  }
+  return paths;
+}
+
+function tsconfig(root, cli) {
   return {
     compilerOptions: {
       strict: true,
@@ -184,11 +209,7 @@ function tsconfig(root, cli) {
       types: [],
       skipLibCheck: false,
       paths: {
-        "@candid-core/schema": [join(ts, "schema.ts")],
-        "@candid-core/schema/validate": [join(ts, "validate.ts")],
-        "@candid-core/schema/contract": [join(ts, "contract.ts")],
-        "@candid-core/schema/codec": [join(ts, "codec.ts")],
-        "@candid-core/cli": [cli],
+        ...pairExports(root, cli),
         ...profileExports(root),
       },
     },
