@@ -6,6 +6,7 @@ template: Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {
 <annotation at="icrc1_transfer" tag="effect">
 kind: transfer
 irreversible: true
+grant: { "to": "to", "amount": "amount" }
 </annotation>
 
 <p>
@@ -23,7 +24,9 @@ irreversible: true
 <p>
   Nothing in that message was written for this call. The title and the sentence come from the
   pack, the amount from the <a href="value-tags.html"><code>amount</code> tag</a> and the ledger's
-  decimals, the labels from <code>describe</code>, and the badges from the <code>effect</code> tag. The same
+  decimals, the labels from <code>describe</code>, and the badges from the <code>effect</code> tag, whose
+  <a href="#grant-what-a-transfer-or-approve-lets-someone-take"><code>grant</code></a> names who is paid and how
+  much, for a wallet that checks requests against terms the person confirmed. The same
   intent is the title of an agent tool's preview and of an MCP Apps card, so a person reads the
   same words wherever the call is shown.
 </p>
@@ -126,7 +129,8 @@ Set `ig6pt-…-ig6-7fqknwy.1`'s allowance to `1 TKA`, replacing any existing all
 
 <p>
   <code>effect</code> has a <code>kind</code> and an <code>irreversible</code> flag, plus an
-  optional <code>replicated</code> flag for one special case below.
+  optional <code>replicated</code> flag for one special case below and, on a <code>transfer</code>
+  or an <code>approve</code>, an optional <code>grant</code>.
 </p>
 
 <table>
@@ -186,6 +190,87 @@ Set `ig6pt-…-ig6-7fqknwy.1`'s allowance to `1 TKA`, replacing any existing all
   <code>replicated: true</code> on a query, a composite query or a oneway method, or with another
   kind or <code>irreversible: true</code>, is <diag>E_EFFECT_MODE</diag>. Like any effect, it is
   the author's claim: the resolver cannot check that the method changes nothing.
+</p>
+
+<h2>grant: what a transfer or approve lets someone take</h2>
+
+<p>
+  An effect of kind <code>transfer</code> or <code>approve</code> may carry <code>grant</code>: who may
+  take tokens because of the call or the signature, which token, how many and until when, so that a
+  wallet can compare a request with <a href="#confirmed-terms">terms the person confirmed</a>. Its
+  values are relative paths into the method's arguments, written as a template's placeholders are
+  (spec §5.3, D-056). From the ICRC-2 pack:
+</p>
+
+<annotation at="icrc2_approve" tag="effect">
+kind: approve
+irreversible: false
+grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
+</annotation>
+
+<table>
+  <thead><tr><th>Key</th><th>The position it names</th></tr></thead>
+  <tbody>
+    <tr><td><code>spender</code> or <code>to</code>, exactly one</td><td>Who may take the tokens. <code>spender</code> for an allowance, or for a signature someone else submits; <code>to</code> for a transfer that pays them directly. An <code>approve</code>'s grant names a <code>spender</code>. The position is an EVM <code>address</code> or carries an <code>account</code> tag.</td></tr>
+    <tr><td><code>amount</code></td><td>An unsigned position with an <code>amount</code> tag, where a value at or above the tag's <code>threshold</code> means unlimited; or a <code>bool</code>, where <code>true</code> is unlimited and <code>false</code> grants nothing (DAI's permit).</td></tr>
+    <tr><td><code>ends</code>, optional</td><td>One to eight positions with a <code>timestamp</code> tag. The grant ends at the latest of them; one at or above its tag's <code>threshold</code>, or an optional one left out, means it never ends. With no <code>ends</code>, an <code>approve</code> never ends and a <code>transfer</code> ends when it is made.</td></tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><code>spender</code>, <code>to</code> and <code>amount</code> are in every call: none of them is optional, and no position of a grant is inside a case of a variant.</li>
+  <li>No position steps into <code>[]</code>. A grant covers one token, so a request that grants several, such as Permit2's <code>PermitBatch</code>, has none in v0.</li>
+  <li>The token is the one the <code>amount</code> tag names (its <code>token</code>, on EVM), else the contract or canister the call is for.</li>
+  <li>A deadline that bounds only when a signature may be used is not an end of what it grants. EIP-2612's <code>deadline</code> and DAI's <code>expiry</code> set allowances that never end, so neither is in <code>ends</code>.</li>
+</ul>
+
+<p>The standard packs carry these grants, and the resolved form keeps each inside its <code>effect</code>:</p>
+
+<table>
+  <thead><tr><th>Pack</th><th>Method or message</th><th><code>grant</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>icrc1</code></td><td><code>icrc1_transfer</code></td><td><code>{ "to": "to", "amount": "amount" }</code></td></tr>
+    <tr><td><code>icrc2</code></td><td><code>icrc2_approve</code></td><td><code>{ "spender": "spender", "amount": "amount", "ends": ["expires_at"] }</code></td></tr>
+    <tr><td><code>erc20</code></td><td><code>transfer</code></td><td><code>{ "to": "to", "amount": "value" }</code></td></tr>
+    <tr><td><code>erc20</code></td><td><code>approve</code></td><td><code>{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code>erc2612</code></td><td><code>Permit</code> and <code>permit</code></td><td><code>{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code>dai-permit</code></td><td><code>Permit</code></td><td><code>{ "spender": "spender", "amount": "allowed" }</code></td></tr>
+    <tr><td><code>permit2</code></td><td><code>PermitSingle</code></td><td><code>{ "spender": "spender", "amount": "details.amount", "ends": ["details.expiration", "sigDeadline"] }</code></td></tr>
+    <tr><td><code>permit2</code></td><td><code>PermitTransferFrom</code></td><td><code>{ "spender": "spender", "amount": "permitted.amount", "ends": ["deadline"] }</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  ERC-20 <code>transferFrom</code> and ICRC-2 <code>icrc2_transfer_from</code>, which spend an allowance
+  someone else gave, and Permit2's two batch messages have none. A grant on another kind, on a
+  <a href="#intents-and-effects-on-a-variant-case">case effect</a>, or whose positions break these rules
+  is <diag>E_GRANT</diag>. The example canister's <code>send</code> of
+  <a href="write-a-profile.html">Write a profile</a>, given a grant whose <code>to</code> is a bare
+  <code>principal</code>:
+</p>
+
+<pre data-lang="text">
+candid-profile: tokens.did  candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c  [2 methods]
+  applied     tokens-example   author       candid-profile:v0:sha256:040a934bbd2916cb523c0dab7a11e2d1370890a0925521307cd5ee49dd849204
+  1 error, 0 warning, 0 info
+  error   E_GRANT                    [tokens-example] send  grant to "to" is principal; it must be an address or carry an account tag
+</pre>
+
+<p>
+  A pack applied to a service where its grant does not hold keeps its effect and loses the grant,
+  with <diag>I_PACK_ANNOTATION_SKIPPED</diag>. A ledger whose <code>ApproveArgs</code> has no
+  <code>expires_at</code> still matches the ICRC-2 pack, and <code>candid-profile resolve --verbose</code>
+  says:
+</p>
+
+<pre data-lang="text">
+  info    I_PACK_ANNOTATION_SKIPPED  [icrc2] icrc2_approve  effect grant dropped, the effect kept: E_GRANT: grant ends "expires_at": no field "expires_at" in record
+</pre>
+
+<p>
+  Its <code>icrc2_approve</code> is still an <effect>approve</effect> the person confirms; with no grant,
+  no terms can cover it. A grant is the author's claim, like any effect: the resolver checks the
+  positions it names, not what the method does with them.
 </p>
 
 <h2>Intents and effects on a variant case</h2>
@@ -284,9 +369,10 @@ service : {
 <p>
   A consumer must get the person's explicit confirmation before it executes a call whose effect
   is <code>transfer</code>, <code>approve</code>, <code>admin</code> or <code>destroy</code>,
-  unless a separately configured policy, such as a spending budget, pre-authorizes it.
-  <claim>open</claim> Such policies are outside v0 (OQ-8 on
-  <a href="open-questions.html">Open questions</a>), so today every such call waits.
+  unless a separately configured policy, such as a spending budget, pre-authorizes it. Policies are
+  outside v0 except one, <a href="#confirmed-terms">confirmed terms</a>, so every other such call
+  waits. <claim>open</claim> Spending policies and budgets are OQ-8 on
+  <a href="open-questions.html">Open questions</a>.
 </p>
 
 <p>
@@ -296,6 +382,20 @@ service : {
   has no auto-approve default (<a href="agent-tools.html">Give an agent tools</a>). Because a profile can
   call a drain "claim reward", a consumer should also show the decoded raw arguments beside the
   intent for these four kinds; the <a href="security-model.html">security model</a> says why.
+</p>
+
+<h2>Confirmed terms</h2>
+
+<p>
+  Terms are what the person allows one task: the token, who may take it, the most it may be (or
+  unlimited) and the latest end (or never). Terms the person confirmed for one task, before the
+  agent read the request, pre-authorize that task's request: one whose
+  <a href="#grant-what-a-transfer-or-approve-lets-someone-take">grant</a> fits them may be signed or
+  sent without a second confirmation. One that does not fit is refused with its reasons, and the
+  agent asks for new terms; a request without a grant needs its confirmation. The terms are shown
+  exactly and confirmed on the wallet's own screen, never through a tool the agent can call
+  (<a href="security-model.html">security model</a>). The steps, with
+  <code>@meantjs/consent/terms</code>: <a href="confirmed-terms.html">Confirm terms for a task</a>.
 </p>
 
 <h2>Next</h2>
@@ -310,6 +410,11 @@ service : {
     <span class="card-kicker">Concept</span>
     <span class="card-title">Outcomes and retries</span>
     <p>What happens after the person confirms: classes for every result, and retries that cannot pay twice.</p>
+  </a>
+  <a class="card" href="confirmed-terms.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Confirm terms for a task</span>
+    <p>Check what each request grants against terms the person confirmed once.</p>
   </a>
   <a class="card" href="security-model.html">
     <span class="card-kicker">Concept</span>

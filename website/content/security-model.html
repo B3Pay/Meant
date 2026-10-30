@@ -163,6 +163,37 @@
   consumer lists is item O4 of the EVM binding.
 </p>
 
+<h2>Confirmed terms authorize in advance</h2>
+
+<p>
+  A person can confirm terms for one task, once, and a request whose grant fits them is then signed or
+  sent without a second confirmation (<a href="confirmed-terms.html">Confirm terms for a task</a>).
+  Whoever confirms terms authorizes every request that fits them, so the confirmation must come from
+  the person, on the wallet's own screen, never through a tool the agent can call. The terms must be
+  shown exactly: the full address, the amount without rounding, and "unlimited" or "never ends"
+  written out when the terms say so. <code>termsText</code> of <code>@meantjs/consent/terms</code>
+  writes them that way:
+</p>
+
+<consent standard="Terms · one task" title="Confirm terms for this task" note="Only the person confirms, on the wallet's screen. The agent never does.">
+<field name="Terms">Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend any amount of TKA (unlimited), and this permission never ends.</field>
+</consent>
+
+<p>
+  <claim>fact</claim> Observed 2026-10-29, in the everyday-wording test of Meant's signing guard
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">spec §11</a>
+  item 10): small models that wrote the terms from a user's everyday words filled a term the user had
+  left out with the loosest value ("unlimited", "never"), and a check against those terms passed
+  requests the user never asked for; the check itself held every time. The terms the agent writes
+  are the weak point, not the comparison, which is why the person confirms their exact text.
+</p>
+
+<p>
+  A grant is the profile's claim, like the intent in the first section, and terms cover what a grant
+  says. A request outside its grant's words, another call or another chain, is checked by the rest
+  of the consumer, as without terms.
+</p>
+
 <h2>Consent text makes no claims about state</h2>
 
 <p>
@@ -192,7 +223,8 @@
     <claim>open</claim> <strong>Spending policies and budgets</strong> (OQ-8) that would let an
     agent commit some calls without a confirmation each time. Until then every
     <code>transfer</code>, <code>approve</code>, <code>admin</code> and <code>destroy</code> call
-    waits for the person.
+    waits for the person, except the one request of a task whose grant fits terms the person
+    confirmed for it.
   </li>
   <li>
     <claim>open</claim> <strong>Resolved dynamic values with provenance</strong> (OQ-10), so a
