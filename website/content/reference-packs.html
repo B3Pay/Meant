@@ -1,12 +1,13 @@
 <p>
   A pack is a profile of <code>kind: "pack"</code> that describes a standard rather than one canister or contract.
-  <code>@meantjs/profile</code> ships four packs and, beside them, two EVM contract profiles for well-known signing
-  contracts, all copies of
+  <code>@meantjs/profile</code> ships four packs and, beside them, five EVM contract profiles for well-known signing
+  contracts and payments, all copies of
   <a href="https://github.com/B3Pay/Meant/tree/main/profile/packs"><code>profile/packs/</code></a>. Every annotation
-  they carry is listed below. Since 0.4.0 each of the six also says what its calls and messages grant, in the
-  <code>grant</code> of their <code>effect</code> (spec §5.3, D-056; <a href="#what-the-packs-grant">below</a>), so every
-  <code>profile_id</code> changed with it. <code>profile_id</code> and the checked interface are the real output of the
-  validator, run from <code>profile/</code>:
+  they carry is listed below. Since 0.4.0 each file also says what its calls and messages grant, in the
+  <code>grant</code> of their <code>effect</code> (spec §5.3, D-056; <a href="#what-the-packs-grant">below</a>). 0.5.0
+  added the USDC and x402 profiles and two Permit2 deployments, so Permit2's <code>profile_id</code> changed (spec
+  §15.9, D-058). <code>profile_id</code> and the checked interface are the real output of the validator, run from
+  <code>profile/</code>:
 </p>
 
 <pre data-lang="bash">
@@ -31,8 +32,17 @@ PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
      interface_id candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f  [5 methods, 56 annotations]
 PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:d85261a93989a3f9cdaf7b8f3a93a3a508a388c9d8e808696bf867ace920b0c6
+     profile_id   candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188
      interface_id candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [4 methods, 40 annotations]
+PASS packs/usdc-base-sepolia.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d
+     interface_id candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c  [3 methods, 26 annotations]
+PASS packs/usdc.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:7977fab1ca0436abbe34d947800859afeb279337f44d85e5efdf6ce269d9d3e6
+     interface_id candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c  [3 methods, 26 annotations]
+PASS packs/x402-exact-permit2.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:95f79ba50f10a6340d06e96527d9c944732599f87bca54ecfcfce877b9a8237b
+     interface_id candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef  [1 methods, 13 annotations]
 </pre>
 
 <p>The validator's <code>methods</code> count takes an EIP-712 message as a method; the table splits them.</p>
@@ -48,6 +58,9 @@ PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
     <tr><td><a href="#erc2612"><code>erc2612</code></a></td><td>pack</td><td>ERC-2612 <span class="pill warn">experimental</span></td><td>5</td><td>1</td><td>18</td></tr>
     <tr><td><a href="#permit2"><code>permit2</code></a></td><td>contract profile</td><td>Uniswap's Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>4</td><td>40</td></tr>
     <tr><td><a href="#dai-permit"><code>dai-permit</code></a></td><td>contract profile</td><td>DAI's permit <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>8</td></tr>
+    <tr><td><a href="#usdc"><code>usdc</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments <span class="pill warn">experimental</span></td><td>0</td><td>3</td><td>26</td></tr>
+    <tr><td><a href="#usdc"><code>usdc-base-sepolia</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments on Base Sepolia <span class="pill warn">experimental</span></td><td>0</td><td>3</td><td>26</td></tr>
+    <tr><td><a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a></td><td>contract profile</td><td>x402's payment through Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>13</td></tr>
   </tbody>
 </table>
 
@@ -56,7 +69,7 @@ PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
   <code>binds.requires</code> (or reads <code>binds.abi</code>, with the struct types of <code>binds.eip712</code>) and
   resolves every annotation against it. It is not the identity of any ledger or token. A ledger that matches has its
   own <code>interface_id</code>, and the pack is applied to the ledger's types. A contract profile is checked against
-  its own <code>binds</code> in the same way; the two shipped here bind EIP-712 types and no function.
+  its own <code>binds</code> in the same way; the five shipped here bind EIP-712 types and no function.
 </p>
 
 <h2>How a pack matches</h2>
@@ -73,8 +86,9 @@ PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
 <p>
   An EVM pack may also carry EIP-712 messages (<code>binds.eip712</code>, spec §15.9). It still matches by its
   <code>binds.abi</code>, and its messages then join the contract's resolved form under <code>messages</code>. The
-  contract profiles <code>permit2</code> and <code>dai-permit</code> are not packs: no pack search tries them, and they
-  apply when given as profiles (<code>--profile</code>, or <code>profiles</code> in <code>resolveService</code>).
+  contract profiles (<code>permit2</code>, <code>dai-permit</code>, <code>usdc</code>, <code>usdc-base-sepolia</code>
+  and <code>x402-exact-permit2</code>) are not packs: no pack search tries them, and they apply when given as profiles
+  (<code>--profile</code>, or <code>profiles</code> in <code>resolveService</code>).
 </p>
 
 <h2 id="what-the-packs-grant">What the packs grant</h2>
@@ -83,7 +97,7 @@ PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
   A <code>grant</code> names who may take tokens because of a call or a signature, how many and until when, as
   positions of its arguments (<a href="reference-tags.html#what-a-call-grants">Tags</a>). A wallet reads it with the
   consent functions and checks it against terms the person confirmed for one task
-  (<a href="confirmed-terms.html">Confirm terms for a task</a>). These are every grant the six files carry, read from
+  (<a href="confirmed-terms.html">Confirm terms for a task</a>). These are every grant the nine files carry, read from
   their <code>effect</code> annotations:
 </p>
 
@@ -100,20 +114,21 @@ PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
     <tr><td><a href="#permit2"><code>permit2</code></a></td><td><code>PermitSingle</code> (message)</td><td><effect>approve</effect></td><td><code>"spender": "spender"</code></td><td><code>details.amount</code>, in <code>details.token</code></td><td>the latest of <code>details.expiration</code> and <code>sigDeadline</code></td></tr>
     <tr><td><a href="#permit2"><code>permit2</code></a></td><td><code>PermitTransferFrom</code> (message)</td><td><effect>transfer</effect></td><td><code>"spender": "spender"</code></td><td><code>permitted.amount</code>, in <code>permitted.token</code></td><td><code>deadline</code></td></tr>
     <tr><td><a href="#dai-permit"><code>dai-permit</code></a></td><td><code>Permit</code> (message)</td><td><effect>approve</effect></td><td><code>"spender": "spender"</code></td><td><code>allowed</code>, a <code>bool</code>: <code>true</code> unlimited, <code>false</code> nothing</td><td>none: never</td></tr>
+    <tr><td><a href="#usdc"><code>usdc</code></a>, <a href="#usdc"><code>usdc-base-sepolia</code></a></td><td><code>TransferWithAuthorization</code>, <code>ReceiveWithAuthorization</code> (messages)</td><td><effect>transfer</effect></td><td><code>"to": "to"</code></td><td><code>value</code></td><td><code>validBefore</code></td></tr>
+    <tr><td><a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a></td><td><code>PermitWitnessTransferFrom</code> (message)</td><td><effect>transfer</effect></td><td><code>"to": "witness.to"</code>, with the spender pinned to x402's proxy</td><td><code>permitted.amount</code>, in <code>permitted.token</code></td><td><code>deadline</code></td></tr>
   </tbody>
 </table>
 
 <p>
-  The token is the one an <code>amount.token</code> names (Permit2's), else the ledger or contract called. An amount
-  at or above its tag's <code>threshold</code> is unlimited, and an end at or above its tag's <code>threshold</code>
-  never ends. EIP-2612's <code>deadline</code> and DAI's
-  <code>expiry</code> bound only when the signature may be used, so they are not ends: those allowances never end
-  (spec §5.3). The other transfers and approvals carry no grant: <code>icrc2_transfer_from</code> and ERC-20's
-  <code>transferFrom</code>; and Permit2's <code>PermitBatch</code> and <code>PermitBatchTransferFrom</code>, which grant
-  several tokens while a grant covers one. A request without a grant is not covered by terms and needs its
-  confirmation. A pack whose grant does not hold in the service it is applied to keeps its effect and loses the grant
-  (<diag>I_PACK_ANNOTATION_SKIPPED</diag>); in the ledger and token runs below every grant holds, and the resolved
-  forms carry them all.
+  The token is the one an <code>amount.token</code> names (Permit2's and x402's), else the ledger or contract called. An
+  amount at or above its tag's <code>threshold</code> is unlimited, and an end at or above its tag's
+  <code>threshold</code> never ends. EIP-2612's <code>deadline</code> and DAI's <code>expiry</code> bound only when the
+  signature may be used, so they are not ends: those allowances never end (spec §5.3). The other transfers and approvals
+  carry no grant: <code>icrc2_transfer_from</code> and ERC-20's <code>transferFrom</code>; and Permit2's
+  <code>PermitBatch</code> and <code>PermitBatchTransferFrom</code>, which grant several tokens while a grant covers
+  one. A request without a grant is not covered by terms and needs its confirmation. A pack whose grant does not hold in
+  the service it is applied to keeps its effect and loses the grant (<diag>I_PACK_ANNOTATION_SKIPPED</diag>); in the
+  ledger and token runs below every grant holds, and the resolved forms carry them all.
 </p>
 
 <h2>Using the packs</h2>
@@ -144,9 +159,9 @@ candid-profile: packages/resolver/test/fixtures/ledger.did  candid-core:interfac
     <tr><td><code>--packs</code></td><td>Tries every pack in the packs directory and applies those that match; the others get <diag>I_PACK_NOT_MATCHED</diag> (info). A pack for the other kind of interface is skipped: the EVM packs are never tried on a <code>.did</code>, nor the ICRC packs on an ABI. The contract profiles in the same directory are not packs and are never tried.</td></tr>
     <tr><td><code>--packs-dir &lt;dir&gt;</code></td><td>The packs directory (default: the standard packs the package ships).</td></tr>
     <tr><td><code>--profile pack.json</code></td><td>Applies the pack as given: it must match, or the resolve fails with <diag>E_PACK_NOT_MATCHED</diag>. A contract profile, such as <code>permit2.profile.json</code>, is applied this way too.</td></tr>
-    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name; by default <code>DEFAULT_PACKS_DIR</code>, the shipped packs. Packs only: <code>erc20</code>, <code>erc2612</code>, <code>icrc1</code> and <code>icrc2</code>, never the two contract profiles. Node entry.</td></tr>
+    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name; by default <code>DEFAULT_PACKS_DIR</code>, the shipped packs. Packs only: <code>erc20</code>, <code>erc2612</code>, <code>icrc1</code> and <code>icrc2</code>, never the five contract profiles. Node entry.</td></tr>
     <tr><td><code>STANDARD_PACKS</code></td><td>The same four packs as data, from <code>@meantjs/profile/browser</code>, for a bundle that cannot read files.</td></tr>
-    <tr><td><code>@meantjs/profile/packs/*</code></td><td>The six files themselves, as a package export (<code>./packs/*</code> maps to the package's <code>data/packs/*</code>): the four packs, and the contract profiles <code>@meantjs/profile/packs/permit2.profile.json</code> and <code>@meantjs/profile/packs/dai-permit.profile.json</code>.</td></tr>
+    <tr><td><code>@meantjs/profile/packs/*</code></td><td>The nine files themselves, as a package export (<code>./packs/*</code> maps to the package's <code>data/packs/*</code>): the four packs, and the five contract profiles, such as <code>@meantjs/profile/packs/permit2.profile.json</code> and <code>@meantjs/profile/packs/x402-exact-permit2.profile.json</code>.</td></tr>
   </tbody>
 </table>
 
@@ -200,7 +215,7 @@ npx candid-profile resolve --abi empty.abi.json --profile packs/permit2.profile.
 
 <pre data-lang="text">
 candid-profile: empty.abi.json  candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [0 methods]
-  applied     permit2          third_party  candid-profile:v0:sha256:d85261a93989a3f9cdaf7b8f3a93a3a508a388c9d8e808696bf867ace920b0c6
+  applied     permit2          third_party  candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188
   0 error, 0 warning, 0 info
 </pre>
 
@@ -626,19 +641,21 @@ service : {
 </p>
 
 <p>
-  It is bound to the domain named <code>Permit2</code>, with no version, and to <code>0x0000…8BA3</code> on chains 1
-  and 42161, so a look-alike contract named "Permit2" gets none of these words (<diag>E_DEPLOYMENT</diag>).
-  <claim>fact</claim> ERC-7730's own Permit2 example lists these deployments (spec §15.9); its other chains are open
-  item O10. <claim>fact</claim> (Uniswap <code>permit2</code>, <code>Allowance.sol</code> and
-  <code>AllowanceTransfer.sol</code>) "If the inputted expiration is 0, the allowance only lasts the duration of the
-  block", so an expiration of 0 reads <code>Only in the block it is used</code>; an allowance of
-  <code>type(uint160).max</code> is never decremented, so it reads <code>Unlimited</code>. Witness messages
-  (<code>PermitWitnessTransferFrom</code>) are left out: each protocol adds its own witness type
-  (<claim>open</claim> O9, on <a href="open-questions.html">Open questions</a>).
+  It is bound to the domain named <code>Permit2</code>, with no version, and to <code>0x0000…8BA3</code> on chains 1,
+  8453, 42161 and 84532, so a look-alike contract named "Permit2" gets none of these words (<diag>E_DEPLOYMENT</diag>).
+  <claim>fact</claim> ERC-7730's own Permit2 example lists chains 1 and 42161; Base and Base Sepolia (8453 and 84532)
+  were added in 0.5.0 from Permit2's code and <code>DOMAIN_SEPARATOR()</code>, read on each chain on 2026-10-30, and
+  Uniswap's deployments page (spec §15.9, D-058). Its other chains are open item O10. <claim>fact</claim> (Uniswap
+  <code>permit2</code>, <code>Allowance.sol</code> and <code>AllowanceTransfer.sol</code>) "If the inputted expiration
+  is 0, the allowance only lasts the duration of the block", so an expiration of 0 reads <code>Only in the block it is
+  used</code>; an allowance of <code>type(uint160).max</code> is never decremented, so it reads <code>Unlimited</code>.
+  Witness messages (<code>PermitWitnessTransferFrom</code>) are left out of this profile: each protocol adds its own
+  witness type. x402's has a profile of its own, <a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a>, and
+  any other is open (<claim>open</claim> O9, on <a href="open-questions.html">Open questions</a>).
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:d85261a93989a3f9cdaf7b8f3a93a3a508a388c9d8e808696bf867ace920b0c6</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188</id-chip></li>
   <li>checked against (its struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 4 methods (4 messages), 40 annotations</li>
 </ul>
@@ -660,7 +677,15 @@ service : {
     "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
   },
   {
+    "chain_id": 8453,
+    "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+  },
+  {
     "chain_id": 42161,
+    "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+  },
+  {
+    "chain_id": 84532,
     "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
   }
 ]
@@ -813,3 +838,226 @@ service : {
     <tr><td><code class="wrap">Permit(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
   </tbody>
 </table>
+
+
+<h2 id="usdc">USDC</h2>
+
+<p>
+  <span class="pill warn">experimental</span> USDC's EIP-3009 messages, as two contract profiles (<code>origin:
+  "third_party"</code>, D-058): <code>usdc</code> on Ethereum, Base and Arbitrum, and <code>usdc-base-sepolia</code> on
+  Base Sepolia, a test network, with the same words. Files:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/usdc.profile.json"><code>profile/packs/usdc.profile.json</code></a>
+  and
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/usdc-base-sepolia.profile.json"><code>profile/packs/usdc-base-sepolia.profile.json</code></a>.
+  <code>TransferWithAuthorization</code> and <code>ReceiveWithAuthorization</code> pay <code>to</code> once, by a
+  signature that someone else submits (<effect>transfer</effect> <effect>irreversible</effect>), and
+  <code>CancelAuthorization</code> cancels one that is unused (<effect>write</effect>). Amounts are in 6 decimals,
+  <code>USDC</code>; the verifying contract is the token. <claim>fact</claim> x402's <code>exact</code> scheme pays by
+  <code>TransferWithAuthorization</code> by default (<code>coinbase/x402</code> at <code>0e6e8c5</code>,
+  <code>specs/schemes/exact/scheme_exact_evm.md</code>, as spec §15.9 records).
+</p>
+
+<p>
+  <code>usdc</code> is bound to the domain <code>USD Coin</code> version <code>2</code> and to USDC on chains 1
+  (<code>0xA0b8…eB48</code>), 8453 (<code>0x8335…2913</code>) and 42161 (<code>0xaf88…5831</code>);
+  <code>usdc-base-sepolia</code> to the domain <code>USDC</code> version <code>2</code> and to <code>0x036C…CF7e</code>
+  on chain 84532. Base Sepolia's USDC signs under that other name, and a profile binds one domain, so it has a profile
+  of its own. A look-alike token gets none of these words (<diag>E_DEPLOYMENT</diag>). <claim>fact</claim> (read on
+  chain on 2026-10-30) each contract's <code>DOMAIN_SEPARATOR()</code>, <code>decimals()</code> and three type hashes.
+  <claim>fact</claim> (EIP-3009; Circle's <code>EIP3009.sol</code> at <code>fc85788</code>, as spec §15.9 records) a
+  signature is valid only after <code>validAfter</code> and before <code>validBefore</code>, both strictly, so the text
+  reads "Valid after" and "Expires", and only the payee may submit a <code>ReceiveWithAuthorization</code>. USDC's ABI
+  names each of its four signature functions twice, which the resolver refuses (<claim>open</claim> O1), so the profiles
+  describe the messages only.
+</p>
+
+<ul>
+  <li><code>usdc</code>, <code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:7977fab1ca0436abbe34d947800859afeb279337f44d85e5efdf6ce269d9d3e6</id-chip></li>
+  <li><code>usdc-base-sepolia</code>, <code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d</id-chip></li>
+  <li>checked against (their struct types, the same in both): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c</id-chip></li>
+  <li>validator, each: 0 error, 0 warning, 0 info; 3 methods (3 messages), 26 annotations</li>
+</ul>
+
+<h3>Domains and deployments</h3>
+
+<pre data-lang="json" data-file="profile/packs/usdc.profile.json">
+"eip712": {
+  "domain": {
+    "name": "USD Coin",
+    "version": "2"
+  },
+  "types": {
+    …
+  }
+},
+"deployments": [
+  {
+    "chain_id": 1,
+    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+  },
+  {
+    "chain_id": 8453,
+    "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  },
+  {
+    "chain_id": 42161,
+    "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+  }
+]
+</pre>
+
+<pre data-lang="json" data-file="profile/packs/usdc-base-sepolia.profile.json">
+"eip712": {
+  "domain": {
+    "name": "USDC",
+    "version": "2"
+  },
+  "types": {
+    …
+  }
+},
+"deployments": [
+  {
+    "chain_id": 84532,
+    "address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+  }
+]
+</pre>
+
+<h3>Messages</h3>
+
+<table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>TransferWithAuthorization</code><br><effect>transfer</effect> <effect>irreversible</effect></td><td><code class="wrap">TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)</code><br><code class="wrap">0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267</code></td></tr>
+    <tr><td><code>ReceiveWithAuthorization</code><br><effect>transfer</effect> <effect>irreversible</effect></td><td><code class="wrap">ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)</code><br><code class="wrap">0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8</code></td></tr>
+    <tr><td><code>CancelAuthorization</code><br><effect>write</effect> <effect>irreversible</effect></td><td><code class="wrap">CancelAuthorization(address authorizer,bytes32 nonce)</code><br><code class="wrap">0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Annotations</h3>
+
+<p>The two files carry the same 26 annotations:</p>
+
+<table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">TransferWithAuthorization</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Pay USDC by signature"</code><br><code>template</code>: "Send {value} from {from} to {to}, once. Valid after {validAfter}. Expires: {validBefore}."</td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "to", "amount": "value", "ends": ["validBefore"] }</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>from</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"To"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>6</code><br><code>symbol</code>: <code>"USDC"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validAfter</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validAfter</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Valid after"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validBefore</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validBefore</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Expires"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization</code></td><td><code>intent</code></td><td><code>title</code>: "Pay USDC by signature, collected by the payee"<br><code>template</code>: "Send {value} from {from} to {to}, once; only {to} can submit it. Valid after {validAfter}. Expires: {validBefore}."</td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "to", "amount": "value", "ends": ["validBefore"] }</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>from</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"To"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>6</code><br><code>symbol</code>: <code>"USDC"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validAfter</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validAfter</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Valid after"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validBefore</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validBefore</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Expires"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">CancelAuthorization</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Cancel a USDC payment signature"</code><br><code>template</code>: "Cancel the unused USDC payment signature of {authorizer} with nonce {nonce}."</td></tr>
+    <tr><td><code class="wrap">CancelAuthorization</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"write"</code><br><code>irreversible</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">CancelAuthorization(0).<wbr>authorizer</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signer of the payment"</code></td></tr>
+    <tr><td><code class="wrap">CancelAuthorization(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  The <code>threshold</code> of both <code>validBefore</code>s is 2<sup>256</sup> − 1, which reads <code>Never</code>.
+  Both payments grant their <code>value</code> to <code>to</code>, until <code>validBefore</code>: from then on the
+  signature cannot be submitted. <code>CancelAuthorization</code> grants nothing, so no terms cover it and it needs its
+  own confirmation.
+</p>
+
+<h2 id="x402-exact-permit2">x402 through Permit2</h2>
+
+<p>
+  <span class="pill warn">experimental</span> x402's <code>exact</code> payment through Permit2, as a contract profile
+  (<code>origin: "third_party"</code>, D-058). File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/x402-exact-permit2.profile.json"><code>profile/packs/x402-exact-permit2.profile.json</code></a>.
+  It describes one message, Permit2's <code>PermitWitnessTransferFrom</code> with x402's witness <code>Witness(address
+  to,uint256 validAfter)</code>, which x402 signs for a token without EIP-3009 (<effect>transfer</effect>
+  <effect>irreversible</effect>). It is bound to Permit2's domain and deployments: the domain <code>Permit2</code>, with
+  no version, and <code>0x0000…8BA3</code> on chains 1, 8453, 42161 and 84532. The amount is in the token the message
+  names (<code>permitted.token</code>): a consumer supplies that token's <code>decimals()</code> and
+  <code>symbol()</code>, and shows its address beside the symbol.
+</p>
+
+<p>
+  Permit2 lets the spender choose where the tokens go and never reads the witness, so the witness's <code>to</code> is
+  the payee only when the spender is x402's proxy, <code>0x402085c248EeA27D92E8b30b2C58ed07f9E20001</code>. The profile
+  pins the spender to it (<a href="reference-tags.html#a-pin-fixed"><code>fixed</code></a>, spec §15.4): a request with
+  any other spender gets no text (<diag>E_FIXED</diag>), and the grant pays <code>witness.to</code>. <claim>fact</claim>
+  (<code>coinbase/x402</code> at <code>0e6e8c5</code>, <code>contracts/evm/src/x402BasePermit2Proxy.sol</code> and
+  <code>x402ExactPermit2Proxy.sol</code>, as spec §15.9 records) the proxy's <code>settle</code> sends exactly
+  <code>permitted.amount</code> to <code>witness.to</code> and reverts while the block's time is before
+  <code>validAfter</code>, so the text reads "Usable from". <claim>fact</claim> (read on chain on 2026-10-30) the proxy
+  has the same code on the four chains, and its <code>PERMIT2()</code> is Permit2. x402's <code>upto</code> scheme signs
+  another witness, so another type hash, and matches nothing.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:95f79ba50f10a6340d06e96527d9c944732599f87bca54ecfcfce877b9a8237b</id-chip></li>
+  <li>checked against (its struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef</id-chip></li>
+  <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 13 annotations</li>
+</ul>
+
+<h3>Message</h3>
+
+<p>
+  Three struct types: <code>PermitWitnessTransferFrom</code>, which the profile tags with <code>intent</code>, is the
+  message, and <code>TokenPermissions</code> and <code>Witness</code> are types inside it.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PermitWitnessTransferFrom</code><br><effect>transfer</effect> <effect>irreversible</effect></td><td><code class="wrap">PermitWitnessTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline,Witness witness)TokenPermissions(address token,uint256 amount)Witness(address to,uint256 validAfter)</code><br><code class="wrap">0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Annotations</h3>
+
+<table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Pay by x402 through Permit2"</code><br><code>template</code>: "Send {permitted.amount} to {witness.to}, once, through x402's payment contract. Usable from {witness.validAfter}. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "witness.to", "amount": "permitted.amount", "ends": ["deadline"] }</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>permitted.<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"permitted.token"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>spender</code></td><td><code>fixed</code></td><td><code>value</code>: <code class="wrap">"0x402085c248EeA27D92E8b30b2C58ed07f9E20001"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"x402's payment contract"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>witness.<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"To"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>witness.<wbr>validAfter</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>labels</code>: <code>{ "0": "now" }</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>witness.<wbr>validAfter</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Usable from"</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  The <code>deadline</code>'s <code>threshold</code> is 2<sup>256</sup> − 1, which reads <code>Never</code>, and a
+  <code>validAfter</code> of 0 reads <code>now</code>, a label: the payment can be settled at once. The grant ends at
+  the <code>deadline</code>, as Permit2's <code>PermitTransferFrom</code> does. The ERC-7730 export writes the pin on
+  the spender's field as <code>visible: { "mustMatch": ["0x402085c248EeA27D92E8b30b2C58ed07f9E20001"] }</code>, so a
+  wallet hides that field and checks it (spec §15.7).
+</p>

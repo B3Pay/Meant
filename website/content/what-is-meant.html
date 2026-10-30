@@ -105,6 +105,7 @@ symbol: query:icrc1_symbol
     <tr><td>Answer <code>icrc21_consent_message</code>, or render an SNS proposal</td><td><a href="consent-messages.html"><code>@meantjs/consent</code></a></td></tr>
     <tr><td>Give an agent tools for a canister</td><td><a href="agent-tools.html"><code>@meantjs/tools</code></a></td></tr>
     <tr><td>Let the person confirm once what an agent's task may grant, and check each request against it</td><td><a href="confirmed-terms.html"><code>@meantjs/consent/terms</code></a></td></tr>
+    <tr><td>Read an x402 payment before the wallet signs it, and refuse one whose spender is not x402's proxy</td><td><a href="chain-evm.html#x402-payments"><code>@meantjs/consent/evm</code></a>, with the USDC and x402 profiles (experimental)</td></tr>
     <tr><td>Find out whether a transfer with an unknown outcome went through</td><td><a href="reconcile-outcomes.html"><code>@meantjs/reconcile</code></a></td></tr>
   </tbody>
 </table>
@@ -128,7 +129,7 @@ symbol: query:icrc1_symbol
   <li>
     <strong>The Internet Computer first.</strong> Profiles for EVM contracts are
     <a href="chain-evm.html">experimental</a>: consent text for calls and for EIP-712 signing
-    requests, and ERC-7730 files, not yet agent tools.
+    requests, x402 payments among them, and ERC-7730 files, not yet agent tools.
     <a href="chain-solana.html">Solana</a> is planned and not supported.
   </li>
   <li>
