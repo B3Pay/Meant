@@ -14,22 +14,22 @@ node scripts/validate.mjs
 
 <pre data-lang="text">
 PASS packs/dai-permit.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:5fe7bd66c0a15a1b370d279be2aedba80f539b0c1e195f7b22ef33ff94540f5e
+     profile_id   candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8
      interface_id candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46  [1 methods, 8 annotations]
 PASS packs/erc20.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186
+     profile_id   candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
      interface_id candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b  [7 methods, 23 annotations]
 PASS packs/erc2612.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810
+     profile_id   candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705
      interface_id candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee  [6 methods, 18 annotations]
 PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
+     profile_id   candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
      interface_id candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689  [5 methods, 29 annotations]
 PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+     profile_id   candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
      interface_id candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f  [5 methods, 56 annotations]
 PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a
+     profile_id   candid-profile:v0:sha256:d85261a93989a3f9cdaf7b8f3a93a3a508a388c9d8e808696bf867ace920b0c6
      interface_id candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [4 methods, 40 annotations]
 </pre>
 
@@ -90,8 +90,8 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json
 
 <pre data-lang="text">
 candid-profile: packages/resolver/test/fixtures/ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
-  applied     icrc1            pack         candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b
-  applied     icrc2            pack         candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
   0 error, 0 warning, 3 info
 </pre>
 
@@ -142,8 +142,8 @@ npx candid-profile resolve --abi token.abi.json --packs > token.resolved.json
 
 <pre data-lang="text">
 candid-profile: token.abi.json  candid-profile:evm-abi:v0:sha256:adaf687bca6190caca23583655028c78a0ad4d9fca99fe1f1efdf96758b910eb  [10 methods]
-  applied     erc20            pack         candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186
-  applied     erc2612          pack         candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810
+  applied     erc20            pack         candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
+  applied     erc2612          pack         candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705
   0 error, 0 warning, 2 info
 </pre>
 
@@ -159,7 +159,7 @@ npx candid-profile resolve --abi empty.abi.json --profile packs/permit2.profile.
 
 <pre data-lang="text">
 candid-profile: empty.abi.json  candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [0 methods]
-  applied     permit2          third_party  candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a
+  applied     permit2          third_party  candid-profile:v0:sha256:d85261a93989a3f9cdaf7b8f3a93a3a508a388c9d8e808696bf867ace920b0c6
   0 error, 0 warning, 0 info
 </pre>
 
@@ -172,7 +172,7 @@ candid-profile: empty.abi.json  candid-profile:evm-abi:v0:sha256:e013c202cb76d4b
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:e5b16b51eb296a33dc91527c8d692024a9855d07084fa7daefada7b10aab905b</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6</id-chip></li>
   <li>checked against (the fragment): <id-chip kind="interface_id">candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 5 methods, 29 annotations</li>
 </ul>
@@ -256,7 +256,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:5230908fa0fe232f34519cfc7a74d7d1ef9042e59c57f432f1c93cc25807c3ae</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567</id-chip></li>
   <li>checked against (the fragment): <id-chip kind="interface_id">candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 5 methods, 56 annotations</li>
 </ul>
@@ -401,7 +401,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:34a34e27f0f1fb4a62df6f596caecd29003fe2458f8d752134fc9c2bdbb59186</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81</id-chip></li>
   <li>checked against (the ABI): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 7 methods, 23 annotations</li>
 </ul>
@@ -482,7 +482,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:289f306285b3cf9e90e2470e634cdb4e4f19b99bc2643f21baae7fcebee25810</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705</id-chip></li>
   <li>checked against (the ABI and the struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 6 methods (5 functions and 1 message), 18 annotations</li>
 </ul>
@@ -595,7 +595,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:2e4699260df67783b5020643179fcf8dd509f629b81406afea3bb5bb5491f56a</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:d85261a93989a3f9cdaf7b8f3a93a3a508a388c9d8e808696bf867ace920b0c6</id-chip></li>
   <li>checked against (its struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 4 methods (4 messages), 40 annotations</li>
 </ul>
@@ -721,7 +721,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:5fe7bd66c0a15a1b370d279be2aedba80f539b0c1e195f7b22ef33ff94540f5e</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8</id-chip></li>
   <li>checked against (its struct type): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 8 annotations</li>
 </ul>
