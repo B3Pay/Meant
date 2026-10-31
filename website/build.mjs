@@ -114,9 +114,9 @@ function renderCallouts(html) {
 
 /** Wraps bare tables so they scroll horizontally on narrow screens. */
 function wrapTables(html) {
-  return html
-    .replace(/<table>/g, '<div class="table-wrap"><table>')
-    .replace(/<\/table>/g, "</table></div>");
+  // Only a plain <table>, opened and closed together: a component's own table
+  // (a class on it) brings its own frame.
+  return html.replace(/<table>([\s\S]*?)<\/table>/g, '<div class="table-wrap"><table>$1</table></div>');
 }
 
 /** Adds ids and anchor links to h2/h3/h4, and collects the table of contents. */
@@ -189,7 +189,7 @@ function renderPageNav(pages, index) {
   return `<nav class="page-nav" aria-label="Page navigation">${link(previous, "prev")}${link(next, "next")}</nav>`;
 }
 
-function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
+function shell({ site, page, body, toc, nav, pageNav, isLanding, chains }) {
   const title = page.slug === "index" ? site.title : `${page.title} · ${site.title}`;
   const description = page.lead || site.description;
   const editUrl = `${site.repo}/blob/main/website/content/${page.slug}.html`;
@@ -249,7 +249,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding }) {
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css">${chains ? '\n<link rel="stylesheet" href="assets/chains.css">' : ""}
 <script>
   (function () {
     try {
@@ -266,7 +266,7 @@ ${header}
 ${main}
 ${footer}
 ${searchDialog}
-<script src="assets/search-index.js"></script>
+<script src="assets/search-index.js"></script>${chains ? '\n<script src="assets/chains.js"></script>' : ""}
 <script src="assets/site.js"></script>
 </body>
 </html>
@@ -343,6 +343,8 @@ async function build() {
       site,
       page,
       body,
+      // A page with a Meant Chains component loads that system's two files.
+      chains: body.includes('class="mc-'),
       toc,
       nav: renderNav(site, page.slug),
       pageNav: renderPageNav(pages, i),

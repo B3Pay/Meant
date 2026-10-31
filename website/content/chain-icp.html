@@ -151,10 +151,34 @@ Send `0.29 TKA` to `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-
 - **Recipient:** `k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae`
 </pre>
 
-<consent standard="Consent · ICRC-21" title="Send tokens" effects="transfer irreversible">
-<field name="Amount" amount>0.29 TKA</field>
-<field name="Recipient">k2t6j-2nvnp-…-teztq-6ae</field>
-</consent>
+<signing-sheet>
+{
+  "consent": {
+    "message": {
+      "FieldsDisplayMessage": {
+        "intent": "Send tokens: Send 0.29 TKA to k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+        "fields": [
+          ["Amount", {"TokenAmount": {"decimals": 8, "amount": "29000000", "symbol": "TKA"}}],
+          ["Recipient", {"Text": {"content": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae"}}]
+        ]
+      }
+    },
+    "model": {"title": "Send tokens", "effect": "transfer"},
+    "provenance": {"intent": {"origin": "pack", "profile": "icrc1"}},
+    "grant": {
+      "kind": "transfer",
+      "to": "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae",
+      "token": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+      "amount": {"units": "29000000", "unlimited": false},
+      "ends": {"now": true}
+    }
+  },
+  "chain": {"family": "icp", "network": "local"},
+  "standard": "ICRC-21",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner confirms. The model never does."
+}
+</signing-sheet>
 
 <table>
   <thead>

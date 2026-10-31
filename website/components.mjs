@@ -27,7 +27,20 @@
  *   </consent>
  *   <chain-switch chains="icp evm"></chain-switch>   ChainSwitcher; the panels
  *                                            are elements with data-chain-panel
+ *
+ * The chain pages also use three components of the Meant Chains design
+ * system. Their markup is not copied here: build.mjs runs the system's own
+ * bundle, assets/chains.js, and writes what its html() functions return. The
+ * body of each tag is the component's options as JSON, written literally like
+ * a <pre>, with the values exactly as @meantjs/consent returned them:
+ *
+ *   <signing-sheet>{ "consent": …, "chain": …, "standard": … }</signing-sheet>   SigningSheet
+ *   <refusal-panel>{ "code": "E_FIXED", "message": … }</refusal-panel>         RefusalPanel
+ *   <grant-summary>{ "grant": …, "tokens": …, "names": … }</grant-summary>     GrantSummary
  */
+
+import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 
 export const escapeHtml = (text) =>
   text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -71,6 +84,31 @@ export const CHAINS = [
   { id: "sol", name: "Solana", code: "SOL" },
 ];
 
+/* The Meant Chains components, from the bundle the chain pages load. The same
+ * file runs here, in a sandbox that holds nothing but the `window` it assigns,
+ * so a page carries exactly the markup the system's html() functions return
+ * and chains.js only adds what moves (copy, expand). */
+const chainsScope = { window: {} };
+runInNewContext(readFileSync(new URL("./assets/chains.js", import.meta.url), "utf8"), chainsScope, {
+  filename: "assets/chains.js",
+});
+export const MeantChains = chainsScope.window.MeantChains;
+
+/** The tags a page writes, each with the component it renders. */
+export const CHAIN_TAGS = {
+  "signing-sheet": "SigningSheet",
+  "refusal-panel": "RefusalPanel",
+  "grant-summary": "GrantSummary",
+};
+const CHAIN_TAG = new RegExp(`<(${Object.keys(CHAIN_TAGS).join("|")})>([\\s\\S]*?)</\\1>`, "g");
+export const chainTags = (html) => [...html.matchAll(CHAIN_TAG)].map(([, tag, body]) => ({ tag, body }));
+
+/** A tag's options. In a page, a sheet or panel's title is an h4, like a
+ * <consent>'s, and a refusal is an example at rest, not an alert. */
+export const chainOptions = (body) => (body.trim() ? JSON.parse(body) : {});
+export const renderChain = (tag, body) =>
+  MeantChains[CHAIN_TAGS[tag]].html({ level: 4, alert: false, ...chainOptions(body) });
+
 const attr = (attributes, name, fallback = "") =>
   (attributes.match(new RegExp(`\\b${name}="([^"]*)"`)) || [, fallback])[1];
 
@@ -90,6 +128,9 @@ export function renderComponents(html) {
     `<span class="id-chip"><span class="id-kind">${escapeHtml(kind)}</span><span class="id-value" title="${escapeHtml(value)}">${escapeHtml(value)}</span><button type="button" data-copy="${escapeHtml(value)}">Copy</button></span>`;
 
   return html
+    // First, so no other pattern reads a component's JSON. The system gives a
+    // sheet no outer margin; the wrapper adds the spacing a <consent> has.
+    .replace(CHAIN_TAG, (whole, tag, body) => `<div style="margin: var(--space-4) 0 var(--space-6)">${renderChain(tag, body)}</div>`)
     .replace(/<layer>([\s\S]*?)<\/layer>/g, (whole, raw) => {
       const layer = raw.trim();
       return `${layerIcon(layer, 12)}${escapeHtml(LAYERS[layer] ? LAYERS[layer].name : layer)}`;

@@ -285,11 +285,26 @@ PASS tka.profile.json  (0 error, 0 warning, 0 info)
   first example; the fields form is an intent line and <code>[label, text]</code> rows:
 </p>
 
-<consent standard="Consent text · EVM (experimental)" title="Send tokens" effects="transfer irreversible">
-<field name="Amount" amount>1.5 TKA</field>
-<field name="Recipient">0x7099…79C8</field>
-<field name="Contract">0x5FbD…0aa3 on chain 31337</field>
-</consent>
+<signing-sheet>
+{
+  "consent": {
+    "message": {
+      "intent": "Send tokens: Send 1.5 TKA to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "fields": [
+        ["Amount", "1.5 TKA"],
+        ["Recipient", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"],
+        ["Contract", "0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 31337"]
+      ]
+    },
+    "model": {"title": "Send tokens", "effect": "transfer"},
+    "provenance": {"intent": {"origin": "pack", "profile": "erc20"}}
+  },
+  "chain": {"family": "evm", "id": 31337, "name": "Anvil", "network": "local"},
+  "standard": "ERC-20",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner confirms. The model never does."
+}
+</signing-sheet>
 
 <table>
   <thead>
@@ -734,15 +749,31 @@ This is a signature, not a transaction: whoever holds it can submit it.
 
 <p>The same request for an unlimited amount that never expires, <code>value</code> and <code>deadline</code> both <code>uint256</code> max, in the fields form:</p>
 
-<consent standard="Consent text · EIP-712 (experimental)" title="Permit token spending" effects="approve" note="Only the owner signs. The model never does.">
-<field name="Spender">0x7099…79C8</field>
-<field name="Amount" amount>Unlimited TKA</field>
-<field name="Owner">0xf39F…2266</field>
-<field name="Signature expires">Never</field>
-<field name="Contract">0x5FbD…0aa3 on chain 31337</field>
-<field name="Signature">This is a signature, not a transaction: whoever holds it can submit it</field>
-<field name="EIP-712 digest">0x1ed6…d724</field>
-</consent>
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "Permit",
+    "message": {
+      "intent": "Permit token spending: Allow 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 to spend up to Unlimited TKA from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266. Signature expires: Never.",
+      "fields": [
+        ["Spender", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"],
+        ["Amount", "Unlimited TKA"],
+        ["Owner", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"],
+        ["Signature expires", "Never"],
+        ["Contract", "0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 31337"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0x1ed67c5a59ec9d151f0869921badb08c858e9da052444bea7c41722d4fa4d724"]
+      ]
+    },
+    "model": {"title": "Permit token spending", "effect": "approve"},
+    "provenance": {"intent": {"origin": "pack", "profile": "erc2612"}}
+  },
+  "chain": {"family": "evm", "id": 31337, "name": "Anvil", "network": "local"},
+  "standard": "EIP-2612",
+  "effects": ["approve"],
+  "who": "Only the owner signs. The model never does."
+}
+</signing-sheet>
 
 <h3>What is refused before anything is shown</h3>
 
@@ -769,6 +800,17 @@ This is a signature, not a transaction: whoever holds it can submit it.
   </tbody>
 </table>
 
+<p>A wallet shows a refusal in place of the text, with the code and the message as the library wrote them, and nothing to confirm:</p>
+
+<refusal-panel>
+{
+  "code": "E_DOMAIN",
+  "message": "the domain is for chain 31337, the wallet is on chain 1",
+  "kind": "signature",
+  "standard": "EIP-2612"
+}
+</refusal-panel>
+
 <h3>Permit2</h3>
 
 <p>
@@ -779,15 +821,34 @@ This is a signature, not a transaction: whoever holds it can submit it.
   max:
 </p>
 
-<consent standard="Consent text · EIP-712 (experimental)" title="Permit2: allow spending of several tokens" effects="approve" note="Only the owner signs. The model never does.">
-<field name="Spender">0x66a9…A8Af</field>
-<field name="Amount" amount address="0xA0b8…eB48, 0xC02a…6Cc2">1.5 USDC, Unlimited WETH</field>
-<field name="Allowance expires">Only in the block it is used, Never</field>
-<field name="Signature expires">Never</field>
-<field name="Contract">0x0000…8BA3 on chain 1</field>
-<field name="Signature">This is a signature, not a transaction: whoever holds it can submit it</field>
-<field name="EIP-712 digest">0xd612…06ad</field>
-</consent>
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "PermitBatch",
+    "message": {
+      "intent": "Permit2: allow spending of several tokens: Let 0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af spend up to 1.5 USDC (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48), Unlimited WETH (0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2). Allowances expire, in the same order: Only in the block it is used, Never. Signature expires: Never.",
+      "fields": [
+        ["Spender", "0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af"],
+        [
+          "Amount",
+          "1.5 USDC (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48), Unlimited WETH (0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)"
+        ],
+        ["Allowance expires", "Only in the block it is used, Never"],
+        ["Signature expires", "Never"],
+        ["Contract", "0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 1"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0xd612330f07ad19e33c589712a85d09a00e512854848e6ae84d89c877f5fe06ad"]
+      ]
+    },
+    "model": {"title": "Permit2: allow spending of several tokens", "effect": "approve"},
+    "provenance": {"intent": {"origin": "third_party", "profile": "permit2"}}
+  },
+  "chain": {"family": "evm", "id": 1, "name": "Ethereum"},
+  "standard": "EIP-712",
+  "effects": ["approve"],
+  "who": "Only the owner signs. The model never does."
+}
+</signing-sheet>
 
 <p>
   The text shows each token's full address in brackets after its amount:
@@ -810,16 +871,32 @@ This is a signature, not a transaction: whoever holds it can submit it.
   example on Base Sepolia, from the package's test, in the fields form; nothing is signed or sent:
 </p>
 
-<consent standard="Consent text · EIP-712 (experimental)" title="Pay USDC by signature" effects="transfer irreversible" note="Only the owner signs. The model never does.">
-<field name="Amount" amount>0.01 USDC</field>
-<field name="From">0x857b…6b66</field>
-<field name="To">0x2096…287C</field>
-<field name="Valid after">2025-02-27T16:01:29Z</field>
-<field name="Expires">2025-02-27T16:02:34Z</field>
-<field name="Contract">0x036C…CF7e on chain 84532</field>
-<field name="Signature">This is a signature, not a transaction: whoever holds it can submit it</field>
-<field name="EIP-712 digest">0xf256…22e6</field>
-</consent>
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "TransferWithAuthorization",
+    "message": {
+      "intent": "Pay USDC by signature: Send 0.01 USDC from 0x857b06519E91e3A54538791bDbb0E22373e36b66 to 0x209693Bc6afc0C5328bA36FaF03C514EF312287C, once. Valid after 2025-02-27T16:01:29Z. Expires: 2025-02-27T16:02:34Z.",
+      "fields": [
+        ["Amount", "0.01 USDC"],
+        ["From", "0x857b06519E91e3A54538791bDbb0E22373e36b66"],
+        ["To", "0x209693Bc6afc0C5328bA36FaF03C514EF312287C"],
+        ["Valid after", "2025-02-27T16:01:29Z"],
+        ["Expires", "2025-02-27T16:02:34Z"],
+        ["Contract", "0x036CbD53842c5426634e7929541eC2318f3dCF7e on chain 84532"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0xf256992871671abcb27ff92885a7afa46218724e5fc0bac35d050115aa1d22e6"]
+      ]
+    },
+    "model": {"title": "Pay USDC by signature", "effect": "transfer"},
+    "provenance": {"intent": {"origin": "third_party", "profile": "usdc-base-sepolia"}}
+  },
+  "chain": {"family": "evm", "id": 84532, "name": "Base Sepolia", "network": "test"},
+  "standard": "EIP-3009",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner signs. The model never does."
+}
+</signing-sheet>
 
 <p>
   It grants <code>0x2096…287C</code> 10000 base units of USDC once, until <code>validBefore</code>: <code>{ kind:
@@ -837,15 +914,31 @@ This is a signature, not a transaction: whoever holds it can submit it.
   <code>0x79b9a6c5…1472</code>), with USDC's decimals and symbol in <code>tokens</code>:
 </p>
 
-<consent standard="Consent text · EIP-712 (experimental)" title="Pay by x402 through Permit2" effects="transfer irreversible" note="Only the owner signs. The model never does.">
-<field name="Amount" amount address="0x036C…CF7e">0.011 USDC</field>
-<field name="To">0x5037…F6FD</field>
-<field name="Usable from">now</field>
-<field name="Signature expires">2026-10-29T23:58:09Z</field>
-<field name="Contract">0x0000…8BA3 on chain 84532</field>
-<field name="Signature">This is a signature, not a transaction: whoever holds it can submit it</field>
-<field name="EIP-712 digest">0xb7d4…115b</field>
-</consent>
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "PermitWitnessTransferFrom",
+    "message": {
+      "intent": "Pay by x402 through Permit2: Send 0.011 USDC (0x036CbD53842c5426634e7929541eC2318f3dCF7e) to 0x5037546753d64F77A6fA95B6f85659B6a4A7F6FD, once, through x402's payment contract. Usable from now. Signature expires: 2026-10-29T23:58:09Z.",
+      "fields": [
+        ["Amount", "0.011 USDC (0x036CbD53842c5426634e7929541eC2318f3dCF7e)"],
+        ["To", "0x5037546753d64F77A6fA95B6f85659B6a4A7F6FD"],
+        ["Usable from", "now"],
+        ["Signature expires", "2026-10-29T23:58:09Z"],
+        ["Contract", "0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 84532"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0xb7d4c3350b3445c498b1daf57934808f6b085d6f43f3958cc8f3ee1d8f06115b"]
+      ]
+    },
+    "model": {"title": "Pay by x402 through Permit2", "effect": "transfer"},
+    "provenance": {"intent": {"origin": "third_party", "profile": "x402-exact-permit2"}}
+  },
+  "chain": {"family": "evm", "id": 84532, "name": "Base Sepolia", "network": "test"},
+  "standard": "EIP-712",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner signs. The model never does."
+}
+</signing-sheet>
 
 <p>
   The spender is not shown: it can only be the proxy. The same payment with any other spender gets no text, and no
@@ -919,6 +1012,22 @@ This is a signature, not a transaction: whoever holds it can submit it.
   "ends": { "at": "1793622600" }
 }
 </pre>
+
+<p>A wallet that checks requests against terms shows the same grant with the token's decimals and symbol, and Dex's name, from its own records:</p>
+
+<grant-summary>
+{
+  "grant": {
+    "kind": "approve",
+    "spender": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "token": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "amount": {"units": "500000000", "unlimited": false},
+    "ends": {"at": "1793622600"}
+  },
+  "tokens": {"0x5FbDB2315678afecb367f032d93F642f64180aa3": {"symbol": "TKA", "decimals": 6}},
+  "names": {"0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0": "Dex"}
+}
+</grant-summary>
 
 <table>
   <thead>

@@ -15,7 +15,7 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkSnippets } from "./snippets.mjs";
-import { CHAINS, CLAIMS, EFFECTS, LAYERS, OUTCOMES } from "./components.mjs";
+import { CHAINS, CLAIMS, EFFECTS, LAYERS, MeantChains, OUTCOMES, chainOptions, chainTags, renderChain } from "./components.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..");
@@ -511,6 +511,39 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
   const panels = (source.match(/data-chain-panel="/g) || []).length;
   const switches = (source.match(/<chain-switch[\s>]/g) || []).length;
   if (panels && !switches) fail(page, "chain panels without a <chain-switch>: the reader could not choose one");
+
+  /* --- the Meant Chains components carry the library's values, whole --- */
+  const families = Object.keys(MeantChains.ChainBadge.families);
+  for (const { tag, body } of chainTags(source)) {
+    let options;
+    try {
+      options = chainOptions(body);
+    } catch (error) {
+      fail(page, `<${tag}> holds no JSON options: ${error.message}`);
+      continue;
+    }
+    // The library writes whole addresses, digests and amounts; the component
+    // shortens what it may and keeps the rest whole. A "…" in the JSON is a
+    // value copied by hand.
+    if (body.includes("…")) fail(page, `<${tag}> has a value shortened with "…": give the whole value, as @meantjs/consent returns it`);
+    for (const effect of options.effects || []) {
+      if (!EFFECTS.includes(effect)) fail(page, `<${tag}> effect "${effect}" is not one of ${EFFECTS.join(", ")}`);
+    }
+    const family = options.chain && options.chain.family;
+    if (family !== undefined && !families.includes(family)) fail(page, `<${tag}> chain family "${family}" is not one of ${families.join(", ")}`);
+    if (tag === "refusal-panel") {
+      if (!MeantChains.RefusalPanel.codes[options.code]) {
+        fail(page, `<refusal-panel> code ${options.code} is not a refusal the consent functions throw (${Object.keys(MeantChains.RefusalPanel.codes).join(", ")})`);
+      } else if (!KNOWN_CODES.has(options.code)) {
+        fail(page, `<refusal-panel> code ${options.code} is defined nowhere in the profile spec, the profile packages or meant-format`);
+      }
+    }
+    try {
+      renderChain(tag, body);
+    } catch (error) {
+      fail(page, `<${tag}> does not render: ${error.message}`);
+    }
+  }
 
   /* --- the removed surface, and the release note --- */
   const slug = name.replace(/\.html$/, "");

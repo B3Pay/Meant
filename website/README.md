@@ -43,6 +43,10 @@ website/
   assets/
     style.css       the Meant Docs design system: its tokens, then its component rules
     site.js         theme, mobile nav, search, copy buttons, scrollspy, tabs
+    chains.css      the Meant Chains design system: its added tokens, then its
+                    component rules; linked only on a page that uses one
+    chains.js       its components, unchanged: what moves (copy, expand), and
+                    the markup build.mjs writes
     highlight.js    the syntax highlighter, used at build time
     favicon.svg     the Meant mark on a graphite tile
     meant-*.svg     the lockup (header), the mark (footer) and the two layer
@@ -66,6 +70,18 @@ the system's faces (Schibsted Grotesk, Martian Mono) first and fall back to
 system faces, because the site loads no webfonts. The logo files set their own
 colours, so the header and footer carry each one twice, `on-dark` and
 `on-light`, and the stylesheet shows the one that matches the theme.
+
+The chain pages also use the Meant Chains design system, the look and parts
+of the screens where a person reads what a request means on a chain before
+anyone signs it. Its two files are copied from the system unchanged:
+`chains.js` is its `components/bundle.js`, and `chains.css` holds the three
+tokens it adds to Meant Docs' (`--scrim`, `--sheet-max`, `--field-label-w`,
+on the same `[data-theme]` selectors as `style.css`) and then its
+`components/bundle.css`. Every other token it uses is Meant Docs', with the
+same name and value. `build.mjs` links both only on a page that uses one of
+its components, `chains.css` after `style.css`: the system's rules that style
+a `p`, a heading or a `code` name the element, so they win over the prose
+rules here by coming later. Change the system and copy both files again.
 
 ## Writing a page
 
@@ -125,6 +141,38 @@ The header of `components.mjs` lists every attribute. A chain switcher
 remembers the reader's choice on their device, so a reader on EVM stays on
 EVM from page to page; use one only where the answer differs by chain.
 
+### The Meant Chains components
+
+Three components of the Meant Chains design system show what a wallet shows:
+a call or a signature as a person confirms it, a request the library refused,
+and what a request grants. The body of each tag is the component's options as
+JSON, written literally like a `<pre>`:
+
+```html
+<signing-sheet>
+{
+  "consent": { "message": { "intent": "Send tokens: Send 1.5 TKA to 0x7099…", "fields": [["Amount", "1.5 TKA"]] }, "model": { "title": "Send tokens", "effect": "transfer" } },
+  "chain": { "family": "evm", "id": 31337, "name": "Anvil", "network": "local" },
+  "standard": "ERC-20",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner confirms. The model never does."
+}
+</signing-sheet>
+<refusal-panel>{ "code": "E_DOMAIN", "message": "the domain is for chain 31337, the wallet is on chain 1" }</refusal-panel>
+<grant-summary>{ "grant": { … }, "tokens": { … }, "names": { … } }</grant-summary>
+```
+
+(The `…` above only shortens this example; a page gives every value whole.)
+`consent` is what `evmConsent`, `eip712Consent` or `generateConsent` of
+`@meantjs/consent` returned with `form: "fields"`, as `toJson` writes it, so
+an ICRC-21 amount's bigint is a string. Give its values whole: the component
+shortens an address where the whole one is a tap away and keeps the contract,
+the canister and the digest whole. Produce the JSON by running the packages,
+never by retyping their output. `build.mjs` runs `chains.js` in a `node:vm`
+sandbox and writes what the component's `html()` returns, with the title an
+`h4` (outside the table of contents) and a refusal an example at rest rather
+than an alert. The options are the system's (`components/index.d.ts` there).
+
 ### Callouts, tables and the rest
 
 ```html
@@ -160,6 +208,10 @@ node website/build.mjs && node website/check.mjs
   effect, a claim, a chain or a layer), a chain panel without a switcher, or a
   `<diag>` code that the profile spec, the profile packages' sources and
   `meant-format` define nowhere;
+- a Meant Chains component whose body is not JSON or does not render, with an
+  effect or a chain family it does not have, with a refusal code the consent
+  functions do not throw or the profile sources define nowhere, or with a
+  value shortened by hand (a `…` anywhere in its JSON);
 - an `@meantjs/<name>@<version>` that is not one of the `@meantjs` packages
   this repository builds (the five profile packages and the pair) or not the
   version its `package.json` holds;
