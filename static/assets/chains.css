@@ -1,0 +1,1361 @@
+/* Meant Chains, on the chain pages. Zero dependencies, like style.css.
+
+   Two parts, both copied from the Meant Chains design system rather than
+   written here: the three tokens it adds to Meant Docs' (style.css defines
+   every other one it uses, with the same names and values), on the same
+   [data-theme] selectors, dark first; then its component rules
+   (components/bundle.css), unchanged. assets/chains.js is the system's
+   components/bundle.js, unchanged. build.mjs links both only on a page that
+   uses a Meant Chains component, and this file after style.css: the rules
+   that style a p, a heading or a code name the element, so they win over
+   style.css's prose rules by coming later. Change the system and copy both
+   parts again, and chains.js with them, so the site and the system never
+   drift. */
+
+/* ---------------------------------------------------------------- tokens */
+
+:root,
+[data-theme="dark"] {
+  --scrim: rgba(13, 12, 11, 0.72);
+}
+[data-theme="light"] {
+  --scrim: rgba(26, 23, 20, 0.45);
+}
+:root {
+  --sheet-max: 26rem;
+  --field-label-w: 8.5rem;
+}
+
+/* ------------------------------------------- components/bundle.css */
+
+/* Meant Chains: component styles. Every color, space and radius is a token
+   from tokens.json (the page loads tokens.css first), so a token changed on the
+   page reaches every component. Classes start with mc- so this sheet can sit
+   beside Meant Docs' on one page. No shadows except a floating sheet's, no
+   motion.
+
+   Hosts style bare elements (a docs page's ".content p", "h4", "code"). Every
+   rule here that styles a p, a heading, a code, a li or a blockquote names
+   the element too, so it is as specific as such a host rule and wins by
+   coming later: load this sheet after the host's own. */
+
+[class^="mc-"],
+[class*=" mc-"],
+[class^="mc-"] *,
+[class*=" mc-"] * {
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------- shared */
+
+.mc-label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.mc-text {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.mc-raw {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.mc-field-sub {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--ink-muted);
+}
+
+.mc-button:focus-visible,
+.mc-copy:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- Button */
+
+.mc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 42px;
+  padding: 10px var(--space-4);
+  border: 1px solid var(--brand);
+  border-radius: var(--radius-md);
+  background: var(--brand);
+  color: var(--on-brand);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.mc-button svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.mc-button:hover {
+  border-color: var(--brand-hover);
+  background: var(--brand-hover);
+}
+.mc-button[data-variant="secondary"] {
+  border-color: var(--ink-muted);
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+.mc-button[data-variant="secondary"]:hover {
+  border-color: var(--ink);
+  background: var(--surface-raised);
+}
+.mc-button[data-variant="quiet"] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-muted);
+}
+.mc-button[data-variant="quiet"]:hover {
+  color: var(--ink);
+}
+.mc-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Copy and expand: one quiet square button beside a value. */
+.mc-copy {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  vertical-align: middle;
+}
+.mc-copy svg {
+  width: 15px;
+  height: 15px;
+}
+.mc-copy:hover {
+  background: var(--surface-sunken);
+  color: var(--ink);
+}
+.mc-copy[data-copied] {
+  color: var(--ok);
+}
+
+/* ------------------------------------------------------------ ChainBadge */
+
+/* The chain inside two brackets of ink-muted: the shape Candid, ABIs and IDLs
+   share, never a chain's own color or logo. */
+.mc-chain {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.mc-chain::before,
+.mc-chain::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  border: 1.5px solid var(--ink-muted);
+}
+.mc-chain::before {
+  left: 0;
+  border-right: 0;
+  border-radius: 2px 0 0 2px;
+}
+.mc-chain::after {
+  right: 0;
+  border-left: 0;
+  border-radius: 0 2px 2px 0;
+}
+.mc-chain-code {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.mc-chain-id {
+  color: var(--ink-muted);
+}
+.mc-chain-name {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+}
+.mc-chain-net {
+  padding: 0 6px;
+  border: 1px dashed var(--ink-muted);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--ink-muted);
+}
+
+/* --------------------------------------------------------------- Address */
+
+.mc-address {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 6px;
+  max-width: 100%;
+  min-width: 0;
+  vertical-align: middle;
+}
+.mc-address-name {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.mc-address-text {
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.mc-address--named .mc-address-text {
+  color: var(--ink-muted);
+}
+.mc-address--full {
+  flex-wrap: nowrap;
+}
+/* A named whole address: the name above, the grouped value below, copy beside both. */
+.mc-address--full.mc-address--named {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+.mc-address--full.mc-address--named .mc-address-name {
+  grid-column: 1;
+  grid-row: 1;
+}
+.mc-address--full.mc-address--named .mc-address-text {
+  grid-column: 1;
+  grid-row: 2;
+}
+.mc-address--full.mc-address--named .mc-copy {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+.mc-address--full .mc-address-text,
+.mc-address--full.mc-address--named .mc-address-text {
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+/* Groups of four: ink and ink-muted in turn, spaced by margin so a selection
+   copies the address without spaces. */
+.mc-g {
+  display: inline-block;
+}
+.mc-g--alt,
+.mc-g--prefix,
+.mc-g-sep {
+  color: var(--ink-muted);
+}
+.mc-address--full[data-kind="evm"] .mc-g + .mc-g,
+.mc-address--full[data-kind="hex"] .mc-g + .mc-g,
+.mc-hash--full .mc-g + .mc-g {
+  margin-left: 0.45em;
+}
+
+/* ----------------------------------------------------------- TokenAmount */
+
+.mc-amount {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: 100%;
+  min-width: 0;
+  vertical-align: middle;
+}
+.mc-amount-main {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.4em;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.mc-amount--md .mc-amount-main {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+}
+.mc-amount--sm .mc-amount-main {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.mc-amount-value {
+  overflow-wrap: anywhere;
+}
+.mc-amount--unlimited .mc-amount-main {
+  padding: 0 8px 0 6px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-soft);
+}
+.mc-amount-flag {
+  display: inline-grid;
+  color: var(--brand);
+}
+.mc-amount-flag svg {
+  width: 16px;
+  height: 16px;
+}
+.mc-amount--sm .mc-amount-flag svg {
+  width: 13px;
+  height: 13px;
+}
+.mc-amount-token .mc-address-text {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--ink-muted);
+}
+.mc-amount-units {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--ink-muted);
+}
+
+/* ------------------------------------------------------------- TimeValue */
+
+.mc-time {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--ink);
+  vertical-align: middle;
+}
+.mc-time[data-kind="block"],
+.mc-time[data-kind="now"] {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+}
+.mc-time--attention {
+  padding: 1px 8px 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-soft);
+}
+.mc-time--attention svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--brand);
+}
+.mc-time-note {
+  font-family: var(--font-sans);
+  color: var(--ink-muted);
+}
+.mc-times {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* -------------------------------------------------------------- HashChip */
+
+.mc-hash {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0 8px;
+  max-width: 100%;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  vertical-align: middle;
+}
+.mc-hash-label {
+  flex: none;
+  color: var(--ink-muted);
+}
+.mc-hash-value {
+  min-width: 0;
+  font-family: var(--font-mono);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.mc-hash-prefix {
+  color: var(--ink-muted);
+}
+.mc-hash--full .mc-hash-value {
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.01em;
+}
+
+/* ----------------------------------------------------------- AmountField */
+
+.mc-amount-field {
+  display: grid;
+  gap: 6px;
+  max-width: var(--sheet-max);
+  font-family: var(--font-sans);
+}
+.mc-input-label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.mc-input {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  border: 1px solid var(--ink-muted);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+.mc-input:focus-within {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.mc-input input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.mc-input-suffix {
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+.mc-amount-field[data-state="error"] .mc-input {
+  border-color: var(--danger);
+}
+p.mc-input-help {
+  margin: 0;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+.mc-amount-field[data-state="error"] .mc-input-help {
+  color: var(--ink);
+}
+code.mc-input-code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--danger);
+}
+.mc-input-units {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------ RequestTag */
+
+/* A transaction has a solid edge; a signature a dashed one, like the sheet. */
+.mc-request {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--ink-muted);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.mc-request[data-kind="signature"] {
+  border-style: dashed;
+}
+.mc-request svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.mc-request-std {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+/* ----------------------------------------------------------- EffectBadge */
+
+/* Meant Docs' shapes: hollow ring read, half write, filled amber dot transfer
+   and approve (they ask the owner), danger square admin and destroy, dashed
+   tag irreversible. */
+.mc-effect {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.mc-effect::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border: 1.5px solid var(--ink-muted);
+  border-radius: 50%;
+}
+.mc-effect[data-effect="write"]::before {
+  background: linear-gradient(90deg, var(--ink-muted) 50%, transparent 50%);
+}
+.mc-effect[data-effect="transfer"]::before,
+.mc-effect[data-effect="approve"]::before {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+.mc-effect[data-effect="admin"]::before,
+.mc-effect[data-effect="destroy"]::before {
+  border-color: var(--danger);
+  border-radius: 1px;
+  background: var(--danger);
+}
+.mc-effect[data-effect="irreversible"] {
+  border-style: dashed;
+  border-color: var(--ink-muted);
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+.mc-effect[data-effect="irreversible"]::before {
+  display: none;
+}
+
+/* ------------------------------------------------------------- FieldList */
+
+.mc-fields {
+  display: grid;
+  margin: 0;
+  container-type: inline-size;
+}
+.mc-field {
+  display: grid;
+  grid-template-columns: var(--field-label-w) minmax(0, 1fr);
+  gap: 2px 12px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.mc-field:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.mc-field dt {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--ink-muted);
+}
+.mc-field dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+  margin: 0;
+}
+.mc-field dd .mc-check {
+  flex-basis: 100%;
+}
+@container (max-width: 359px) {
+  .mc-field {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------- DomainCheck */
+
+.mc-domain {
+  display: grid;
+  gap: var(--space-2);
+}
+.mc-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ink);
+}
+.mc-check svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  padding: 2px;
+  border-radius: 50%;
+}
+.mc-check[data-state="ok"] svg {
+  color: var(--ok);
+  background: var(--ok-soft);
+}
+.mc-check[data-state="fail"] svg {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.mc-check[data-state="none"] svg {
+  color: var(--ink-muted);
+  background: var(--surface-sunken);
+}
+.mc-type-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--syn-type);
+}
+
+/* ---------------------------------------------------------- CalldataView */
+
+.mc-calldata {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--ink);
+}
+.mc-calldata-sig {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.mc-selector {
+  padding: 0 6px;
+  border: 1px solid var(--ink-muted);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+.mc-sig {
+  overflow-wrap: anywhere;
+}
+.mc-sig-name {
+  font-weight: 600;
+}
+.mc-sig-type {
+  color: var(--syn-type);
+}
+.mc-sig-arg {
+  color: var(--syn-attr);
+}
+.mc-sig-punct {
+  color: var(--ink-muted);
+}
+.mc-args {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.mc-arg {
+  display: grid;
+  grid-template-columns: minmax(0, 11em) minmax(0, 1fr);
+  gap: 12px;
+}
+.mc-arg dt,
+.mc-arg dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.mc-words {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mc-word {
+  display: grid;
+  grid-template-columns: 2.8em minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.mc-word-offset {
+  color: var(--ink-muted);
+}
+.mc-wg {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+.mc-pad {
+  color: var(--ink-muted);
+}
+p.mc-calldata-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-muted);
+}
+.mc-calldata-note svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--ok);
+}
+
+/* ------------------------------------------------------------ Provenance */
+
+.mc-provenance {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-sans);
+}
+p.mc-provenance-src {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+p.mc-provenance-src code {
+  padding: 1px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+.mc-provenance-src svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--brand);
+}
+.mc-provenance[data-attention] .mc-provenance-src {
+  padding: 2px 8px 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-soft);
+}
+p.mc-provenance-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ink-muted);
+}
+
+/* ---------------------------------------------------------------- Notice */
+
+.mc-notice {
+  display: flex;
+  gap: 10px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--info-soft);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink);
+}
+.mc-notice-icon {
+  display: inline-grid;
+  flex: none;
+  color: var(--info);
+}
+.mc-notice-icon svg {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+.mc-notice[data-tone="attention"] {
+  background: var(--brand-soft);
+}
+.mc-notice[data-tone="attention"] .mc-notice-icon {
+  color: var(--brand);
+}
+.mc-notice[data-tone="danger"] {
+  background: var(--danger-soft);
+}
+.mc-notice[data-tone="danger"] .mc-notice-icon {
+  color: var(--danger);
+}
+.mc-notice[data-tone="ok"] {
+  background: var(--ok-soft);
+}
+.mc-notice[data-tone="ok"] .mc-notice-icon {
+  color: var(--ok);
+}
+.mc-notice-body strong {
+  display: block;
+  font-weight: 600;
+}
+.mc-notice-body p {
+  margin: 0;
+}
+.mc-notice-body strong + p {
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------- SigningSheet and kin */
+
+.mc-sheet,
+.mc-refusal,
+.mc-terms {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--sheet-max);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--ink);
+}
+@media (min-width: 480px) {
+  .mc-sheet,
+  .mc-refusal,
+  .mc-terms {
+    padding: var(--space-6);
+  }
+}
+/* A signature is paper someone can carry away and submit: a dashed edge. */
+.mc-sheet[data-kind="signature"] {
+  border: 1.5px dashed var(--ink-muted);
+}
+.mc-sheet[data-floating] {
+  box-shadow: var(--shadow-overlay);
+}
+.mc-scrim {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: var(--scrim);
+  overflow-y: auto;
+}
+.mc-sheet-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.mc-sheet-intent {
+  display: grid;
+  gap: var(--space-2);
+}
+:is(h1, h2, h3, h4, h5, h6).mc-sheet-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  letter-spacing: normal;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  text-wrap: balance;
+}
+p.mc-sheet-line {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+.mc-inline,
+.mc-inline-address {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.mc-inline-address,
+.mc-nowrap {
+  white-space: nowrap;
+}
+code.mc-inline {
+  padding: 1px 5px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+.mc-sheet-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mc-sheet-block {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.mc-sheet-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--space-2);
+  width: 100%;
+}
+.mc-sheet-block > .mc-address--full,
+.mc-sheet-block > .mc-hash--full {
+  width: 100%;
+  justify-content: space-between;
+  padding: 8px 4px 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+.mc-sheet-foot {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+.mc-sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+.mc-sheet-actions--one {
+  grid-template-columns: 1fr;
+}
+.mc-sheet-actions .mc-button {
+  width: 100%;
+}
+p.mc-sheet-who {
+  margin: 0;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ink-muted);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* ---------------------------------------------------------- GrantSummary */
+
+.mc-grant {
+  display: grid;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+}
+.mc-grant-cells {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.mc-grant-cell {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  justify-items: start;
+  min-width: 0;
+  padding: 10px 12px;
+}
+.mc-grant-cell:nth-child(odd) {
+  border-right: 1px solid var(--line);
+}
+.mc-grant-cell:nth-child(-n + 2) {
+  border-bottom: 1px solid var(--line);
+}
+p.mc-grant-none {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink);
+}
+.mc-grant-none svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 2px;
+  padding: 2px;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+}
+
+/* ------------------------------------------------------------- TermsCard */
+
+.mc-terms-head {
+  display: grid;
+  gap: var(--space-3);
+}
+.mc-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mc-step {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.mc-step-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.mc-step[data-state="done"] .mc-step-bar {
+  background: var(--ink-muted);
+}
+.mc-step[data-state="current"] .mc-step-bar {
+  background: var(--brand);
+}
+.mc-step-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-muted);
+}
+.mc-step-word svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--ok);
+}
+.mc-step[data-state="current"] .mc-step-word {
+  font-weight: 600;
+  color: var(--ink);
+}
+.mc-terms-address {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+blockquote.mc-terms-text {
+  margin: 0;
+  border: 0;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.mc-verdict {
+  display: flex;
+  gap: 10px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink);
+}
+.mc-verdict > svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--surface-raised);
+}
+.mc-verdict[data-fits="true"] {
+  background: var(--ok-soft);
+}
+.mc-verdict[data-fits="true"] > svg {
+  color: var(--ok);
+}
+.mc-verdict[data-fits="false"] {
+  background: var(--danger-soft);
+}
+.mc-verdict[data-fits="false"] > svg {
+  color: var(--danger);
+}
+.mc-verdict strong {
+  display: block;
+  font-weight: 600;
+}
+.mc-verdict p,
+.mc-verdict ul {
+  margin: 2px 0 0;
+}
+.mc-verdict ul {
+  padding-left: 18px;
+}
+.mc-verdict li {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------- RefusalPanel */
+
+.mc-refusal-intro {
+  display: flex;
+  gap: var(--space-3);
+}
+.mc-refusal-icon {
+  display: inline-grid;
+  flex: none;
+  color: var(--danger);
+}
+.mc-refusal-icon svg {
+  width: 26px;
+  height: 26px;
+}
+p.mc-refusal-meaning {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-muted);
+}
+.mc-refusal-detail {
+  display: grid;
+  gap: 4px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--danger-soft);
+}
+code.mc-refusal-code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--danger);
+}
+.mc-refusal-detail p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+p.mc-refusal-foot {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* ---------------------------------------------------------- ChainSupport */
+
+.mc-support-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+.mc-support {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ink);
+}
+.mc-support th,
+.mc-support td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.mc-support tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.mc-support-caption {
+  caption-side: bottom;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-muted);
+}
+.mc-support thead th {
+  background: var(--surface-sunken);
+  vertical-align: middle;
+}
+.mc-support thead th:not(:first-child) {
+  white-space: nowrap;
+}
+.mc-support thead .mc-status {
+  margin-left: var(--space-2);
+}
+.mc-support tbody th {
+  width: 10em;
+  font-weight: 600;
+}
+.mc-support td[data-state="not-yet"],
+.mc-support td[data-state="assumption"],
+.mc-support td[data-state="open"] {
+  color: var(--ink-muted);
+}
+.mc-cell-state {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.mc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  vertical-align: middle;
+}
+.mc-status::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border: 1.5px solid var(--ink-muted);
+  border-radius: 50%;
+}
+.mc-status[data-status="supported"]::before {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+.mc-status[data-status="experimental"]::before {
+  border-color: var(--brand);
+  background: linear-gradient(90deg, var(--brand) 50%, transparent 50%);
+}
+
+/* ----------------------------------------------------------- OutcomePill */
+
+.mc-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px 2px 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.mc-outcome svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+.mc-outcome[data-outcome="success"],
+.mc-outcome[data-outcome="already_done"] {
+  background: var(--ok-soft);
+}
+.mc-outcome[data-outcome="success"] svg,
+.mc-outcome[data-outcome="already_done"] svg {
+  color: var(--ok);
+}
+.mc-outcome[data-outcome="retry_same"],
+.mc-outcome[data-outcome="retry_new"] {
+  background: var(--info-soft);
+}
+.mc-outcome[data-outcome="retry_same"] svg,
+.mc-outcome[data-outcome="retry_new"] svg {
+  color: var(--info);
+}
+.mc-outcome[data-outcome="fix_input"] {
+  background: var(--brand-soft);
+}
+.mc-outcome[data-outcome="fix_input"] svg {
+  color: var(--brand);
+}
+.mc-outcome[data-outcome="fail"] {
+  background: var(--danger-soft);
+}
+.mc-outcome[data-outcome="fail"] svg {
+  color: var(--danger);
+}
+.mc-outcome[data-outcome="reconcile"] {
+  border: 1px dashed var(--ink-muted);
+  background: transparent;
+}
