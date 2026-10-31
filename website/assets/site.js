@@ -197,6 +197,30 @@
     });
   }
 
+  /* ------------------------------------------------------ meant chains */
+
+  // The chain pages' Meant Chains components. chains.js wires copy and
+  // expand; a sheet's two buttons say what a wallet does at that step, as a
+  // <consent> preview's do, and sign or send nothing.
+  function initMeantChains() {
+    if (!window.MeantChains) return;
+    window.MeantChains.init(document);
+    var say = function (event, text) {
+      var who = event.target.querySelector(".mc-sheet-who");
+      if (who) who.textContent = text;
+    };
+    document.querySelectorAll(".mc-sheet .mc-sheet-who").forEach(function (who) {
+      who.setAttribute("aria-live", "polite");
+    });
+    document.addEventListener("mc:confirm", function (event) {
+      var signs = event.target.getAttribute("data-kind") === "signature";
+      say(event, signs ? "Signed by the owner. This is the only step that signs." : "Confirmed by the owner. This is the only step that sends.");
+    });
+    document.addEventListener("mc:reject", function (event) {
+      say(event, "Rejected. Nothing was signed or sent.");
+    });
+  }
+
   /* ------------------------------------------------------------- tabs  */
 
   function initTabs() {
@@ -475,6 +499,7 @@
     initTabs();
     initChains();
     initConsent();
+    initMeantChains();
     initScrollspy();
     initSearch();
   });
