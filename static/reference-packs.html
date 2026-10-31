@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standard packs · Meant</title>
+<meta name="description" content="The ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2 and DAI permit profiles: what each matches and every annotation it carries.">
+<meta property="og:title" content="Standard packs · Meant">
+<meta property="og:description" content="The ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2 and DAI permit profiles: what each matches and every annotation it carries.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content wide">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Standard packs</h1><p class="page-lead">The ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2 and DAI permit profiles: what each matches and every annotation it carries.</p><p>
+  A pack is a profile of <code>kind: "pack"</code> that describes a standard rather than one canister or contract.
+  <code>@meantjs/profile</code> ships four packs and, beside them, five EVM contract profiles for well-known signing
+  contracts and payments, all copies of
+  <a href="https://github.com/B3Pay/Meant/tree/main/profile/packs"><code>profile/packs/</code></a>. Every annotation
+  they carry is listed below. Since 0.4.0 each file also says what its calls and messages grant, in the
+  <code>grant</code> of their <code>effect</code> (spec §5.3, D-056; <a href="#what-the-packs-grant">below</a>). 0.5.0
+  added the USDC and x402 profiles and two Permit2 deployments, so Permit2's <code>profile_id</code> changed (spec
+  §15.9, D-058). <code>profile_id</code> and the checked interface are the real output of the validator, run from
+  <code>profile/</code>:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cd</span> profile<span class="tok-keyword">
+node</span> scripts/validate.mjs</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">PASS packs/dai-permit.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8
+     interface_id candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46  [1 methods, 8 annotations]
+PASS packs/erc20.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
+     interface_id candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b  [7 methods, 23 annotations]
+PASS packs/erc2612.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705
+     interface_id candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee  [6 methods, 18 annotations]
+PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+     interface_id candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689  [5 methods, 29 annotations]
+PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+     interface_id candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f  [5 methods, 56 annotations]
+PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188
+     interface_id candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [4 methods, 40 annotations]
+PASS packs/usdc-base-sepolia.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d
+     interface_id candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c  [3 methods, 26 annotations]
+PASS packs/usdc.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:7977fab1ca0436abbe34d947800859afeb279337f44d85e5efdf6ce269d9d3e6
+     interface_id candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c  [3 methods, 26 annotations]
+PASS packs/x402-exact-permit2.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:95f79ba50f10a6340d06e96527d9c944732599f87bca54ecfcfce877b9a8237b
+     interface_id candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef  [1 methods, 13 annotations]</code></pre></div>
+
+<p>The validator's <code>methods</code> count takes an EIP-712 message as a method; the table splits them.</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>File</th><th>Kind</th><th>Standard or contract</th><th>Functions</th><th>Messages</th><th>Annotations</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><a href="#icrc1"><code>icrc1</code></a></td><td>pack</td><td>ICRC-1</td><td>5</td><td>0</td><td>29</td></tr>
+    <tr><td><a href="#icrc2"><code>icrc2</code></a></td><td>pack</td><td>ICRC-2</td><td>5</td><td>0</td><td>56</td></tr>
+    <tr><td><a href="#erc20"><code>erc20</code></a></td><td>pack</td><td>ERC-20 <span class="pill warn">experimental</span></td><td>7</td><td>0</td><td>23</td></tr>
+    <tr><td><a href="#erc2612"><code>erc2612</code></a></td><td>pack</td><td>ERC-2612 <span class="pill warn">experimental</span></td><td>5</td><td>1</td><td>18</td></tr>
+    <tr><td><a href="#permit2"><code>permit2</code></a></td><td>contract profile</td><td>Uniswap's Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>4</td><td>40</td></tr>
+    <tr><td><a href="#dai-permit"><code>dai-permit</code></a></td><td>contract profile</td><td>DAI's permit <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>8</td></tr>
+    <tr><td><a href="#usdc"><code>usdc</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments <span class="pill warn">experimental</span></td><td>0</td><td>3</td><td>26</td></tr>
+    <tr><td><a href="#usdc"><code>usdc-base-sepolia</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments on Base Sepolia <span class="pill warn">experimental</span></td><td>0</td><td>3</td><td>26</td></tr>
+    <tr><td><a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a></td><td>contract profile</td><td>x402's payment through Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>13</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The <code>interface_id</code> a pack is checked against is the identity of its own fragment: the validator compiles
+  <code>binds.requires</code> (or reads <code>binds.abi</code>, with the struct types of <code>binds.eip712</code>) and
+  resolves every annotation against it. It is not the identity of any ledger or token. A ledger that matches has its
+  own <code>interface_id</code>, and the pack is applied to the ledger's types. A contract profile is checked against
+  its own <code>binds</code> in the same way; the five shipped here bind EIP-712 types and no function.
+</p>
+
+<h2 id="how-a-pack-matches">How a pack matches<a class="heading-anchor" href="#how-a-pack-matches" aria-label="Link to How a pack matches">#</a></h2>
+
+<p>
+  A Candid pack applies to a canister whose service is a subtype of the fragment in <code>binds.requires</code>, with
+  result variants allowed to be wider (D-019); an EVM pack applies to a contract that has every function of its
+  <code>binds.abi</code> with the same selector, output types and kind of call, with no subtyping. A matched pack is
+  applied to the service's own types, so a position the pack names that the service lacks is skipped
+  (<span class="diag info" title="info"><span class="sev">I</span><span class="code">I_PACK_ANNOTATION_SKIPPED</span></span>); the full rules are on <a href="profiles.html">Profiles, layers and
+  binding</a>.
+</p>
+
+<p>
+  An EVM pack may also carry EIP-712 messages (<code>binds.eip712</code>, spec §15.9). It still matches by its
+  <code>binds.abi</code>, and its messages then join the contract's resolved form under <code>messages</code>. The
+  contract profiles (<code>permit2</code>, <code>dai-permit</code>, <code>usdc</code>, <code>usdc-base-sepolia</code>
+  and <code>x402-exact-permit2</code>) are not packs: no pack search tries them, and they apply when given as profiles
+  (<code>--profile</code>, or <code>profiles</code> in <code>resolveService</code>).
+</p>
+
+<h2 id="what-the-packs-grant">What the packs grant<a class="heading-anchor" href="#what-the-packs-grant" aria-label="Link to What the packs grant">#</a></h2>
+
+<p>
+  A <code>grant</code> names who may take tokens because of a call or a signature, how many and until when, as
+  positions of its arguments (<a href="reference-tags.html#what-a-call-grants">Tags</a>). A wallet reads it with the
+  consent functions and checks it against terms the person confirmed for one task
+  (<a href="confirmed-terms.html">Confirm terms for a task</a>). These are every grant the nine files carry, read from
+  their <code>effect</code> annotations:
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>File</th><th>Call or message</th><th>Kind</th><th>Who may take it</th><th>Amount</th><th>Ends</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><a href="#icrc1"><code>icrc1</code></a></td><td><code>icrc1_transfer</code></td><td><span class="effect transfer">transfer</span></td><td><code>"to": "to"</code></td><td><code>amount</code></td><td>none: when it is made</td></tr>
+    <tr><td><a href="#icrc2"><code>icrc2</code></a></td><td><code>icrc2_approve</code></td><td><span class="effect approve">approve</span></td><td><code>"spender": "spender"</code></td><td><code>amount</code></td><td><code>expires_at</code>; left out, never</td></tr>
+    <tr><td><a href="#erc20"><code>erc20</code></a></td><td><code>transfer</code></td><td><span class="effect transfer">transfer</span></td><td><code>"to": "to"</code></td><td><code>value</code></td><td>none: when it is made</td></tr>
+    <tr><td><a href="#erc20"><code>erc20</code></a></td><td><code>approve</code></td><td><span class="effect approve">approve</span></td><td><code>"spender": "spender"</code></td><td><code>value</code></td><td>none: never</td></tr>
+    <tr><td><a href="#erc2612"><code>erc2612</code></a></td><td><code>Permit</code> (message), <code>permit</code></td><td><span class="effect approve">approve</span></td><td><code>"spender": "spender"</code></td><td><code>value</code></td><td>none: never</td></tr>
+    <tr><td><a href="#permit2"><code>permit2</code></a></td><td><code>PermitSingle</code> (message)</td><td><span class="effect approve">approve</span></td><td><code>"spender": "spender"</code></td><td><code>details.amount</code>, in <code>details.token</code></td><td>the latest of <code>details.expiration</code> and <code>sigDeadline</code></td></tr>
+    <tr><td><a href="#permit2"><code>permit2</code></a></td><td><code>PermitTransferFrom</code> (message)</td><td><span class="effect transfer">transfer</span></td><td><code>"spender": "spender"</code></td><td><code>permitted.amount</code>, in <code>permitted.token</code></td><td><code>deadline</code></td></tr>
+    <tr><td><a href="#dai-permit"><code>dai-permit</code></a></td><td><code>Permit</code> (message)</td><td><span class="effect approve">approve</span></td><td><code>"spender": "spender"</code></td><td><code>allowed</code>, a <code>bool</code>: <code>true</code> unlimited, <code>false</code> nothing</td><td>none: never</td></tr>
+    <tr><td><a href="#usdc"><code>usdc</code></a>, <a href="#usdc"><code>usdc-base-sepolia</code></a></td><td><code>TransferWithAuthorization</code>, <code>ReceiveWithAuthorization</code> (messages)</td><td><span class="effect transfer">transfer</span></td><td><code>"to": "to"</code></td><td><code>value</code></td><td><code>validBefore</code></td></tr>
+    <tr><td><a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a></td><td><code>PermitWitnessTransferFrom</code> (message)</td><td><span class="effect transfer">transfer</span></td><td><code>"to": "witness.to"</code>, with the spender pinned to x402's proxy</td><td><code>permitted.amount</code>, in <code>permitted.token</code></td><td><code>deadline</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The token is the one an <code>amount.token</code> names (Permit2's and x402's), else the ledger or contract called. An
+  amount at or above its tag's <code>threshold</code> is unlimited, and an end at or above its tag's
+  <code>threshold</code> never ends. EIP-2612's <code>deadline</code> and DAI's <code>expiry</code> bound only when the
+  signature may be used, so they are not ends: those allowances never end (spec §5.3). The other transfers and approvals
+  carry no grant: <code>icrc2_transfer_from</code> and ERC-20's <code>transferFrom</code>; and Permit2's
+  <code>PermitBatch</code> and <code>PermitBatchTransferFrom</code>, which grant several tokens while a grant covers
+  one. A request without a grant is not covered by terms and needs its confirmation. A pack whose grant does not hold in
+  the service it is applied to keeps its effect and loses the grant (<span class="diag info" title="info"><span class="sev">I</span><span class="code">I_PACK_ANNOTATION_SKIPPED</span></span>); in the
+  ledger and token runs below every grant holds, and the resolved forms carry them all.
+</p>
+
+<h2 id="using-the-packs">Using the packs<a class="heading-anchor" href="#using-the-packs" aria-label="Link to Using the packs">#</a></h2>
+
+<p>On the command line, <code>--packs</code> tries every pack the package ships and applies those that match:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npx</span> candid-profile resolve ledger.did<span class="tok-attr"> --packs</span> <span class="tok-punct">&gt;</span> ledger.resolved.json</code></pre></div>
+
+<p>
+  On the ICRC ledger's own <code>.did</code> (release <code>ledger-suite-icrc-2026-03-09</code>, the copy in
+  <code>profile/packages/resolver/test/fixtures/ledger.did</code>) it applies two packs and reports on stderr:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">candid-profile: packages/resolver/test/fixtures/ledger.did  candid-core:interface:v1:sha256:22eb4787e1a755acb9aabd0ed2121d754098bcd1cedb5d0ed8b5c4effb921846  [26 methods]
+  applied     icrc1            pack         candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
+  applied     icrc2            pack         candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
+  0 error, 0 warning, 3 info</code></pre></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Way</th><th>What it does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>--packs</code></td><td>Tries every pack in the packs directory and applies those that match; the others get <span class="diag info" title="info"><span class="sev">I</span><span class="code">I_PACK_NOT_MATCHED</span></span> (info). A pack for the other kind of interface is skipped: the EVM packs are never tried on a <code>.did</code>, nor the ICRC packs on an ABI. The contract profiles in the same directory are not packs and are never tried.</td></tr>
+    <tr><td><code>--packs-dir &lt;dir&gt;</code></td><td>The packs directory (default: the standard packs the package ships).</td></tr>
+    <tr><td><code>--profile pack.json</code></td><td>Applies the pack as given: it must match, or the resolve fails with <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_PACK_NOT_MATCHED</span></span>. A contract profile, such as <code>permit2.profile.json</code>, is applied this way too.</td></tr>
+    <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name; by default <code>DEFAULT_PACKS_DIR</code>, the shipped packs. Packs only: <code>erc20</code>, <code>erc2612</code>, <code>icrc1</code> and <code>icrc2</code>, never the five contract profiles. Node entry.</td></tr>
+    <tr><td><code>STANDARD_PACKS</code></td><td>The same four packs as data, from <code>@meantjs/profile/browser</code>, for a bundle that cannot read files.</td></tr>
+    <tr><td><code>@meantjs/profile/packs/*</code></td><td>The nine files themselves, as a package export (<code>./packs/*</code> maps to the package's <code>data/packs/*</code>): the four packs, and the five contract profiles, such as <code>@meantjs/profile/packs/permit2.profile.json</code> and <code>@meantjs/profile/packs/x402-exact-permit2.profile.json</code>.</td></tr>
+  </tbody>
+</table></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> createSchemaValidator<span class="tok-punct">,</span> loadPacks<span class="tok-punct">,</span> resolveService <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> validateSchema <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">createSchemaValidator</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the schema this package ships</span>
+<span class="tok-keyword">const</span> packs <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">loadPacks</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the packs it ships, never its contract profiles</span>
+packs<span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">(</span>p<span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> p<span class="tok-punct">.</span>doc<span class="tok-punct">.</span>name<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// ["erc20", "erc2612", "icrc1", "icrc2"]</span>
+<span class="tok-keyword">const</span> r <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">resolveService</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  did<span class="tok-punct">:</span> <span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"ledger.did"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+  validateSchema<span class="tok-punct">,</span>
+  packs<span class="tok-punct">:</span> packs<span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">{</span> doc <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">{</span> doc <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-comment">// tried; applied only if they match</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><span class="code-file">profile/packages/resolver/README.md</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> icrc1 <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile/packs/icrc1.profile.json"</span> with <span class="tok-punct">{</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"json"</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> validateSchema <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">createSchemaValidator</span><span class="tok-punct">(</span>schema<span class="tok-punct">)</span><span class="tok-punct">;</span>                            <span class="tok-comment">// a document, not a path</span>
+<span class="tok-keyword">const</span> r <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">resolveService</span><span class="tok-punct">(</span><span class="tok-punct">{</span> did<span class="tok-punct">,</span> validateSchema<span class="tok-punct">,</span> packs<span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> doc<span class="tok-punct">:</span> icrc1 <span class="tok-punct">}</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  On an EVM token with <code>permit</code>, the pack search applies both EVM packs, and the EIP-2612
+  <code>Permit</code> message joins the token's resolved form. <code>token.abi.json</code> here is a JSON array of the
+  ten functions of a local test token: the seven of ERC-20 and <code>permit</code>, <code>nonces</code> and
+  <code>DOMAIN_SEPARATOR</code>, as human-readable fragments.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npx</span> candid-profile resolve<span class="tok-attr"> --abi</span> token.abi.json<span class="tok-attr"> --packs</span> <span class="tok-punct">&gt;</span> token.resolved.json</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">candid-profile: token.abi.json  candid-profile:evm-abi:v0:sha256:adaf687bca6190caca23583655028c78a0ad4d9fca99fe1f1efdf96758b910eb  [10 methods]
+  applied     erc20            pack         candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
+  applied     erc2612          pack         candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705
+  0 error, 0 warning, 2 info</code></pre></div>
+
+<p>
+  The <code>interface_id</code> printed is the merged form's: the ten functions and the <code>Permit</code> struct the
+  EIP-2612 pack adds. A contract profile is given with <code>--profile</code>. The Permit2 profile binds no function, so
+  from <code>profile/</code> it resolves against an empty ABI (<code>empty.abi.json</code> holds <code>[]</code>):
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npx</span> candid-profile resolve<span class="tok-attr"> --abi</span> empty.abi.json<span class="tok-attr"> --profile</span> packs/permit2.profile.json <span class="tok-punct">&gt;</span> permit2.resolved.json</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">candid-profile: empty.abi.json  candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [0 methods]
+  applied     permit2          third_party  candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188
+  0 error, 0 warning, 0 info</code></pre></div>
+
+<h2 id="icrc1">ICRC-1<a class="heading-anchor" href="#icrc1" aria-label="Link to ICRC-1">#</a></h2>
+
+<p>
+  Fungible token ledgers: transfer and balance. Spec:
+  <a href="https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-1/README.md">ICRC-1</a>. File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/icrc1.profile.json"><code>profile/packs/icrc1.profile.json</code></a>.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6">candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6</span><button type="button" data-copy="candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6">Copy</button></span></li>
+  <li>checked against (the fragment): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689">candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689</span><button type="button" data-copy="candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689">Copy</button></span></li>
+  <li>validator: 0 error, 0 warning, 0 info; 5 methods, 29 annotations</li>
+</ul>
+
+<h3 id="required-fragment">Required fragment<a class="heading-anchor" href="#required-fragment" aria-label="Link to Required fragment">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">profile/packs/icrc1.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Account <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">owner</span> <span class="tok-punct">:</span> <span class="tok-keyword">principal</span><span class="tok-punct">;</span> <span class="tok-fn">subaccount</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> TransferArgs <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">from_subaccount</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">to</span> <span class="tok-punct">:</span> Account<span class="tok-punct">;</span>
+  <span class="tok-fn">amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  <span class="tok-fn">fee</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  <span class="tok-fn">memo</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">created_at_time</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> TransferError <span class="tok-punct">=</span> <span class="tok-keyword">variant</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">BadFee</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">expected_fee</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">BadBurn</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">min_burn_amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">InsufficientFunds</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">balance</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  TooOld<span class="tok-punct">;</span>
+  <span class="tok-fn">CreatedInFuture</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">ledger_time</span> <span class="tok-punct">:</span> <span class="tok-type">nat64</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">Duplicate</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">duplicate_of</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  TemporarilyUnavailable<span class="tok-punct">;</span>
+  <span class="tok-fn">GenericError</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">error_code</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">message</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">icrc1_symbol</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">text</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc1_decimals</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat8</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc1_fee</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc1_balance_of</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>Account<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc1_transfer</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>TransferArgs<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-keyword">variant</span> <span class="tok-punct">{</span> <span class="tok-fn">Ok</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">Err</span> <span class="tok-punct">:</span> TransferError <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<h3 id="annotations">Annotations<a class="heading-anchor" href="#annotations" aria-label="Link to Annotations">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">icrc1_transfer</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Send tokens"</code><br><code>template</code>: "Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}][ paying fee {fee}]"</td></tr>
+    <tr><td><code class="wrap">icrc1_transfer</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "to", "amount": "amount" }</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer</code></td><td><code>idempotency</code></td><td><code>mode</code>: <code>"replay_same_payload"</code><br><code>stamp</code>: <code>"created_at_time"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer</code></td><td><code>outcome</code></td><td><code>classes</code>:<br><code>"Ok"</code> → <span class="outcome success"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="currentColor"/></svg>success</span><br><code>"Err.Duplicate"</code> → <span class="outcome already_done"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="2" fill="currentColor"/></svg>already_done</span><br><code>"Err.TemporarilyUnavailable"</code> → <span class="outcome retry_same"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>retry_same</span><br><code>"Err.TooOld"</code> → <span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span><br><code>"Err.CreatedInFuture"</code> → <span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span><br><code>"Err.BadFee"</code> → <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span><br><code>"Err.BadBurn"</code> → <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span><br><code>"Err.InsufficientFunds"</code> → <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span><br><code>"Err.GenericError"</code> → <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span><br><code>default</code>: <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>amount</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>to</code></td><td><code>account</code></td><td><code>encoding</code>: <code>"icrc1"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Recipient"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>from_subaccount</code></td><td><code>subaccount</code></td><td><code>{}</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>from_subaccount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From subaccount"</code><br><code>help</code>: "Omit to send from the default subaccount."</td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>fee</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>fee</code></td><td><code>default</code></td><td><code>value</code>: <code>"null"</code><br><code>mode</code>: <code>"auto"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>fee</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Fee"</code><br><code>help</code>: "Leave empty to pay the ledger's current default fee. A wrong explicit fee fails with BadFee."</td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>memo</code></td><td><code>bytes</code></td><td><code>encoding</code>: <code>"utf8"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>memo</code></td><td><code>default</code></td><td><code>value</code>: <code>"null"</code><br><code>mode</code>: <code>"suggest"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>memo</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Memo"</code><br><code>help</code>: "Transfers with different memos are never deduplicated against each other. Ledgers accept at least 32 bytes; longer memos may be rejected."</td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>created_at_time</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>created_at_time</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Created at"</code><br><code>help</code>: "Set once per intent by the tool layer; enables the ledger's duplicate protection."</td></tr>
+    <tr><td><code class="wrap">icrc1_transfer(0).<wbr>created_at_time</code></td><td><code>ui</code></td><td><code>hidden</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer-&gt;(0).<wbr>Ok</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Block index"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer-&gt;(0).<wbr>Err.<wbr>BadFee.<wbr>expected_fee</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer-&gt;(0).<wbr>Err.<wbr>BadBurn.<wbr>min_burn_amount</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer-&gt;(0).<wbr>Err.<wbr>InsufficientFunds.<wbr>balance</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer-&gt;(0).<wbr>Err.<wbr>CreatedInFuture.<wbr>ledger_time</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_transfer-&gt;(0).<wbr>Err.<wbr>Duplicate.<wbr>duplicate_of</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Existing block index"</code><br><code>help</code>: "The same transfer was already executed in this block."</td></tr>
+    <tr><td><code class="wrap">icrc1_balance_of</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Balance of an account"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_balance_of(0)</code></td><td><code>account</code></td><td><code>encoding</code>: <code>"icrc1"</code></td></tr>
+    <tr><td><code class="wrap">icrc1_balance_of-&gt;(0)</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc1_fee-&gt;(0)</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="icrc2">ICRC-2<a class="heading-anchor" href="#icrc2" aria-label="Link to ICRC-2">#</a></h2>
+
+<p>
+  Approve and transfer-from. ICRC-2 ledgers also implement ICRC-1, so both packs apply to them. Spec:
+  <a href="https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-2/README.md">ICRC-2</a>. File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/icrc2.profile.json"><code>profile/packs/icrc2.profile.json</code></a>.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567">candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567</span><button type="button" data-copy="candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567">Copy</button></span></li>
+  <li>checked against (the fragment): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f">candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f</span><button type="button" data-copy="candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f">Copy</button></span></li>
+  <li>validator: 0 error, 0 warning, 0 info; 5 methods, 56 annotations</li>
+</ul>
+
+<h3 id="required-fragment-2">Required fragment<a class="heading-anchor" href="#required-fragment-2" aria-label="Link to Required fragment">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">profile/packs/icrc2.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Account <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">owner</span> <span class="tok-punct">:</span> <span class="tok-keyword">principal</span><span class="tok-punct">;</span> <span class="tok-fn">subaccount</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> ApproveArgs <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">from_subaccount</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">spender</span> <span class="tok-punct">:</span> Account<span class="tok-punct">;</span>
+  <span class="tok-fn">amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  <span class="tok-fn">expected_allowance</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  <span class="tok-fn">expires_at</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span>
+  <span class="tok-fn">fee</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  <span class="tok-fn">memo</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">created_at_time</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> ApproveError <span class="tok-punct">=</span> <span class="tok-keyword">variant</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">BadFee</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">expected_fee</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">InsufficientFunds</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">balance</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">AllowanceChanged</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">current_allowance</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">Expired</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">ledger_time</span> <span class="tok-punct">:</span> <span class="tok-type">nat64</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  TooOld<span class="tok-punct">;</span>
+  <span class="tok-fn">CreatedInFuture</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">ledger_time</span> <span class="tok-punct">:</span> <span class="tok-type">nat64</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">Duplicate</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">duplicate_of</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  TemporarilyUnavailable<span class="tok-punct">;</span>
+  <span class="tok-fn">GenericError</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">error_code</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">message</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> TransferFromArgs <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">spender_subaccount</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">from</span> <span class="tok-punct">:</span> Account<span class="tok-punct">;</span>
+  <span class="tok-fn">to</span> <span class="tok-punct">:</span> Account<span class="tok-punct">;</span>
+  <span class="tok-fn">amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  <span class="tok-fn">fee</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  <span class="tok-fn">memo</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">created_at_time</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> TransferFromError <span class="tok-punct">=</span> <span class="tok-keyword">variant</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">BadFee</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">expected_fee</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">BadBurn</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">min_burn_amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">InsufficientFunds</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">balance</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">InsufficientAllowance</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">allowance</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  TooOld<span class="tok-punct">;</span>
+  <span class="tok-fn">CreatedInFuture</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">ledger_time</span> <span class="tok-punct">:</span> <span class="tok-type">nat64</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">Duplicate</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">duplicate_of</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  TemporarilyUnavailable<span class="tok-punct">;</span>
+  <span class="tok-fn">GenericError</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">error_code</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">message</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> AllowanceArgs <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">account</span> <span class="tok-punct">:</span> Account<span class="tok-punct">;</span> <span class="tok-fn">spender</span> <span class="tok-punct">:</span> Account <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">icrc1_symbol</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">text</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc1_decimals</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat8</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc2_approve</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>ApproveArgs<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-keyword">variant</span> <span class="tok-punct">{</span> <span class="tok-fn">Ok</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">Err</span> <span class="tok-punct">:</span> ApproveError <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc2_transfer_from</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>TransferFromArgs<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-keyword">variant</span> <span class="tok-punct">{</span> <span class="tok-fn">Ok</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">Err</span> <span class="tok-punct">:</span> TransferFromError <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-fn">icrc2_allowance</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>AllowanceArgs<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">allowance</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">expires_at</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat64</span> <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<h3 id="annotations-2">Annotations<a class="heading-anchor" href="#annotations-2" aria-label="Link to Annotations">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">icrc2_approve</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Approve spending"</code><br><code>template</code>: "Set {spender}'s allowance to {amount}, replacing any existing allowance[ (only if the current allowance is {expected_allowance})][ until {expires_at}][ from subaccount {from_subaccount}][ with memo {memo}]"</td></tr>
+    <tr><td><code class="wrap">icrc2_approve</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code><br><code>grant</code>: <code class="wrap">{ "spender": "spender", "amount": "amount", "ends": ["expires_at"] }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve</code></td><td><code>idempotency</code></td><td><code>mode</code>: <code>"replay_same_payload"</code><br><code>stamp</code>: <code>"created_at_time"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve</code></td><td><code>outcome</code></td><td><code>classes</code>:<br><code>"Ok"</code> → <span class="outcome success"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="currentColor"/></svg>success</span><br><code>"Err.Duplicate"</code> → <span class="outcome already_done"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="2" fill="currentColor"/></svg>already_done</span><br><code>"Err.TemporarilyUnavailable"</code> → <span class="outcome retry_same"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>retry_same</span><br><code>"Err.TooOld"</code> → <span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span><br><code>"Err.CreatedInFuture"</code> → <span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span><br><code>"Err.BadFee"</code> → <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span><br><code>"Err.AllowanceChanged"</code> → <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span><br><code>"Err.Expired"</code> → <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span><br><code>"Err.InsufficientFunds"</code> → <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span><br><code>"Err.GenericError"</code> → <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span><br><code>default</code>: <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>spender</code></td><td><code>account</code></td><td><code>encoding</code>: <code>"icrc1"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>amount</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Allowance"</code><br><code>help</code>: "Maximum the spender may transfer. An approval replaces the previous allowance; it does not add to it."</td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>expected_allowance</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>expected_allowance</code></td><td><code>describe</code></td><td><code>label</code>: "Expected current allowance"<br><code>help</code>: "Optional safety check: the call fails with AllowanceChanged if the current allowance differs."</td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>expires_at</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>expires_at</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Expires at"</code><br><code>help</code>: "Omit for an allowance that does not expire."</td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>from_subaccount</code></td><td><code>subaccount</code></td><td><code>{}</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>from_subaccount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From subaccount"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>fee</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>fee</code></td><td><code>default</code></td><td><code>value</code>: <code>"null"</code><br><code>mode</code>: <code>"auto"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>memo</code></td><td><code>bytes</code></td><td><code>encoding</code>: <code>"utf8"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>memo</code></td><td><code>default</code></td><td><code>value</code>: <code>"null"</code><br><code>mode</code>: <code>"suggest"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>memo</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Memo"</code><br><code>help</code>: "Ledgers accept at least 32 bytes; longer memos may be rejected."</td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>created_at_time</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve(0).<wbr>created_at_time</code></td><td><code>ui</code></td><td><code>hidden</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve-&gt;(0).<wbr>Ok</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Block index"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve-&gt;(0).<wbr>Err.<wbr>BadFee.<wbr>expected_fee</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve-&gt;(0).<wbr>Err.<wbr>InsufficientFunds.<wbr>balance</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve-&gt;(0).<wbr>Err.<wbr>AllowanceChanged.<wbr>current_allowance</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve-&gt;(0).<wbr>Err.<wbr>Expired.<wbr>ledger_time</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_approve-&gt;(0).<wbr>Err.<wbr>CreatedInFuture.<wbr>ledger_time</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Transfer using allowance"</code><br><code>template</code>: "Move {amount} from {from} to {to} using an allowance[ (spender subaccount {spender_subaccount})][ with memo {memo}]"</td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from</code></td><td><code>idempotency</code></td><td><code>mode</code>: <code>"replay_same_payload"</code><br><code>stamp</code>: <code>"created_at_time"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from</code></td><td><code>outcome</code></td><td><code>classes</code>:<br><code>"Ok"</code> → <span class="outcome success"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="currentColor"/></svg>success</span><br><code>"Err.Duplicate"</code> → <span class="outcome already_done"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="2" fill="currentColor"/></svg>already_done</span><br><code>"Err.TemporarilyUnavailable"</code> → <span class="outcome retry_same"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>retry_same</span><br><code>"Err.TooOld"</code> → <span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span><br><code>"Err.CreatedInFuture"</code> → <span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span><br><code>"Err.BadFee"</code> → <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span><br><code>"Err.BadBurn"</code> → <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span><br><code>"Err.InsufficientFunds"</code> → <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span><br><code>"Err.InsufficientAllowance"</code> → <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span><br><code>"Err.GenericError"</code> → <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span><br><code>default</code>: <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>from</code></td><td><code>account</code></td><td><code>encoding</code>: <code>"icrc1"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>from</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>to</code></td><td><code>account</code></td><td><code>encoding</code>: <code>"icrc1"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Recipient"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>amount</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>spender_subaccount</code></td><td><code>subaccount</code></td><td><code>{}</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>spender_subaccount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender subaccount"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>fee</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>fee</code></td><td><code>default</code></td><td><code>value</code>: <code>"null"</code><br><code>mode</code>: <code>"auto"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>memo</code></td><td><code>bytes</code></td><td><code>encoding</code>: <code>"utf8"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>memo</code></td><td><code>default</code></td><td><code>value</code>: <code>"null"</code><br><code>mode</code>: <code>"suggest"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>memo</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Memo"</code><br><code>help</code>: "Ledgers accept at least 32 bytes; longer memos may be rejected."</td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>created_at_time</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from(0).<wbr>created_at_time</code></td><td><code>ui</code></td><td><code>hidden</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from-&gt;(0).<wbr>Ok</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Block index"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from-&gt;(0).<wbr>Err.<wbr>BadFee.<wbr>expected_fee</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from-&gt;(0).<wbr>Err.<wbr>BadBurn.<wbr>min_burn_amount</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from-&gt;(0).<wbr>Err.<wbr>InsufficientFunds.<wbr>balance</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from-&gt;(0).<wbr>Err.<wbr>InsufficientAllowance.<wbr>allowance</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_transfer_from-&gt;(0).<wbr>Err.<wbr>CreatedInFuture.<wbr>ledger_time</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_allowance(0).<wbr>account</code></td><td><code>account</code></td><td><code>encoding</code>: <code>"icrc1"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_allowance(0).<wbr>spender</code></td><td><code>account</code></td><td><code>encoding</code>: <code>"icrc1"</code></td></tr>
+    <tr><td><code class="wrap">icrc2_allowance-&gt;(0).<wbr>allowance</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:icrc1_decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:icrc1_symbol" }</code></td></tr>
+    <tr><td><code class="wrap">icrc2_allowance-&gt;(0).<wbr>expires_at</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"ns"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="erc20">ERC-20<a class="heading-anchor" href="#erc20" aria-label="Link to ERC-20">#</a></h2>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Experimental</span>
+  <p>
+    EVM support is spec §15, phase 1 and the first part of phase 2: profiles, consent text for calldata and for
+    EIP-712 signing requests, and ERC-7730 export. See <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div></div>
+
+<p>
+  EIP-20 tokens on EVM chains. Spec: <a href="https://eips.ethereum.org/EIPS/eip-20">EIP-20</a>. File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/erc20.profile.json"><code>profile/packs/erc20.profile.json</code></a>.
+  Parameter names may differ from the pack's: they are matched by position, and the pack's addresses and placeholders
+  are rewritten to the contract's names. <code>name()</code> is left out: no annotation reads it and EIP-20 makes it
+  optional. <span class="claim fact">fact</span> EIP-20 makes <code>decimals()</code> and <code>symbol()</code> optional too, so a token
+  without them matches no pack and needs a contract profile with literal values.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81">candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81</span><button type="button" data-copy="candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81">Copy</button></span></li>
+  <li>checked against (the ABI): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b">candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b</span><button type="button" data-copy="candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b">Copy</button></span></li>
+  <li>validator: 0 error, 0 warning, 0 info; 7 methods, 23 annotations</li>
+</ul>
+
+<h3 id="required-functions">Required functions<a class="heading-anchor" href="#required-functions" aria-label="Link to Required functions">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/erc20.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">[</span>
+  <span class="tok-string">"function symbol() view returns (string)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function decimals() view returns (uint8)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function balanceOf(address owner) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function allowance(address owner, address spender) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function transfer(address to, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function approve(address spender, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function transferFrom(address from, address to, uint256 value) returns (bool)"</span>
+<span class="tok-punct">]</span></code></pre></div>
+
+<h3 id="annotations-3">Annotations<a class="heading-anchor" href="#annotations-3" aria-label="Link to Annotations">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">transfer</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Send tokens"</code><br><code>template</code>: <code>"Send {value} to {to}"</code></td></tr>
+    <tr><td><code class="wrap">transfer</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "to", "amount": "value" }</code></td></tr>
+    <tr><td><code class="wrap">transfer(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code></td></tr>
+    <tr><td><code class="wrap">transfer(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">transfer(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Recipient"</code></td></tr>
+    <tr><td><code class="wrap">approve</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Approve spending"</code><br><code>template</code>: "Set {spender}'s allowance to {value}, replacing any existing allowance"</td></tr>
+    <tr><td><code class="wrap">approve</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code><br><code>grant</code>: <code class="wrap">{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code class="wrap">approve(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">approve(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Unlimited"</code></td></tr>
+    <tr><td><code class="wrap">approve(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Allowance"</code><br><code>help</code>: "Maximum the spender may transfer. An approval replaces the previous allowance; it does not add to it."</td></tr>
+    <tr><td><code class="wrap">transferFrom</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Transfer using allowance"</code><br><code>template</code>: "Move {value} from {from} to {to} using an allowance"</td></tr>
+    <tr><td><code class="wrap">transferFrom</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">transferFrom(0).<wbr>from</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From"</code></td></tr>
+    <tr><td><code class="wrap">transferFrom(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Recipient"</code></td></tr>
+    <tr><td><code class="wrap">transferFrom(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code></td></tr>
+    <tr><td><code class="wrap">transferFrom(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">balanceOf</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Balance of an address"</code></td></tr>
+    <tr><td><code class="wrap">balanceOf(0).<wbr>owner</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Owner"</code></td></tr>
+    <tr><td><code class="wrap">balanceOf-&gt;(0)</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code></td></tr>
+    <tr><td><code class="wrap">allowance</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Allowance of a spender"</code></td></tr>
+    <tr><td><code class="wrap">allowance(0).<wbr>owner</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Owner"</code></td></tr>
+    <tr><td><code class="wrap">allowance(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">allowance-&gt;(0)</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Unlimited"</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The <code>threshold</code> on <code>approve(0).value</code> and <code>allowance-&gt;(0)</code> is 2<sup>256</sup> − 1,
+  the largest <code>uint256</code>: an approval of that value displays as <code>Unlimited</code> and the symbol.
+</p>
+
+<h2 id="erc2612">ERC-2612<a class="heading-anchor" href="#erc2612" aria-label="Link to ERC-2612">#</a></h2>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Experimental</span>
+  <p>
+    EIP-712 messages are spec §15.9 (D-055), the first part of the EVM binding's phase 2: profiles, consent text for a
+    signing request and an ERC-7730 file of the messages. Signing and checking signatures are not in it. See
+    <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div></div>
+
+<p>
+  EIP-2612 permits on EVM chains: the signed <code>Permit</code> message that sets an ERC-20 allowance, and the
+  <code>permit</code> function that submits one. Spec: <a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612</a>.
+  File: <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/erc2612.profile.json"><code>profile/packs/erc2612.profile.json</code></a>.
+  It applies to a token that has every function of its <code>binds.abi</code> with the same selector, outputs and kind
+  of call, <code>decimals()</code> and <code>symbol()</code> included, since the amounts read them. A signing request
+  matches <code>Permit</code> by its type hash, and its verifying contract is the token, so the <code>query:</code>
+  refs are calls to that token. The pack binds no domain: each token's name and version are its own.
+  <span class="claim fact">fact</span> (<a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612</a>) "The <code>deadline</code>
+  argument can be set to <code>uint(-1)</code> to create <code>Permit</code>s that effectively never expire", so a
+  deadline of 2<sup>256</sup> − 1 reads <code>Never</code>.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705">candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705</span><button type="button" data-copy="candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705">Copy</button></span></li>
+  <li>checked against (the ABI and the struct types): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee">candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee</span><button type="button" data-copy="candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee">Copy</button></span></li>
+  <li>validator: 0 error, 0 warning, 0 info; 6 methods (5 functions and 1 message), 18 annotations</li>
+</ul>
+
+<h3 id="required-functions-and-types">Required functions and types<a class="heading-anchor" href="#required-functions-and-types" aria-label="Link to Required functions and types">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/erc2612.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"abi"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+  <span class="tok-string">"function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function nonces(address owner) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function DOMAIN_SEPARATOR() view returns (bytes32)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function decimals() view returns (uint8)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function symbol() view returns (string)"</span>
+<span class="tok-punct">]</span><span class="tok-punct">,</span>
+<span class="tok-type">"eip712"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"Permit"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+      <span class="tok-punct">{</span>
+        <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"owner"</span><span class="tok-punct">,</span>
+        <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span>
+      <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span>
+        <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span>
+        <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span>
+      <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span>
+        <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"value"</span><span class="tok-punct">,</span>
+        <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span>
+      <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span>
+        <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"nonce"</span><span class="tok-punct">,</span>
+        <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span>
+      <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span>
+        <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"deadline"</span><span class="tok-punct">,</span>
+        <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span>
+      <span class="tok-punct">}</span>
+    <span class="tok-punct">]</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Permit</code><br><span class="effect approve">approve</span></td><td><code class="wrap">Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)</code><br><code class="wrap">0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="annotations-4">Annotations<a class="heading-anchor" href="#annotations-4" aria-label="Link to Annotations">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">Permit</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Permit token spending"</code><br><code>template</code>: "Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">Permit</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code><br><code>grant</code>: <code class="wrap">{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>owner</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Owner"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">permit</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Submit a token permit"</code><br><code>template</code>: "Set {spender}'s allowance from {owner} to {value} with {owner}'s signature. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">permit</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code><br><code>grant</code>: <code class="wrap">{ "spender": "spender", "amount": "value" }</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>{ "from": "query:decimals" }</code><br><code>symbol</code>: <code>{ "from": "query:symbol" }</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>owner</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Owner"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">permit(0).<wbr>v</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature v"</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The <code>threshold</code> on both <code>value</code>s and both <code>deadline</code>s is 2<sup>256</sup> − 1: an
+  amount of that value displays as <code>Unlimited</code> and the symbol (the default <code>message</code>), and a
+  deadline of that value as <code>Never</code>. The grant of <code>Permit</code> and of <code>permit</code> names no
+  <code>ends</code>: the deadline bounds only when the signature may be used, and the allowance it sets never ends
+  (spec §5.3).
+</p>
+
+<h2 id="permit2">Permit2<a class="heading-anchor" href="#permit2" aria-label="Link to Permit2">#</a></h2>
+
+<p>
+  <span class="pill warn">experimental</span> Uniswap's Permit2, as a contract profile (<code>kind: "contract"</code>,
+  <code>origin: "third_party"</code>), not a pack. File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/permit2.profile.json"><code>profile/packs/permit2.profile.json</code></a>.
+  It describes four messages and no function: the AllowanceTransfer messages <code>PermitSingle</code> and
+  <code>PermitBatch</code>, which set allowances (<span class="effect approve">approve</span>), and the SignatureTransfer messages
+  <code>PermitTransferFrom</code> and <code>PermitBatchTransferFrom</code>, which authorize one transfer
+  (<span class="effect transfer">transfer</span> <span class="effect irreversible">irreversible</span>). Each amount is in the token its message names
+  (<code>amount.token</code>): a consumer supplies that token's <code>decimals()</code> and <code>symbol()</code>, and
+  shows its address beside the symbol.
+</p>
+
+<p>
+  It is bound to the domain named <code>Permit2</code>, with no version, and to <code>0x0000…8BA3</code> on chains 1,
+  8453, 42161 and 84532, so a look-alike contract named "Permit2" gets none of these words (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DEPLOYMENT</span></span>).
+  <span class="claim fact">fact</span> ERC-7730's own Permit2 example lists chains 1 and 42161; Base and Base Sepolia (8453 and 84532)
+  were added in 0.5.0 from Permit2's code and <code>DOMAIN_SEPARATOR()</code>, read on each chain on 2026-10-30, and
+  Uniswap's deployments page (spec §15.9, D-058). Its other chains are open item O10. <span class="claim fact">fact</span> (Uniswap
+  <code>permit2</code>, <code>Allowance.sol</code> and <code>AllowanceTransfer.sol</code>) "If the inputted expiration
+  is 0, the allowance only lasts the duration of the block", so an expiration of 0 reads <code>Only in the block it is
+  used</code>; an allowance of <code>type(uint160).max</code> is never decremented, so it reads <code>Unlimited</code>.
+  Witness messages (<code>PermitWitnessTransferFrom</code>) are left out of this profile: each protocol adds its own
+  witness type. x402's has a profile of its own, <a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a>, and
+  any other is open (<span class="claim open">open</span> O9, on <a href="open-questions.html">Open questions</a>).
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188">candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188</span><button type="button" data-copy="candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188">Copy</button></span></li>
+  <li>checked against (its struct types): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646">candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646</span><button type="button" data-copy="candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646">Copy</button></span></li>
+  <li>validator: 0 error, 0 warning, 0 info; 4 methods (4 messages), 40 annotations</li>
+</ul>
+
+<h3 id="domain-and-deployments">Domain and deployments<a class="heading-anchor" href="#domain-and-deployments" aria-label="Link to Domain and deployments">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/permit2.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"eip712"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"domain"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Permit2"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    …
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-type">"deployments"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">8453</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">42161</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">84532</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">]</span></code></pre></div>
+
+<h3 id="messages">Messages<a class="heading-anchor" href="#messages" aria-label="Link to Messages">#</a></h3>
+
+<p>
+  Six struct types; the four that the profile tags with <code>intent</code> are messages, and
+  <code>PermitDetails</code> and <code>TokenPermissions</code> are types inside them. Each <code>encode_type</code> lists
+  the primary type, then the structs it refers to:
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PermitSingle</code><br><span class="effect approve">approve</span></td><td><code class="wrap">PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)</code><br><code class="wrap">0xf3841cd1ff0085026a6327b620b67997ce40f282c88a8e905a7a5626e310f3d0</code></td></tr>
+    <tr><td><code>PermitBatch</code><br><span class="effect approve">approve</span></td><td><code class="wrap">PermitBatch(PermitDetails[] details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)</code><br><code class="wrap">0xaf1b0d30d2cab0380e68f0689007e3254993c596f2fdd0aaa7f4d04f79440863</code></td></tr>
+    <tr><td><code>PermitTransferFrom</code><br><span class="effect transfer">transfer</span> <span class="effect irreversible">irreversible</span></td><td><code class="wrap">PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)</code><br><code class="wrap">0x939c21a48a8dbe3a9a2404a1d46691e4d39f6583d6ec6b35714604c986d80106</code></td></tr>
+    <tr><td><code>PermitBatchTransferFrom</code><br><span class="effect transfer">transfer</span> <span class="effect irreversible">irreversible</span></td><td><code class="wrap">PermitBatchTransferFrom(TokenPermissions[] permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)</code><br><code class="wrap">0xfcf35f5ac6a2c28868dc44c302166470266239195f02b0ee408334829333b766</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="annotations-5">Annotations<a class="heading-anchor" href="#annotations-5" aria-label="Link to Annotations">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">PermitSingle</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow token spending"<br><code>template</code>: "Let {spender} spend up to {details.amount}. Allowance expires: {details.expiration}. Signature expires: {sigDeadline}."</td></tr>
+    <tr><td><code class="wrap">PermitSingle</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code><br><code>grant</code>: <code class="wrap">{ "spender": "spender", "amount": "details.amount", "ends": ["details.expiration", "sigDeadline"] }</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"details.token"</code><br><code>threshold</code>: <code class="wrap">"1461501637330902918203684832716283019655932542975"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>expiration</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code>"281474976710655"</code><br><code>message</code>: <code>"Never"</code><br><code>labels</code>: <code class="wrap">{ "0": "Only in the block it is used" }</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>expiration</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Allowance expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>details.<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>sigDeadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitSingle(0).<wbr>sigDeadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow spending of several tokens"<br><code>template</code>: "Let {spender} spend up to {details[].amount}. Allowances expire, in the same order: {details[].expiration}. Signature expires: {sigDeadline}."</td></tr>
+    <tr><td><code class="wrap">PermitBatch</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"details[].token"</code><br><code>threshold</code>: <code class="wrap">"1461501637330902918203684832716283019655932542975"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>expiration</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code>"281474976710655"</code><br><code>message</code>: <code>"Never"</code><br><code>labels</code>: <code class="wrap">{ "0": "Only in the block it is used" }</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>expiration</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Allowance expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>details[].<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>sigDeadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatch(0).<wbr>sigDeadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow one transfer"<br><code>template</code>: "Let {spender} transfer up to {permitted.amount} from you, once. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "spender": "spender", "amount": "permitted.amount", "ends": ["deadline"] }</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>permitted.<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"permitted.token"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Up to"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitTransferFrom(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom</code></td><td><code>intent</code></td><td><code>title</code>: "Permit2: allow one transfer of several tokens"<br><code>template</code>: "Let {spender} transfer up to {permitted[].amount} from you, once. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>permitted[].<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>permitted[].<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"permitted[].token"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>permitted[].<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Up to"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitBatchTransferFrom(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The thresholds are the largest value of each type: 2<sup>160</sup> − 1 for an allowance (<code>uint160</code>),
+  2<sup>48</sup> − 1 for an expiration (<code>uint48</code>) and 2<sup>256</sup> − 1 for a signature deadline
+  (<code>uint256</code>). The two SignatureTransfer amounts have no threshold.
+</p>
+
+<p>
+  <code>PermitSingle</code>'s grant ends at the latest of <code>details.expiration</code> and <code>sigDeadline</code>,
+  and <code>PermitTransferFrom</code>'s at its <code>deadline</code>; each grant's token is the one its message names.
+  <span class="claim fact">fact</span> (Uniswap <code>permit2</code> at <code>main</code>, read 2026-10-30,
+  <code>src/libraries/Allowance.sol</code>, as spec §15.9 records) An expiration of 0 is stored as the time of the
+  block the permit is used in, and that block may come as late as <code>sigDeadline</code>; the latest of the two is
+  the end, so 0 needs no rule of its own. The batch messages carry no grant: a grant covers one token.
+</p>
+
+<h2 id="dai-permit">DAI permit<a class="heading-anchor" href="#dai-permit" aria-label="Link to DAI permit">#</a></h2>
+
+<p>
+  <span class="pill warn">experimental</span> DAI's <code>permit</code> on Ethereum mainnet, older than EIP-2612 and
+  different from it, as a contract profile (<code>origin: "third_party"</code>). File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/dai-permit.profile.json"><code>profile/packs/dai-permit.profile.json</code></a>.
+  Only the message is described: DAI's functions are ERC-20's, and the <a href="#erc20">ERC-20 pack</a> covers them. It
+  is bound to the domain <code>Dai Stablecoin</code> version <code>1</code> and to <code>0x6B17…1d0F</code> on chain 1
+  (<span class="claim fact">fact</span> <code>MCD_DAI</code> in the Sky chainlog, read 2026-10-28, as spec §15.9 records).
+</p>
+
+<p>
+  <span class="claim fact">fact</span> (MakerDAO <code>dss/src/dai.sol</code>, as spec §15.9 records) An <code>expiry</code> of 0 never
+  expires, <code>allowed</code> sets the allowance to <code>uint(-1)</code> or 0, and <code>PERMIT_TYPEHASH</code> is
+  <code class="wrap">0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb</code>, which the resolver's
+  hash matches. So <code>expiry</code> reads <code>Never</code> at 0 (a label) and at 2<sup>256</sup> − 1 (the
+  threshold). DAI's <code>Permit</code> shares its name with EIP-2612's and not its type hash, and a request is matched
+  by the hash. <code>allowed</code> reads through the template; a case-like reading of <code>true</code> and
+  <code>false</code> is open item O12. The grant's amount is <code>allowed</code> itself: <code>true</code> grants an
+  unlimited allowance and <code>false</code> grants nothing; <code>expiry</code> bounds only the signature, so the
+  grant never ends (spec §5.3).
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8">candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8</span><button type="button" data-copy="candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8">Copy</button></span></li>
+  <li>checked against (its struct type): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46">candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46</span><button type="button" data-copy="candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46">Copy</button></span></li>
+  <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 8 annotations</li>
+</ul>
+
+<h3 id="message">Message<a class="heading-anchor" href="#message" aria-label="Link to Message">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Permit</code><br><span class="effect approve">approve</span></td><td><code class="wrap">Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)</code><br><code class="wrap">0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  Its <code>binds</code> is quoted whole on <a href="reference-profile-format.html">Profile and resolved form</a>, under
+  <code>binds.eip712</code>.
+</p>
+
+<h3 id="annotations-6">Annotations<a class="heading-anchor" href="#annotations-6" aria-label="Link to Annotations">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">Permit</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Permit DAI spending"</code><br><code>template</code>: "Set the DAI allowance {holder} gives {spender} to all of it if allowed is true, to none if false (allowed: {allowed}). Signature expires: {expiry}."</td></tr>
+    <tr><td><code class="wrap">Permit</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"approve"</code><br><code>irreversible</code>: <code>false</code><br><code>grant</code>: <code class="wrap">{ "spender": "spender", "amount": "allowed" }</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>holder</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Holder"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Spender"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>allowed</code></td><td><code>describe</code></td><td><code>label</code>: "Allowed (true: all, false: none)"</td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>expiry</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code><br><code>labels</code>: <code>{ "0": "Never" }</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>expiry</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">Permit(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+  </tbody>
+</table></div>
+
+
+<h2 id="usdc">USDC<a class="heading-anchor" href="#usdc" aria-label="Link to USDC">#</a></h2>
+
+<p>
+  <span class="pill warn">experimental</span> USDC's EIP-3009 messages, as two contract profiles (<code>origin:
+  "third_party"</code>, D-058): <code>usdc</code> on Ethereum, Base and Arbitrum, and <code>usdc-base-sepolia</code> on
+  Base Sepolia, a test network, with the same words. Files:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/usdc.profile.json"><code>profile/packs/usdc.profile.json</code></a>
+  and
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/usdc-base-sepolia.profile.json"><code>profile/packs/usdc-base-sepolia.profile.json</code></a>.
+  <code>TransferWithAuthorization</code> and <code>ReceiveWithAuthorization</code> pay <code>to</code> once, by a
+  signature that someone else submits (<span class="effect transfer">transfer</span> <span class="effect irreversible">irreversible</span>), and
+  <code>CancelAuthorization</code> cancels one that is unused (<span class="effect write">write</span>). Amounts are in 6 decimals,
+  <code>USDC</code>; the verifying contract is the token. <span class="claim fact">fact</span> x402's <code>exact</code> scheme pays by
+  <code>TransferWithAuthorization</code> by default (<code>coinbase/x402</code> at <code>0e6e8c5</code>,
+  <code>specs/schemes/exact/scheme_exact_evm.md</code>, as spec §15.9 records).
+</p>
+
+<p>
+  <code>usdc</code> is bound to the domain <code>USD Coin</code> version <code>2</code> and to USDC on chains 1
+  (<code>0xA0b8…eB48</code>), 8453 (<code>0x8335…2913</code>) and 42161 (<code>0xaf88…5831</code>);
+  <code>usdc-base-sepolia</code> to the domain <code>USDC</code> version <code>2</code> and to <code>0x036C…CF7e</code>
+  on chain 84532. Base Sepolia's USDC signs under that other name, and a profile binds one domain, so it has a profile
+  of its own. A look-alike token gets none of these words (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DEPLOYMENT</span></span>). <span class="claim fact">fact</span> (read on
+  chain on 2026-10-30) each contract's <code>DOMAIN_SEPARATOR()</code>, <code>decimals()</code> and three type hashes.
+  <span class="claim fact">fact</span> (EIP-3009; Circle's <code>EIP3009.sol</code> at <code>fc85788</code>, as spec §15.9 records) a
+  signature is valid only after <code>validAfter</code> and before <code>validBefore</code>, both strictly, so the text
+  reads "Valid after" and "Expires", and only the payee may submit a <code>ReceiveWithAuthorization</code>. USDC's ABI
+  names each of its four signature functions twice, which the resolver refuses (<span class="claim open">open</span> O1), so the profiles
+  describe the messages only.
+</p>
+
+<ul>
+  <li><code>usdc</code>, <code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:7977fab1ca0436abbe34d947800859afeb279337f44d85e5efdf6ce269d9d3e6">candid-profile:v0:sha256:7977fab1ca0436abbe34d947800859afeb279337f44d85e5efdf6ce269d9d3e6</span><button type="button" data-copy="candid-profile:v0:sha256:7977fab1ca0436abbe34d947800859afeb279337f44d85e5efdf6ce269d9d3e6">Copy</button></span></li>
+  <li><code>usdc-base-sepolia</code>, <code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d">candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d</span><button type="button" data-copy="candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d">Copy</button></span></li>
+  <li>checked against (their struct types, the same in both): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c">candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c</span><button type="button" data-copy="candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c">Copy</button></span></li>
+  <li>validator, each: 0 error, 0 warning, 0 info; 3 methods (3 messages), 26 annotations</li>
+</ul>
+
+<h3 id="domains-and-deployments">Domains and deployments<a class="heading-anchor" href="#domains-and-deployments" aria-label="Link to Domains and deployments">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/usdc.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"eip712"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"domain"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"USD Coin"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"2"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    …
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-type">"deployments"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">8453</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">42161</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0xaf88d065e77c8cC2239327C5EDb3A432268e5831"</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">]</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/usdc-base-sepolia.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"eip712"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"domain"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"USDC"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"2"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    …
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-type">"deployments"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+  <span class="tok-punct">{</span>
+    <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">84532</span><span class="tok-punct">,</span>
+    <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x036CbD53842c5426634e7929541eC2318f3dCF7e"</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">]</span></code></pre></div>
+
+<h3 id="messages-2">Messages<a class="heading-anchor" href="#messages-2" aria-label="Link to Messages">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>TransferWithAuthorization</code><br><span class="effect transfer">transfer</span> <span class="effect irreversible">irreversible</span></td><td><code class="wrap">TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)</code><br><code class="wrap">0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267</code></td></tr>
+    <tr><td><code>ReceiveWithAuthorization</code><br><span class="effect transfer">transfer</span> <span class="effect irreversible">irreversible</span></td><td><code class="wrap">ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)</code><br><code class="wrap">0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8</code></td></tr>
+    <tr><td><code>CancelAuthorization</code><br><span class="effect write">write</span> <span class="effect irreversible">irreversible</span></td><td><code class="wrap">CancelAuthorization(address authorizer,bytes32 nonce)</code><br><code class="wrap">0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="annotations-7">Annotations<a class="heading-anchor" href="#annotations-7" aria-label="Link to Annotations">#</a></h3>
+
+<p>The two files carry the same 26 annotations:</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">TransferWithAuthorization</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Pay USDC by signature"</code><br><code>template</code>: "Send {value} from {from} to {to}, once. Valid after {validAfter}. Expires: {validBefore}."</td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "to", "amount": "value", "ends": ["validBefore"] }</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>from</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"To"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>6</code><br><code>symbol</code>: <code>"USDC"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validAfter</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validAfter</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Valid after"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validBefore</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>validBefore</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Expires"</code></td></tr>
+    <tr><td><code class="wrap">TransferWithAuthorization(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization</code></td><td><code>intent</code></td><td><code>title</code>: "Pay USDC by signature, collected by the payee"<br><code>template</code>: "Send {value} from {from} to {to}, once; only {to} can submit it. Valid after {validAfter}. Expires: {validBefore}."</td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "to", "amount": "value", "ends": ["validBefore"] }</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>from</code></td><td><code>describe</code></td><td><code>label</code>: <code>"From"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"To"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>value</code></td><td><code>amount</code></td><td><code>decimals</code>: <code>6</code><br><code>symbol</code>: <code>"USDC"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>value</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validAfter</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validAfter</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Valid after"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validBefore</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>validBefore</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Expires"</code></td></tr>
+    <tr><td><code class="wrap">ReceiveWithAuthorization(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">CancelAuthorization</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Cancel a USDC payment signature"</code><br><code>template</code>: "Cancel the unused USDC payment signature of {authorizer} with nonce {nonce}."</td></tr>
+    <tr><td><code class="wrap">CancelAuthorization</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"write"</code><br><code>irreversible</code>: <code>true</code></td></tr>
+    <tr><td><code class="wrap">CancelAuthorization(0).<wbr>authorizer</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signer of the payment"</code></td></tr>
+    <tr><td><code class="wrap">CancelAuthorization(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The <code>threshold</code> of both <code>validBefore</code>s is 2<sup>256</sup> − 1, which reads <code>Never</code>.
+  Both payments grant their <code>value</code> to <code>to</code>, until <code>validBefore</code>: from then on the
+  signature cannot be submitted. <code>CancelAuthorization</code> grants nothing, so no terms cover it and it needs its
+  own confirmation.
+</p>
+
+<h2 id="x402-exact-permit2">x402 through Permit2<a class="heading-anchor" href="#x402-exact-permit2" aria-label="Link to x402 through Permit2">#</a></h2>
+
+<p>
+  <span class="pill warn">experimental</span> x402's <code>exact</code> payment through Permit2, as a contract profile
+  (<code>origin: "third_party"</code>, D-058). File:
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/x402-exact-permit2.profile.json"><code>profile/packs/x402-exact-permit2.profile.json</code></a>.
+  It describes one message, Permit2's <code>PermitWitnessTransferFrom</code> with x402's witness <code>Witness(address
+  to,uint256 validAfter)</code>, which x402 signs for a token without EIP-3009 (<span class="effect transfer">transfer</span>
+  <span class="effect irreversible">irreversible</span>). It is bound to Permit2's domain and deployments: the domain <code>Permit2</code>, with
+  no version, and <code>0x0000…8BA3</code> on chains 1, 8453, 42161 and 84532. The amount is in the token the message
+  names (<code>permitted.token</code>): a consumer supplies that token's <code>decimals()</code> and
+  <code>symbol()</code>, and shows its address beside the symbol.
+</p>
+
+<p>
+  Permit2 lets the spender choose where the tokens go and never reads the witness, so the witness's <code>to</code> is
+  the payee only when the spender is x402's proxy, <code>0x402085c248EeA27D92E8b30b2C58ed07f9E20001</code>. The profile
+  pins the spender to it (<a href="reference-tags.html#a-pin-fixed"><code>fixed</code></a>, spec §15.4): a request with
+  any other spender gets no text (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_FIXED</span></span>), and the grant pays <code>witness.to</code>. <span class="claim fact">fact</span>
+  (<code>coinbase/x402</code> at <code>0e6e8c5</code>, <code>contracts/evm/src/x402BasePermit2Proxy.sol</code> and
+  <code>x402ExactPermit2Proxy.sol</code>, as spec §15.9 records) the proxy's <code>settle</code> sends exactly
+  <code>permitted.amount</code> to <code>witness.to</code> and reverts while the block's time is before
+  <code>validAfter</code>, so the text reads "Usable from". <span class="claim fact">fact</span> (read on chain on 2026-10-30) the proxy
+  has the same code on the four chains, and its <code>PERMIT2()</code> is Permit2. x402's <code>upto</code> scheme signs
+  another witness, so another type hash, and matches nothing.
+</p>
+
+<ul>
+  <li><code>profile_id</code>: <span class="id-chip"><span class="id-kind">profile_id</span><span class="id-value" title="candid-profile:v0:sha256:95f79ba50f10a6340d06e96527d9c944732599f87bca54ecfcfce877b9a8237b">candid-profile:v0:sha256:95f79ba50f10a6340d06e96527d9c944732599f87bca54ecfcfce877b9a8237b</span><button type="button" data-copy="candid-profile:v0:sha256:95f79ba50f10a6340d06e96527d9c944732599f87bca54ecfcfce877b9a8237b">Copy</button></span></li>
+  <li>checked against (its struct types): <span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef">candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef</span><button type="button" data-copy="candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef">Copy</button></span></li>
+  <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 13 annotations</li>
+</ul>
+
+<h3 id="message-2">Message<a class="heading-anchor" href="#message-2" aria-label="Link to Message">#</a></h3>
+
+<p>
+  Three struct types: <code>PermitWitnessTransferFrom</code>, which the profile tags with <code>intent</code>, is the
+  message, and <code>TokenPermissions</code> and <code>Witness</code> are types inside it.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Message and effect</th><th><code>encode_type</code> and <code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PermitWitnessTransferFrom</code><br><span class="effect transfer">transfer</span> <span class="effect irreversible">irreversible</span></td><td><code class="wrap">PermitWitnessTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline,Witness witness)TokenPermissions(address token,uint256 amount)Witness(address to,uint256 validAfter)</code><br><code class="wrap">0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="annotations-8">Annotations<a class="heading-anchor" href="#annotations-8" aria-label="Link to Annotations">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Address</th><th>Tag</th><th>Args</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom</code></td><td><code>intent</code></td><td><code>title</code>: <code>"Pay by x402 through Permit2"</code><br><code>template</code>: "Send {permitted.amount} to {witness.to}, once, through x402's payment contract. Usable from {witness.validAfter}. Signature expires: {deadline}."</td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom</code></td><td><code>effect</code></td><td><code>kind</code>: <code>"transfer"</code><br><code>irreversible</code>: <code>true</code><br><code>grant</code>: <code class="wrap">{ "to": "witness.to", "amount": "permitted.amount", "ends": ["deadline"] }</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>permitted.<wbr>token</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Token"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>amount</code></td><td><code>token</code>: <code>"permitted.token"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>permitted.<wbr>amount</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Amount"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>spender</code></td><td><code>fixed</code></td><td><code>value</code>: <code class="wrap">"0x402085c248EeA27D92E8b30b2C58ed07f9E20001"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>spender</code></td><td><code>describe</code></td><td><code>label</code>: <code>"x402's payment contract"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>nonce</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Nonce"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>deadline</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>threshold</code>: <code class="wrap">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</code><br><code>message</code>: <code>"Never"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>deadline</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Signature expires"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>witness.<wbr>to</code></td><td><code>describe</code></td><td><code>label</code>: <code>"To"</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>witness.<wbr>validAfter</code></td><td><code>timestamp</code></td><td><code>unit</code>: <code>"s"</code><br><code>epoch</code>: <code>"unix"</code><br><code>labels</code>: <code>{ "0": "now" }</code></td></tr>
+    <tr><td><code class="wrap">PermitWitnessTransferFrom(0).<wbr>witness.<wbr>validAfter</code></td><td><code>describe</code></td><td><code>label</code>: <code>"Usable from"</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The <code>deadline</code>'s <code>threshold</code> is 2<sup>256</sup> − 1, which reads <code>Never</code>, and a
+  <code>validAfter</code> of 0 reads <code>now</code>, a label: the payment can be settled at once. The grant ends at
+  the <code>deadline</code>, as Permit2's <code>PermitTransferFrom</code> does. The ERC-7730 export writes the pin on
+  the spender's field as <code>visible: { "mustMatch": ["0x402085c248EeA27D92E8b30b2C58ed07f9E20001"] }</code>, so a
+  wallet hides that field and checks it (spec §15.7).
+</p>
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="reference-profile-format.html"><span class="dir">Previous</span><span class="label">Profile and resolved form</span></a><a class="next" href="reference-profile-api.html"><span class="dir">Next</span><span class="label">JavaScript API</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/reference-packs.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#how-a-pack-matches">How a pack matches</a></li><li class="toc-h2"><a href="#what-the-packs-grant">What the packs grant</a></li><li class="toc-h2"><a href="#using-the-packs">Using the packs</a></li><li class="toc-h2"><a href="#icrc1">ICRC-1</a></li><li class="toc-h3"><a href="#required-fragment">Required fragment</a></li><li class="toc-h3"><a href="#annotations">Annotations</a></li><li class="toc-h2"><a href="#icrc2">ICRC-2</a></li><li class="toc-h3"><a href="#required-fragment-2">Required fragment</a></li><li class="toc-h3"><a href="#annotations-2">Annotations</a></li><li class="toc-h2"><a href="#erc20">ERC-20</a></li><li class="toc-h3"><a href="#required-functions">Required functions</a></li><li class="toc-h3"><a href="#annotations-3">Annotations</a></li><li class="toc-h2"><a href="#erc2612">ERC-2612</a></li><li class="toc-h3"><a href="#required-functions-and-types">Required functions and types</a></li><li class="toc-h3"><a href="#annotations-4">Annotations</a></li><li class="toc-h2"><a href="#permit2">Permit2</a></li><li class="toc-h3"><a href="#domain-and-deployments">Domain and deployments</a></li><li class="toc-h3"><a href="#messages">Messages</a></li><li class="toc-h3"><a href="#annotations-5">Annotations</a></li><li class="toc-h2"><a href="#dai-permit">DAI permit</a></li><li class="toc-h3"><a href="#message">Message</a></li><li class="toc-h3"><a href="#annotations-6">Annotations</a></li><li class="toc-h2"><a href="#usdc">USDC</a></li><li class="toc-h3"><a href="#domains-and-deployments">Domains and deployments</a></li><li class="toc-h3"><a href="#messages-2">Messages</a></li><li class="toc-h3"><a href="#annotations-7">Annotations</a></li><li class="toc-h2"><a href="#x402-exact-permit2">x402 through Permit2</a></li><li class="toc-h3"><a href="#message-2">Message</a></li><li class="toc-h3"><a href="#annotations-8">Annotations</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

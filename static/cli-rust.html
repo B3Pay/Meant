@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The meant binary · Meant</title>
+<meta name="description" content="Compile a .did file to a canonical Contract document, an envelope, or validate one.">
+<meta property="og:title" content="The meant binary · Meant">
+<meta property="og:description" content="Compile a .did file to a canonical Contract document, an envelope, or validate one.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>The meant binary</h1><p class="page-lead">Compile a .did file to a canonical Contract document, an envelope, or validate one.</p><p>
+  The <code>meant</code> binary is the command-line front end to the Rust crate. It does two things: it
+  compiles a Candid <code>.did</code> file into a canonical, validated <strong>Contract</strong>
+  document — Meant's model of an interface, a flat table of type nodes with named declarations,
+  an optional actor, and content-addressed identities computed over it — and it re-validates such a
+  document that arrived from somewhere else. Both outcomes are one pretty-printed JSON document on
+  stdout, so the binary composes with <code>jq</code>, with a build script, or with any language that
+  can read JSON without linking a Candid parser.
+</p>
+
+<p>
+  It is not a second implementation. The binary calls
+  <code>compile_did_file_with_options</code> and <code>Contract::from_json</code> — the same functions
+  described in <a href="rust-compiling.html">Compiling Candid sources</a> — and adds argument parsing,
+  a JSON writer, and the field-name table it attaches when you ask for an envelope. The suite in
+  <a href="https://github.com/B3Pay/Meant/blob/main/tests/cli.rs"><code>tests/cli.rs</code></a>
+  runs the real compiled executable and pins the behaviour described below: the argument grammar, the
+  exit statuses, which stream each response uses, the JSON shapes and their stable codes, and both byte
+  bounds at the exact limit and one byte over.
+</p>
+
+<h2 id="installing-it">Installing it<a class="heading-anchor" href="#installing-it" aria-label="Link to Installing it">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cargo</span> install meant<span class="tok-attr"> --version</span> 0.1.0<span class="tok-attr"> --locked</span>
+meant compile ./service.did<span class="tok-attr"> --envelope</span> <span class="tok-punct">&gt;</span> ./service.json</code></pre></div>
+
+<p>
+  Name the version. <code>meant</code> is pre-1.0, and any 0.x release may change what the
+  binary writes, so install the release you mean rather than whatever is newest. Spelling the exact
+  requirement — <code>--version '=0.1.0'</code> — works the same way and matches the dependency
+  line a library consumer writes, <code>meant = "=0.1.0"</code>. <code>--locked</code>
+  builds against the lockfile shipped inside the crate archive.
+</p>
+
+<p>
+  The crate and its binary were published as <code>candid-core</code> until 0.1.0 and are
+  <code>meant</code> now: a script that runs <code>candid-core compile</code> runs
+  <code>meant compile</code> instead, and <code>use candid_core::</code> in Rust becomes
+  <code>use meant::</code>.
+</p>
+
+<p>
+  The binary target declares <code>required-features = ["filesystem-compiler"]</code>, which is in the
+  default set, so a plain install produces it. If you want the binary and nothing else, this is the
+  feature selection the release verification uses when it installs the CLI from the packaged archive:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cargo</span> install meant<span class="tok-attr"> --version</span> 0.1.0<span class="tok-attr"> --locked</span><span class="tok-attr"> --no-default-features</span><span class="tok-attr"> --features</span> filesystem-compiler</code></pre></div>
+
+<p>Working from a clone, the same commands run through Cargo without installing anything:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cargo</span> run<span class="tok-attr"> --bin</span> meant -- compile ./service.did<span class="tok-keyword">
+cargo</span> run<span class="tok-attr"> --bin</span> meant -- compile ./service.did<span class="tok-attr"> --no-source-info</span><span class="tok-keyword">
+cargo</span> run<span class="tok-attr"> --bin</span> meant -- compile ./service.did<span class="tok-attr"> --envelope</span><span class="tok-keyword">
+cargo</span> run<span class="tok-attr"> --bin</span> meant -- validate ./contract.json</code></pre></div>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Turn defaults off and there is no binary</span>
+  <p>
+    A consumer who takes the crate with <code>default-features = false</code> to get the pure Contract
+    model gets no <code>meant</code> executable, because <code>filesystem-compiler</code> is what
+    declares it. That is the intended shape: the model has no filesystem dependency, and the binary is
+    the part that does.
+  </p>
+</div></div>
+
+<h2 id="the-grammar">The grammar<a class="heading-anchor" href="#the-grammar" aria-label="Link to The grammar">#</a></h2>
+
+<p>The binary accepts exactly this, and nothing else:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-file">src/bin/meant.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">usage: meant compile &lt;path&gt; [--no-source-info | --envelope]
+       meant validate &lt;path&gt;</code></pre></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr>
+      <th>Invocation</th>
+      <th>What it does</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>compile &lt;path&gt;</code></td>
+      <td>
+        Type-checks the <code>.did</code> file, following its imports from the file's own parent
+        directory, and prints <code>{"contract": …, "ok": true, "source_info": …}</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><code>compile &lt;path&gt; --no-source-info</code></td>
+      <td>
+        The same, with the provenance sidecar suppressed. The <code>source_info</code> key stays present
+        and is emitted as exactly <code>null</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><code>compile &lt;path&gt; --envelope</code></td>
+      <td>
+        Prints the <code>ContractEnvelope</code> document itself —
+        <code>{"contract": …, "extensions": {…}}</code>, with no <code>ok</code> wrapper — carrying the
+        field-name table the TypeScript runtime needs.
+      </td>
+    </tr>
+    <tr>
+      <td><code>validate &lt;path&gt;</code></td>
+      <td>
+        Reads a Contract JSON document, re-validates it including recomputing its identities, and prints
+        <code>{"contract": …, "ok": true}</code>. Accepts no flags at all.
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  There are no other commands and no other flags — in particular, no flag for limits. Both commands run
+  under <code>Limits::default()</code>, the frozen <code>interactive_v1</code> profile; custom ceilings
+  are a library capability, passed through the <code>*_with_limits</code> and
+  <code>*_with_context</code> entry points.
+</p>
+
+<h3 id="why-the-two-compile-flags-are-mutually-exclusive">Why the two compile flags are mutually exclusive<a class="heading-anchor" href="#why-the-two-compile-flags-are-mutually-exclusive" aria-label="Link to Why the two compile flags are mutually exclusive">#</a></h3>
+
+<p>
+  <code>--no-source-info</code> throws the provenance sidecar away. The envelope exists to carry
+  <em>field names</em>, and field names live only in that sidecar: a canonical Contract stores record
+  and variant fields by their 32-bit Candid label hash, not by their spelling, because the hash is what
+  the wire format carries. So <code>--envelope</code> asks for something <code>--no-source-info</code>
+  has already discarded. Rather than silently emitting an envelope with an empty name table, the binary
+  treats the combination as a contradiction: in either order,
+  <code>compile x.did --envelope --no-source-info</code> is a usage error.
+</p>
+
+<p>
+  Two more grammar rules bite in practice. Flags go <em>after</em> the path and may appear at most once
+  — <code>compile --envelope ./service.did</code> is a usage error. And any token beginning with
+  <code>-</code> in the path position is treated as an option, never as a path, so a dash-leading file
+  is spelled with a prefix: <code>meant compile ./-service.did</code>.
+</p>
+
+<h2 id="exit-codes-and-streams">Exit codes and streams<a class="heading-anchor" href="#exit-codes-and-streams" aria-label="Link to Exit codes and streams">#</a></h2>
+
+<p>
+  Three statuses, and they are exhaustive. In the source they are
+  <code>ExitCode::SUCCESS</code>, <code>ExitCode::FAILURE</code> and <code>ExitCode::from(64)</code>.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr>
+      <th>Exit</th>
+      <th>Outcome</th>
+      <th>stdout</th>
+      <th>stderr</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>0</code></td>
+      <td>Success</td>
+      <td>One pretty-printed JSON document, then a newline</td>
+      <td>Empty</td>
+    </tr>
+    <tr>
+      <td><code>1</code></td>
+      <td>Read, parse, type-check, validation or resource-limit failure</td>
+      <td>One pretty-printed JSON document with <code>"ok": false</code></td>
+      <td>Empty</td>
+    </tr>
+    <tr>
+      <td><code>64</code></td>
+      <td>Usage error</td>
+      <td>Empty</td>
+      <td>Exactly the two-line usage text above</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Failure JSON goes to stdout, not stderr</span>
+  <p>
+    Both the success writer and the error writer use <code>println!</code>. The only thing ever written
+    to stderr is the usage text. A script that pipes stdout into a JSON parser will therefore receive
+    the error document too, and should branch on the exit status or on the <code>ok</code> key — never
+    on which stream produced output.
+  </p>
+</div></div>
+
+<p>
+  The usage-error suite is worth knowing about because of how it is built: every file named across its
+  27 rejected argument vectors is a valid, existing one, so a run that reached file processing would
+  have succeeded. Observing exit 64 therefore proves the argument itself was rejected, not that the
+  input was bad.
+</p>
+
+<h2 id="what-compile-prints">What compile prints<a class="heading-anchor" href="#what-compile-prints" aria-label="Link to What compile prints">#</a></h2>
+
+<p>
+  Three top-level keys. Object keys come out sorted, because the binary assembles the response as a
+  <code>serde_json</code> value whose maps are ordered — which is why the pinned envelope fixture
+  further down reads alphabetically. For <code>service : {};</code>:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"actor"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span> <span class="tok-type">"service"</span><span class="tok-punct">:</span> <span class="tok-number">0</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"canonicalization_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core-canon-1"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"declarations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+    <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"format_version"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+    <span class="tok-type">"identities"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:contract:v1:sha256:edfb9052c7234db653686a79e02e317241b4ccfe74e989a2f5735aa2c8a70ba5"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"interface"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:interface:v1:sha256:ea1e1478267a0f0bdffeb8f5acc0ac91c3a496f285c46c10c104fac61698e401"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"producer"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"candid_parser_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.4.0"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"candid_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.10.30"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"meant"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.1.0"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"semantics_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-1"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span> <span class="tok-type">"methods"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">]</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span><span class="tok-punct">,</span>
+  <span class="tok-type">"source_info"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> … <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Only the <code>source_info</code> value is elided there; every other value is what the binary prints,
+  pinned by <code>tests/cli.rs</code> against
+  <code>tests/fixtures/conformance/empty_actor.contract.json</code>. Whitespace has been compacted for
+  reading — the real output puts one array element per line. Note that
+  <code>actor.service: 0</code> is an index into <code>types</code>, and that <code>producer</code>
+  records the exact pinned engine versions the document was built with.
+</p>
+
+<p>
+  The elided sidecar carries ten keys: <code>source_info_version</code>, its own
+  <code>contract_id</code> and <code>source_bundle_id</code>, and the arrays <code>sources</code>,
+  <code>imports</code>, <code>declarations</code>, <code>field_labels</code>, <code>methods</code>,
+  <code>function_arguments</code> and <code>actors</code>. It holds the raw text of every source in the
+  bundle, the import edges between them, doc comments, argument names, and how each field label was
+  spelled. It is bound to <code>contract_id</code> but never part of it, so adding, changing or deleting
+  it leaves both semantic identities exactly where they were.
+</p>
+
+<p>
+  <code>--no-source-info</code> keeps the key and sets it to null — a consumer testing for key
+  <em>presence</em> rather than for null gets the wrong answer. The <code>contract</code> value,
+  elided here as <code>{ … }</code>, is unchanged: provenance never enters it.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> … <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span><span class="tok-punct">,</span>
+  <span class="tok-type">"source_info"</span><span class="tok-punct">:</span> <span class="tok-keyword">null</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<h2 id="what-compile-envelope-prints">What compile --envelope prints<a class="heading-anchor" href="#what-compile-envelope-prints" aria-label="Link to What compile --envelope prints">#</a></h2>
+
+<p>
+  This mode prints a different document: the envelope itself, with no <code>ok</code> wrapper, so the
+  output can be saved whole and handed to <code>@candid-core/schema</code>'s
+  <a href="schema-from-contract.html"><code>schemaFromContract</code></a>. An <em>envelope</em> is a
+  Contract plus a map of namespaced extensions, and extensions live outside the canonical identities by
+  design — attaching one never moves <code>contract_id</code> or <code>interface_id</code>.
+</p>
+
+<p>
+  The only extension the binary emits is the field-name table, under the literal key
+  <code>org.candid-core.field-names/v1</code>. Its value is an array of
+  <code>[container, id, name]</code> triples: the index of the type node containing the field, the
+  32-bit label id, and the spelling — sorted, deduplicated, named labels only. Numeric and positional
+  labels carry no name and are skipped. The following is the complete, byte-pinned output for a
+  two-line input:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">tests/fixtures/conformance/basic.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Payload <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">owner</span><span class="tok-punct">:</span> <span class="tok-keyword">principal</span><span class="tok-punct">;</span> <span class="tok-fn">amount</span><span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-fn">transfer</span><span class="tok-punct">:</span> <span class="tok-punct">(</span>Payload<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">tests/fixtures/envelope/basic.envelope.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"actor"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span> <span class="tok-type">"service"</span><span class="tok-punct">:</span> <span class="tok-number">0</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"canonicalization_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core-canon-1"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"declarations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Payload"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">2</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+    <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"format_version"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+    <span class="tok-type">"identities"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:contract:v1:sha256:0b553cb65eb436a7ac5d35869d0016d043867bab0a97e844350ae72a5b4aea7d"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"interface"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:interface:v1:sha256:99f400820c0ca2fb7c32cc3ab1df6d6c000bc614cffe0e350b6a9a576da18d48"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"producer"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"candid_parser_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.4.0"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"candid_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.10.30"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"meant"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.1.0"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"semantics_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-1"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+      <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span> <span class="tok-type">"methods"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"function"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">3664621355</span><span class="tok-punct">,</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer"</span> <span class="tok-punct">}</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"func"</span><span class="tok-punct">,</span> <span class="tok-type">"mode"</span><span class="tok-punct">:</span> <span class="tok-string">"update"</span><span class="tok-punct">,</span> <span class="tok-type">"results"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">947296307</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">3</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">3573748184</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">4</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span> <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"principal"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span> <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat"</span> <span class="tok-punct">}</span>
+    <span class="tok-punct">]</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"extensions"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"org.candid-core.field-names/v1"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+      <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">947296307</span><span class="tok-punct">,</span> <span class="tok-string">"owner"</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3573748184</span><span class="tok-punct">,</span> <span class="tok-string">"amount"</span><span class="tok-punct">]</span>
+    <span class="tok-punct">]</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Nothing is elided above except whitespace; that file is real output from this command, committed as a
+  fixture and compared against on every run. Read the triples against the graph: type node 2 is the
+  record, and its two field ids map back to <code>owner</code> and <code>amount</code>. The embedded
+  <code>contract</code> is identical to what plain <code>compile</code> emits — the envelope adds
+  side-band data without touching the canonical document.
+</p>
+
+<p>
+  Two details that will save you an afternoon. The extension is always present, even when it is empty:
+  a source with no named field labels still emits
+  <code>"extensions": {"org.candid-core.field-names/v1": []}</code>. And hash-colliding spellings
+  collapse to one entry per <code>(container, id)</code> — <code>cemxzwyk</code> and
+  <code>amxawvks</code> share a Candid label hash, so two structurally identical records deduplicate to
+  one semantic node and the table carries one triple, the same spelling the TypeScript generator
+  renders.
+</p>
+
+<h2 id="what-validate-prints">What validate prints<a class="heading-anchor" href="#what-validate-prints" aria-label="Link to What validate prints">#</a></h2>
+
+<p>
+  <code>validate</code> reads a Contract document, parses it under the input byte bound, and revalidates
+  it from scratch: unknown keys are rejected rather than ignored, and the identities are recomputed from
+  the payload rather than believed. Success is two keys, the validated canonical document elided here
+  as <code>{ … }</code>.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> … <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Failure comes in two shapes, and a consumer has to handle both. How far the read got decides which
+  one you see.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span><span class="tok-punct">,</span>
+  <span class="tok-type">"violations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"code"</span><span class="tok-punct">:</span> <span class="tok-string">"invalid_contract_id_format"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"$.identities.contract"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"message"</span><span class="tok-punct">:</span> <span class="tok-string">"contract identity must use candid-core:contract:v1:sha256:&lt;64 lowercase hex&gt;"</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  That is the shape when the document parsed but failed validation — or when the read exceeded the input
+  byte bound, which arrives as a single <code>resource_limit_exceeded</code> violation at path
+  <code>$</code>. When the file cannot be read, is not valid UTF-8, or is not syntactically valid JSON,
+  the read never reaches the validator and you get <code>diagnostics</code> instead — the same key
+  <code>compile</code> uses. Only two codes arrive by that route, both at phase <code>load</code>:
+  <code>contract_file_read_error</code> and <code>malformed_contract_json</code>, whose message is the
+  JSON parser's own text.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span><span class="tok-punct">,</span>
+  <span class="tok-type">"diagnostics"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"code"</span><span class="tok-punct">:</span> <span class="tok-string">"malformed_contract_json"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"phase"</span><span class="tok-punct">:</span> <span class="tok-string">"load"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"severity"</span><span class="tok-punct">:</span> <span class="tok-string">"error"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"message"</span><span class="tok-punct">:</span> <span class="tok-string">"expected value at line 1 column 1"</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<h2 id="reading-failures">Reading failures<a class="heading-anchor" href="#reading-failures" aria-label="Link to Reading failures">#</a></h2>
+
+<p>
+  The two arrays mean different things. <code>diagnostics</code> items come from reading, parsing or
+  type-checking source and carry <code>code</code>, <code>phase</code>, <code>severity</code> and
+  <code>message</code>, plus <code>span</code>, <code>related</code>, <code>notes</code> and
+  <code>resource_limit</code> where those apply. <code>violations</code> items come from validating an
+  already-parsed document and carry <code>code</code>, <code>path</code> (a JSONPath such as
+  <code>$.identities.contract</code>) and <code>message</code>, plus <code>resource_limit</code> when
+  the failure is a budget — never <code>phase</code> or <code>severity</code>. In both, an absent
+  optional key is omitted rather than emitted as null, codes and paths are the machine-stable surface,
+  and message text is not: match on <code>code</code>, never on prose.
+</p>
+
+<p>
+  A <code>compile</code> failure looks like this — the whole document, <code>span</code> included, is
+  pinned by <code>tests/cli.rs</code> for a bundle whose imported file declares no service:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span><span class="tok-punct">,</span>
+  <span class="tok-type">"diagnostics"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"code"</span><span class="tok-punct">:</span> <span class="tok-string">"did_type_check_error"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"phase"</span><span class="tok-punct">:</span> <span class="tok-string">"type_check"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"severity"</span><span class="tok-punct">:</span> <span class="tok-string">"error"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"message"</span><span class="tok-punct">:</span> <span class="tok-string">"Imported service file \"workspace:/types.did\" has no main service"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"span"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"source_name"</span><span class="tok-punct">:</span> <span class="tok-string">"workspace:/types.did"</span> <span class="tok-punct">}</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Stable codes the CLI suite exercises include <code>did_parse_error</code>,
+  <code>did_type_check_error</code>, <code>did_file_read_error</code>,
+  <code>did_invalid_source_id</code>, <code>contract_file_read_error</code>,
+  <code>malformed_contract_json</code>, <code>invalid_contract_id_format</code> and
+  <code>resource_limit_exceeded</code>. Locations always name logical source IDs
+  (<code>workspace:/…</code>) — never the temporary files the compiler materializes for import checking.
+</p>
+
+<p>
+  Both commands bound their reads before decoding, so an oversized file fails with structured metadata
+  rather than allocating without bound. The byte bound takes precedence over UTF-8 and parse errors: a
+  file that is both oversized and invalid UTF-8 reports the limit, not a decode failure.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Bound</th>
+      <th>Resource name</th>
+      <th>Reported as</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>compile</code>, per source file</td>
+      <td>1 MiB (<code>max_source_bytes</code>)</td>
+      <td><code>source_bytes</code></td>
+      <td>a <code>diagnostics</code> item</td>
+    </tr>
+    <tr>
+      <td><code>compile</code>, whole import bundle</td>
+      <td>8 MiB (<code>max_bundle_bytes</code>)</td>
+      <td><code>bundle_bytes</code></td>
+      <td>a <code>diagnostics</code> item</td>
+    </tr>
+    <tr>
+      <td><code>validate</code>, the document</td>
+      <td>4 MiB (<code>max_input_bytes</code>)</td>
+      <td><code>input_bytes</code></td>
+      <td>a <code>violations</code> item at path <code>$</code></td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  A per-source refusal is an ordinary <code>diagnostics</code> item with the structured triple attached.
+  Its <code>message</code> is elided below, because the wording is not part of the contract — the code
+  and the triple are:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"code"</span><span class="tok-punct">:</span> <span class="tok-string">"resource_limit_exceeded"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"phase"</span><span class="tok-punct">:</span> <span class="tok-string">"load"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"severity"</span><span class="tok-punct">:</span> <span class="tok-string">"error"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"resource_limit"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"resource"</span><span class="tok-punct">:</span> <span class="tok-string">"source_bytes"</span><span class="tok-punct">,</span> <span class="tok-type">"limit"</span><span class="tok-punct">:</span> <span class="tok-number">1048576</span><span class="tok-punct">,</span> <span class="tok-type">"observed"</span><span class="tok-punct">:</span> <span class="tok-number">1048577</span> <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  The <code>limit</code> and <code>observed</code> values are fixed-width unsigned 64-bit numbers,
+  identical on every platform. The test that pins this writes one file of exactly the limit, which is
+  accepted, and one of limit + 1 that is also invalid UTF-8 and invalid Candid, which is refused with
+  the limit code — proof that the bound fires before decoding or parsing.
+</p>
+
+<h2 id="pinning-an-interface-in-ci">Pinning an interface in CI<a class="heading-anchor" href="#pinning-an-interface-in-ci" aria-label="Link to Pinning an interface in CI">#</a></h2>
+
+<p>
+  Here is the job the binary is actually good at. <code>interface_id</code> covers the wire interface
+  reachable from the actor and nothing else — not declaration names, not field order, not comments — so
+  it moves exactly when a caller would notice, and stays put when a rename or a reformat would not.
+  Check the expected value into the repository next to the <code>.did</code>, and fail the build when the
+  two disagree.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-file">ci/check-interface.sh</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-comment">#!/bin/sh</span><span class="tok-keyword">
+set</span><span class="tok-attr"> -eu</span>
+
+<span class="tok-comment"># The interface identity this repository has reviewed and released.</span>
+expected=<span class="tok-string">"$(cat ci/interface.id)"</span>
+
+<span class="tok-comment"># Both outcomes print JSON on stdout; failure exits 1, so check the status</span>
+<span class="tok-comment"># rather than the stream.</span>
+if ! response=<span class="tok-string">"$(meant compile ./service.did --no-source-info)"</span><span class="tok-punct">;</span> then
+  printf <span class="tok-string">'%s\n'</span> <span class="tok-string">"$response"</span>       <span class="tok-comment"># {"ok": false, "diagnostics": [...]}</span>
+  exit 1
+fi
+
+<span class="tok-comment"># jq -e exits non-zero when the field is absent — a declaration-only .did has</span>
+<span class="tok-comment"># no actor and so no interface identity — so `set -e` fails the build here</span>
+<span class="tok-comment"># rather than comparing against an empty string.</span>
+actual=<span class="tok-string">"$(printf '%s' "</span><span class="tok-attr">$response</span><span class="tok-string">" | jq -er '.contract.identities.interface')"</span>
+
+if [ <span class="tok-string">"$actual"</span> != <span class="tok-string">"$expected"</span> ]<span class="tok-punct">;</span> then<span class="tok-keyword">
+  echo</span> <span class="tok-string">"the wire interface changed:"</span><span class="tok-keyword">
+  echo</span> <span class="tok-string">"  expected $expected"</span><span class="tok-keyword">
+  echo</span> <span class="tok-string">"  actual   $actual"</span><span class="tok-keyword">
+  echo</span> <span class="tok-string">"Bump the package version and update ci/interface.id in the same commit."</span>
+  exit 1
+fi<span class="tok-keyword">
+
+echo</span> <span class="tok-string">"interface unchanged: $actual"</span></code></pre></div>
+
+<p>
+  Seed <code>ci/interface.id</code> once with
+  <code>meant compile ./service.did --no-source-info | jq -r '.contract.identities.interface' &gt; ci/interface.id</code>,
+  and thereafter the only way to change it is a commit that also changes the recorded value — which is
+  the review moment you wanted. <code>--no-source-info</code> keeps the output small; the identity is
+  the same either way, since the sidecar is not part of it.
+</p>
+
+<div class="callout danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg><div class="callout-body"><span class="callout-title">An identity is only stable within one release line</span>
+  <p>
+    Everything here is pre-1.0. Until 1.0, any release may change the public API, the serialized shapes,
+    the canonical bytes, and therefore every identity computed over them. A recorded
+    <code>interface_id</code> is a guard against <em>your</em> interface drifting, not a permanent
+    address across <code>meant</code> upgrades — pin the compiler version alongside it, and expect to
+    re-record when you move.
+  </p>
+</div></div>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<p>
+  <a href="reference-json.html">JSON document formats</a> documents every key in the documents above.
+  <a href="reference-diagnostics.html">Diagnostics reference</a> lists the structured error shape the
+  Rust crate and the TypeScript runtime share. If your project has no Rust toolchain, the WebAssembly
+  build of this same pipeline is described in <a href="cli-npm.html">@candid-core/cli</a> — read the
+  status note at the top of that page first.
+</p>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="migrating-from-0-2.html"><span class="dir">Previous</span><span class="label">Migrating from 0.2.0</span></a><a class="next" href="cli-npm.html"><span class="dir">Next</span><span class="label">@candid-core/cli</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/cli-rust.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#installing-it">Installing it</a></li><li class="toc-h2"><a href="#the-grammar">The grammar</a></li><li class="toc-h3"><a href="#why-the-two-compile-flags-are-mutually-exclusive">Why the two compile flags are mutually exclusive</a></li><li class="toc-h2"><a href="#exit-codes-and-streams">Exit codes and streams</a></li><li class="toc-h2"><a href="#what-compile-prints">What compile prints</a></li><li class="toc-h2"><a href="#what-compile-envelope-prints">What compile --envelope prints</a></li><li class="toc-h2"><a href="#what-validate-prints">What validate prints</a></li><li class="toc-h2"><a href="#reading-failures">Reading failures</a></li><li class="toc-h2"><a href="#pinning-an-interface-in-ci">Pinning an interface in CI</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

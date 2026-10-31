@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schemas from a Contract document · Meant</title>
+<meta name="description" content="Building the same schemas dynamically from canonical Contract JSON, with no code generation step.">
+<meta property="og:title" content="Schemas from a Contract document · Meant">
+<meta property="og:description" content="Building the same schemas dynamically from canonical Contract JSON, with no code generation step.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>Schemas from a Contract document</h1><p class="page-lead">Building the same schemas dynamically from canonical Contract JSON, with no code generation step.</p><div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Upgrading from an earlier release</span>
+  <p>
+    This page describes <code>@candid-core/schema</code> <code>0.5.0</code>, published on 2026-10-27
+    under the npm <code>latest</code> dist-tag. The previous stable release, <code>0.4.0</code>, also omits each declaration and method that holds a plain <code>blob</code>, empty record or empty variant beside a reserved-name declaration of that shape (below); <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means. The stable release before that, <code>0.3.0</code>, differs in nothing this page describes: <code>0.4.0</code> adds the type-only <code>WithMode</code> and <code>ModeOf</code>, and <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
+    The stable release before those,
+    <code>0.2.0</code>, has the old surface: it
+    refuses a document with a collapsing <code>opt</code> (<code>opt opt T</code>,
+    <code>opt null</code>, <code>opt reserved</code>), builds a <code>number[]</code> for a
+    <code>vec nat8</code> beside a declared <code>nat8</code> alias, and lists no omissions.
+    <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
+    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code>, with <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which is this package&rsquo;s code under a new name: an import on this page changes name, its subpath keeps its own, and nothing else changes. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+  </p>
+</div></div>
+
+<p>
+  <a href="generator.html">The code generator</a> turns a Contract into a TypeScript module at
+  build time. That is the right shape when you have the <code>.did</code> file in your repository.
+  It is the wrong shape when you do not know the interface until the program is running — a
+  canister explorer, a wallet that must render an arbitrary call, an agent tool handed a canister
+  id by a user.
+</p>
+
+<p>
+  <code>@candid-core/schema/contract</code> covers that case. <code>schemaFromContract</code> takes
+  a canonical <strong>Contract</strong> document — the JSON the <code>meant</code> compiler
+  prints from a <code>.did</code> file — and returns the same <code>c.*</code> schema objects the
+  generator would have emitted, built at runtime, with no code generation step and no
+  <code>eval</code>. Every mapping decision the generator makes is applied here too, and a
+  cross-check test holds the two paths to identical verdicts.
+</p>
+
+<h2 id="the-signature">The signature<a class="heading-anchor" href="#the-signature" aria-label="Link to The signature">#</a></h2>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">schemaFromContract</span>
+    <span class="pill accent">./contract</span>
+  </div>
+  <div class="api-body">
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/contract.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">function</span> <span class="tok-fn">schemaFromContract</span><span class="tok-punct">(</span>
+  contract<span class="tok-punct">:</span> <span class="tok-type">unknown</span><span class="tok-punct">,</span>
+  options<span class="tok-punct">:</span> <span class="tok-type">ContractSchemaOptions</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">SchemaFromContractResult</span></code></pre></div>
+    <p>
+      The first parameter is <code>unknown</code> on purpose: the document is untrusted input, and
+      accepting a typed parameter would imply a check that has not happened yet.
+    </p>
+  </div>
+</div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/contract.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">FieldNameEntry</span> <span class="tok-punct">=</span> <span class="tok-keyword">readonly</span> <span class="tok-punct">[</span>container<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">,</span> id<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">,</span> name<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">interface</span> <span class="tok-type">ContractSchemaOptions</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">readonly</span> names<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-keyword">readonly</span> <span class="tok-type">FieldNameEntry</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/** Arena size cap, mirroring `Limits::max_type_nodes`. */</span>
+  <span class="tok-keyword">readonly</span> maxTypeNodes<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/** Total field cap across all nodes, mirroring `Limits::max_fields`. */</span>
+  <span class="tok-keyword">readonly</span> maxFields<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/** Declaration count cap, mirroring `Limits::max_declarations`. */</span>
+  <span class="tok-keyword">readonly</span> maxDeclarations<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">type</span> <span class="tok-type">OmissionReason</span> <span class="tok-punct">=</span>
+  <span class="tok-punct">|</span> <span class="tok-string">"reserved_field_name"</span>
+  <span class="tok-punct">|</span> <span class="tok-string">"ambiguous_variant_arm"</span>
+  <span class="tok-punct">|</span> <span class="tok-string">"reserved_export_name"</span>
+  <span class="tok-punct">|</span> <span class="tok-string">"invalid_declaration_name"</span>
+  <span class="tok-punct">|</span> <span class="tok-string">"references_omitted"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">type</span> <span class="tok-type">Omission</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">readonly</span> kind<span class="tok-punct">:</span> <span class="tok-string">"declaration"</span> <span class="tok-punct">|</span> <span class="tok-string">"method"</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">readonly</span> name<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">readonly</span> reason<span class="tok-punct">:</span> <span class="tok-type">OmissionReason</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">readonly</span> via<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">SchemaFromContractResult</span> <span class="tok-punct">=</span>
+  <span class="tok-punct">|</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">readonly</span> ok<span class="tok-punct">:</span> <span class="tok-type">true</span><span class="tok-punct">;</span>
+      <span class="tok-keyword">readonly</span> schemas<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-keyword">readonly</span> <span class="tok-punct">[</span>name<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">]</span><span class="tok-punct">:</span> <span class="tok-type">AnySchema</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+      <span class="tok-keyword">readonly</span> actor<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">AnySchema</span><span class="tok-punct">;</span>
+      <span class="tok-keyword">readonly</span> omitted<span class="tok-punct">:</span> <span class="tok-keyword">readonly</span> <span class="tok-type">Omission</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">|</span> <span class="tok-punct">{</span> <span class="tok-keyword">readonly</span> ok<span class="tok-punct">:</span> <span class="tok-type">false</span><span class="tok-punct">;</span> <span class="tok-keyword">readonly</span> issues<span class="tok-punct">:</span> <span class="tok-keyword">readonly</span> <span class="tok-type">ContractIssue</span><span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  On success you get one schema per declaration, keyed by declaration name and built in declaration
+  order, plus <code>actor</code> when the <code>.did</code> file declared a service, and
+  <code>omitted</code>: the declarations and actor methods left out, exactly as a generated module
+  leaves them out for the same Contract (see <a href="#the-mapping-decisions">the mapping
+  decisions</a>). The map is
+  built with <code>Object.create(null)</code>, so a declaration or field legitimately named
+  <code>__proto__</code> is an ordinary own key rather than a prototype write.
+</p>
+
+<h2 id="the-input-a-contract-document-and-a-name-table">The input: a Contract document and a name table<a class="heading-anchor" href="#the-input-a-contract-document-and-a-name-table" aria-label="Link to The input: a Contract document and a name table">#</a></h2>
+
+<p>
+  A <a href="contract-graph.html">Contract</a> is a flat, index-addressed JSON document. The
+  <code>types</code> array is the <em>arena</em>: every type node is one entry, and every reference
+  between types is an integer index into it. <code>declarations</code> names some of those nodes.
+  <code>actor</code>, when present, points at the service. Because references are indices, a
+  recursive type is a node whose index chain loops — there is no nesting and no cycle in the JSON
+  itself.
+</p>
+
+<p>
+  This is a checked-in golden, with only <code>identities</code> and <code>producer</code> removed
+  and the objects folded onto single lines:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">crates/candid-core-ts/tests/goldens/collections.contract.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"canonicalization_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core-canon-1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"declarations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Grid"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">7</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Item"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">3</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Items"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">8</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"MaybeItem"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">2</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Note"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">0</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Pair"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">10</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Unit"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">9</span> <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"format_version"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+  <span class="tok-type">"semantics_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"inner"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"opt"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span> <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"text"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"inner"</span><span class="tok-punct">:</span> <span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"opt"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">23515</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">4</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1873743348</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">1</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">3979722638</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">5</span> <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span> <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat32"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"inner"</span><span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"vec"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span> <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat8"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"inner"</span><span class="tok-punct">:</span> <span class="tok-number">5</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"vec"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"inner"</span><span class="tok-punct">:</span> <span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"vec"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">11</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">1</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span> <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat"</span> <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Read a few of those nodes and the mapping rules below become concrete. Node 5 is a
+  <code>vec</code> over node 6 (<code>nat8</code>), so node 5 is a <code>blob</code> — which is why
+  <code>Item</code>'s <code>payload</code> is a <code>Uint8Array</code> and <code>Grid</code>
+  (node 7, a <code>vec</code> of node 5) is <code>Array&lt;Uint8Array&gt;</code>. Node 9 is the
+  empty record, so <code>Unit</code> is the unit schema. Node 10's field ids are exactly
+  <code>0</code> and <code>1</code>, so <code>Pair</code> is a tuple, not a record.
+</p>
+
+<p>
+  Note what is <em>not</em> in there: field names. A semantic Contract stores authoritative label
+  <strong>ids</strong> — the 32-bit numbers Candid actually puts on the wire — because the names are
+  source text, not semantics. Node 3's fields are <code>23515</code>, <code>1873743348</code> and
+  <code>3979722638</code>, not <code>id</code>, <code>label</code> and <code>payload</code>. Names
+  travel beside the document, as <code>[container, id, name]</code> triples:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">crates/candid-core-ts/tests/goldens/collections.names.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">[</span>
+  <span class="tok-punct">[</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">23515</span><span class="tok-punct">,</span> <span class="tok-string">"id"</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-punct">[</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">1873743348</span><span class="tok-punct">,</span> <span class="tok-string">"label"</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-punct">[</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">3979722638</span><span class="tok-punct">,</span> <span class="tok-string">"payload"</span><span class="tok-punct">]</span>
+<span class="tok-punct">]</span></code></pre></div>
+
+<p>Four markers must match exactly, or the document is refused outright:</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Key</th><th>Required value</th><th>Code if it differs</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>format</code></td><td><code>"candid-core"</code></td><td><code>unsupported_contract_format</code></td></tr>
+    <tr><td><code>format_version</code></td><td><code>1</code></td><td><code>unsupported_format_version</code></td></tr>
+    <tr><td><code>semantics_profile</code></td><td><code>"candid-1"</code></td><td><code>unsupported_semantics_profile</code></td></tr>
+    <tr><td><code>canonicalization_profile</code></td><td><code>"candid-core-canon-1"</code></td><td><code>unsupported_canonicalization_profile</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  A document claiming a different profile is not half-read on the assumption that it is close
+  enough. A future format revision has to be adopted deliberately.
+</p>
+
+<h3 id="one-document-instead-of-two">One document instead of two<a class="heading-anchor" href="#one-document-instead-of-two" aria-label="Link to One document instead of two">#</a></h3>
+
+<p>
+  <code>meant compile &lt;path&gt; --envelope</code> prints a <code>ContractEnvelope</code>
+  instead: <code>{ contract, extensions }</code>, where the
+  <code>org.candid-core.field-names/v1</code> extension carries the name table.
+  <code>schemaFromContract</code> accepts that shape directly and consumes the table, so one
+  self-describing file replaces the pair. It detects an envelope by the presence of a
+  <code>contract</code> key, which no canonical Contract document has.
+</p>
+
+<p>
+  Extensions live outside the canonical hashes by design, so carrying names never moves a
+  <code>contract_id</code> or an <code>interface_id</code>. See
+  <a href="identities.html">content-addressed identities</a> for why that separation matters.
+</p>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">A successful load is not provenance</span>
+  <p>
+    A canonical Contract carries <code>identities.contract</code>, a
+    <code>candid-core:contract:v1:sha256:…</code> string. <code>schemaFromContract</code> does
+    <strong>not</strong> verify it. Checking it needs the canonicalization procedure, which lives
+    in the Rust crate — and an unkeyed content id does not authenticate itself in any case. Treat a
+    successful load as "this document is well-formed", never as "this document came from where it
+    says".
+  </p>
+</div></div>
+
+<h3 id="a-shared-node-has-one-name-per-label-id">A shared node has one name per label id<a class="heading-anchor" href="#a-shared-node-has-one-name-per-label-id" aria-label="Link to A shared node has one name per label id">#</a></h3>
+
+<p>
+  <strong>Known limitation (issue #229).</strong> A name table entry is keyed by
+  <code>(container, id)</code>, and the container is a node of the canonical graph, not a
+  declaration. Canonicalization merges structurally identical nodes, so two declarations whose
+  records have the same shape and the same label ids are one node and share their names, whatever
+  each source spelled:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> A <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">c</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">d</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> B <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">x</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-number">100</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  The label hash of <code>d</code> is 100, so both inner records are one node, and
+  <code>B</code>'s inner field loads as <code>d</code>, not <code>_100_</code>. That is the key
+  <code>validate</code>, <code>encode</code> and <code>decode</code> use, and the generated module
+  renders the same one. The wire bytes are identical either way: the codec hashes
+  <code>d</code> to 100, which is the id <code>_100_</code> spells. Only the key differs.
+</p>
+
+<p>
+  A named spelling always beats a numeric one, in any declaration and in any order, because a
+  numeric or positional label carries no name and never enters the table. Two different names for
+  one id need a 32-bit hash collision, such as <code>cemxzwyk</code> and <code>amxawvks</code>. Then
+  the name the provenance sidecar lists <em>last</em> wins, not the first one written. The sidecar
+  sorts occurrences by source file, then declaration name, then path inside the declaration, and
+  puts the service's own inline types after every declaration, so the order of the declarations in
+  the file does not matter. Keeping names per declaration would change the Contract format, so
+  it is deferred. Until then, spell a field the same way in every declaration that shares its node.
+</p>
+
+<h2 id="why-the-name-table-is-hash-enforced">Why the name table is hash-enforced<a class="heading-anchor" href="#why-the-name-table-is-hash-enforced" aria-label="Link to Why the name table is hash-enforced">#</a></h2>
+
+<p>
+  Every entry must be the Candid preimage of its own id — the label hash of
+  <code>name</code> must equal <code>id</code> — checked at load time, on caller-supplied and
+  envelope-carried tables alike. A table that fails it is refused with
+  <code>invalid_name_table</code>, naming what the string actually hashes to.
+</p>
+
+<p>
+  This is not bookkeeping. The <a href="schema-codec.html">codec</a> derives each field's
+  <em>wire</em> id from its rendered schema key — a key spelled <code>_N_</code> is the id
+  <code>N</code>, and every other key is hashed. So if a table claimed the name
+  <code>"owner"</code> for an id that is really the hash of <code>"operator"</code>, the built
+  schema would carry the key <code>owner</code>, the codec would hash that key back to a
+  <em>different</em> number, and the message would name a field the canister never declared. The
+  interface would silently mean something other than what the Contract says. Hash enforcement makes
+  a lying table fail closed instead.
+</p>
+
+<p>
+  Names shaped like <code>_N_</code> never become keys, for the same reason: erased to a schema key,
+  a source name spelled <code>_5_</code> is indistinguishable from the numeric rendering of id 5,
+  and the two derive different wire ids. Such a name that honestly hashes to its id is real
+  provenance, so it does not fail the table; the declaration that would render it is omitted
+  instead (<code>reserved_field_name</code>), as the generator omits it. One that does not hash to its
+  id is a lying entry like any other.
+</p>
+
+<p>
+  Passing no table at all is legal. Every field then renders as <code>_&lt;id&gt;_</code>, which is
+  also what <code>meant compile --no-source-info</code> leaves you with. The schemas are
+  correct and encode to identical bytes — only the readable keys are gone.
+</p>
+
+<h2 id="the-mapping-decisions">The mapping decisions<a class="heading-anchor" href="#the-mapping-decisions" aria-label="Link to The mapping decisions">#</a></h2>
+
+<p>
+  These are the same owner-reviewed decisions the generator applies, and the cross-check test is
+  what keeps them from drifting apart.
+</p>
+
+<dl>
+  <dt>Every <code>vec nat8</code> becomes <code>blob</code></dt>
+  <dd>
+    A <code>vec</code> whose inner node is <code>nat8</code> becomes <code>c.blob()</code>, so the
+    value is a <code>Uint8Array</code>, whatever the element is called. A declaration of a primitive
+    (<code>type Byte = nat8</code>) names only itself, so declaring one never changes the value
+    domain of another declaration's blobs. The encoded bytes are the same either way, since
+    <code>blob</code> and <code>vec nat8</code> are one wire type.
+  </dd>
+
+  <dt>Tuple-shaped records become tuples</dt>
+  <dd>
+    A record whose field ids are exactly <code>0..n-1</code> becomes <code>c.tuple([…])</code>. An
+    empty record becomes <code>c.unit()</code>. Everything else becomes <code>c.record({…})</code>
+    with keys from the name table, falling back to <code>_&lt;id&gt;_</code>.
+  </dd>
+
+  <dt>Collapsing options are boxed</dt>
+  <dd>
+    An <code>opt</code> whose inner node is <code>opt</code>, <code>null</code> or
+    <code>reserved</code> builds like any other <code>opt</code>, and its present values are
+    <code>{ some: v }</code>, because <code>T | null</code> cannot distinguish <code>None</code>
+    from <code>Some(None)</code> there. The decision is on the arena <em>node</em>, so
+    <code>type Inner = opt nat; type Outer = opt Inner</code> boxes the same way (an alias is not
+    indirection in the arena), and so does an <code>opt</code> node that is its own inner. That
+    graph is <code>type Chain = opt Chain</code>, which the compiler refuses, so only a Contract
+    document that already holds it, or one built through the model, reaches this case.
+    It is the generator's rule, so a loaded schema and a generated one accept the same values.
+  </dd>
+
+  <dt>Reference types build like everything else</dt>
+  <dd>
+    A <code>func</code> node becomes <code>c.func(args, results, mode)</code> and describes
+    <code>{ principal, method }</code> values. A <code>service</code> node becomes
+    <code>c.service({…})</code>, keyed by the method names the document itself carries, and
+    describes principal values.
+  </dd>
+
+  <dt>The actor, and the class rule</dt>
+  <dd>
+    <code>actor</code> is returned as a service schema. A <code>class</code> actor is unwrapped to
+    its running service — init arguments are install-time metadata a call surface never consumes.
+    A class node anywhere else is refused, mirroring two of <code>meant</code>'s own rules:
+    <code>class_not_first_class_type</code>, so no type edge may target a class, and
+    <code>class_not_actor_root</code>, so a named declaration must never target one either — even
+    when that class <em>is</em> the actor root.
+  </dd>
+
+  <dt>What the generator omits, the loader omits</dt>
+  <dd>
+    <p>
+      A declaration no generated module can represent is left out of <code>schemas</code>, together
+      with every declaration and actor method that references it — through nested <code>func</code>
+      and <code>service</code> types too, up to the containing declaration, since dropping a method
+      from a service type in value position would change its wire type — and listed in
+      <code>omitted</code> as <code>{ kind, name, reason, via? }</code>, declarations first, then
+      methods, each by name in code-point order. The reasons are the generator's:
+      <code>reserved_field_name</code> (an honest <code>_N_</code>-shaped field or arm name),
+      <code>ambiguous_variant_arm</code> (an arm whose payload is a declared <code>opt</code> of an
+      uninhabited type), <code>reserved_export_name</code> (a declaration named <code>actor</code> or
+      <code>Actor</code>), <code>invalid_declaration_name</code> (a name that is not
+      identifier-shaped) and <code>references_omitted</code>, whose <code>via</code> names the omitted
+      declaration referenced. The actor is never omitted; it loses only the listed methods.
+    </p>
+    <p>
+      A declaration of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> names only
+      itself, as in the generator, so one under a reserved name (<code>type actor = blob</code>) is
+      omitted alone and every other use of its shape loads. That is new in <code>0.5.0</code>:
+      <code>0.4.0</code> also leaves out each declaration and method that holds a plain blob,
+      empty record or empty variant beside such a declaration.
+    </p>
+    <p>
+      The loader could build some of these; it leaves them out so that its schemas are exactly the
+      declarations a generated module exports. Declaration names that are not identifier-shaped used to
+      load here as a deliberate divergence from the generator, and are omitted now for that parity;
+      reserved words such as <code>delete</code> are identifier names and load as before. An invalid
+      document still fails whole.
+    </p>
+  </dd>
+</dl>
+
+<h2 id="a-worked-example">A worked example<a class="heading-anchor" href="#a-worked-example" aria-label="Link to A worked example">#</a></h2>
+
+<p>
+  The <code>collections</code> fixture above is a real compiler output, checked into the repository
+  as a golden. Here is the whole flow that produces it and uses it.
+</p>
+
+<ol class="steps">
+  <li>
+    <h3 id="install-the-runtime">Install the runtime<a class="heading-anchor" href="#install-the-runtime" aria-label="Link to Install the runtime">#</a></h3>
+    <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npm</span> install<span class="tok-attr"> --save-exact</span> @candid-core/schema</code></pre></div>
+    <p>
+      No other dependency is needed: the package declares no runtime dependency and no peer.
+    </p>
+  </li>
+  <li>
+    <h3 id="compile-the-did-file">Compile the .did file<a class="heading-anchor" href="#compile-the-did-file" aria-label="Link to Compile the .did file">#</a></h3>
+    <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cargo</span> install meant<span class="tok-attr"> --version</span> 0.1.0<span class="tok-attr"> --locked</span>
+meant compile ./collections.did <span class="tok-punct">&gt;</span> ./compiled.json</code></pre></div>
+    <p>
+      <code>meant</code> is pre-1.0, so name the version you mean rather than install
+      whatever is newest. Plain
+      <code>compile</code> prints <code>{ ok, contract, source_info }</code>: the Contract document,
+      plus the provenance sidecar that carries the field names.
+    </p>
+  </li>
+  <li>
+    <h3 id="split-out-the-contract-and-the-name-table">Split out the Contract and the name table<a class="heading-anchor" href="#split-out-the-contract-and-the-name-table" aria-label="Link to Split out the Contract and the name table">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> schemaFromContract<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">FieldNameEntry</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/contract"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> validate <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">interface</span> <span class="tok-type">LabelProvenance</span> <span class="tok-punct">{</span>
+  container<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+  id<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+  label<span class="tok-punct">:</span> <span class="tok-punct">{</span> kind<span class="tok-punct">:</span> <span class="tok-string">"named"</span><span class="tok-punct">;</span> name<span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">}</span> <span class="tok-punct">|</span> <span class="tok-punct">{</span> kind<span class="tok-punct">:</span> <span class="tok-string">"numeric"</span> <span class="tok-punct">|</span> <span class="tok-string">"positional"</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">const</span> compiled <span class="tok-punct">=</span> <span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"./compiled.json"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-keyword">as</span> <span class="tok-punct">{</span>
+  contract<span class="tok-punct">:</span> <span class="tok-type">unknown</span><span class="tok-punct">;</span>
+  source_info<span class="tok-punct">:</span> <span class="tok-punct">{</span> field_labels<span class="tok-punct">:</span> <span class="tok-type">LabelProvenance</span><span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// Only named labels carry text; numeric and positional ones keep `_id_`.</span>
+<span class="tok-keyword">const</span> names<span class="tok-punct">:</span> <span class="tok-type">FieldNameEntry</span><span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-punct">=</span> compiled<span class="tok-punct">.</span>source_info<span class="tok-punct">.</span>field_labels
+  <span class="tok-punct">.</span><span class="tok-fn">filter</span><span class="tok-punct">(</span><span class="tok-punct">(</span>entry<span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> entry<span class="tok-punct">.</span>label<span class="tok-punct">.</span>kind <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-string">"named"</span><span class="tok-punct">)</span>
+  <span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">(</span>entry<span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">FieldNameEntry</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-punct">[</span>
+    entry<span class="tok-punct">.</span>container<span class="tok-punct">,</span>
+    entry<span class="tok-punct">.</span>id<span class="tok-punct">,</span>
+    <span class="tok-punct">(</span>entry<span class="tok-punct">.</span>label <span class="tok-keyword">as</span> <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">.</span>name<span class="tok-punct">,</span>
+  <span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+    <p>
+      These are the triples shown earlier as <code>collections.names.json</code>. The table the
+      loader keeps is one name per <code>(container, id)</code>, last entry winning — so if two
+      entries address the same pair, the later one decides the key. <code>--envelope</code> emits a
+      sorted, deduplicated table instead, which is what the generator's own name tables use.
+    </p>
+  </li>
+  <li>
+    <h3 id="build-the-schemas-and-validate-a-value">Build the schemas and validate a value<a class="heading-anchor" href="#build-the-schemas-and-validate-a-value" aria-label="Link to Build the schemas and validate a value">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">const</span> built <span class="tok-punct">=</span> <span class="tok-fn">schemaFromContract</span><span class="tok-punct">(</span>compiled<span class="tok-punct">.</span>contract<span class="tok-punct">,</span> <span class="tok-punct">{</span> names <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-punct">!</span>built<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  console<span class="tok-punct">.</span><span class="tok-fn">error</span><span class="tok-punct">(</span>built<span class="tok-punct">.</span>issues<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// [{ code, path, message, resource_limit? }]</span>
+  process<span class="tok-punct">.</span><span class="tok-fn">exit</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">Item</span> <span class="tok-punct">=</span> built<span class="tok-punct">.</span>schemas<span class="tok-punct">.</span><span class="tok-type">Item</span><span class="tok-punct">;</span>
+
+<span class="tok-fn">validate</span><span class="tok-punct">(</span><span class="tok-type">Item</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> id<span class="tok-punct">:</span> <span class="tok-number">7</span><span class="tok-punct">,</span> label<span class="tok-punct">:</span> <span class="tok-string">"seven"</span><span class="tok-punct">,</span> payload<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span><span class="tok-punct">.</span><span class="tok-keyword">from</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-number">7</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// { ok: true }</span>
+
+<span class="tok-fn">validate</span><span class="tok-punct">(</span><span class="tok-type">Item</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> id<span class="tok-punct">:</span> <span class="tok-number">7</span><span class="tok-punct">,</span> label<span class="tok-punct">:</span> <span class="tok-string">"seven"</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// { ok: false, issues: [{ code: "missing_field", path: "$.payload", … }] }</span>
+
+<span class="tok-fn">validate</span><span class="tok-punct">(</span><span class="tok-type">Item</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> id<span class="tok-punct">:</span> <span class="tok-number">7</span><span class="tok-punct">,</span> label<span class="tok-punct">:</span> <span class="tok-string">"seven"</span><span class="tok-punct">,</span> payload<span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-number">7</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// { ok: false, issues: [{ code: "invalid_type", path: "$.payload", … }] } — blob wants a Uint8Array</span></code></pre></div>
+    <p>
+      <code>built.schemas.Item</code> is an ordinary schema. It goes into
+      <a href="schema-codec.html"><code>encode</code>/<code>decode</code></a> and into
+      <a href="schema-validation.html"><code>validate</code></a> exactly like a generated one.
+    </p>
+  </li>
+</ol>
+
+<p>
+  With <code>meant compile ./collections.did --envelope &gt; ./service.json</code>, steps two
+  and three collapse into one read and the <code>names</code> option goes away entirely:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/README.md</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">const</span> built <span class="tok-punct">=</span> <span class="tok-fn">schemaFromContract</span><span class="tok-punct">(</span><span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"./service.json"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+built<span class="tok-punct">.</span>schemas<span class="tok-punct">.</span><span class="tok-type">Account</span><span class="tok-punct">;</span> <span class="tok-comment">// one Schema per declaration, in declaration order</span>
+built<span class="tok-punct">.</span>actor<span class="tok-punct">;</span> <span class="tok-comment">// the service schema, when the document has one</span></code></pre></div>
+
+<p>
+  An explicit <code>names</code> option always wins over an envelope-carried table, and when it
+  does, the envelope's table is not consulted at all — so a lying envelope cannot fail a build that
+  supplies its own valid names.
+</p>
+
+<h2 id="bounds-and-failure">Bounds and failure<a class="heading-anchor" href="#bounds-and-failure" aria-label="Link to Bounds and failure">#</a></h2>
+
+<p>
+  The document is data from outside, so the loader is bounded the same way the rest of the project
+  is. All checks run in one pass over the arena before anything is built, and then every edge
+  becomes a lazy memoized <code>c.rec</code> thunk — construction depth stays constant even for an
+  adversarially deep type graph.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Option</th><th>Default</th><th>Mirrors</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>maxTypeNodes</code></td><td><code>100_000</code></td><td><code>Limits::max_type_nodes</code></td></tr>
+    <tr><td><code>maxFields</code></td><td><code>500_000</code></td><td><code>Limits::max_fields</code></td></tr>
+    <tr><td><code>maxDeclarations</code></td><td><code>100_000</code></td><td><code>Limits::max_declarations</code></td></tr>
+    <tr><td>(name table entries)</td><td><code>500_000</code></td><td>caller-side; shares the field cap's magnitude</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  Nothing throws for a document — not even when the document itself fights inspection with
+  accessors or Proxy traps, which become an <code>invalid_contract_document</code> issue at the
+  choke point. The options object is code, not document data, and is checked before the document is
+  read: an own key other than <code>names</code> and the three caps above, or a cap that is not a
+  non-negative safe integer (<code>NaN</code>, negative, fractional, a string, <code>null</code>,
+  <code>Infinity</code>), throws <code>TypeError</code>. <code>0</code> is a valid cap that refuses
+  any non-empty document part it bounds.
+  <code>ContractIssueCode</code> is a closed union of 17 members; several deliberately reuse the
+  codes <code>meant</code>'s own Rust validator produces for the same condition, so the two loaders refuse
+  the same documents under the same names.
+</p>
+
+<p>
+  The document's objects are closed the way <code>Contract::from_json</code> closes them: the root, a
+  type node, a field, a service method, a declaration, the actor and the envelope shell each accept
+  only the keys the format defines for them, and any other key is an <code>unknown_key</code> issue
+  at that key's path (<code>$.types[0].extra</code>; a key that is not identifier-shaped is
+  bracketed, <code>$.types[0]["x y"]</code>). The insides of <code>identities</code> and
+  <code>producer</code> are not read, so they are not checked either. Every type node must also be
+  reachable from a declaration or the actor, through any edge, and a non-empty arena needs at least
+  one of them; an empty arena with no declarations and no actor still loads, as it does in Rust.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Code</th><th>Refused because</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>invalid_contract_document</code></td><td>Malformed shape, an unknown node kind, an unknown primitive name, or a structurally invalid reference.</td></tr>
+    <tr><td><code>unsupported_contract_format</code>, <code>unsupported_format_version</code>, <code>unsupported_semantics_profile</code>, <code>unsupported_canonicalization_profile</code></td><td>One of the four markers does not match.</td></tr>
+    <tr><td><code>dangling_type_ref</code></td><td>A type reference points outside the arena.</td></tr>
+    <tr><td><code>unsupported_construct</code></td><td>A <code>class</code> node nests inside a supported type.</td></tr>
+    <tr><td><code>duplicate_field_id</code>, <code>duplicate_field_name</code></td><td>Two fields of one node share an id, or two ids render to the same key.</td></tr>
+    <tr><td><code>empty_declaration_name</code>, <code>duplicate_declaration_name</code></td><td>A declaration has no name, or two share one.</td></tr>
+    <tr><td><code>unknown_key</code></td><td>An object carries a key the format does not define for it. Rust refuses the same document while decoding it, as malformed JSON.</td></tr>
+    <tr><td><code>orphan_type_node</code></td><td>A type node no declaration or actor reaches; one issue per node, at <code>$.types[i]</code>.</td></tr>
+    <tr><td><code>rootless_type_arena</code></td><td>A non-empty <code>types</code> array with no declaration and no actor, at <code>$.types</code>.</td></tr>
+    <tr><td><code>invalid_name_table</code></td><td>An entry is not <code>[container, id, name]</code>, or does not hash to its id. (An honest <code>_N_</code>-shaped name omits its declaration instead; see above.)</td></tr>
+    <tr><td><code>invalid_extension_name</code></td><td>An envelope extension key is not a reverse-domain name followed by <code>/v&lt;integer&gt;</code>.</td></tr>
+    <tr><td><code>resource_limit_exceeded</code></td><td>One of the caps above tripped; the issue carries <code>{ resource, limit, observed }</code>.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="when-to-build-at-runtime-and-when-not-to">When to build at runtime, and when not to<a class="heading-anchor" href="#when-to-build-at-runtime-and-when-not-to" aria-label="Link to When to build at runtime, and when not to">#</a></h2>
+
+<p><strong>Prefer <code>schemaFromContract</code> when the interface is a runtime input.</strong></p>
+
+<ul>
+  <li>A canister explorer or dashboard where the user supplies the canister id.</li>
+  <li>A wallet or signer that must render an arbitrary call for approval.</li>
+  <li>An agent tool that receives an interface as data and has to act on it.</li>
+  <li>A JavaScript-only deployment where adding a build step is not on the table.</li>
+</ul>
+
+<p><strong>Prefer the generator when you have the <code>.did</code> file at build time.</strong></p>
+
+<ul>
+  <li>
+    You want static types. <code>built.schemas.Item</code> is <code>AnySchema</code> — the map's
+    keys are not known to the compiler, and a typo is a runtime <code>undefined</code>. A generated
+    module gives you <code>Item</code> as a named export with a reviewed type alias beside it, and
+    <code>tsc</code> itself proves the two agree.
+  </li>
+  <li>
+    You want the interface pinned in review. A generated module is a diffable artefact; a document
+    fetched at runtime is not.
+  </li>
+</ul>
+
+<h2 id="the-cross-check-that-ties-the-two-together">The cross-check that ties the two together<a class="heading-anchor" href="#the-cross-check-that-ties-the-two-together" aria-label="Link to The cross-check that ties the two together">#</a></h2>
+
+<p>
+  The claim "the same schemas the generator would have emitted" is a test, not a hope. For every
+  golden fixture, the suite builds the schema set both ways — from the checked-in Contract document
+  and from the generated module — and asserts by deep equality on the whole <code>validate</code>
+  result that they agree on every sample value: same verdict, same issue codes, same paths, same
+  messages. Both documents are emitted from the same fixture, so the two schemas under comparison
+  share one source of truth.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/tests/crosscheck.test.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">const</span> built <span class="tok-punct">=</span> <span class="tok-fn">schemaFromContract</span><span class="tok-punct">(</span>contract<span class="tok-punct">,</span> <span class="tok-punct">{</span> names <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-punct">[</span>declaration<span class="tok-punct">,</span> samples<span class="tok-punct">]</span> <span class="tok-keyword">of</span> <span class="tok-type">Object</span><span class="tok-punct">.</span><span class="tok-fn">entries</span><span class="tok-punct">(</span>fixture<span class="tok-punct">.</span>samples<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> generated <span class="tok-punct">=</span> fixture<span class="tok-punct">.</span>module<span class="tok-punct">[</span>declaration<span class="tok-punct">]</span> <span class="tok-keyword">as</span> <span class="tok-type">AnySchema</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> dynamic <span class="tok-punct">=</span> built<span class="tok-punct">.</span>schemas<span class="tok-punct">[</span>declaration<span class="tok-punct">]</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> sample <span class="tok-keyword">of</span> samples<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    assert<span class="tok-punct">.</span><span class="tok-fn">deepStrictEqual</span><span class="tok-punct">(</span>
+      <span class="tok-fn">validate</span><span class="tok-punct">(</span>dynamic<span class="tok-punct">,</span> sample<span class="tok-punct">)</span><span class="tok-punct">,</span>
+      <span class="tok-fn">validate</span><span class="tok-punct">(</span>generated<span class="tok-punct">,</span> sample<span class="tok-punct">)</span><span class="tok-punct">,</span>
+      <span class="tok-string">`${fixture.name}.${declaration} diverged on ${String(sample)}`</span><span class="tok-punct">,</span>
+    <span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Two further checks extend it. The envelope path is held to the two-file path's verdicts, so
+  reading names out of an extension cannot diverge from being handed them. And in the
+  <a href="schema-codec.html">codec</a> suite, every reference wire vector is decoded twice — once
+  under the generated schema and once under the dynamic one — and both must produce the same value
+  and re-encode to byte-identical output. A dynamically built schema carries one extra
+  <code>rec</code> hop per arena edge, which costs nothing against the depth and element budgets,
+  so near-limit values get the same verdict and the same resource issue under both.
+</p>
+
+<p>
+  What those gates establish, and what they do not, is set out on
+  <a href="guarantees.html">Guarantees and verification</a>. The Contract format is not a stable
+  v1: any pre-1.0 release may change the serialized shapes, and therefore every identity computed
+  over them. The loader is
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/contract.ts"><code>crates/candid-core-ts/ts/contract.ts</code></a>,
+  and its header records each mapping decision against the issue that settled it.
+</p>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="generator.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">The code generator</span>
+    <p>The other half of the pair: a Contract graph as a module <code>tsc</code> proves correct.</p>
+  </a>
+  <a class="card" href="contract-graph.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">The Contract graph</span>
+    <p>What the arena, declarations and actor are, and why references are integers.</p>
+  </a>
+  <a class="card" href="cli-rust.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">The meant binary</span>
+    <p><code>compile</code>, <code>--envelope</code>, <code>--no-source-info</code> and <code>validate</code>.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="schema-codec.html"><span class="dir">Previous</span><span class="label">The binary codec</span></a><a class="next" href="migrating-from-0-5.html"><span class="dir">Next</span><span class="label">Migrating from 0.5.0</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/schema-from-contract.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#the-signature">The signature</a></li><li class="toc-h2"><a href="#the-input-a-contract-document-and-a-name-table">The input: a Contract document and a name table</a></li><li class="toc-h3"><a href="#one-document-instead-of-two">One document instead of two</a></li><li class="toc-h3"><a href="#a-shared-node-has-one-name-per-label-id">A shared node has one name per label id</a></li><li class="toc-h2"><a href="#why-the-name-table-is-hash-enforced">Why the name table is hash-enforced</a></li><li class="toc-h2"><a href="#the-mapping-decisions">The mapping decisions</a></li><li class="toc-h2"><a href="#a-worked-example">A worked example</a></li><li class="toc-h3"><a href="#install-the-runtime">Install the runtime</a></li><li class="toc-h3"><a href="#compile-the-did-file">Compile the .did file</a></li><li class="toc-h3"><a href="#split-out-the-contract-and-the-name-table">Split out the Contract and the name table</a></li><li class="toc-h3"><a href="#build-the-schemas-and-validate-a-value">Build the schemas and validate a value</a></li><li class="toc-h2"><a href="#bounds-and-failure">Bounds and failure</a></li><li class="toc-h2"><a href="#when-to-build-at-runtime-and-when-not-to">When to build at runtime, and when not to</a></li><li class="toc-h2"><a href="#the-cross-check-that-ties-the-two-together">The cross-check that ties the two together</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

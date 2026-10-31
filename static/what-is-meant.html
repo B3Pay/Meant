@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What is Meant? · Meant</title>
+<meta name="description" content="Two layers for one job: the interface says what a call's values are, the profile says what they mean.">
+<meta property="og:title" content="What is Meant? · Meant">
+<meta property="og:description" content="Two layers for one job: the interface says what a call's values are, the profile says what they mean.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html" aria-current="page">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <h1>What is Meant?</h1><p class="page-lead">Two layers for one job: the interface says what a call's values are, the profile says what they mean.</p><p>
+  Here is one line of an ICRC-1 ledger's interface, and the line of the ICRC-1 profile pack that
+  gives it a meaning:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">profile/packages/consent/test/fixtures/ledger.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> TransferArg <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">// …</span>
+  <span class="tok-fn">amount</span> <span class="tok-punct">:</span> Tokens<span class="tok-punct">;</span>
+  <span class="tok-comment">// …</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">icrc1_transfer(0).amount</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">amount</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">decimals</span>: <span class="v">query:icrc1_decimals</span></li><li><span class="k">symbol</span>: <span class="v">query:icrc1_symbol</span></li></ul></dd></dl></figure>
+
+<p>
+  The interface says the amount is a <code>nat</code>. It does not say that the ledger counts in
+  units of 10<sup>-8</sup>, so that "1.5 ICP" is <code>150000000</code> and a guess of 6 decimals
+  sends a hundredth of that. It does not say that <code>created_at_time</code> is in nanoseconds
+  and is what makes a retry safe, or that <code>Err.Duplicate</code> means the payment already went
+  through. Agents, wallets and user interfaces each guess, and each guesses differently. A profile
+  writes the meaning down once, bound to the interface, and every consumer reads the same answer.
+</p>
+
+<h2 id="two-layers">Two layers<a class="heading-anchor" href="#two-layers" aria-label="Link to Two layers">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="what-is-candid-core.html">
+    <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
+    <span class="card-title">What a call's values are</span>
+    <p>The <code>meant</code> crate compiles a <code>.did</code> file, through the official Candid
+    type checker, into a validated Contract graph with content-addressed identities.</p>
+  </a>
+  <a class="card" href="profiles.html">
+    <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
+    <span class="card-title">What they mean</span>
+    <p>A profile attaches tags to positions of that graph: units, intent, effects, retry safety
+    and what each result means.</p>
+  </a>
+</div>
+
+<p>
+  The <strong>interface layer</strong> answers "what is this interface?" exactly. A
+  <code>.did</code> file is text: two files can describe the same callable interface with different
+  type names, field order and comments. Compiled, both get the same <code>interface_id</code>, and a
+  change that matters to a caller moves it. The graph also gives every value a position that can be
+  named: <code>icrc1_transfer(0).amount</code> is the <code>amount</code> field of the first argument
+  of <code>icrc1_transfer</code>, whatever the type that holds it is called.
+  <a href="what-is-candid-core.html">The interface layer →</a>
+</p>
+
+<p>
+  The <strong>profile layer</strong> answers "what does this call mean?". A profile is a JSON
+  document of annotations, each an <a href="addresses.html">address</a>, a tag and its arguments. It
+  binds to an <code>interface_id</code> and never changes it, the way a sidecar describes a file
+  without editing it. A profile can come from the canister's author, from a third party you trust,
+  from a standard pack that matches the interface by subtyping, or from a model that proposes one
+  for a person to approve; the four layers merge per tag and per position.
+  <a href="profiles.html">Profiles, layers and binding →</a>
+</p>
+
+<h2 id="what-one-profile-gives-you">What one profile gives you<a class="heading-anchor" href="#what-one-profile-gives-you" aria-label="Link to What one profile gives you">#</a></h2>
+
+<p>
+  Consumers never resolve addresses themselves. <code>@meantjs/profile</code> merges every layer
+  that applies and writes the <a href="reference-profile-format.html">resolved form</a>: one tree per
+  method, with its tags attached to each position. Everything else reads that.
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Consumer</th><th>What it gets from the profile</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td>Agent tools (MCP)</td><td>Input in human units, filled defaults, a preview the person confirms, safe retries, classified outcomes</td><td><a href="agent-tools.html"><code>@meantjs/tools</code></a>, <a href="reconcile-outcomes.html"><code>@meantjs/reconcile</code></a></td></tr>
+    <tr><td>ICRC-21 consent messages</td><td>An intent line and typed fields, for any method</td><td><a href="consent-messages.html"><code>@meantjs/consent</code></a></td></tr>
+    <tr><td>User interfaces</td><td>Parsing and display of amounts, times, accounts and bytes; labels and help text</td><td><a href="format-values.html"><code>@meantjs/format</code></a>, <a href="reference-meant-format.html"><code>meant-format</code></a></td></tr>
+    <tr><td>Typed Candid in TypeScript</td><td>Schemas, validation and a binary codec for the interface itself</td><td><a href="ts-overview.html"><code>@candid-core/schema</code></a></td></tr>
+  </tbody>
+</table></div>
+
+<div class="tool-view"><div class="tool-side sees"><span class="tool-label">The model sees</span><span class="tool-value">1.5 ICP</span><pre>amount: &quot;1.5 ICP&quot;</pre></div><div class="tool-bridge" aria-hidden="true">exact, no rounding</div><div class="tool-side sends"><span class="tool-label">The call sends</span><span class="tool-value">150000000</span><pre>amount = 150_000_000 : nat</pre></div></div>
+
+<p>
+  Three rules run through all of it. Nothing is rounded: input with more digits than the token has
+  is refused. A call that moves value waits for the person who owns the funds, and the model never
+  confirms. A retry reuses the exact bytes of the first attempt, so it cannot pay twice.
+  <a href="security-model.html">Security model →</a>
+</p>
+
+<h2 id="which-package-do-you-need">Which package do you need?<a class="heading-anchor" href="#which-package-do-you-need" aria-label="Link to Which package do you need?">#</a></h2>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>You want to</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td>Compile a <code>.did</code> file and compare or cache on its identity, in Rust</td><td><a href="rust-install.html"><code>meant</code></a> (crates.io)</td></tr>
+    <tr><td>Do the same from JavaScript, or generate a TypeScript module</td><td><a href="cli-npm.html"><code>@candid-core/cli</code></a> (npm)</td></tr>
+    <tr><td>Validate and encode Candid values in TypeScript</td><td><a href="ts-overview.html"><code>@candid-core/schema</code></a> (npm)</td></tr>
+    <tr><td>Check a profile, merge it with packs, write the resolved form</td><td><a href="resolve-profiles.html"><code>@meantjs/profile</code></a> and its <a href="cli-profile.html"><code>candid-profile</code></a> command</td></tr>
+    <tr><td>Parse and show amounts, times, accounts, subaccounts and bytes</td><td><a href="format-values.html"><code>@meantjs/format</code></a>; <a href="reference-meant-format.html"><code>meant-format</code></a> for amounts in Rust</td></tr>
+    <tr><td>Answer <code>icrc21_consent_message</code>, or render an SNS proposal</td><td><a href="consent-messages.html"><code>@meantjs/consent</code></a></td></tr>
+    <tr><td>Give an agent tools for a canister</td><td><a href="agent-tools.html"><code>@meantjs/tools</code></a></td></tr>
+    <tr><td>Let the person confirm once what an agent's task may grant, and check each request against it</td><td><a href="confirmed-terms.html"><code>@meantjs/consent/terms</code></a></td></tr>
+    <tr><td>Read an x402 payment before the wallet signs it, and refuse one whose spender is not x402's proxy</td><td><a href="chain-evm.html#x402-payments"><code>@meantjs/consent/evm</code></a>, with the USDC and x402 profiles (experimental)</td></tr>
+    <tr><td>Find out whether a transfer with an unknown outcome went through</td><td><a href="reconcile-outcomes.html"><code>@meantjs/reconcile</code></a></td></tr>
+  </tbody>
+</table></div>
+
+<p><a href="packages.html">Every crate and package, with versions and dependencies →</a></p>
+
+<h2 id="where-meant-stops">Where Meant stops<a class="heading-anchor" href="#where-meant-stops" aria-label="Link to Where Meant stops">#</a></h2>
+
+<ul>
+  <li>
+    <strong>It does not call canisters.</strong> The packages compile, describe, convert and render;
+    sending a call belongs to the layer above. B3Pay's
+    <a href="https://ic-reactor.b3pay.net/v4/">IC Reactor</a> is that layer for React on the Internet
+    Computer.
+  </li>
+  <li>
+    <strong>A profile is a claim, not a proof.</strong> An author can describe a drain as "claim
+    reward". Binding to <code>interface_id</code> and provenance on every tag limit the damage; they
+    do not remove it. <a href="security-model.html">Security model →</a>
+  </li>
+  <li>
+    <strong>The Internet Computer first.</strong> Profiles for EVM contracts are
+    <a href="chain-evm.html">experimental</a>: consent text for calls and for EIP-712 signing
+    requests, x402 payments among them, and ERC-7730 files, not yet agent tools.
+    <a href="chain-solana.html">Solana</a> is planned and not supported.
+  </li>
+  <li>
+    <span class="claim assumption">assumption</span> Typed tools built from profiles reduce the value errors agents make.
+    That is what the project's preregistered evaluation tests, and the profile spec stays a draft,
+    with breaking changes expected, until it reports.
+  </li>
+</ul>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="./"><span class="dir">Previous</span><span class="label">Meant</span></a><a class="next" href="what-is-candid-core.html"><span class="dir">Next</span><span class="label">The interface layer</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/what-is-meant.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#two-layers">Two layers</a></li><li class="toc-h2"><a href="#what-one-profile-gives-you">What one profile gives you</a></li><li class="toc-h2"><a href="#which-package-do-you-need">Which package do you need?</a></li><li class="toc-h2"><a href="#where-meant-stops">Where Meant stops</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

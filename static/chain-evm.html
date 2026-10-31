@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVM contracts · Meant</title>
+<meta name="description" content="Experimental: profiles for Solidity ABIs and EIP-712 typed messages, consent text for a call or a signature, and ERC-7730 clear-signing files.">
+<meta property="og:title" content="EVM contracts · Meant">
+<meta property="og:description" content="Experimental: profiles for Solidity ABIs and EIP-712 typed messages, consent text for a call or a signature, and ERC-7730 clear-signing files.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html" aria-current="page">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <h1>EVM contracts</h1><p class="page-lead">Experimental: profiles for Solidity ABIs and EIP-712 typed messages, consent text for a call or a signature, and ERC-7730 clear-signing files.</p><div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Experimental: spec §15, phase 1 and the first part of phase 2</span>
+  <p>
+    A profile can describe an EVM contract's functions. From it come consent text for a call's calldata and an
+    ERC-7730 clear-signing file with its ERC-8176 <code>descriptorHash</code>. A profile can also describe the
+    <a href="#typed-messages-eip-712">EIP-712 messages</a> a wallet is asked to sign, with consent text for a signing
+    request and an ERC-7730 file of the messages. The consent text comes with
+    <a href="#what-a-call-or-signature-grants">what the call or signature grants</a>, for a wallet that checks requests
+    against terms the person confirmed (D-056). Agent tools, <code>outcome</code> classes over reverts,
+    <code>idempotency</code> by nonce and ERC-7730 import are later phases, each its own decision; signing, checking
+    signatures and Permit2's witness messages other than x402's are not in it. The preregistered eval uses none of it.
+    Decisions D-054, D-055 and D-058; the text is
+    <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>
+    and its <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#159-typed-messages-eip-712-d-055">§15.9</a>.
+  </p>
+</div></div>
+
+<p>
+  The same resolver reads an ABI where it would read a <code>.did</code>, so addresses, tags, layers and the resolved
+  form work as they do for a canister. This resolves a token's ABI on a local chain with the standard packs, encodes a
+  transfer, and turns the calldata into the text a person confirms:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> createSchemaValidator<span class="tok-punct">,</span> loadPacks<span class="tok-punct">,</span> resolveService <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> parseAbi<span class="tok-punct">,</span> encodeCall <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile/evm"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> evmConsent <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/evm"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> abi <span class="tok-punct">=</span> <span class="tok-punct">[</span>
+  <span class="tok-string">"function symbol() view returns (string)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function decimals() view returns (uint8)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function balanceOf(address owner) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function allowance(address owner, address spender) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function transfer(address to, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function approve(address spender, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function transferFrom(address from, address to, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+<span class="tok-punct">]</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> validateSchema <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">createSchemaValidator</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> packs <span class="tok-punct">=</span> <span class="tok-punct">(</span><span class="tok-keyword">await</span> <span class="tok-fn">loadPacks</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">{</span> doc <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">{</span> doc <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> resolved <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">resolveService</span><span class="tok-punct">(</span><span class="tok-punct">{</span> abi<span class="tok-punct">,</span> validateSchema<span class="tok-punct">,</span> packs <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the erc20 pack matches</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>resolved <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"the ABI cannot be read"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> transfer <span class="tok-punct">=</span> <span class="tok-fn">parseAbi</span><span class="tok-punct">(</span>abi<span class="tok-punct">)</span><span class="tok-punct">.</span>functions<span class="tok-punct">.</span><span class="tok-fn">find</span><span class="tok-punct">(</span><span class="tok-punct">(</span>f<span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> f<span class="tok-punct">.</span>name <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-string">"transfer"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>transfer <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">undefined</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"no transfer function"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> calldata <span class="tok-punct">=</span> <span class="tok-fn">encodeCall</span><span class="tok-punct">(</span>transfer<span class="tok-punct">,</span> <span class="tok-punct">{</span> to<span class="tok-punct">:</span> <span class="tok-string">"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"</span><span class="tok-punct">,</span> value<span class="tok-punct">:</span> <span class="tok-string">"1500000"</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> consent <span class="tok-punct">=</span> <span class="tok-fn">evmConsent</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  resolved<span class="tok-punct">,</span>
+  calldata<span class="tok-punct">,</span>
+  to<span class="tok-punct">:</span> <span class="tok-string">"0x5fbdb2315678afecb367f032d93f642f64180aa3"</span><span class="tok-punct">,</span> <span class="tok-comment">// the token, on a local Anvil chain</span>
+  chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span>
+  refs<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-string">"query:decimals"</span><span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-string">"query:symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-comment">// read by the caller with eth_call</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>consent<span class="tok-punct">.</span>message<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true"># Send tokens
+
+Send `1.5 TKA` to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+
+- **Amount:** `1.5 TKA`
+- **Recipient:** `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+
+**Contract:** `0x5FbDB2315678afecb367f032d93F642f64180aa3` on chain 31337</code></pre></div>
+
+<h2 id="the-abi-as-an-interface">The ABI as an interface<a class="heading-anchor" href="#the-abi-as-an-interface" aria-label="Link to The ABI as an interface">#</a></h2>
+
+<p>
+  <span class="claim fact">fact</span> A function is matched by its selector, the first 4 bytes of Keccak-256 (Ethereum's, not NIST
+  SHA3-256) of its type-only signature: <code>transfer(address,uint256)</code> is <code>0xa9059cbb</code>. Parameter
+  names are not part of it; ERC-7730 files carry them in their keys (<code>transfer(address to,uint256 value)</code>),
+  and so does a profile, in <code>binds.abi</code> (<a href="https://eips.ethereum.org/EIPS/eip-7730">ERC-7730</a>).
+</p>
+
+<ul>
+  <li><code>binds.abi</code> is an array of human-readable fragments (<code>function transfer(address to, uint256 value) returns (bool)</code>) or JSON ABI entries. Only functions are read: events, errors, the constructor, <code>fallback</code> and <code>receive</code> are skipped.</li>
+  <li>Aliases read as their canonical types (<code>uint</code> is <code>uint256</code>, <code>constant</code> is <code>view</code>). A function's canonical fragment is <code>function NAME(type name,…) [view|pure|payable] returns (…)</code>.</li>
+  <li>Overloaded names are refused (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ABI</span></span>; <span class="claim open">open</span> O1): an address names a function by its name alone.</li>
+</ul>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>ABI</th><th>As a profile sees it</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>a function</td><td>a method: <code>view</code> and <code>pure</code> are queries, <code>nonpayable</code> and <code>payable</code> updates</td></tr>
+    <tr><td>its parameters</td><td>one record at argument index 0: <code>transfer(0).to</code>; a function without parameters has no argument</td></tr>
+    <tr><td>its outputs</td><td>the result tuple: <code>balanceOf-&gt;(0)</code></td></tr>
+    <tr><td>a tuple</td><td>a record, its components in ABI order. A named component's id is the Candid hash of its name; an unnamed one's is its position, addressed <code>#i</code></td></tr>
+    <tr><td><code>T[]</code>, <code>T[k]</code></td><td>a vector, <code>[]</code>; <code>T[k]</code> keeps its length</td></tr>
+    <tr><td>anything else</td><td>a primitive named by its canonical type: <code>uint256</code>, <code>int64</code>, <code>address</code>, <code>bool</code>, <code>string</code>, <code>bytes</code>, <code>bytes32</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>Template placeholders read <code>{to}</code> and <code>{value}</code>, as ERC-7730's do. See <a href="addresses.html">Addresses</a>.</p>
+
+<h2 id="identity">Identity<a class="heading-anchor" href="#identity" aria-label="Link to Identity">#</a></h2>
+
+<p>
+  An ABI's identity is <code>candid-profile:evm-abi:v0:sha256:&lt;hex&gt;</code>: SHA-256 over the RFC 8785 (JCS) form of
+  the sorted canonical fragments. It is the resolved form's <code>interface_id</code>, and what a contract profile binds
+  to. Because the fragments are sorted, the order of <code>binds.abi</code> does not move it. The ERC-20 pack's seven
+  functions:
+</p>
+
+<span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b">candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b</span><button type="button" data-copy="candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b">Copy</button></span>
+
+<p>
+  When the interface has <a href="#typed-messages-eip-712">EIP-712 types</a>, the hash covers them with the functions:
+  one more line per struct, <code>struct &lt;Name&gt;(&lt;type&gt; &lt;name&gt;,…)</code>, sorted with the fragments.
+  With no types it is the hash above, so a resolved form without messages keeps its id. A token whose ABI has
+  ERC-20's functions and EIP-2612's <code>permit</code>, <code>nonces</code> and <code>DOMAIN_SEPARATOR</code> resolves
+  to <code>…6ad2a3fd…</code> with the ERC-20 pack alone and to <code>…c0cd422e…</code> once the EIP-2612 pack adds its
+  <code>Permit</code> type (both measured by resolving that ABI with <code>@meantjs/profile</code> 0.4.0). Whether a
+  contract profile is rebound or stale is decided by its functions alone, so the messages a pack adds never make it
+  stale.
+</p>
+
+<h2 id="values">Values<a class="heading-anchor" href="#values" aria-label="Link to Values">#</a></h2>
+
+<ul>
+  <li><strong>Integers</strong> are <code>uintN</code> and <code>intN</code> for N = 8, 16, …, 256, with the bounds of their N bits. <code>amount</code> input and display are the same as on a canister, with no rounding: <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EXCESS_PRECISION</span></span>, never a rounded value.</li>
+  <li><strong>Addresses</strong> have one text form, <code>0x</code> and 40 hex digits, shown with their EIP-55 checksum. On input, an address in mixed case must match its checksum; an address in one case carries no checksum and is accepted (<span class="claim open">open</span> O3).</li>
+  <li><strong>Calldata</strong> is decoded strictly: bytes that are not the canonical ABI encoding of the values read (dirty padding, an offset that does not point where the encoder would write, bytes left over) are refused. The consent text re-encodes the values it read and compares the bytes.</li>
+</ul>
+
+<p>How a recipient is written differs by chain:</p>
+
+<div class="chain-switch" role="group" aria-label="Chain"><button type="button" data-chain="icp" aria-pressed="false">Internet Computer <span class="chain-code">ICP</span></button><button type="button" data-chain="evm" aria-pressed="true">Ethereum <span class="chain-code">EVM</span></button></div>
+
+<div data-chain-panel="icp">
+  <p>
+    An ICRC-1 account: the <code>account</code> tag reads the textual encoding (<code>principal-checksum.subaccounthex</code>,
+    or a bare principal for the default subaccount) and verifies its checksum. See <a href="chain-icp.html">Internet Computer</a>.
+  </p>
+</div>
+
+<div data-chain-panel="evm">
+  <p>
+    An <code>address</code> needs no tag. It is read as <code>0x</code> and 40 hex digits and shown in its EIP-55 form,
+    <code>0x7099…79C8</code>. The <code>account</code> and <code>subaccount</code> tags do not apply
+    (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_NOT_APPLICABLE</span></span>).
+  </p>
+</div>
+
+<h2 id="contract-profiles-and-evm-packs">Contract profiles and EVM packs<a class="heading-anchor" href="#contract-profiles-and-evm-packs" aria-label="Link to Contract profiles and EVM packs">#</a></h2>
+
+<p>
+  A contract profile has <code>kind: "contract"</code>, an <code>origin</code> of <code>author</code>,
+  <code>third_party</code> or <code>inferred</code>, its ABI in <code>binds.abi</code> and, optionally, the contracts it
+  describes in <code>binds.deployments</code>, as ERC-7730's <code>context.contract.deployments</code> does. It may also
+  have <code>binds.eip712</code>, the <a href="#typed-messages-eip-712">typed messages</a> it describes, beside
+  <code>binds.abi</code> or instead of it. A mixed-case address that fails its EIP-55 checksum is
+  <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ADDRESS_CHECKSUM</span></span>; a deployment listed twice is <span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_DUPLICATE</span></span>. An example, written for this
+  page, for a token on a local chain:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-profile"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"format_version"</span><span class="tok-punct">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span>
+  <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"contract"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"tka-token"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"origin"</span><span class="tok-punct">:</span> <span class="tok-string">"author"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"binds"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"abi"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+      <span class="tok-string">"function decimals() view returns (uint8)"</span><span class="tok-punct">,</span>
+      <span class="tok-string">"function transfer(address to, uint256 value) returns (bool)"</span>
+    <span class="tok-punct">]</span><span class="tok-punct">,</span>
+    <span class="tok-type">"deployments"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span> <span class="tok-punct">}</span><span class="tok-punct">]</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"annotations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"intent"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"title"</span><span class="tok-punct">:</span> <span class="tok-string">"Send TKA"</span><span class="tok-punct">,</span> <span class="tok-type">"template"</span><span class="tok-punct">:</span> <span class="tok-string">"Send {value} to {to}"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"effect"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer"</span><span class="tok-punct">,</span> <span class="tok-type">"irreversible"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer(0).value"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"amount"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"decimals"</span><span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-type">"symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer(0).to"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"describe"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Recipient"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">node</span> profile/scripts/validate.mjs tka.profile.json</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">PASS tka.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:9c0218adc5b268dedaa8cab3e6352f01d6b3ec67db2a2e784eaddc49f809e774
+     interface_id candid-profile:evm-abi:v0:sha256:b48b7f710812dc95d11fda7e3e24f467f6f0fecdfb201006067b290a92483017  [2 methods, 4 annotations]</code></pre></div>
+
+<ul>
+  <li>A contract profile is checked against its own <code>binds.abi</code>. Resolved against another ABI (<code>candid-profile resolve --abi</code>), it is rebound or stale by the same rules as a canister profile.</li>
+  <li><strong>An EVM pack</strong> has <code>kind: "pack"</code> and <code>binds.abi</code> instead of <code>binds.requires</code>. It applies to a contract that has every function of the pack with the same selector (so the same name and parameter types), the same output types and the same kind of call: a query, or an update that is payable exactly when the pack's is. There is no subtyping.</li>
+  <li>A pack's addresses and placeholders use the pack's parameter names; when it applies, they are rewritten to the contract's, component by component, by position. EIP-20 names them <code>_to</code> and <code>_value</code>, WETH <code>dst</code> and <code>wad</code>: on an ABI with <code>transfer(address dst, uint256 wad)</code>, the ERC-20 pack's template reads <code>Send {wad} to {dst}</code>.</li>
+  <li>A profile or pack for the other kind of interface is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHAIN</span></span> when given explicitly, and skipped in a pack search.</li>
+  <li>The standard pack for calls is <a href="reference-packs.html#erc20">ERC-20</a>: <code>transfer</code>, <code>approve</code>, <code>transferFrom</code>, <code>balanceOf</code>, <code>allowance</code>, <code>decimals</code> and <code>symbol</code>. <span class="claim fact">fact</span> <code>decimals()</code> and <code>symbol()</code> are optional in <a href="https://eips.ethereum.org/EIPS/eip-20">EIP-20</a>, so a token without them matches no pack and needs a contract profile with literal values, like the one above. The EIP-712 standard files, an EIP-2612 pack and the Permit2, DAI permit, USDC and x402 contract profiles, are under <a href="#standard-files">Standard files</a>.</li>
+</ul>
+
+<div class="callout danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg><div class="callout-body"><span class="callout-title">A pack matches any contract with the right functions</span>
+  <p>
+    A hostile contract can match ERC-20, call its drain "Send tokens" and answer "USDT" to <code>symbol()</code>. A
+    consumer must show the contract's address, with its EIP-55 checksum, whenever it asks a person to confirm a call
+    matched by a pack; the consent text ends with it. <span class="claim fact">fact</span> ERC-7730's Security Considerations name the
+    same risk, "parameter injection using legitimate, high-profile contract formats". <code>query:</code> refs on an EVM
+    contract are <code>eth_call</code>s answered by one RPC node. See <a href="security-model.html">Security model</a>.
+  </p>
+</div></div>
+
+<h2 id="tags-on-evm">Tags on EVM<a class="heading-anchor" href="#tags-on-evm" aria-label="Link to Tags on EVM">#</a></h2>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Tag</th><th>On an EVM contract</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>amount</code></td><td><code>uint8</code>…<code>uint256</code>, <code>int8</code>…<code>int256</code>. <code>query:</code> refs are <code>eth_call</code>s of a <code>view</code> or <code>pure</code> function of the same contract with no argument and one result. <code>token</code> names the token by an <code>address</code> field instead (<a href="#an-amount-in-the-token-a-field-names">below</a>).</td></tr>
+    <tr><td><code>timestamp</code>, <code>duration</code></td><td><code>uint32</code>…<code>uint256</code>, <code>int64</code>…<code>int256</code>. <code>timestamp</code>'s words (<code>threshold</code> with <code>message</code>, <code>labels</code>) are for EVM deadlines first: <code>uint256</code> max reads "Never" (<a href="value-tags.html">Values</a>).</td></tr>
+    <tr><td><code>bytes</code></td><td><code>bytes</code>, <code>bytes1</code>…<code>bytes32</code></td></tr>
+    <tr><td><code>text</code></td><td><code>string</code></td></tr>
+    <tr><td><code>range</code></td><td>an integer type, <code>string</code>, an array</td></tr>
+    <tr><td><code>describe</code>, <code>default</code>, <code>ui</code>, <code>intent</code>, <code>effect</code></td><td>as on a canister</td></tr>
+    <tr><td><code>account</code>, <code>subaccount</code></td><td>none (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_NOT_APPLICABLE</span></span>): an address needs no tag</td></tr>
+    <tr><td><code>fixed</code></td><td><code>address</code>, in the arguments of a function or a message: the profile describes the call or the message only with that address there (<a href="#x402-payments">below</a>; <a href="reference-tags.html#a-pin-fixed">Tags</a>)</td></tr>
+    <tr><td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code>, <code>named</code></td><td>not yet (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>): they need nonces, receipts and reads that a later phase adds</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  An ABI value is never absent, so an EVM template has no <code>[ ]</code> segments (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TEMPLATE</span></span>); the
+  escapes <code>{{ }} [[ ]]</code> are unchanged. <code>effect</code> defaults as on a canister: a <code>view</code> or
+  <code>pure</code> function is <span class="effect read">read</span>, any other <span class="effect write">write</span> and irreversible. The native value
+  a <code>payable</code> function receives has no position yet (<span class="claim open">open</span> O2). Every tag:
+  <a href="reference-tags.html">Tags</a>.
+</p>
+
+<h2 id="the-resolved-form-chain-evm">The resolved form: chain evm<a class="heading-anchor" href="#the-resolved-form-chain-evm" aria-label="Link to The resolved form: chain evm">#</a></h2>
+
+<p>
+  An EVM contract's resolved form has <code>"chain": "evm"</code> at the top. Its nodes carry <code>abi</code> where a
+  Candid form's carry <code>candid</code>: the canonical type of a primitive, <code>"tuple"</code> with
+  <code>fields</code>, or <code>"array"</code> with <code>element</code> and, for <code>T[k]</code>,
+  <code>length</code>. Each method also has <code>selector</code>, <code>signature</code> and
+  <code>state_mutability</code>, and each entry of <code>profiles</code> that binds deployments lists them. A consumer
+  must refuse a resolved form whose <code>chain</code> it does not know rather than read it as Candid;
+  <code>@meantjs/consent</code> (main entry) and <code>@meantjs/tools</code> do.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/fixtures/erc20.resolved.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"transfer"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"mode"</span><span class="tok-punct">:</span> <span class="tok-string">"update"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"selector"</span><span class="tok-punct">:</span> <span class="tok-string">"0xa9059cbb"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"signature"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer(address to,uint256 value)"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"state_mutability"</span><span class="tok-punct">:</span> <span class="tok-string">"nonpayable"</span><span class="tok-punct">,</span></code></pre></div>
+
+<p>
+  EIP-712 messages are under a top-level <code>messages</code> map, never <code>methods</code>. Each has
+  <code>encode_type</code>, <code>type_hash</code>, <code>tags</code> and <code>args</code>, and each entry of
+  <code>profiles</code> that binds a domain lists its name and version as <code>eip712_domain</code>. Without messages
+  the map is absent, so a form without them is unchanged. DAI's permit, which has no functions:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/fixtures/dai-permit.resolved.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"eip712_domain"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Dai Stablecoin"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"1"</span>
+<span class="tok-punct">}</span>
+…
+<span class="tok-type">"methods"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-type">"messages"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"Permit"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"encode_type"</span><span class="tok-punct">:</span> <span class="tok-string">"Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"type_hash"</span><span class="tok-punct">:</span> <span class="tok-string">"0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb"</span><span class="tok-punct">,</span></code></pre></div>
+
+<p>Field by field: <a href="reference-profile-format.html">Profile and resolved form</a>.</p>
+
+<h2 id="consent-text-for-a-call">Consent text for a call<a class="heading-anchor" href="#consent-text-for-a-call" aria-label="Link to Consent text for a call">#</a></h2>
+
+<p>
+  ICRC-21 is the Internet Computer's, so an EVM call gets the same model and the same two layouts without the ICRC-21
+  envelope: <code>evmConsent</code> in <code>@meantjs/consent/evm</code>. The selector picks the function, the calldata
+  is decoded strictly, and the text ends with the contract's address and chain. The generic form is Markdown, as in the
+  first example; the fields form is an intent line and <code>[label, text]</code> rows:
+</p>
+
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Consent text · EVM (experimental)</span><h4 class="consent-title">Send tokens</h4><div class="consent-effects"><span class="effect transfer">transfer</span><span class="effect irreversible">irreversible</span></div></div><dl class="consent-fields"><div><dt>Amount</dt><dd><span class="is-amount">1.5 TKA</span></dd></div><div><dt>Recipient</dt><dd><span>0x7099…79C8</span></dd></div><div><dt>Contract</dt><dd><span>0x5FbD…0aa3 on chain 31337</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the owner confirms. The model never does.</span></div></section></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Case</th><th>Result</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A profile lists deployments, and the call's contract and chain are not among them</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DEPLOYMENT</span></span></td></tr>
+    <tr><td>A <code>payable</code> function (its value has no position yet, O2)</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_UNSUPPORTED_TYPE</span></span></td></tr>
+    <tr><td>An argument at a position a profile pins (<code>fixed</code>) holds another address</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_FIXED</span></span></td></tr>
+    <tr><td>Calldata that is not the canonical encoding of its values</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DECODE</span></span></td></tr>
+    <tr><td>A selector the resolved form does not have</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_METHOD_UNKNOWN</span></span></td></tr>
+    <tr><td>A Candid resolved form given to <code>@meantjs/consent/evm</code>, or an EVM one to the main entry</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RESOLVED_FORM</span></span></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  With the text, <code>evmConsent</code> returns <code>values</code>, the decoded arguments by parameter name, and
+  <code>grant</code>, what the call grants (<a href="#what-a-call-or-signature-grants">below</a>). For the transfer in the
+  first example, <code>values</code> is <code>{ to: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", value: "1500000" }</code>
+  and <code>grant</code> is <code>{ kind: "transfer", to: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", token:
+  "0x5FbDB2315678afecb367f032d93F642f64180aa3", amount: { units: "1500000", unlimited: false }, ends: { now: true }
+  }</code>: the token is the contract called.
+</p>
+
+<p>
+  <code>evmConsent</code> also takes <code>tokens</code>, the decimals and symbol of each token an amount's
+  <code>token</code> names (<a href="#an-amount-in-the-token-a-field-names">below</a>).
+  <code>decodeCalldata(resolved, calldata)</code> alone returns the function and its arguments keyed by parameter name.
+  The API: <a href="reference-profile-api.html#consent-evm"><code>@meantjs/consent/evm</code></a>.
+</p>
+
+<h2 id="erc-7730-files-and-erc-8176-attestations">ERC-7730 files and ERC-8176 attestations<a class="heading-anchor" href="#erc-7730-files-and-erc-8176-attestations" aria-label="Link to ERC-7730 files and ERC-8176 attestations">#</a></h2>
+
+<p>
+  <span class="claim fact">fact</span> An ERC-8176 attestation is an EAS attestation, under the schema <code>bytes32 descriptorHash</code>
+  (UID <code>0xe023eef1…b5c2</code>), that a party reviewed the ERC-7730 file whose RFC 8785 serialization has that
+  Keccak-256. It describes no call; it vouches for a file (<a href="https://eips.ethereum.org/EIPS/eip-8176">ERC-8176</a>,
+  Draft).
+</p>
+
+<p>
+  <code>erc7730Descriptor</code> writes that file from an EVM contract's resolved form. The same resolved form always
+  gives the same bytes, so the same <code>descriptorHash</code>. <code>$schema</code> names the exact version
+  <code>erc7730-v2.1.0.schema.json</code>, so a new release of the <code>v2</code> alias cannot move the hash. There is
+  one entry per function a transaction calls (an update), keyed by its <code>signature</code>. The messages of the same
+  resolved form are a file of their own, with <code>context: "eip712"</code>
+  (<a href="#erc-7730-files-of-messages">below</a>).
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> erc7730Descriptor<span class="tok-punct">,</span> erc8176Attestation <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/erc7730"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> descriptor<span class="tok-punct">,</span> descriptorHash <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-fn">erc7730Descriptor</span><span class="tok-punct">(</span>resolved<span class="tok-punct">,</span> <span class="tok-punct">{</span>
+  deployments<span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> address<span class="tok-punct">:</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> typedData<span class="tok-punct">,</span> digest <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-fn">erc8176Attestation</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  descriptorHash<span class="tok-punct">,</span>
+  time<span class="tok-punct">:</span> <span class="tok-number">1777630591</span><span class="tok-punct">,</span>
+  expirationTime<span class="tok-punct">:</span> <span class="tok-number">1785406591</span><span class="tok-punct">,</span>
+  salt<span class="tok-punct">:</span> <span class="tok-string">"0x"</span> <span class="tok-punct">+</span> <span class="tok-string">"11"</span><span class="tok-punct">.</span><span class="tok-fn">repeat</span><span class="tok-punct">(</span><span class="tok-number">32</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-comment">// 32 random bytes, chosen by the caller</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// A reviewer signs `digest` with their own key. Nothing here signs or sends it.</span>
+console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>descriptor<span class="tok-punct">.</span>display<span class="tok-punct">.</span>formats<span class="tok-punct">[</span><span class="tok-string">"transfer(address to,uint256 value)"</span><span class="tok-punct">]</span><span class="tok-punct">,</span> typedData<span class="tok-punct">.</span>message<span class="tok-punct">.</span>data<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"intent"</span><span class="tok-punct">:</span> <span class="tok-string">"Send tokens"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"interpolatedIntent"</span><span class="tok-punct">:</span> <span class="tok-string">"Send {value} to {to}"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"to"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Recipient"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"addressName"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"value"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Amount"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"tokenAmount"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"params"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+        <span class="tok-type">"tokenPath"</span><span class="tok-punct">:</span> <span class="tok-string">"@.to"</span>
+      <span class="tok-punct">}</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Profile</th><th>ERC-7730</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>intent.title</code> (else <code>describe.label</code> of the method, else <code>Call &lt;name&gt;</code>)</td><td><code>intent</code></td></tr>
+    <tr><td><code>intent.template</code></td><td><code>interpolatedIntent</code>: <code>{(0).to}</code> reads <code>{to}</code>, <code>[[</code> and <code>]]</code> are plain brackets, <code>{{</code> and <code>}}</code> stay. A template ERC-7730 cannot interpolate gets none, with a note</td></tr>
+    <tr><td>each leaf of the parameters, in ABI order</td><td>one entry of <code>fields</code>; <code>path</code> in the parameter names, <code>name.[]</code> through an array; <code>label</code> is <code>describe.label</code>, else the name</td></tr>
+    <tr><td><code>amount</code> with <code>query:decimals</code> and <code>query:symbol</code> (the ERC-20 functions)</td><td><code>tokenAmount</code>, <code>tokenPath: "@.to"</code></td></tr>
+    <tr><td><code>amount</code> with literal <code>decimals</code> and <code>symbol</code></td><td>the same, with <code>metadata.token</code> (only when the caller says the contract is that token)</td></tr>
+    <tr><td><code>amount</code> with <code>token</code></td><td><code>tokenAmount</code>, <code>tokenPath</code> the token's path; inside the field group of an array when the token is in the same element</td></tr>
+    <tr><td><code>amount</code>'s <code>threshold</code>, <code>message</code></td><td><code>threshold</code> (<code>0x</code> hex), <code>message</code></td></tr>
+    <tr><td><code>timestamp</code> in <code>s</code></td><td><code>date</code>, <code>encoding: "timestamp"</code>; its words are left out, with a note</td></tr>
+    <tr><td><code>duration</code> in <code>s</code></td><td><code>duration</code></td></tr>
+    <tr><td><code>bytes</code> in <code>hex</code>, untagged <code>bytes</code></td><td><code>raw</code></td></tr>
+    <tr><td>an untagged <code>address</code></td><td><code>addressName</code></td></tr>
+    <tr><td>anything else</td><td><code>raw</code></td></tr>
+    <tr><td>a <code>payable</code> function</td><td>one more field, <code>@.value</code> as <code>amount</code> (the native value, which an ERC-7730 wallet knows)</td></tr>
+    <tr><td><code>binds.deployments</code></td><td><code>context.contract.deployments</code> (the caller may pick a subset; a file needs at least one, else <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DEPLOYMENT</span></span>)</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  What a profile says that an ERC-7730 file cannot say is refused (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EXPORT</span></span>), never written as something
+  near it: a time in another unit, <code>utf8</code> or <code>base64</code> bytes, an amount whose decimals and symbol
+  are not the contract's own (or whose token is outside the array group it is in), an unnamed parameter.
+  <code>effect</code> and the agent tags have no ERC-7730 form: the file carries what a call says, not what it does.
+</p>
+
+<p>
+  Some words have no ERC-7730 form but change no value. They are left out and listed in the result's
+  <code>notes</code> instead of refusing the file (D-055): a timestamp's <code>threshold</code>, <code>message</code>
+  and <code>labels</code> (the file shows the date), and a template ERC-7730 cannot interpolate, such as a placeholder
+  over an array or a whole tuple, which gets no <code>interpolatedIntent</code>. <span class="claim fact">fact</span>
+  <code>interpolatedIntent</code> is optional in ERC-7730, and a wallet falls back to <code>intent</code> when
+  interpolation fails. Phase 1 refused the whole file for such a template; every file phase 1 wrote is written the same
+  now. The ERC-20 file above has no notes.
+</p>
+
+<p>
+  <code>erc8176Attestation</code> gives the unsigned offchain attestation (EAS offchain v2 typed data: domain
+  <code>EAS Attestation</code>, version <code>0.26</code>, chain 1, the canonical EAS contract; <code>data</code> is the
+  hash) and its EIP-712 digest. A reviewer signs it with their own key. This repository never signs or posts one: it
+  holds no reviewer's key, and an onchain attestation spends mainnet ETH. Checking attestations is a later phase
+  (<span class="claim open">open</span> OQ-7, OQ-9).
+</p>
+
+<h2 id="typed-messages-eip-712">Typed messages (EIP-712)<a class="heading-anchor" href="#typed-messages-eip-712" aria-label="Link to Typed messages (EIP-712)">#</a></h2>
+
+<p>
+  <span class="claim fact">fact</span> A signing request (<code>eth_signTypedData_v4</code>) has <code>types</code>,
+  <code>primaryType</code>, <code>domain</code> and <code>message</code>. The signature signs
+  <code>keccak256(0x1901 ‖ domainSeparator ‖ hashStruct(message))</code>. A struct's <code>typeHash</code> is the
+  Keccak-256 of its <code>encodeType</code>: the struct with its members, then every struct it refers to, sorted by
+  name. The domain's fields are <code>name</code>, <code>version</code>, <code>chainId</code>,
+  <code>verifyingContract</code> and <code>salt</code>, in that order, each optional, and a user agent should refuse to
+  sign when <code>chainId</code> is not the active chain (<a href="https://eips.ethereum.org/EIPS/eip-712">EIP-712</a>,
+  Final).
+</p>
+
+<p>
+  A profile can describe those messages, so a wallet shows what a signature allows before the person signs it. This is
+  the first part of phase 2 (D-055): consent text for a signing request and an ERC-7730 file of the messages. Signing,
+  checking signatures, witness messages other than x402's (O9) and agent tools are not in it. An example, written for
+  this page: a payout contract on a local chain whose owner signs a list of payments, each in its own token.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">payouts.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-profile"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"format_version"</span><span class="tok-punct">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span>
+  <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"contract"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"payouts"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"origin"</span><span class="tok-punct">:</span> <span class="tok-string">"author"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"binds"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"eip712"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"domain"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Payouts"</span><span class="tok-punct">,</span> <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"1"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+        <span class="tok-type">"Payout"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+          <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"legs"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"Leg[]"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+          <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"deadline"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span>
+        <span class="tok-punct">]</span><span class="tok-punct">,</span>
+        <span class="tok-type">"Leg"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+          <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"token"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+          <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"amount"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+          <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"to"</span><span class="tok-punct">,</span> <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span>
+        <span class="tok-punct">]</span>
+      <span class="tok-punct">}</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"deployments"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"</span> <span class="tok-punct">}</span><span class="tok-punct">]</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"annotations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"Payout"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"intent"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"title"</span><span class="tok-punct">:</span> <span class="tok-string">"Sign a payout"</span><span class="tok-punct">,</span> <span class="tok-type">"template"</span><span class="tok-punct">:</span> <span class="tok-string">"Pay {legs[].amount} to {legs[].to}. Signature expires: {deadline}."</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"Payout"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"effect"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer"</span><span class="tok-punct">,</span> <span class="tok-type">"irreversible"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"Payout(0).legs[].amount"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"amount"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"token"</span><span class="tok-punct">:</span> <span class="tok-string">"legs[].token"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"Payout(0).legs[].amount"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"describe"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Amount"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"Payout(0).legs[].to"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"describe"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Recipient"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"Payout(0).deadline"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"timestamp"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"unit"</span><span class="tok-punct">:</span> <span class="tok-string">"s"</span><span class="tok-punct">,</span> <span class="tok-type">"epoch"</span><span class="tok-punct">:</span> <span class="tok-string">"unix"</span><span class="tok-punct">,</span> <span class="tok-type">"threshold"</span><span class="tok-punct">:</span> <span class="tok-string">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</span><span class="tok-punct">,</span> <span class="tok-type">"message"</span><span class="tok-punct">:</span> <span class="tok-string">"Never"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"Payout(0).deadline"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"describe"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Signature expires"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">node</span> profile/scripts/validate.mjs payouts.profile.json</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">PASS payouts.profile.json  (0 error, 0 warning, 0 info)
+     profile_id   candid-profile:v0:sha256:38b066cac457466332e45f2b27a61005feffacd3808d1728f2a145d08c461140
+     interface_id candid-profile:evm-abi:v0:sha256:2af8cc17ecfaf8f4be342c6aa0ab0f085ff24f20422e33a6aaea462f0d7f06ee  [1 methods, 7 annotations]</code></pre></div>
+
+<p>The validator's summary counts the one message as a method.</p>
+
+<h3 id="types">Types<a class="heading-anchor" href="#types" aria-label="Link to Types">#</a></h3>
+
+<ul>
+  <li><code>binds.eip712</code> is <code>{ domain, types }</code>, in a contract profile or an EVM pack. <code>types</code> has the request's own JSON shape, without <code>EIP712Domain</code>.</li>
+  <li><code>domain</code> is optional and binds only the name and the version; <code>chainId</code> and <code>verifyingContract</code> come from <code>binds.deployments</code>. A pack has no domain, since each token's is its own, and keeps its <code>binds.abi</code>, by which it matches.</li>
+  <li>A struct name is an identifier that does not read as an ABI type (<code>uint256</code>, <code>bytes32</code>, <code>tuple</code>, …) and is not <code>EIP712Domain</code>. Members have unique names.</li>
+  <li>A member type is a canonical ABI type as written, <code>uint256</code> and never <code>uint</code>, because the type hash hashes the text; or a struct of the same map. Either may have array suffixes, <code>T[]</code> or <code>T[k]</code> with k ≥ 1. No struct contains itself.</li>
+  <li>Anything else is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EIP712</span></span> at its place, and a struct that refers to a refused one is refused too.</li>
+</ul>
+
+<h3 id="messages">Messages<a class="heading-anchor" href="#messages" aria-label="Link to Messages">#</a></h3>
+
+<ul>
+  <li>A message is a type the same document tags with <code>intent</code> at its bare name (<code>Payout</code>). Its struct is argument 0, as a function's parameters are: <code>Payout(0).legs[].amount</code>, <code>PermitSingle(0).details.amount</code>.</li>
+  <li>A type without an intent is a type only. An address that names it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ADDR_UNRESOLVED</span></span>; <code>Leg</code> above is described inside <code>Payout</code>.</li>
+  <li>A message may not share its name with a function, and two profiles may not give one type name different members (the later profile is invalid). Types with no message and no function describe nothing. Each is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EIP712</span></span>.</li>
+</ul>
+
+<h2 id="matched-by-type-hash-never-by-name">Matched by type hash, never by name<a class="heading-anchor" href="#matched-by-type-hash-never-by-name" aria-label="Link to Matched by type hash, never by name">#</a></h2>
+
+<p>
+  The resolver computes each message's <code>encode_type</code> and <code>type_hash</code>, and a request is matched to
+  a message by its type hash. DAI's <code>Permit</code> and EIP-2612's share a name and not a hash, so neither profile's
+  words can describe the other's signature:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> eip712TypeHash<span class="tok-punct">,</span> encodeType <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile/evm"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> eip2612 <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  <span class="tok-type">Permit</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"owner"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"value"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"nonce"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"deadline"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> dai <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  <span class="tok-type">Permit</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"holder"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"nonce"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"expiry"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"allowed"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"bool"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-fn">encodeType</span><span class="tok-punct">(</span>eip2612<span class="tok-punct">,</span> <span class="tok-string">"Permit"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"</span>
+<span class="tok-fn">eip712TypeHash</span><span class="tok-punct">(</span>eip2612<span class="tok-punct">,</span> <span class="tok-string">"Permit"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9"</span>
+<span class="tok-fn">eip712TypeHash</span><span class="tok-punct">(</span>dai<span class="tok-punct">,</span> <span class="tok-string">"Permit"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb"</span></code></pre></div>
+
+<p>
+  <span class="claim fact">fact</span> The second hash is the <code>PERMIT_TYPEHASH</code> constant in MakerDAO's
+  <code>dss/src/dai.sol</code>; the resolver's test checks it. <code>parseEip712Types(types)</code> reads a
+  <code>types</code> map and lists its problems instead of throwing.
+</p>
+
+<h2 id="tags-on-a-message">Tags on a message<a class="heading-anchor" href="#tags-on-a-message" aria-label="Link to Tags on a message">#</a></h2>
+
+<ul>
+  <li><code>intent</code> and <code>effect</code> work as on a function. A signature runs nothing when it is signed, so <code>effect</code> says what it allows, of any kind: <span class="effect approve">approve</span> for an allowance, <span class="effect transfer">transfer</span> for a one-time transfer. The default is <span class="effect write">write</span>, irreversible.</li>
+  <li><code>replicated</code> does not apply to a signature (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EFFECT_MODE</span></span>).</li>
+  <li>An <code>effect</code>'s <code>grant</code> names a message's positions from the struct, as its template does (<a href="#what-a-call-or-signature-grants">What a call or signature grants</a>).</li>
+  <li>The value tags apply to a message's members as to a function's parameters (<a href="#tags-on-evm">Tags on EVM</a>), and the tags that are not defined for EVM yet are not defined here either.</li>
+  <li>The interface id covers the message types with the functions (<a href="#identity">Identity</a>).</li>
+</ul>
+
+<h2 id="an-amount-in-the-token-a-field-names">An amount in the token a field names<a class="heading-anchor" href="#an-amount-in-the-token-a-field-names" aria-label="Link to An amount in the token a field names">#</a></h2>
+
+<p>
+  A Permit2 message names its token in a field, so the amount's decimals and symbol cannot be the contract's own.
+  <code>amount.token</code> is a relative path from the argument to an <code>address</code> field of the same argument,
+  whose path up to its last <code>[]</code> is the amount's own: the token is in the same array element as the amount,
+  or outside every array. The payout above has <code>"token": "legs[].token"</code> for
+  <code>legs[].amount</code>.
+</p>
+
+<ul>
+  <li><code>decimals</code> and <code>symbol</code> are not given (the schema refuses them): they are that token's <code>decimals()</code> and <code>symbol()</code>.</li>
+  <li>The consumer reads them and passes them per token address, as <code>tokens</code>; the libraries do no I/O. Without an entry there is no text (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span>), never a number read in the wrong decimals.</li>
+  <li>A token's <code>symbol()</code> is its own claim, so its address is always shown beside it: <code>1.5 TKA (0x5FbDB2315678afecb367f032d93F642f64180aa3)</code>.</li>
+  <li>A path that breaks these rules is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TOKEN_PATH</span></span>, such as <code>"token": "deadline"</code>, a <code>uint256</code>. So is <code>token</code> on a Candid service, whose ledger a field cannot name yet (OQ-6).</li>
+  <li><code>token</code> works on functions too, and <code>evmConsent</code> takes the same <code>tokens</code>.</li>
+</ul>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> createSchemaValidator<span class="tok-punct">,</span> validateProfile <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> eip712Consent <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/evm"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> doc <span class="tok-punct">=</span> <span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"payouts.profile.json"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> resolved <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">validateProfile</span><span class="tok-punct">(</span>doc<span class="tok-punct">,</span> <span class="tok-punct">{</span> validateSchema<span class="tok-punct">:</span> <span class="tok-keyword">await</span> <span class="tok-fn">createSchemaValidator</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> resolved<span class="tok-punct">:</span> <span class="tok-type">true</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>resolved <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">undefined</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"the profile is not valid"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">TKA</span> <span class="tok-punct">=</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span><span class="tok-punct">;</span> <span class="tok-comment">// a token on the same local Anvil chain</span>
+<span class="tok-keyword">const</span> consent <span class="tok-punct">=</span> <span class="tok-fn">eip712Consent</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  resolved<span class="tok-punct">,</span>
+  typedData<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    types<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">Payout</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"legs"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"Leg[]"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"deadline"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">Leg</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"token"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"amount"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"to"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    primaryType<span class="tok-punct">:</span> <span class="tok-string">"Payout"</span><span class="tok-punct">,</span>
+    domain<span class="tok-punct">:</span> <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"Payouts"</span><span class="tok-punct">,</span> version<span class="tok-punct">:</span> <span class="tok-string">"1"</span><span class="tok-punct">,</span> chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> verifyingContract<span class="tok-punct">:</span> <span class="tok-string">"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    message<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      legs<span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> token<span class="tok-punct">:</span> <span class="tok-type">TKA</span><span class="tok-punct">,</span> amount<span class="tok-punct">:</span> <span class="tok-string">"1500000"</span><span class="tok-punct">,</span> to<span class="tok-punct">:</span> <span class="tok-string">"0x70997970C51812dc3A010C7d01b50e0d17dc79C8"</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+      deadline<span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-number">2n</span> <span class="tok-punct">*</span><span class="tok-punct">*</span> <span class="tok-number">256n</span> <span class="tok-punct">-</span> <span class="tok-number">1n</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">toString</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> <span class="tok-comment">// the wallet's active chain</span>
+  tokens<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-punct">[</span><span class="tok-type">TKA</span><span class="tok-punct">]</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> decimals<span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-type">symbol</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-comment">// that token's decimals() and symbol(), read with eth_call</span>
+  form<span class="tok-punct">:</span> <span class="tok-string">"fields"</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>consent<span class="tok-punct">.</span>message<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">{
+  intent: 'Sign a payout: Pay 1.5 TKA (0x5FbDB2315678afecb367f032d93F642f64180aa3) to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8. Signature expires: Never.',
+  fields: [
+    [
+      'Amount',
+      '1.5 TKA (0x5FbDB2315678afecb367f032d93F642f64180aa3)'
+    ],
+    [ 'Recipient', '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' ],
+    [ 'Signature expires', 'Never' ],
+    [
+      'Contract',
+      '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 on chain 31337'
+    ],
+    [
+      'Signature',
+      'This is a signature, not a transaction: whoever holds it can submit it'
+    ],
+    [
+      'EIP-712 digest',
+      '0x13ea593c82421ed8e18779b8085a647c0a8cf1c79bf6854fe7d719c040a22cf7'
+    ]
+  ]
+}</code></pre></div>
+
+<p>
+  With <code>tokens: {}</code> the same call is refused:
+  <code>E_REF_UNRESOLVED: Payout(0).legs[].amount is an amount of the token 0x5FbDB2315678afecb367f032d93F642f64180aa3, whose decimals and symbol were not given (tokens); without them it has no text</code>.
+</p>
+
+<h2 id="consent-text-for-a-signing-request">Consent text for a signing request<a class="heading-anchor" href="#consent-text-for-a-signing-request" aria-label="Link to Consent text for a signing request">#</a></h2>
+
+<p>
+  <code>eip712Consent</code> in <code>@meantjs/consent/evm</code> takes the resolved form, the request as the wallet
+  received it and the wallet's active chain. This is a token on a local Anvil chain with EIP-2612's
+  <code>permit</code>: the ERC-20 and EIP-2612 packs both match its ABI, and the request asks Alice
+  (<code>0xf39F…2266</code>) to let Bob (<code>0x7099…79C8</code>) spend 2.5 TKA.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> createSchemaValidator<span class="tok-punct">,</span> loadPacks<span class="tok-punct">,</span> resolveService <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> eip712Consent <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/evm"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> abi <span class="tok-punct">=</span> <span class="tok-punct">[</span>
+  <span class="tok-string">"function symbol() view returns (string)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function decimals() view returns (uint8)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function balanceOf(address owner) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function allowance(address owner, address spender) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function transfer(address to, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function approve(address spender, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function transferFrom(address from, address to, uint256 value) returns (bool)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function nonces(address owner) view returns (uint256)"</span><span class="tok-punct">,</span>
+  <span class="tok-string">"function DOMAIN_SEPARATOR() view returns (bytes32)"</span><span class="tok-punct">,</span>
+<span class="tok-punct">]</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> validateSchema <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">createSchemaValidator</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> packs <span class="tok-punct">=</span> <span class="tok-punct">(</span><span class="tok-keyword">await</span> <span class="tok-fn">loadPacks</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">{</span> doc <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">{</span> doc <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> resolved <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">resolveService</span><span class="tok-punct">(</span><span class="tok-punct">{</span> abi<span class="tok-punct">,</span> validateSchema<span class="tok-punct">,</span> packs <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// erc20 and erc2612 apply</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>resolved <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"the ABI cannot be read"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> typedData <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  types<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">Permit</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+      <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"owner"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"value"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"nonce"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"deadline"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  primaryType<span class="tok-punct">:</span> <span class="tok-string">"Permit"</span><span class="tok-punct">,</span>
+  domain<span class="tok-punct">:</span> <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"Token A"</span><span class="tok-punct">,</span> version<span class="tok-punct">:</span> <span class="tok-string">"1"</span><span class="tok-punct">,</span> chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> verifyingContract<span class="tok-punct">:</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  message<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    owner<span class="tok-punct">:</span> <span class="tok-string">"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"</span><span class="tok-punct">,</span>
+    spender<span class="tok-punct">:</span> <span class="tok-string">"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"</span><span class="tok-punct">,</span>
+    value<span class="tok-punct">:</span> <span class="tok-string">"2500000"</span><span class="tok-punct">,</span>
+    nonce<span class="tok-punct">:</span> <span class="tok-string">"0"</span><span class="tok-punct">,</span>
+    deadline<span class="tok-punct">:</span> <span class="tok-string">"1798761600"</span><span class="tok-punct">,</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> consent <span class="tok-punct">=</span> <span class="tok-fn">eip712Consent</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  resolved<span class="tok-punct">,</span>
+  typedData<span class="tok-punct">,</span>
+  chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> <span class="tok-comment">// the wallet's active chain</span>
+  refs<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-string">"query:decimals"</span><span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-string">"query:symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-comment">// eth_calls to the verifying contract, the token</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>consent<span class="tok-punct">.</span>message<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true"># Permit token spending
+
+Allow `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` to spend up to `2.5 TKA` from `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`. Signature expires: `2027-01-01 00:00:00 UTC`.
+
+- **Spender:** `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+- **Amount:** `2.5 TKA`
+- **Owner:** `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
+- **Signature expires:** `2027-01-01 00:00:00 UTC`
+
+**Contract:** `0x5FbDB2315678afecb367f032d93F642f64180aa3` on chain 31337
+
+**EIP-712 digest:** `0xf5f7c7ab25ddf658e38e97e75f692da15053528f00300b959122fcdf74b593c4`
+
+This is a signature, not a transaction: whoever holds it can submit it.</code></pre></div>
+
+<p>
+  The text is the same model and the same two forms as a call's, then the verifying contract and its chain, the EIP-712
+  digest, and the note that a signature is not a transaction. A hardware wallet that shows the hash can be checked
+  against the digest. With the result come <code>primaryType</code>, <code>typeHash</code> (here
+  <code>0x6e71edae…26c9</code>), <code>digest</code>, <code>verifyingContract</code> in its EIP-55 form,
+  <code>chainId</code>, <code>diagnostics</code>, and <code>provenance</code>, here
+  <code>{ origin: "pack", profile: "erc2612" }</code> for the intent: the words come from a pack, not from the token.
+</p>
+
+<p>The same request for an unlimited amount that never expires, <code>value</code> and <code>deadline</code> both <code>uint256</code> max, in the fields form:</p>
+
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Consent text · EIP-712 (experimental)</span><h4 class="consent-title">Permit token spending</h4><div class="consent-effects"><span class="effect approve">approve</span></div></div><dl class="consent-fields"><div><dt>Spender</dt><dd><span>0x7099…79C8</span></dd></div><div><dt>Amount</dt><dd><span class="is-amount">Unlimited TKA</span></dd></div><div><dt>Owner</dt><dd><span>0xf39F…2266</span></dd></div><div><dt>Signature expires</dt><dd><span>Never</span></dd></div><div><dt>Contract</dt><dd><span>0x5FbD…0aa3 on chain 31337</span></dd></div><div><dt>Signature</dt><dd><span>This is a signature, not a transaction: whoever holds it can submit it</span></dd></div><div><dt>EIP-712 digest</dt><dd><span>0x1ed6…d724</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the owner signs. The model never does.</span></div></section></div>
+
+<h3 id="what-is-refused-before-anything-is-shown">What is refused before anything is shown<a class="heading-anchor" href="#what-is-refused-before-anything-is-shown" aria-label="Link to What is refused before anything is shown">#</a></h3>
+
+<ol>
+  <li><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOMAIN</span></span>: a domain field EIP-712 does not define; a <code>salt</code> (O11); a <code>types.EIP712Domain</code> that does not list the domain's fields in EIP-712 order (it may be left out); no <code>chainId</code>, so the signature would be valid on every chain; no <code>verifyingContract</code>; a <code>chainId</code> other than the wallet's; a <code>name</code> or <code>version</code> other than that of every profile that binds a domain, absent where the profile's is absent (Permit2's domain has no version).</li>
+  <li><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TYPE_HASH</span></span>: no message has the request's type hash. <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DEPLOYMENT</span></span>: a profile lists deployments and the verifying contract on that chain is not one of them, so a look-alike contract named "Permit2" gets none of Permit2's words.</li>
+  <li><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DECODE</span></span>: values that are not exactly the members, or not canonical. Integers are decimal strings without leading zeros, or JSON numbers up to 2<sup>53</sup> − 1, within their type's range. Addresses follow <a href="#values">Values</a>. <code>bytesN</code> has exactly N bytes, as <code>0x</code> hex. An array has its declared length, within the decoder's limits.</li>
+  <li><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_FIXED</span></span>: a member a profile pins (<code>fixed</code>) that holds another address, such as x402's Permit2 payment with a spender other than x402's proxy (<a href="#x402-payments">below</a>).</li>
+  <li><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span>: an amount in a token not in <code>tokens</code>, or a <code>query:</code> ref not in <code>refs</code>. For a pack's message the <code>query:</code> refs are calls to the verifying contract: resolve that contract's ABI with the packs, as above.</li>
+</ol>
+
+<p>Run against the request above:</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Change</th><th>Result</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>The wallet is on chain 1</td><td><code class="wrap">E_DOMAIN: the domain is for chain 31337, the wallet is on chain 1</code></td></tr>
+    <tr><td>One more member in <code>Permit</code></td><td><code class="wrap">E_TYPE_HASH: no message of the resolved form has the type hash 0x556c83ad…f8f2 (Permit); a request is matched by its type hash, never by its name</code></td></tr>
+    <tr><td>No <code>refs</code></td><td><code class="wrap">E_REF_UNRESOLVED: amount.decimals needs the value of "query:decimals", which the caller did not supply …</code></td></tr>
+    <tr><td><code>value</code> written <code>"02500000"</code></td><td><code class="wrap">E_DECODE: message.value: uint256 needs a decimal string or a JSON integer below 2^53, got "02500000"</code></td></tr>
+    <tr><td>No <code>chainId</code> argument</td><td><code class="wrap">E_REQUEST: give the wallet's active chainId: a signature for another chain is refused</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="permit2">Permit2<a class="heading-anchor" href="#permit2" aria-label="Link to Permit2">#</a></h3>
+
+<p>
+  The Permit2 profile is bound to its deployments on chains 1, 8453, 42161 and 84532, so its words appear only for a
+  request whose verifying contract is Permit2 on one of them. This is the package test's <code>PermitBatch</code>
+  request on chain 1, with each token's decimals and symbol in <code>tokens</code>; nothing is signed or sent. The first
+  allowance expires at 0, which Permit2 reads as "only in the block it is used", and the second at <code>uint48</code>
+  max:
+</p>
+
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Consent text · EIP-712 (experimental)</span><h4 class="consent-title">Permit2: allow spending of several tokens</h4><div class="consent-effects"><span class="effect approve">approve</span></div></div><dl class="consent-fields"><div><dt>Spender</dt><dd><span>0x66a9…A8Af</span></dd></div><div><dt>Amount</dt><dd><span class="is-amount">1.5 USDC, Unlimited WETH</span><span class="is-address">0xA0b8…eB48, 0xC02a…6Cc2</span></dd></div><div><dt>Allowance expires</dt><dd><span>Only in the block it is used, Never</span></dd></div><div><dt>Signature expires</dt><dd><span>Never</span></dd></div><div><dt>Contract</dt><dd><span>0x0000…8BA3 on chain 1</span></dd></div><div><dt>Signature</dt><dd><span>This is a signature, not a transaction: whoever holds it can submit it</span></dd></div><div><dt>EIP-712 digest</dt><dd><span>0xd612…06ad</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the owner signs. The model never does.</span></div></section></div>
+
+<p>
+  The text shows each token's full address in brackets after its amount:
+  <code>1.5 USDC (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48), Unlimited WETH (0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)</code>.
+  The same request with a verifying contract of <code>0x5FbD…0aa3</code> is
+  <code>E_DEPLOYMENT: profile permit2 describes 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 1, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 8453, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 42161, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 84532, not 0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 1</code>.
+  The API: <a href="reference-profile-api.html">JavaScript API</a>.
+</p>
+
+<h3 id="x402-payments">x402 payments<a class="heading-anchor" href="#x402-payments" aria-label="Link to x402 payments">#</a></h3>
+
+<p>
+  <span class="pill warn">experimental</span> D-058. x402 pays for an HTTP request with a signature the client's wallet
+  makes, in one of two forms: USDC's EIP-3009 <code>TransferWithAuthorization</code>, the default, or, for a token
+  without EIP-3009, Permit2's <code>PermitWitnessTransferFrom</code> with x402's witness (<span class="claim fact">fact</span>
+  <code>coinbase/x402</code> at <code>0e6e8c5</code>, <code>specs/schemes/exact/scheme_exact_evm.md</code>). Three
+  standard contract profiles describe them: <a href="reference-packs.html#usdc"><code>usdc</code> and
+  <code>usdc-base-sepolia</code></a>, and
+  <a href="reference-packs.html#x402-exact-permit2"><code>x402-exact-permit2</code></a>. This is x402's own EIP-3009
+  example on Base Sepolia, from the package's test, in the fields form; nothing is signed or sent:
+</p>
+
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Consent text · EIP-712 (experimental)</span><h4 class="consent-title">Pay USDC by signature</h4><div class="consent-effects"><span class="effect transfer">transfer</span><span class="effect irreversible">irreversible</span></div></div><dl class="consent-fields"><div><dt>Amount</dt><dd><span class="is-amount">0.01 USDC</span></dd></div><div><dt>From</dt><dd><span>0x857b…6b66</span></dd></div><div><dt>To</dt><dd><span>0x2096…287C</span></dd></div><div><dt>Valid after</dt><dd><span>2025-02-27T16:01:29Z</span></dd></div><div><dt>Expires</dt><dd><span>2025-02-27T16:02:34Z</span></dd></div><div><dt>Contract</dt><dd><span>0x036C…CF7e on chain 84532</span></dd></div><div><dt>Signature</dt><dd><span>This is a signature, not a transaction: whoever holds it can submit it</span></dd></div><div><dt>EIP-712 digest</dt><dd><span>0xf256…22e6</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the owner signs. The model never does.</span></div></section></div>
+
+<p>
+  It grants <code>0x2096…287C</code> 10000 base units of USDC once, until <code>validBefore</code>: <code>{ kind:
+  "transfer", to: "0x209693Bc6afc0C5328bA36FaF03C514EF312287C", token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  amount: { units: "10000", unlimited: false }, ends: { at: "1740672154" } }</code>. The token is the verifying
+  contract.
+</p>
+
+<p>
+  The Permit2 form needs a pin. Permit2 lets the spender choose where the tokens go and never reads the witness, so the
+  witness's <code>to</code> is the payee only when the spender is x402's proxy, <code>0x4020…0001</code>, whose
+  <code>settle</code> sends exactly <code>permitted.amount</code> to <code>witness.to</code>. The profile pins the
+  spender to that proxy (<a href="reference-tags.html#a-pin-fixed"><code>fixed</code></a>), and its grant pays
+  <code>witness.to</code>. A real x402 payment on Base Sepolia, as its <code>settle</code> call carried it (transaction
+  <code>0x79b9a6c5…1472</code>), with USDC's decimals and symbol in <code>tokens</code>:
+</p>
+
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Consent text · EIP-712 (experimental)</span><h4 class="consent-title">Pay by x402 through Permit2</h4><div class="consent-effects"><span class="effect transfer">transfer</span><span class="effect irreversible">irreversible</span></div></div><dl class="consent-fields"><div><dt>Amount</dt><dd><span class="is-amount">0.011 USDC</span><span class="is-address">0x036C…CF7e</span></dd></div><div><dt>To</dt><dd><span>0x5037…F6FD</span></dd></div><div><dt>Usable from</dt><dd><span>now</span></dd></div><div><dt>Signature expires</dt><dd><span>2026-10-29T23:58:09Z</span></dd></div><div><dt>Contract</dt><dd><span>0x0000…8BA3 on chain 84532</span></dd></div><div><dt>Signature</dt><dd><span>This is a signature, not a transaction: whoever holds it can submit it</span></dd></div><div><dt>EIP-712 digest</dt><dd><span>0xb7d4…115b</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the owner signs. The model never does.</span></div></section></div>
+
+<p>
+  The spender is not shown: it can only be the proxy. The same payment with any other spender gets no text, and no
+  grant, before the token table is read:
+  <code class="wrap">E_FIXED: PermitWitnessTransferFrom(0).spender is 0x1111111111111111111111111111111111111111, but the profile describes PermitWitnessTransferFrom only with 0x402085c248EeA27D92E8b30b2C58ed07f9E20001 there, so this request gets no text</code>.
+  Permit2's own profile has no witness messages, so it gives the payment none of its words
+  (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TYPE_HASH</span></span>), and x402's <code>upto</code> scheme, whose witness names a facilitator too, has another
+  type hash and matches nothing.
+</p>
+
+<p>
+  With <a href="confirmed-terms.html">terms the person confirmed</a>, "Weather API (<code>0x5037…F6FD</code>) may be
+  sent at most 0.02 USDC, until the end of 30 October 2026 (UTC)", the payment above fits. The same grant to another
+  recipient does not (<code>the recipient is 0xbBbB…BbBB, the terms say Weather API (0x5037…F6FD)</code>), nor 0.03 USDC
+  (<code>the request allows 0.03 USDC, the terms say at most 0.02 USDC</code>). Terms for USDC on Base that end on the
+  same day pass an EIP-3009 payment valid for ten minutes and refuse the same payment valid for a year (<code>the
+  permission lasts until 29 October 2027 at 23:53:20 (UTC), the terms say until the end of 30 October 2026
+  (UTC)</code>). These runs are in <code>profile/packages/consent/test/x402.test.mjs</code>.
+</p>
+
+<h2 id="what-a-call-or-signature-grants">What a call or signature grants<a class="heading-anchor" href="#what-a-call-or-signature-grants" aria-label="Link to What a call or signature grants">#</a></h2>
+
+<p>
+  An <code>effect</code> of kind <span class="effect transfer">transfer</span> or <span class="effect approve">approve</span> may carry <code>grant</code>: who
+  may take tokens because of the call or the signature, which token, how many and until when
+  (<a href="intent-and-effects.html">Intent, effects and confirmation</a>; spec §5.3, D-056). On a function its paths
+  name parameters. A message's grant names its positions as its template does, from the struct. Permit2's
+  <code>PermitSingle</code>:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/permit2.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"PermitSingle"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"effect"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"approve"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"irreversible"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span><span class="tok-punct">,</span>
+    <span class="tok-type">"grant"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"spender"</span><span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"amount"</span><span class="tok-punct">:</span> <span class="tok-string">"details.amount"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"ends"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-string">"details.expiration"</span><span class="tok-punct">,</span>
+        <span class="tok-string">"sigDeadline"</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  <span class="claim fact">fact</span> Uniswap <code>permit2</code> at <code>main</code>, read 2026-10-30,
+  <code>src/libraries/Allowance.sol</code> (spec §15.9): an expiration of 0 is stored as the time of the block the
+  permit is used in, and that block may come as late as <code>sigDeadline</code>. The latest of the two is the end, so
+  0 needs no rule of its own. The token is <code>details.token</code>, the field the amount's tag names, not the
+  verifying contract.
+</p>
+
+<p>
+  <code>eip712Consent</code> returns the grant with the text, and <code>values</code>, the message by member name. A
+  <code>PermitSingle</code> request built for this page lets Dex (<code>0x9fE4…a6e0</code>) spend 500 TKA
+  (<code>0x5FbD…0aa3</code>), with a <code>sigDeadline</code> of 2026-11-02 12:30:00 UTC. It is on chain 1, one of the
+  four chains the profile lists Permit2 on; nothing is signed or sent. With an expiration of 0 it grants:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"approve"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"spender"</span><span class="tok-punct">:</span> <span class="tok-string">"0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"token"</span><span class="tok-punct">:</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"amount"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"units"</span><span class="tok-punct">:</span> <span class="tok-string">"500000000"</span><span class="tok-punct">,</span> <span class="tok-type">"unlimited"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"ends"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"1793622600"</span> <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>The same request with</th><th><code>grant</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>expiration</code> 2026-11-16 12:00:00 UTC (<code>1794830400</code>)</td><td><code>ends: { at: "1794830400" }</code></td></tr>
+    <tr><td><code>expiration</code> <code>uint48</code> max, the tag's <code>threshold</code></td><td><code>ends: { never: true }</code></td></tr>
+    <tr><td><code>amount</code> <code>uint160</code> max, the tag's <code>threshold</code></td><td><code class="wrap">amount: { units: "1461501637330902918203684832716283019655932542975", unlimited: true }</code></td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><strong>EIP-2612 and DAI.</strong> Their <code>deadline</code> and <code>expiry</code> bound only when the signature may be used, so they are not ends: the allowance a permit sets never ends, <code>ends: { never: true }</code>. DAI's <code>allowed</code> is a <code>bool</code>: <code>true</code> grants <code>{ units: null, unlimited: true }</code>, <code>false</code> grants <code>{ units: "0", unlimited: false }</code>, nothing.</li>
+  <li><strong>ERC-20.</strong> <code>approve</code> names its <code>spender</code> and never ends; <code>transfer</code> names <code>to</code> and ends when it is made, <code>{ now: true }</code>. <code>transferFrom</code> spends an allowance someone else gave and has no grant.</li>
+  <li>
+    <strong>Why <code>PermitBatch</code> has none.</strong> <code>PermitBatch</code> and
+    <code>PermitBatchTransferFrom</code> grant one amount per element of an array, each in its own token. A grant
+    covers one token, and none of its positions may step into <code>[]</code>, so these two messages carry no grant in
+    v0. They keep their effects, <span class="effect approve">approve</span> and <span class="effect transfer">transfer</span>; <code>eip712Consent</code>
+    returns <code>grant: null</code> for them, with no diagnostic, and no terms can cover them.
+  </li>
+</ul>
+
+<p>
+  A wallet compares a grant with terms the person confirmed for one task, and names the request by its EIP-712
+  <code>digest</code>: <a href="confirmed-terms.html">Confirm terms for a task</a>.
+</p>
+
+<h2 id="erc-7730-files-of-messages">ERC-7730 files of messages<a class="heading-anchor" href="#erc-7730-files-of-messages" aria-label="Link to ERC-7730 files of messages">#</a></h2>
+
+<p>
+  <span class="claim fact">fact</span> ERC-7730 binds a file to a contract or to messages, not both. <code>context.eip712</code> has
+  <code>domain</code>, each of whose values must match the request's, and <code>deployments</code>; formats are keyed by
+  the primary type's <code>encodeType</code>, whose hash must match; and for a message, <code>@.to</code> is the
+  verifying contract (<a href="https://eips.ethereum.org/EIPS/eip-7730">ERC-7730</a>). So
+  <code>erc7730Descriptor(resolved, { context: "eip712" })</code> writes the messages' file, with its own
+  <code>descriptorHash</code>. Continuing the EIP-2612 example:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> erc7730Descriptor <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/erc7730"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> descriptor<span class="tok-punct">,</span> descriptorHash<span class="tok-punct">,</span> notes <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-fn">erc7730Descriptor</span><span class="tok-punct">(</span>resolved<span class="tok-punct">,</span> <span class="tok-punct">{</span>
+  context<span class="tok-punct">:</span> <span class="tok-string">"eip712"</span><span class="tok-punct">,</span>
+  deployments<span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> address<span class="tok-punct">:</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span><span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">stringify</span><span class="tok-punct">(</span><span class="tok-punct">{</span> context<span class="tok-punct">:</span> descriptor<span class="tok-punct">.</span>context<span class="tok-punct">,</span> formats<span class="tok-punct">:</span> descriptor<span class="tok-punct">.</span>display<span class="tok-punct">.</span>formats<span class="tok-punct">,</span> descriptorHash<span class="tok-punct">,</span> notes <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-type">null</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"context"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"eip712"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"deployments"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"chainId"</span><span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span>
+          <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"formats"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"intent"</span><span class="tok-punct">:</span> <span class="tok-string">"Permit token spending"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"interpolatedIntent"</span><span class="tok-punct">:</span> <span class="tok-string">"Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."</span><span class="tok-punct">,</span>
+      <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"owner"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Owner"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"addressName"</span>
+        <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Spender"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"addressName"</span>
+        <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"value"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Amount"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"tokenAmount"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"params"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+            <span class="tok-type">"tokenPath"</span><span class="tok-punct">:</span> <span class="tok-string">"@.to"</span><span class="tok-punct">,</span>
+            <span class="tok-type">"threshold"</span><span class="tok-punct">:</span> <span class="tok-string">"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"</span><span class="tok-punct">,</span>
+            <span class="tok-type">"message"</span><span class="tok-punct">:</span> <span class="tok-string">"Unlimited"</span>
+          <span class="tok-punct">}</span>
+        <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"nonce"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Nonce"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"raw"</span>
+        <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"deadline"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Signature expires"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"date"</span><span class="tok-punct">,</span>
+          <span class="tok-type">"params"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+            <span class="tok-type">"encoding"</span><span class="tok-punct">:</span> <span class="tok-string">"timestamp"</span>
+          <span class="tok-punct">}</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"descriptorHash"</span><span class="tok-punct">:</span> <span class="tok-string">"0x377785ec6a78cf2a24e16cd7132722289ca407c66e7a4e1833bb98302499e2c1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"notes"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-string">"Permit(0).deadline: the timestamp's threshold has no ERC-7730 date form and is left out; the file shows the date"</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<ul>
+  <li><code>context.eip712.domain</code> is the name and version the profiles bind, absent for a pack (as here), and <code>deployments</code> as for a contract: the caller's subset, or every deployment the profiles list.</li>
+  <li>Formats are keyed by <code>encode_type</code>, and the export checks that its Keccak-256 is the <code>type_hash</code>; a resolved form where it is not is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RESOLVED_FORM</span></span>.</li>
+  <li>An EIP-2612 amount is <code>tokenPath: "@.to"</code>: the verifying contract is the token. An amount with <code>token</code> is <code>tokenAmount</code> with that token's path.</li>
+  <li>An array whose elements hold an amount in a token of the same element is a field group, its paths relative to the element, as ERC-7730's own <code>PermitBatch</code> example writes it. A message without a title is <code>Sign &lt;name&gt;</code>.</li>
+  <li>A position a profile pins (<code>fixed</code>) is a field with <code>visible: { "mustMatch": [value] }</code>, its value with its EIP-55 checksum: a wallet hides it and refuses any other value. x402's Permit2 file writes the spender that way, labelled "x402's payment contract", and a template that names a pinned position gets no <code>interpolatedIntent</code>. <span class="claim assumption">assumption</span> A wallet compares the value as an address, whatever the case of its letters; ERC-7730 does not say, and a wallet that compares the text refuses a request written in another case, which fails closed.</li>
+  <li>The notes are those of <a href="#erc-7730-files-and-erc-8176-attestations">the contract file</a>. Permit2's file shows its deadlines as dates, and its two batch messages get no <code>interpolatedIntent</code>: eight notes in all.</li>
+</ul>
+
+<p>Permit2's <code>PermitBatch</code> entry, as <code>erc7730Descriptor(permit2, { context: "eip712" })</code> writes it (the package's test pins the same entry):</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"intent"</span><span class="tok-punct">:</span> <span class="tok-string">"Permit2: allow spending of several tokens"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"details.[]"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span> <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"token"</span><span class="tok-punct">,</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Token"</span><span class="tok-punct">,</span> <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"addressName"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"amount"</span><span class="tok-punct">,</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Amount"</span><span class="tok-punct">,</span> <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"tokenAmount"</span><span class="tok-punct">,</span> <span class="tok-type">"params"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"tokenPath"</span><span class="tok-punct">:</span> <span class="tok-string">"token"</span><span class="tok-punct">,</span> <span class="tok-type">"threshold"</span><span class="tok-punct">:</span> <span class="tok-string">"0xffffffffffffffffffffffffffffffffffffffff"</span><span class="tok-punct">,</span> <span class="tok-type">"message"</span><span class="tok-punct">:</span> <span class="tok-string">"Unlimited"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"expiration"</span><span class="tok-punct">,</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Allowance expires"</span><span class="tok-punct">,</span> <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"date"</span><span class="tok-punct">,</span> <span class="tok-type">"params"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"encoding"</span><span class="tok-punct">:</span> <span class="tok-string">"timestamp"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"nonce"</span><span class="tok-punct">,</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Nonce"</span><span class="tok-punct">,</span> <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"raw"</span> <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Spender"</span><span class="tok-punct">,</span> <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"addressName"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"path"</span><span class="tok-punct">:</span> <span class="tok-string">"sigDeadline"</span><span class="tok-punct">,</span> <span class="tok-type">"label"</span><span class="tok-punct">:</span> <span class="tok-string">"Signature expires"</span><span class="tok-punct">,</span> <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"date"</span><span class="tok-punct">,</span> <span class="tok-type">"params"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"encoding"</span><span class="tok-punct">:</span> <span class="tok-string">"timestamp"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<h2 id="standard-files">Standard files<a class="heading-anchor" href="#standard-files" aria-label="Link to Standard files">#</a></h2>
+
+<p>
+  Six files of EIP-712 messages ship beside the packs in <code>@meantjs/profile</code>. <code>loadPacks()</code> returns
+  the packs only, so the EIP-2612 pack joins every pack search, while the five contract profiles are read by path
+  (<code>@meantjs/profile/packs/permit2.profile.json</code>). Every annotation: <a href="reference-packs.html">Standard packs</a>.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>File</th><th>Kind</th><th>Messages</th><th>Bound to</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>erc2612.profile.json</code></td><td>pack</td><td><code>Permit</code> (<span class="effect approve">approve</span>), and the <code>permit</code> function that submits one</td><td>any token with <code>permit</code>, <code>nonces</code>, <code>DOMAIN_SEPARATOR</code>, <code>decimals</code> and <code>symbol</code>; each token's own domain</td></tr>
+    <tr><td><code>permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td><code>PermitSingle</code>, <code>PermitBatch</code> (<span class="effect approve">approve</span>); <code>PermitTransferFrom</code>, <code>PermitBatchTransferFrom</code> (<span class="effect transfer">transfer</span>)</td><td>domain <code>Permit2</code>; <code>0x0000…8BA3</code> on chains 1, 8453, 42161 and 84532</td></tr>
+    <tr><td><code>dai-permit.profile.json</code></td><td>contract</td><td>DAI's older <code>Permit</code> (<span class="effect approve">approve</span>)</td><td>domain <code>Dai Stablecoin</code> version <code>1</code>; <code>0x6B17…1d0F</code> on chain 1</td></tr>
+    <tr><td><code>usdc.profile.json</code></td><td>contract, <code>third_party</code></td><td>USDC's <code>TransferWithAuthorization</code>, <code>ReceiveWithAuthorization</code> (<span class="effect transfer">transfer</span>); <code>CancelAuthorization</code> (<span class="effect write">write</span>)</td><td>domain <code>USD Coin</code> version <code>2</code>; USDC on chains 1, 8453 and 42161</td></tr>
+    <tr><td><code>usdc-base-sepolia.profile.json</code></td><td>contract, <code>third_party</code></td><td>the same three messages</td><td>domain <code>USDC</code> version <code>2</code>; <code>0x036C…CF7e</code> on chain 84532</td></tr>
+    <tr><td><code>x402-exact-permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td>x402's <code>PermitWitnessTransferFrom</code> (<span class="effect transfer">transfer</span>), its spender pinned to x402's proxy</td><td>Permit2's domain and deployments</td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><strong>EIP-2612.</strong> Amounts read the token's <code>decimals()</code> and <code>symbol()</code>, and a deadline of <code>uint256</code> max reads "Never". <span class="claim fact">fact</span> "The <code>deadline</code> argument can be set to <code>uint(-1)</code> to create <code>Permit</code>s that effectively never expire" (<a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612</a>).</li>
+  <li><strong>Permit2.</strong> Amounts are in the token each message names. <span class="claim fact">fact</span> Chains 1 and 42161 are the deployments of ERC-7730's own Permit2 example; 8453 and 84532 were added from Permit2's code and <code>DOMAIN_SEPARATOR()</code>, read on each chain on 2026-10-30, and Uniswap's deployments page (O10). <span class="claim fact">fact</span> Uniswap's <code>permit2</code> (<code>Allowance.sol</code>, <code>AllowanceTransfer.sol</code>): "If the inputted expiration is 0, the allowance only lasts the duration of the block", so it reads "Only in the block it is used"; an allowance of <code>type(uint160).max</code> is never decremented, so it reads "Unlimited".</li>
+  <li><strong>DAI.</strong> <span class="claim fact">fact</span> The address is <code>MCD_DAI</code> in the Sky chainlog, read 2026-10-28. <span class="claim fact">fact</span> MakerDAO <code>dss/src/dai.sol</code>: <code>expiry == 0</code> never expires, so 0 reads "Never"; <code>allowed</code> sets the allowance to <code>uint(-1)</code> or 0, and the text says so through its template (O12).</li>
+  <li><strong>USDC.</strong> Amounts are in 6 decimals, <code>USDC</code>. <span class="claim fact">fact</span> Each contract's <code>DOMAIN_SEPARATOR()</code>, <code>decimals()</code> and three type hashes, read on chain on 2026-10-30; Base Sepolia's USDC signs under the name <code>USDC</code>, so it has a profile of its own. <span class="claim fact">fact</span> EIP-3009 and Circle's <code>EIP3009.sol</code>: a signature is valid only after <code>validAfter</code> and before <code>validBefore</code>, both strictly, and only the payee may submit a <code>ReceiveWithAuthorization</code>.</li>
+  <li><strong>x402.</strong> <span class="claim fact">fact</span> x402's proxy, <code>0x4020…0001</code>, sends exactly <code>permitted.amount</code> to <code>witness.to</code>, not before <code>validAfter</code>, and has the same code on the four chains (<code>coinbase/x402</code> at <code>0e6e8c5</code>; read on chain on 2026-10-30). Permit2 lets the spender choose where the tokens go, so the profile pins the spender to the proxy (<a href="reference-packs.html#x402-exact-permit2">Standard packs</a>).</li>
+</ul>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Message</th><th><code>type_hash</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td>EIP-2612 <code>Permit</code></td><td><code class="wrap">0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9</code></td></tr>
+    <tr><td>DAI <code>Permit</code></td><td><code class="wrap">0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb</code></td></tr>
+    <tr><td>Permit2 <code>PermitSingle</code></td><td><code class="wrap">0xf3841cd1ff0085026a6327b620b67997ce40f282c88a8e905a7a5626e310f3d0</code></td></tr>
+    <tr><td>Permit2 <code>PermitBatch</code></td><td><code class="wrap">0xaf1b0d30d2cab0380e68f0689007e3254993c596f2fdd0aaa7f4d04f79440863</code></td></tr>
+    <tr><td>Permit2 <code>PermitTransferFrom</code></td><td><code class="wrap">0x939c21a48a8dbe3a9a2404a1d46691e4d39f6583d6ec6b35714604c986d80106</code></td></tr>
+    <tr><td>Permit2 <code>PermitBatchTransferFrom</code></td><td><code class="wrap">0xfcf35f5ac6a2c28868dc44c302166470266239195f02b0ee408334829333b766</code></td></tr>
+    <tr><td>USDC <code>TransferWithAuthorization</code></td><td><code class="wrap">0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267</code></td></tr>
+    <tr><td>USDC <code>ReceiveWithAuthorization</code></td><td><code class="wrap">0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8</code></td></tr>
+    <tr><td>USDC <code>CancelAuthorization</code></td><td><code class="wrap">0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429</code></td></tr>
+    <tr><td>x402 <code>PermitWitnessTransferFrom</code></td><td><code class="wrap">0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  <span class="claim fact">fact</span> These ten type hashes, EIP-712's <code>Mail</code> type hash and digest, the consent tests'
+  digests and the exported files' <code>descriptorHash</code>es were recomputed by an independent Python EIP-712 and
+  Keccak-256, the phase 1 cross-check tool (spec §15.9). USDC's three type hashes and the type hash of x402's
+  <code>Witness</code> equal the contracts' own constants, read on chain; x402's example EIP-3009 signature and two
+  real x402 Permit2 payments on Base Sepolia recover to their signers over the digests the consent package computes
+  (<span class="claim fact">fact</span>, the <code>ecrecover</code> precompile through <code>eth_call</code>, 2026-10-30).
+</p>
+
+<h2 id="local-tests">Local tests<a class="heading-anchor" href="#local-tests" aria-label="Link to Local tests">#</a></h2>
+
+<p>
+  The repository runs no EVM node: none of its tests starts Anvil or calls a deployed contract. What is tested runs in
+  Node against fixed vectors:
+</p>
+
+<ul>
+  <li>Keccak-256 against an independent implementation (and the block boundary), the ERC-20 selectors, the ERC-8176 schema UID, EIP-55's examples and EIP-712's Mail example (<code>profile/packages/resolver/test/evm.test.mjs</code>).</li>
+  <li>Every exported ERC-7730 file in the consent tests is checked against the ERC-7730 2.1.0 JSON Schema (vendored, with its sha256), and the hashes and digests the tests pin were computed by an independent implementation.</li>
+  <li>EIP-712: <code>encodeType</code> and the type hash of EIP-712's Mail example, the types that are refused, the standard messages' type hashes, token paths and timestamp words (<code>profile/packages/resolver/test/eip712.test.mjs</code>); the consent text of Permit2, EIP-2612 and DAI requests and every refusal above (<code>profile/packages/consent/test/eip712.test.mjs</code>). No chain, no network, nothing signed.</li>
+  <li>Grants: the packs' grants and each way one is refused (<code>profile/packages/resolver/test/grant.test.mjs</code>); the grants of the Permit2, EIP-2612, DAI and ERC-20 requests, with real typed data and calldata, Permit2's expiration of 0, and the ways a grant is left out (<code>profile/packages/consent/test/grant.test.mjs</code>); those grants against confirmed terms (<code>profile/packages/consent/test/terms.test.mjs</code>).</li>
+  <li>Pins and x402: every way a pin is refused, and what its profile keeps (<code>profile/packages/resolver/test/fixed.test.mjs</code>); x402's EIP-3009 example, two real x402 Permit2 payments settled on Base Sepolia and made-up mainnet requests, each refusal, the ERC-7730 file and the terms checks (<code>profile/packages/consent/test/x402.test.mjs</code>, <code>erc7730.test.mjs</code>). The digests they pin were computed by an independent Python EIP-712.</li>
+</ul>
+
+<p>
+  A test against a contract would run on a local Anvil chain, as the examples on this page assume, never on mainnet.
+</p>
+
+<h2 id="open-items">Open items<a class="heading-anchor" href="#open-items" aria-label="Link to Open items">#</a></h2>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Item</th><th>Status</th><th>Question</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>O1</td><td><span class="claim open">open</span></td><td>Overloaded function names (ERC-721 <code>safeTransferFrom</code>). Candidate: <code>name@0x&lt;selector&gt;</code>.</td></tr>
+    <tr><td>O2</td><td><span class="claim open">open</span></td><td>The native value of a <code>payable</code> call as a position, with the chain's native decimals and symbol.</td></tr>
+    <tr><td>O3</td><td><span class="claim open">open</span></td><td>Whether a transfer recipient typed in one case (no checksum) is accepted everywhere.</td></tr>
+    <tr><td>O4</td><td><span class="claim open">open</span></td><td>Whether EVM packs should apply only to deployments a consumer lists (meanwhile the consent text shows the address).</td></tr>
+    <tr><td>O5, O6</td><td>settled</td><td><code>abi</code> beside <code>candid</code> with a top-level <code>chain</code>; an export that refuses what it cannot express.</td></tr>
+    <tr><td>O7</td><td><span class="claim open">open</span></td><td><span class="claim fact">fact</span> (ERC-7730): a wallet that finds no ticker "SHOULD display the raw value instead with an 'Unknown token' warning", where spec §12 rule 10 produces no message. An exported file cannot make a wallet refuse.</td></tr>
+    <tr><td>O8</td><td><span class="claim assumption">assumption</span></td><td>A wallet reads <code>metadata.token</code> as the token at <code>@.to</code>. ERC-7730 calls it the token "exported by this format"; the export writes it only when the caller says the contract is that token.</td></tr>
+    <tr><td>O9</td><td><span class="claim open">open</span></td><td>Permit2 witness messages (<code>PermitWitnessTransferFrom</code> with a protocol's own witness type). Each needs its own profile, which pins the protocol's settlement contract as the spender (<code>fixed</code>, §15.4) when the witness names where the tokens go. x402's <code>exact</code> payment has one (D-058); a request with any other witness matches nothing and gets no text.</td></tr>
+    <tr><td>O10</td><td><span class="claim open">open</span></td><td>Permit2's deployments beyond chains 1, 8453, 42161 and 84532: its address is the same on many chains, and each is added after checking Uniswap's list and the chain itself, never assumed.</td></tr>
+    <tr><td>O11</td><td><span class="claim open">open</span></td><td>Domains with a <code>salt</code>, and contracts whose domain name or version changes after deployment: refused for now.</td></tr>
+    <tr><td>O12</td><td><span class="claim open">open</span></td><td>DAI's <code>allowed</code> bool reads through its template ("to all of it if allowed is true, to none if false"); a case-like reading of <code>true</code> and <code>false</code> would need D-053 for <code>bool</code>.</td></tr>
+    <tr><td>O13</td><td><span class="claim open">open</span></td><td>The signer against an <code>owner</code> or <code>holder</code> member: whether the text should say so, or refuse, when they differ. The consent function does not take the signer yet.</td></tr>
+    <tr><td>O14</td><td><span class="claim open">open</span></td><td>Permits that differ from EIP-2612 by a member match nothing and get no text; a pack per variant is added only when one is seen.</td></tr>
+  </tbody>
+</table></div>
+
+<p>All open questions, the profile spec's and these: <a href="open-questions.html">Open questions</a>.</p>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="chain-icp.html"><span class="dir">Previous</span><span class="label">Internet Computer</span></a><a class="next" href="chain-solana.html"><span class="dir">Next</span><span class="label">Solana</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/chain-evm.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#the-abi-as-an-interface">The ABI as an interface</a></li><li class="toc-h2"><a href="#identity">Identity</a></li><li class="toc-h2"><a href="#values">Values</a></li><li class="toc-h2"><a href="#contract-profiles-and-evm-packs">Contract profiles and EVM packs</a></li><li class="toc-h2"><a href="#tags-on-evm">Tags on EVM</a></li><li class="toc-h2"><a href="#the-resolved-form-chain-evm">The resolved form: chain evm</a></li><li class="toc-h2"><a href="#consent-text-for-a-call">Consent text for a call</a></li><li class="toc-h2"><a href="#erc-7730-files-and-erc-8176-attestations">ERC-7730 files and ERC-8176 attestations</a></li><li class="toc-h2"><a href="#typed-messages-eip-712">Typed messages (EIP-712)</a></li><li class="toc-h3"><a href="#types">Types</a></li><li class="toc-h3"><a href="#messages">Messages</a></li><li class="toc-h2"><a href="#matched-by-type-hash-never-by-name">Matched by type hash, never by name</a></li><li class="toc-h2"><a href="#tags-on-a-message">Tags on a message</a></li><li class="toc-h2"><a href="#an-amount-in-the-token-a-field-names">An amount in the token a field names</a></li><li class="toc-h2"><a href="#consent-text-for-a-signing-request">Consent text for a signing request</a></li><li class="toc-h3"><a href="#what-is-refused-before-anything-is-shown">What is refused before anything is shown</a></li><li class="toc-h3"><a href="#permit2">Permit2</a></li><li class="toc-h3"><a href="#x402-payments">x402 payments</a></li><li class="toc-h2"><a href="#what-a-call-or-signature-grants">What a call or signature grants</a></li><li class="toc-h2"><a href="#erc-7730-files-of-messages">ERC-7730 files of messages</a></li><li class="toc-h2"><a href="#standard-files">Standard files</a></li><li class="toc-h2"><a href="#local-tests">Local tests</a></li><li class="toc-h2"><a href="#open-items">Open items</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

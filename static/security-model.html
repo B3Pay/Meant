@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security model · Meant</title>
+<meta name="description" content="What a profile can and cannot vouch for, and the rules that keep a claim from becoming a loss.">
+<meta property="og:title" content="Security model · Meant">
+<meta property="og:description" content="What a profile can and cannot vouch for, and the rules that keep a claim from becoming a loss.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Security model</h1><p class="page-lead">What a profile can and cannot vouch for, and the rules that keep a claim from becoming a loss.</p><div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Consent · ICRC-21</span><h4 class="consent-title">Claim reward</h4><div class="consent-effects"><span class="effect transfer">transfer</span><span class="effect irreversible">irreversible</span></div></div><dl class="consent-fields"><div><dt>Reward</dt><dd><span class="is-amount">250 TKA</span></dd></div><div><dt>Raw arguments</dt><dd><span>record { to = record { owner = principal &quot;efadq-…-kjy554y&quot;; subaccount = null }; amount = 25_000_000_000 : nat; … }</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">The title is the profile author's words. The raw arguments are the call.</span></div></section></div>
+
+<p>
+  Every word in that preview came from a profile, and a profile can lie. Its author can call a
+  transfer to their own account "Claim reward", and the consent message will say so in the
+  canister's own format. Meant does not try to make a dishonest profile impossible; no
+  description format can. It makes sure a profile cannot turn a lie into a loss quietly: the
+  values a call carries are exact and shown, a profile is bound to one interface, every tag says
+  whose it is, and the calls that move value wait for the person. This page is the spec's list of
+  what a profile cannot vouch for (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">spec §11</a>), and the rule behind each limit.
+</p>
+
+<h2 id="a-profile-is-a-claim-not-a-proof">A profile is a claim, not a proof<a class="heading-anchor" href="#a-profile-is-a-claim-not-a-proof" aria-label="Link to A profile is a claim, not a proof">#</a></h2>
+
+<p>
+  An author profile can describe a drain as "claim reward". Ethereum's clear-signing format,
+  ERC-7730, has the same limit, and adds ERC-8176 attestations, in which a reviewer vouches for a
+  file, to address it. v0 has two mitigations of its own:
+</p>
+
+<ul>
+  <li>
+    <strong>Provenance on every tag.</strong> Each tag in the resolved form carries the
+    <code>origin</code> (<code>author</code>, <code>third_party</code>, <code>pack</code>,
+    <code>inferred</code>) and the name of the profile it came from, and the resolved form lists
+    every applied profile with its <code>profile_id</code>. The consent generator returns the same
+    provenance beside each message, so a signer can warn when a profile, not the canister, wrote
+    the words.
+  </li>
+  <li>
+    <strong>Binding to <code>interface_id</code>.</strong> A canister profile describes one
+    callable interface. When the interface changes and the profile no longer fits, it is
+    <a href="profiles.html">stale</a> and loses every tag that converts a value.
+  </li>
+</ul>
+
+<p>
+  Consumers should show the decoded raw arguments next to the rendered intent for every call
+  whose effect is <code>transfer</code>, <code>approve</code>, <code>admin</code> or
+  <code>destroy</code>, as in the preview above. The signer that displays a consent message is the
+  consumer that should show them; <code>@meantjs/consent</code> includes them on request. A
+  profile's effect is a claim too. The resolver checks what it can: a query cannot be declared
+  anything but a <code>read</code> (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EFFECT_MODE</span></span>), and a <code>read</code> on an
+  update method is warned (<span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_EFFECT_MODE</span></span>). It cannot check that an update changes
+  nothing, so the read-only update form, which gets no warning, rests on the profile's provenance
+  alone.
+</p>
+
+<h2 id="dynamic-values-come-from-one-replica">Dynamic values come from one replica<a class="heading-anchor" href="#dynamic-values-come-from-one-replica" aria-label="Link to Dynamic values come from one replica">#</a></h2>
+
+<p>
+  <span class="claim fact">fact</span> A plain query's reply comes from a single replica and is signed only by that
+  node, while an update's reply comes with a certificate of the subnet's state
+  (<a href="https://docs.internetcomputer.org/references/ic-interface-spec/https-interface/">IC
+  interface specification, HTTPS interface</a>). So a malicious replica can answer
+  <code>icrc1_decimals</code> with a wrong number, and every amount shown for that ledger is then
+  wrong by a power of ten.
+</p>
+
+<p>
+  Consumers should resolve the dynamic values used to render a <code>transfer</code> or
+  <code>approve</code> intent through an update call or another certified path, or cross-check them
+  with <code>icrc1_metadata</code>. A consent message generated <em>inside</em> the canister avoids
+  the problem, because the canister knows its own decimals. <span class="claim open">open</span> Whether the
+  resolved form should carry resolved dynamic values with their provenance, certified or not, is
+  OQ-10.
+</p>
+
+<h2 id="nothing-is-rounded-or-truncated">Nothing is rounded or truncated<a class="heading-anchor" href="#nothing-is-rounded-or-truncated" aria-label="Link to Nothing is rounded or truncated">#</a></h2>
+
+<p>
+  No value conversion anywhere rounds or truncates. Excess precision is refused, out-of-range
+  values are refused rather than wrapped or clamped, and a time that does not fit its unit is
+  refused (<a href="value-tags.html">Values and exact conversion</a>). The same rule holds where a
+  message would be long: a consent message for a call without an intent, one row per argument
+  leaf, is refused above 64 rows rather than cut short, and a formatter that cannot be built (an unresolved dynamic value, a bad tag argument) produces
+  no message at all, so a number is never shown without its decimals.
+</p>
+
+<h2 id="rendered-values-are-escaped">Rendered values are escaped<a class="heading-anchor" href="#rendered-values-are-escaped" aria-label="Link to Rendered values are escaped">#</a></h2>
+
+<p>
+  A template is the author's text; the values in it come from the call. Rendered values are
+  escaped for the target format, so a memo of <code>[Approve now](https://evil.example/drain)</code>
+  is shown as those characters, not as a link
+  (<a href="intent-and-effects.html">Intent, effects and confirmation</a>).
+</p>
+
+<h2 id="icrc-21-field-limits">ICRC-21 field limits<a class="heading-anchor" href="#icrc-21-field-limits" aria-label="Link to ICRC-21 field limits">#</a></h2>
+
+<p>
+  <span class="claim fact">fact</span> ICRC-21's <code>TokenAmount.amount</code> is a <code>nat64</code>, and
+  <code>TimestampSeconds</code> counts seconds (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#14-facts-assumptions-and-open-questions">spec §14</a>, verified 2026-10-08). Two consequences:
+</p>
+
+<ul>
+  <li>
+    A token with 18 decimals does not fit <code>TokenAmount</code> above about 18.4 whole units.
+    Consumers fall back to a <code>Text</code> field, never to a truncated number.
+    <span class="claim open">open</span> Whether to propose a <code>nat</code> variant upstream is OQ-12.
+  </li>
+  <li>
+    ICRC-1 timestamps are in nanoseconds. A consumer converts them with the
+    <code>timestamp</code> tag and never passes the raw value as seconds; a conversion that is
+    not exact becomes a <code>Text</code> field.
+  </li>
+</ul>
+
+<h2 id="work-is-bounded">Work is bounded<a class="heading-anchor" href="#work-is-bounded" aria-label="Link to Work is bounded">#</a></h2>
+
+<p>
+  Profiles and interfaces can come from anyone, so resolving them should run under a budget, as
+  compiling an untrusted <code>.did</code> does (<a href="limits-and-diagnostics.html">Limits,
+  budgets and diagnostics</a>). The reference packages bound their own work: the subtype check
+  behind pack matching stops at depth 256 and 2,000,000 pair evaluations and answers "not a
+  subtype" beyond them, the format library reads at most 1024 characters of input (4 MiB for
+  <code>bytes</code>), and a served profile is at most 1 MiB.
+</p>
+
+<h2 id="names-are-untrusted-display-text">Names are untrusted display text<a class="heading-anchor" href="#names-are-untrusted-display-text" aria-label="Link to Names are untrusted display text">#</a></h2>
+
+<p>
+  Whoever may name an account, or join with a label, chooses the text. It can look like an
+  address, mimic another entry, or press the reader ("approved by the CEO"). The rules of
+  <a href="names.html">Names</a> keep a name from ever replacing a value: a value always wins over
+  a name, an ambiguous name fails rather than picks one, and the value is shown beside the name.
+  Names read through a plain query come from one replica, as dynamic values do.
+</p>
+
+<h2 id="a-served-profile-is-certified-not-vouched-for">A served profile is certified, not vouched for<a class="heading-anchor" href="#a-served-profile-is-certified-not-vouched-for" aria-label="Link to A served profile is certified, not vouched for">#</a></h2>
+
+<p>
+  A canister can serve its own profile in the public custom section
+  <code>icp:public candid:profile</code> (<a href="serve-a-profile.html">Serve a profile from a
+  canister</a>). <span class="claim fact">fact</span> The section's content is in the canister's certified state,
+  and a <code>read_state</code> reply for it is a certificate of the subnet's state, unlike a
+  query's reply (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#81-serving-a-profile-d-048">spec §8.1</a>, from the IC interface specification). The certificate proves that the
+  canister serves these bytes, so no replica or boundary node can change them.
+</p>
+
+<p>
+  It proves nothing about the words. A canister can serve a profile that calls a drain "claim
+  reward", and the controller that installs the module chooses it. A served profile is an
+  <code>author</code> profile, with the trust of one.
+</p>
+
+<h2 id="an-evm-pack-matches-any-contract-with-the-right-functions">An EVM pack matches any contract with the right functions<a class="heading-anchor" href="#an-evm-pack-matches-any-contract-with-the-right-functions" aria-label="Link to An EVM pack matches any contract with the right functions">#</a></h2>
+
+<p>
+  EVM profiles are experimental (<a href="chain-evm.html">EVM contracts</a>). An EVM pack applies
+  to any contract whose functions match it, so a hostile contract can match ERC-20, have its drain
+  described as "Send tokens", and answer "USDT" to <code>symbol()</code>. A consumer must show the
+  contract's address, with its EIP-55 checksum, whenever it asks a person to confirm a call matched
+  by a pack; the consent text <code>@meantjs/consent/evm</code> writes ends with it.
+  <span class="claim fact">fact</span> ERC-7730 names the same risk in its security considerations, as "parameter
+  injection using legitimate, high-profile contract formats"
+  (<a href="https://eips.ethereum.org/EIPS/eip-7730">ERC-7730</a>). A <code>query:</code> value on
+  an EVM contract is an <code>eth_call</code> answered by one RPC node, as one on a canister is
+  answered by one replica. <span class="claim open">open</span> Whether EVM packs should apply only to deployments a
+  consumer lists is item O4 of the EVM binding.
+</p>
+
+<h2 id="confirmed-terms-authorize-in-advance">Confirmed terms authorize in advance<a class="heading-anchor" href="#confirmed-terms-authorize-in-advance" aria-label="Link to Confirmed terms authorize in advance">#</a></h2>
+
+<p>
+  A person can confirm terms for one task, once, and a request whose grant fits them may then be signed
+  or sent without a second confirmation (<a href="confirmed-terms.html">Confirm terms for a task</a>).
+  Whoever confirms terms authorizes every request that fits them, so the confirmation must come from
+  the person, on the wallet's own screen, never through a tool the agent can call. The terms must be
+  shown exactly: the full address, the amount without rounding, and "unlimited" or "never ends"
+  written out when the terms say so. <code>termsText</code> of <code>@meantjs/consent/terms</code>
+  writes them that way:
+</p>
+
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Terms · one task</span><h4 class="consent-title">Confirm terms for this task</h4><div class="consent-effects"></div></div><dl class="consent-fields"><div><dt>Terms</dt><dd><span>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend any amount of TKA (unlimited), and this permission never ends.</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the person confirms, on the wallet's screen. The agent never does.</span></div></section></div>
+
+<p>
+  <span class="claim fact">fact</span> Observed 2026-10-29, in the everyday-wording test of Meant's signing guard
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">spec §11</a>
+  item 10): small models that wrote the terms from a user's everyday words filled a term the user had
+  left out with the loosest value ("unlimited", "never"), and a check against those terms passed
+  requests the user never asked for; the check itself held every time. The terms the agent writes
+  are the weak point, not the comparison, which is why the person confirms their exact text.
+</p>
+
+<p>
+  A grant is the profile's claim, like the intent in the first section, and terms cover what a grant
+  says. A request outside its grant's words, another call or another chain, is checked by the rest
+  of the consumer, as without terms.
+</p>
+
+<h2 id="a-pin-protects-only-the-consumers-that-read-it">A pin protects only the consumers that read it<a class="heading-anchor" href="#a-pin-protects-only-the-consumers-that-read-it" aria-label="Link to A pin protects only the consumers that read it">#</a></h2>
+
+<p>
+  x402's Permit2 payment pays <code>witness.to</code> only when its spender is x402's proxy, so its profile pins the
+  spender (<a href="reference-tags.html#a-pin-fixed"><code>fixed</code></a>), and <code>@meantjs/consent</code> refuses
+  any other spender before it shows a word (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_FIXED</span></span>). A consumer that skips <code>fixed</code> shows the
+  words, and reads the grant, for any spender, and terms for one payee would then pass a payment that another spender
+  can send anywhere. A resolved form that holds a pin must not be given to a consumer that does not read
+  <code>fixed</code>
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">spec §11</a>
+  item 11). The consent package reads it from 0.5.0, and the five packages pin each other exactly; an older consent
+  package skips the tag. <span class="claim open">open</span> OQ-17: the resolved form does not say which tags a consumer must
+  understand, so an older consumer cannot tell that it should refuse.
+</p>
+
+<h2 id="consent-text-makes-no-claims-about-state">Consent text makes no claims about state<a class="heading-anchor" href="#consent-text-makes-no-claims-about-state" aria-label="Link to Consent text makes no claims about state">#</a></h2>
+
+<p>
+  A consent message describes what the call does with its arguments, never what the canister's
+  state will be: no "your balance after this is…". ICRC-21 requires the message to describe every
+  possible outcome, because time passes between fetching the message and submitting the call.
+  Templates are written under that rule, and <code>@meantjs/consent</code> has no network access
+  and states nothing about ledger state (<a href="consent-messages.html">Generate consent
+  messages</a>).
+</p>
+
+<h2 id="what-v0-does-not-do-yet">What v0 does not do yet<a class="heading-anchor" href="#what-v0-does-not-do-yet" aria-label="Link to What v0 does not do yet">#</a></h2>
+
+<p>
+  These are open, and the spec says so. Each is on <a href="open-questions.html">Open
+  questions</a> with its owner.
+</p>
+
+<ul>
+  <li>
+    <span class="claim open">open</span> <strong>Third-party attestations for profiles</strong> (OQ-7), so that
+    trust can rest on more than the author's claim, and where a registry of them lives. Planned for
+    v1. The ERC-7730 export already gives a reviewer the file's ERC-8176 hash and the unsigned
+    attestation to sign; checking attestations is a later phase.
+  </li>
+  <li>
+    <span class="claim open">open</span> <strong>Spending policies and budgets</strong> (OQ-8) that would let an
+    agent commit some calls without a confirmation each time. Until then every
+    <code>transfer</code>, <code>approve</code>, <code>admin</code> and <code>destroy</code> call
+    waits for the person, except the one request of a task whose grant fits terms the person
+    confirmed for it.
+  </li>
+  <li>
+    <span class="claim open">open</span> <strong>Resolved dynamic values with provenance</strong> (OQ-10), so a
+    consumer can tell a certified decimals value from a single replica's.
+  </li>
+</ul>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>Which calls wait for the person, and what the person reads.</p>
+  </a>
+  <a class="card" href="consent-messages.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Generate consent messages</span>
+    <p>ICRC-21 messages with provenance and, on request, the raw arguments.</p>
+  </a>
+  <a class="card" href="guarantees.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">Guarantees and verification</span>
+    <p>What is proven, by which gate, and what is explicitly not claimed.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="names.html"><span class="dir">Previous</span><span class="label">Names</span></a><a class="next" href="contract-graph.html"><span class="dir">Next</span><span class="label">The Contract graph</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/security-model.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#a-profile-is-a-claim-not-a-proof">A profile is a claim, not a proof</a></li><li class="toc-h2"><a href="#dynamic-values-come-from-one-replica">Dynamic values come from one replica</a></li><li class="toc-h2"><a href="#nothing-is-rounded-or-truncated">Nothing is rounded or truncated</a></li><li class="toc-h2"><a href="#rendered-values-are-escaped">Rendered values are escaped</a></li><li class="toc-h2"><a href="#icrc-21-field-limits">ICRC-21 field limits</a></li><li class="toc-h2"><a href="#work-is-bounded">Work is bounded</a></li><li class="toc-h2"><a href="#names-are-untrusted-display-text">Names are untrusted display text</a></li><li class="toc-h2"><a href="#a-served-profile-is-certified-not-vouched-for">A served profile is certified, not vouched for</a></li><li class="toc-h2"><a href="#an-evm-pack-matches-any-contract-with-the-right-functions">An EVM pack matches any contract with the right functions</a></li><li class="toc-h2"><a href="#confirmed-terms-authorize-in-advance">Confirmed terms authorize in advance</a></li><li class="toc-h2"><a href="#a-pin-protects-only-the-consumers-that-read-it">A pin protects only the consumers that read it</a></li><li class="toc-h2"><a href="#consent-text-makes-no-claims-about-state">Consent text makes no claims about state</a></li><li class="toc-h2"><a href="#what-v0-does-not-do-yet">What v0 does not do yet</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

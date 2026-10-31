@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Annotate a .did file · Meant</title>
+<meta name="description" content="Write profile tags as doc comments beside the Candid they describe.">
+<meta property="og:title" content="Annotate a .did file · Meant">
+<meta property="og:description" content="Write profile tags as doc comments beside the Candid they describe.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Annotate a .did file</h1><p class="page-lead">Write profile tags as doc comments beside the Candid they describe.</p><p>
+  This is <code>tokens.did</code> from <a href="write-a-profile.html">Write a profile</a> with that
+  guide's profile written into it as doc comments. The interface itself is unchanged:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">tokens.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-comment">// The tokens example, with its profile written as doc comments.</span>
+
+<span class="tok-keyword">type</span> Tokens <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">/// @amount(decimals = 8, symbol = "TOK")</span>
+  <span class="tok-comment">/// @describe(label = "Amount")</span>
+  <span class="tok-fn">e8s</span> <span class="tok-punct">:</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> SendArgs <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">to</span> <span class="tok-punct">:</span> <span class="tok-keyword">principal</span><span class="tok-punct">;</span>
+  <span class="tok-fn">amount</span> <span class="tok-punct">:</span> Tokens<span class="tok-punct">;</span>
+  <span class="tok-comment">/// @bytes(encoding = "utf8")</span>
+  <span class="tok-comment">/// @default(value = "null", mode = suggest)</span>
+  <span class="tok-fn">memo</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/// @timestamp(unit = ns, epoch = unix)</span>
+  <span class="tok-fn">created_at</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> SendError <span class="tok-punct">=</span> <span class="tok-keyword">variant</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">Insufficient</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">balance</span> <span class="tok-punct">:</span> Tokens <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">Duplicate</span> <span class="tok-punct">:</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">block</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-fn">Other</span> <span class="tok-punct">:</span> <span class="tok-type">text</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">/// @describe(at = "-&gt;(0).e8s", label = "Balance")</span>
+  <span class="tok-fn">balance</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-keyword">principal</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span>Tokens<span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/// Send tokens to another principal.</span>
+  <span class="tok-comment">/// @intent(title = "Send TOK", template = "Send {amount.e8s} to {to}[ with memo {memo}]")</span>
+  <span class="tok-comment">/// @effect(kind = "transfer", irreversible = true)</span>
+  <span class="tok-comment">/// @idempotency(mode = replay_same_payload, stamp = "created_at")</span>
+  <span class="tok-comment">/// @outcome(classes = { Ok = success, "Err.Duplicate" = already_done, "Err.Insufficient" = fail, "Err.Other" = fail })</span>
+  <span class="tok-fn">send</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>SendArgs<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-keyword">variant</span> <span class="tok-punct">{</span> <span class="tok-fn">Ok</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">Err</span> <span class="tok-punct">:</span> SendError <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<h2 id="read-the-comments-into-a-profile">Read the comments into a profile<a class="heading-anchor" href="#read-the-comments-into-a-profile" aria-label="Link to Read the comments into a profile">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npm</span> install<span class="tok-attr"> --save-exact</span> @meantjs/profile@0.5.0 @candid-core/cli@0.4.0</code></pre></div>
+
+<p>Save this as <code>from-docs.mjs</code> beside <code>tokens.did</code>:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> didToDocAttributes <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/cli"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> createSchemaValidator<span class="tok-punct">,</span> profileFromDocAttributes<span class="tok-punct">,</span> resolveService <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> did <span class="tok-punct">=</span> <span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"tokens.did"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> ok<span class="tok-punct">,</span> doc<span class="tok-punct">,</span> diagnostics <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-fn">profileFromDocAttributes</span><span class="tok-punct">(</span><span class="tok-keyword">await</span> <span class="tok-fn">didToDocAttributes</span><span class="tok-punct">(</span>did<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"tokens-docs"</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> d <span class="tok-keyword">of</span> diagnostics<span class="tok-punct">)</span> console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>d<span class="tok-punct">.</span>severity<span class="tok-punct">,</span> d<span class="tok-punct">.</span>code<span class="tok-punct">,</span> d<span class="tok-punct">.</span>at<span class="tok-punct">,</span> d<span class="tok-punct">.</span>message<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-punct">!</span>ok <span class="tok-punct">|</span><span class="tok-punct">|</span> doc <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> process<span class="tok-punct">.</span><span class="tok-fn">exit</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> a <span class="tok-keyword">of</span> doc<span class="tok-punct">.</span>annotations<span class="tok-punct">)</span> console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>a<span class="tok-punct">.</span>at<span class="tok-punct">.</span><span class="tok-fn">padEnd</span><span class="tok-punct">(</span><span class="tok-number">25</span><span class="tok-punct">)</span><span class="tok-punct">,</span> a<span class="tok-punct">.</span>tag<span class="tok-punct">.</span><span class="tok-fn">padEnd</span><span class="tok-punct">(</span><span class="tok-number">12</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">stringify</span><span class="tok-punct">(</span>a<span class="tok-punct">.</span>args<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> validateSchema <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">createSchemaValidator</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> r <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">resolveService</span><span class="tok-punct">(</span><span class="tok-punct">{</span> did<span class="tok-punct">,</span> validateSchema<span class="tok-punct">,</span> profiles<span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> doc <span class="tok-punct">}</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>r<span class="tok-punct">.</span>ok<span class="tok-punct">,</span> r<span class="tok-punct">.</span>profiles<span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">(</span>p<span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-string">`${p.name} ${p.status}`</span><span class="tok-punct">)</span><span class="tok-punct">,</span> r<span class="tok-punct">.</span>diagnostics<span class="tok-punct">.</span>length<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">node</span> from-docs.mjs</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">balance-&gt;(0).e8s          describe     {"label":"Balance"}
+send                      intent       {"title":"Send TOK","template":"Send {amount.e8s} to {to}[ with memo {memo}]"}
+send                      effect       {"kind":"transfer","irreversible":true}
+send                      idempotency  {"mode":"replay_same_payload","stamp":"created_at"}
+send                      outcome      {"classes":{"Ok":"success","Err.Duplicate":"already_done","Err.Insufficient":"fail","Err.Other":"fail"}}
+send                      describe     {"help":"Send tokens to another principal."}
+type:SendArgs.memo        bytes        {"encoding":"utf8"}
+type:SendArgs.memo        default      {"value":"null","mode":"suggest"}
+type:SendArgs.created_at  timestamp    {"unit":"ns","epoch":"unix"}
+type:Tokens.e8s           amount       {"decimals":8,"symbol":"TOK"}
+type:Tokens.e8s           describe     {"label":"Amount"}
+true [ 'tokens-docs applied' ] 0</code></pre></div>
+
+<p>
+  Two calls do the work. <code>didToDocAttributes</code> from <code>@candid-core/cli</code> compiles
+  the <code>.did</code> and parses every <code>@name(…)</code> doc line, failing on a malformed one;
+  it gives no name a meaning. <code>profileFromDocAttributes</code> from
+  <code>@meantjs/profile</code> keeps the names that are profile tags, works out the address each one
+  lands on, and returns an <code>author</code> canister profile bound to the interface's
+  <code>interface_id</code>. That profile then goes through <code>resolveService</code> like any
+  other, which is where its tags are checked. The result is the profile of
+  <a href="write-a-profile.html">Write a profile</a>, with one more annotation: the prose line on
+  <code>send</code>, as <code>describe.help</code>.
+</p>
+
+<p>
+  The <code>candid-profile</code> command has no option that reads doc comments; this is a library
+  call. <code>profileFromDocAttributes(response, opts)</code> takes the profile's
+  <code>name</code> (default <code>"doc-annotations"</code>), <code>origin</code>
+  (<code>"author"</code>, the default, or <code>"third_party"</code>), <code>language</code> (default
+  <code>"en"</code>) and a <code>canisterId</code> to bind to as well. <code>doc</code> is
+  <code>null</code> when the comments hold no tag, and <code>ok</code> is false when a diagnostic is an
+  error; with errors, <code>doc</code> still holds every tag that could be placed.
+</p>
+
+<h2 id="the-syntax">The syntax<a class="heading-anchor" href="#the-syntax" aria-label="Link to The syntax">#</a></h2>
+
+<p>
+  A doc line that starts with <code>@</code>, a lowercase name and <code>(</code> with no space before
+  it is an attribute: <code>@&lt;tag&gt;(key = value, …)</code>, where the tag is one of the 18 profile
+  tags and the keys are its arguments. The values:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Write</th><th>The profile gets</th></tr></thead>
+  <tbody>
+    <tr><td><code>"TOK"</code>, <code>"Err.Duplicate"</code></td><td>A string. Escapes <code>\"</code>, <code>\\</code>, <code>\n</code>, <code>\r</code>, <code>\t</code> and <code>\u{…}</code>.</td></tr>
+    <tr><td><code>ns</code>, <code>suggest</code>, <code>success</code></td><td>An identifier, read as the same string.</td></tr>
+    <tr><td><code>8</code>, <code>-1</code></td><td>A whole number, kept exact: past 2<sup>53</sup>, and for <code>range</code> bounds, a decimal string. A fraction is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_VALUE</span></span>.</td></tr>
+    <tr><td><code>true</code>, <code>false</code></td><td>A boolean.</td></tr>
+    <tr><td><code>query(decimals)</code>, <code>now()</code>, <code>caller()</code></td><td>A dynamic value: <code>{ "from": "query:decimals" }</code>, <code>{ "from": "now" }</code>, <code>{ "from": "caller" }</code>. Any other call is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_VALUE</span></span>.</td></tr>
+    <tr><td><code>[a, b]</code>, <code>{ Ok = success }</code></td><td>A list, or an object. A key that is not an identifier, such as a path, is written as a string.</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  An attribute whose brackets are still open at the end of a line continues on the next doc line, so
+  a long <code>@outcome</code> can span lines; a string cannot. An attribute line that does not parse
+  to its end, or a key repeated in one argument list, makes <code>didToDocAttributes</code> fail, and
+  the reader reports each as <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_SYNTAX</span></span> with no profile. A line where the name is followed by a space or by text
+  (<code>@amount (decimals = 8)</code>, <code>@param amount the value</code>) is prose, not an
+  attribute. The full grammar is candid-core's
+  <a href="https://github.com/B3Pay/Meant/blob/main/docs/doc-attributes.md">doc attributes v1</a>.
+</p>
+
+<p>
+  Only bare names that are profile tags are read. A dotted name such as <code>@ui.hidden</code>
+  belongs to another tool and is left alone (<span class="diag info" title="info"><span class="sev">I</span><span class="code">I_DOC_IGNORED</span></span>), and so is any other bare
+  name, with <span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_DOC_UNKNOWN_TAG</span></span> when it is one or two letters from a tag
+  (<code>@amout</code>). <span class="claim open">open</span> Whether the tags stay bare (<code>@amount</code>) or take
+  a prefix that cannot collide with other conventions is open question OQ-5, owned by W0, in
+  <a href="open-questions.html">Open questions</a>.
+</p>
+
+<h2 id="which-comments-count">Which comments count<a class="heading-anchor" href="#which-comments-count" aria-label="Link to Which comments count">#</a></h2>
+
+<p>
+  Doc lines are the <code>//</code> and <code>///</code> line comments on their own lines directly
+  above an item, with no blank line between them and the item. A comment after code on the same
+  line, a block comment, and a comment separated from the item by a blank line are not doc lines.
+  Neither is a comment above a quoted method name (<code>"foo-bar" : …</code>).
+</p>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">A header comment documents the first item</span>
+  <p>
+    A file's opening comment with no blank line after it documents the first item below it. With
+    the example's original first line, <code>// Example canister interface …</code>, directly above
+    <code>type Tokens</code>, the run above also produced a <code>describe.help</code> on
+    <code>type:Tokens</code> holding that sentence (observed with <code>@candid-core/cli</code>
+    0.4.0). The blank line after the header in the file above is there to stop that.
+  </p>
+</div></div>
+
+<h2 id="reaching-arguments-and-results-with-at">Reaching arguments and results with at<a class="heading-anchor" href="#reaching-arguments-and-results-with-at" aria-label="Link to Reaching arguments and results with at">#</a></h2>
+
+<p>
+  Candid has no doc comments on function parameters, so a method's comment reaches its argument and
+  result positions with <code>at</code>, a path relative to the method. This is the example of spec
+  §9:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">profile/packages/resolver/test/fixtures/doc-attributes/spec-9.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> SendArgs <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">to</span> <span class="tok-punct">:</span> <span class="tok-keyword">principal</span><span class="tok-punct">;</span> <span class="tok-fn">amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">memo</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">decimals</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat8</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/// Send tokens to another principal.</span>
+  <span class="tok-comment">/// @intent(title = "Send", template = "Send {amount} to {to}[ with memo {memo}]")</span>
+  <span class="tok-comment">/// @effect(kind = "transfer", irreversible = true)</span>
+  <span class="tok-comment">/// @amount(at = "amount", decimals = query(decimals), symbol = "TOK")</span>
+  <span class="tok-comment">/// @bytes(at = "memo", encoding = "utf8")</span>
+  <span class="tok-comment">/// @amount(at = "-&gt;(0).Ok", decimals = query(decimals), symbol = "TOK")</span>
+  <span class="tok-fn">send</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>SendArgs<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-keyword">variant</span> <span class="tok-punct">{</span> <span class="tok-fn">Ok</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">Err</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<ul>
+  <li><code>at = "amount"</code> targets the arguments: <code>send(0).amount</code>.</li>
+  <li><code>at = "-&gt;(0).Ok"</code> targets the results: <code>send-&gt;(0).Ok</code>.</li>
+  <li>When the method takes more than one argument (or returns more than one result), the path
+    starts with <code>(i)</code>: <code>at = "(1)"</code> is the second argument.</li>
+  <li>Method tags (<code>intent</code>, <code>effect</code>, <code>idempotency</code>,
+    <code>outcome</code>, <code>list</code>, <code>names</code>) apply to the method and take no
+    <code>at</code>. A value tag on a method needs one. <code>@describe</code> without <code>at</code>
+    describes the method.</li>
+</ul>
+
+<p>Where the comment sits decides the address the tag gets:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>A comment on</th><th>Becomes</th></tr></thead>
+  <tbody>
+    <tr><td>A declaration, <code>type Payment = …</code></td><td><code>type:Payment</code>; with <code>at</code>, a path inside it. A pathless <code>type:</code> address is allowed only on a record or a variant (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TYPE_NODE</span></span>).</td></tr>
+    <tr><td>A field of a named type</td><td><code>type:SendArgs.memo</code>, a <code>type:</code> address that reaches every position of that edge.</td></tr>
+    <tr><td>A field of an inline record in a method's signature</td><td>A method address, such as <code>inline(0).items[].price</code>: an <code>opt</code> adds nothing to the path and a <code>vec</code> adds <code>[]</code>. Spec §9 left this mapping to confirm against real SourceInfo output (OQ-4); it is now answered, and the resolver implements it.</td></tr>
+    <tr><td>A method</td><td>The method, for method tags; the method's positions through <code>at</code>.</td></tr>
+    <tr><td>The service as a whole</td><td>Nothing: no tag applies there (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_TARGET</span></span>).</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  Because field comments become <code>type:</code> addresses, they behave as in a profile file:
+  one comment on <code>Tokens.e8s</code> reaches every <code>Tokens</code> in the interface, and a
+  method address beats it at the same position. That is why the <code>Balance</code> label above
+  sits on the <code>balance</code> method, with <code>at</code>. <a href="addresses.html">Addresses</a>
+  explains both kinds.
+</p>
+
+<h2 id="what-has-no-doc-form">What has no doc form<a class="heading-anchor" href="#what-has-no-doc-form" aria-label="Link to What has no doc form">#</a></h2>
+
+<ul>
+  <li>
+    <strong>Case tags.</strong> An <code>intent</code> or <code>effect</code> at a variant case
+    (<code>propose(0).Transfer</code>, spec §5.2, D-053) cannot be written as a comment in v0.
+    <code>@intent</code> and <code>@effect</code> on a method take no <code>at</code>, and on a field
+    or a declaration they are not allowed (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_TARGET</span></span>). Write case tags in a profile
+    file, and give both to the resolver: they merge in the same <code>author</code> layer.
+  </li>
+  <li>
+    <strong>Positions inside a <code>func</code> or <code>service</code> value</strong>, such as a
+    callback's arguments: no v0 address reaches them (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_TARGET</span></span>).
+  </li>
+  <li>
+    <strong>Methods with quoted names</strong> (<code>"foo-bar"</code>): v0 addresses cannot name them
+    (open question OQ-3), and the compiler does not attach comments to them.
+  </li>
+</ul>
+
+<h2 id="prose-becomes-describe-help">Prose becomes describe.help<a class="heading-anchor" href="#prose-becomes-describe-help" aria-label="Link to Prose becomes describe.help">#</a></h2>
+
+<p>
+  Doc lines that are not attributes are prose. The lines of a paragraph are joined with spaces,
+  paragraphs are kept, and the text becomes the item's <code>describe.help</code>: the line
+  <code>/// Send tokens to another principal.</code> above is
+  <code>{ "at": "send", "tag": "describe", "args": { "help": "Send tokens to another principal." } }</code>.
+  When the same comment has a <code>@describe</code> without <code>at</code>, the prose fills its
+  <code>help</code>; when that <code>@describe</code> already gives <code>help</code>, the prose is
+  left out.
+</p>
+
+<p>
+  Prose is not attached, and is reported with <span class="diag info" title="info"><span class="sev">I</span><span class="code">I_DOC_PROSE</span></span>, in two places. On an integer
+  position whose comment gives it no value tag that reads it (<code>amount</code>,
+  <code>timestamp</code>, <code>duration</code> or <code>named</code>): a described integer is an agent
+  input of plain digits (D-044), so a comment such as "the amount in e8s" would turn a bare number
+  into an input without a unit. Add the value tag, or an explicit <code>@describe</code> if plain
+  digits are right. And on a declaration that is not a record or a variant, such as
+  <code>type Tokens = nat</code>, which a whole-declaration tag cannot describe.
+</p>
+
+<h2 id="diagnostics">Diagnostics<a class="heading-anchor" href="#diagnostics" aria-label="Link to Diagnostics">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">broken.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">decimals</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat8</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/// @amount(decimals = query(decimals))</span>
+  <span class="tok-comment">/// @amout(at = "(0)", decimals = 8)</span>
+  <span class="tok-fn">send</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">error    E_DOC_TARGET       send   doc line 1: @amount: a value tag on a method needs `at`: at = "&lt;path&gt;" for an argument, at = "-&gt;&lt;path&gt;" for a result
+warning  W_DOC_UNKNOWN_TAG  send   doc line 2: @amout: not a profile tag; did you mean @amount?</code></pre></div>
+
+<p>
+  Each diagnostic names the address of the item (or its SourceInfo occurrence path, such as
+  <code>actor.methods[0]</code>, when it has no address) and the doc line, counted from 1. It also
+  carries <code>path</code> and <code>source</code>, the item's SourceInfo path and the file it is in.
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Code</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_TARGET</span></span></td><td>A tag no v0 address reaches (inside a <code>func</code> or <code>service</code> value), or one in the wrong place: a value tag on a method without <code>at</code>, a method tag on a field, an <code>at</code> that is not a relative path, a missing <code>(i)</code>.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_VALUE</span></span></td><td>A value the profile cannot hold: a fraction, an unknown call, <code>query</code> with more than one name.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_SYNTAX</span></span></td><td>candid-core refused the comment: an attribute line that does not parse, or a repeated key.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_INPUT</span></span></td><td>What was passed in is not a doc attributes v1 response.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CANDID</span></span></td><td>The <code>.did</code> itself does not compile.</td></tr>
+    <tr><td><span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_DOC_UNKNOWN_TAG</span></span></td><td>A bare name one or two letters from a tag.</td></tr>
+    <tr><td><span class="diag info" title="info"><span class="sev">I</span><span class="code">I_DOC_IGNORED</span></span></td><td>A name that is not a profile tag, or comments that hold no tag at all.</td></tr>
+    <tr><td><span class="diag info" title="info"><span class="sev">I</span><span class="code">I_DOC_PROSE</span></span></td><td>Prose that is not attached, and why.</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  These are the codes of the comment reader. The tags it placed are then checked by
+  <code>resolveService</code> like those of any profile, with the codes on
+  <a href="reference-profile-diagnostics.html">Profile diagnostics</a>.
+</p>
+
+<h2 id="identity">Identity<a class="heading-anchor" href="#identity" aria-label="Link to Identity">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> didToDocAttributes <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/cli"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> file <span class="tok-keyword">of</span> <span class="tok-punct">[</span><span class="tok-string">"tokens.plain.did"</span><span class="tok-punct">,</span> <span class="tok-string">"tokens.did"</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> r <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">didToDocAttributes</span><span class="tok-punct">(</span><span class="tok-fn">readFileSync</span><span class="tok-punct">(</span>file<span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-punct">!</span>r<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">`${file} does not compile`</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> contract <span class="tok-punct">=</span> <span class="tok-comment">/** @type {{ identities: { contract: string, interface: string } }} */</span> <span class="tok-punct">(</span>r<span class="tok-punct">.</span>contract<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> info <span class="tok-punct">=</span> <span class="tok-comment">/** @type {{ source_bundle_id: string }} */</span> <span class="tok-punct">(</span>r<span class="tok-punct">.</span>source_info<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>file<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span><span class="tok-string">"  interface_id    "</span><span class="tok-punct">,</span> contract<span class="tok-punct">.</span>identities<span class="tok-punct">.</span><span class="tok-keyword">interface</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span><span class="tok-string">"  contract_id     "</span><span class="tok-punct">,</span> contract<span class="tok-punct">.</span>identities<span class="tok-punct">.</span>contract<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span><span class="tok-string">"  source_bundle_id"</span><span class="tok-punct">,</span> info<span class="tok-punct">.</span>source_bundle_id<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">tokens.plain.did
+  interface_id     candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
+  contract_id      candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
+  source_bundle_id candid-core:source-bundle:v1:sha256:85aaf4e378bdcd6e77113b703c60ff7863b0601a2b46aaf6d518db0e34f38cc2
+tokens.did
+  interface_id     candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
+  contract_id      candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
+  source_bundle_id candid-core:source-bundle:v1:sha256:fbba36e930d16c43c0482841e3ea296579d7d19b126973d678f3a86ac3ffba65</code></pre></div>
+
+<p>
+  <code>tokens.plain.did</code> is a copy of <code>profile/examples/tokens.did</code>, which carries no
+  tags.
+  Both files have the same <code>interface_id</code> and <code>contract_id</code>: comments live in the
+  SourceInfo sidecar, outside the Contract, so annotating an interface never changes the identity a
+  profile binds to. Only <code>source_bundle_id</code> moves, because it hashes the source text.
+  <a href="identities.html">Content-addressed identities</a> explains the three.
+</p>
+
+<h2 id="comments-and-a-profile-file-together">Comments and a profile file together<a class="heading-anchor" href="#comments-and-a-profile-file-together" aria-label="Link to Comments and a profile file together">#</a></h2>
+
+<p>
+  A profile read from comments is an <code>author</code> profile, and so is a profile file the author
+  ships. Give both to <code>resolveService</code> and they merge in the <code>author</code> layer:
+  different tags combine, and two different values for one tag at one position are
+  <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CONFLICT</span></span>. A canister that serves a tagged <code>.did</code> as its
+  <code>candid:service</code> serves an author profile this way too;
+  <a href="serve-a-profile.html">Serve a profile from a canister</a> covers it, and
+  <a href="resolve-profiles.html">Validate and resolve profiles</a> covers the merge.
+</p>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="write-a-profile.html"><span class="dir">Previous</span><span class="label">Write a profile</span></a><a class="next" href="resolve-profiles.html"><span class="dir">Next</span><span class="label">Validate and resolve profiles</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/annotate-a-did.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#read-the-comments-into-a-profile">Read the comments into a profile</a></li><li class="toc-h2"><a href="#the-syntax">The syntax</a></li><li class="toc-h2"><a href="#which-comments-count">Which comments count</a></li><li class="toc-h2"><a href="#reaching-arguments-and-results-with-at">Reaching arguments and results with at</a></li><li class="toc-h2"><a href="#what-has-no-doc-form">What has no doc form</a></li><li class="toc-h2"><a href="#prose-becomes-describe-help">Prose becomes describe.help</a></li><li class="toc-h2"><a href="#diagnostics">Diagnostics</a></li><li class="toc-h2"><a href="#identity">Identity</a></li><li class="toc-h2"><a href="#comments-and-a-profile-file-together">Comments and a profile file together</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

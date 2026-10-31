@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parse and display values · Meant</title>
+<meta name="description" content="Turn what a person types into the exact value a call carries, and back, without rounding.">
+<meta property="og:title" content="Parse and display values · Meant">
+<meta property="og:description" content="Turn what a person types into the exact value a call carries, and back, without rounding.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Parse and display values</h1><p class="page-lead">Turn what a person types into the exact value a call carries, and back, without rounding.</p><p>
+  <code>@meantjs/format</code> reads the six value tags of a profile: <code>amount</code>,
+  <code>timestamp</code>, <code>duration</code>, <code>account</code>, <code>subaccount</code> and
+  <code>bytes</code>. Give it one position of a resolved form and it returns a formatter for that
+  position, with the tag's arguments filled in. The agent tools and the consent generator use the
+  same formatters, so a tool input and a consent message cannot disagree about what a value means.
+</p>
+
+<h2 id="build-a-formatter-for-a-position">Build a formatter for a position<a class="heading-anchor" href="#build-a-formatter-for-a-position" aria-label="Link to Build a formatter for a position">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npm</span> install<span class="tok-attr"> --save-exact</span> @meantjs/format@0.5.0 @meantjs/profile@0.5.0<span class="tok-keyword">
+npx</span> candid-profile resolve ledger.did<span class="tok-attr"> --packs</span> <span class="tok-punct">&gt;</span> ledger.resolved.json</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> convertUnit<span class="tok-punct">,</span> formatterFor <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/format"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> resolved <span class="tok-punct">=</span> <span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"ledger.resolved.json"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> fields <span class="tok-punct">=</span> resolved<span class="tok-punct">.</span>methods<span class="tok-punct">.</span>icrc1_transfer<span class="tok-punct">.</span>args<span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">.</span>fields<span class="tok-punct">;</span>
+
+<span class="tok-comment">// The ledger's own answers to icrc1_decimals and icrc1_symbol, read once per ledger.</span>
+<span class="tok-keyword">const</span> refs <span class="tok-punct">=</span> <span class="tok-punct">{</span> <span class="tok-string">"query:icrc1_decimals"</span><span class="tok-punct">:</span> <span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-string">"query:icrc1_symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> amount <span class="tok-punct">=</span> <span class="tok-fn">formatterFor</span><span class="tok-punct">(</span>fields<span class="tok-punct">.</span>amount<span class="tok-punct">,</span> <span class="tok-punct">{</span> refs <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>amount <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"this position has no value tag"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+amount<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"1.5 TKA"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "150000000"</span>
+amount<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"1.5"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "150000000"</span>
+amount<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"150000000"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "1.5 TKA"</span></code></pre></div>
+
+<div class="tool-view"><div class="tool-side sees"><span class="tool-label">The model sees</span><span class="tool-value">1.5 TKA</span><pre>amount.parse(&quot;1.5 TKA&quot;)</pre></div><div class="tool-bridge" aria-hidden="true">exact, no rounding</div><div class="tool-side sends"><span class="tool-label">The call sends</span><span class="tool-value">150000000</span><pre>&quot;150000000&quot;   // base units, a decimal string</pre></div></div>
+
+<p>
+  The position <code>icrc1_transfer(0).amount</code> carries this tag from the ICRC-1 pack. Its
+  arguments are not numbers in the profile: they name a query the ledger answers.
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">icrc1_transfer(0).amount</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">amount</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">decimals</span>: <span class="v">query:icrc1_decimals</span></li><li><span class="k">symbol</span>: <span class="v">query:icrc1_symbol</span></li></ul></dd></dl></figure>
+
+<p>
+  The library does no I/O. You call <code>icrc1_decimals</code> and <code>icrc1_symbol</code> once per
+  ledger and pass the answers in <code>refs</code>, keyed by the <code>from</code> string. A plain query
+  is answered by one replica, so for a <span class="effect transfer">transfer</span> or an <span class="effect approve">approve</span> read
+  them through an update call or a certified path (<a href="security-model.html">security model</a>).
+</p>
+
+<p>
+  <code>formatterFor(node, { refs, now, token })</code> takes the position's node, the resolved refs, a default clock
+  for relative times (nanoseconds since the Unix epoch), and, for an EVM <code>amount</code> whose
+  <code>token</code> names its token by a field, that token's <code>{ decimals, symbol }</code>
+  (<a href="#accounts-addresses-and-integer-types">below</a>). It returns:
+</p>
+<ul>
+  <li><code>null</code> when the position has no value tag. Show it as Candid text.</li>
+  <li>
+    A formatter with <code>tag</code>, <code>candid</code> (the position's type), <code>args</code> (the
+    arguments with refs resolved, here <code>{ decimals: 8, symbol: "TKA" }</code>), and the methods
+    <code>parse</code>, <code>display</code>, <code>safeParse</code>, <code>safeDisplay</code> and
+    <code>describe</code>.
+  </li>
+  <li>
+    Or it throws a <code>FormatError</code>, and never returns a formatter that half works:
+    <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span> when a ref is missing, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ARG</span></span> for an invalid tag argument,
+    <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TYPE</span></span> when the tag does not fit the Candid type, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_CONFLICT</span></span> when the
+    position carries two value tags.
+  </li>
+</ul>
+
+<p>
+  An <code>opt</code> position is a node with <code>optional: true</code>. The formatter reads the inner
+  value: handle absence before you call it. What each tag means is on
+  <a href="value-tags.html">Values and exact conversion</a>; every export and its signature is on the
+  <a href="reference-profile-api.html">JavaScript API</a> reference.
+</p>
+
+<h2 id="read-input-and-show-results">Read input and show results<a class="heading-anchor" href="#read-input-and-show-results" aria-label="Link to Read input and show results">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">const</span> typed <span class="tok-punct">=</span> amount<span class="tok-punct">.</span><span class="tok-fn">safeParse</span><span class="tok-punct">(</span><span class="tok-string">"0.123456789"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-punct">!</span>typed<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  typed<span class="tok-punct">.</span>error<span class="tok-punct">.</span>code<span class="tok-punct">;</span> <span class="tok-comment">// "E_EXCESS_PRECISION"</span>
+  typed<span class="tok-punct">.</span>error<span class="tok-punct">.</span>message<span class="tok-punct">;</span> <span class="tok-comment">// "\"0.123456789\" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8"</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">const</span> hint <span class="tok-punct">=</span> amount<span class="tok-punct">.</span><span class="tok-fn">describe</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the words for a form field or a tool input</span></code></pre></div>
+
+<p>
+  <code>parse</code> and <code>display</code> throw a <code>FormatError</code>;
+  <code>safeParse</code> and <code>safeDisplay</code> return <code>{ ok: true, value }</code> or
+  <code>{ ok: false, error: { code, message } }</code>. The message says how to fix the input, for a
+  person or a model; switch on the code, which is stable. <code>describe()</code> returns the grammar
+  in words, from the parser itself, with the position's own decimals and symbol:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"summary"</span><span class="tok-punct">:</span> <span class="tok-string">"Amount in TKA: a decimal number with at most 8 digits after the point, optionally followed by the symbol TKA. Digits on both sides of a point, no thousands separators or exponents. Never rounded: more digits after the point is an error, even zeros. For example \"1\", \"1.25\", \"1.25 TKA\"."</span><span class="tok-punct">,</span>
+  <span class="tok-type">"examples"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-string">"1"</span><span class="tok-punct">,</span> <span class="tok-string">"1.25"</span><span class="tok-punct">,</span> <span class="tok-string">"1.25 TKA"</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-type">"pattern"</span><span class="tok-punct">:</span> <span class="tok-string">"^\\s*[0-9]+(?:\\.[0-9]{1,8})?(?:\\s+[Tt][Kk][Aa])?\\s*$"</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Every example it keeps parses at this position. <code>pattern</code> is given for
+  <code>amount</code> and <code>subaccount</code> only, whose grammar is regular. It is valid under
+  the <code>u</code> flag, for a JSON Schema <code>pattern</code>, and it is a necessary condition only:
+  everything <code>parse</code> accepts matches it, and a match can still be refused for its range.
+  <code>describeInput(tag, args, candid)</code> gives the same words without a formatter.
+</p>
+
+<h2 id="the-six-value-tags">The six value tags<a class="heading-anchor" href="#the-six-value-tags" aria-label="Link to The six value tags">#</a></h2>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Tag</th><th>A person writes</th><th><code>parse</code> returns</th><th><code>display</code> shows</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>amount</code></td><td><code>1.5 TKA</code></td><td><code>"150000000"</code>, base units as a decimal string</td><td><code>1.5 TKA</code></td></tr>
+    <tr><td><code>timestamp</code></td><td><code>2026-10-10T14:00:00+02:00</code>, or <code>+PT24H</code> from now</td><td><code>"1791633600000000000"</code>, a count of <code>unit</code> since the Unix epoch</td><td><code>2026-10-10T12:00:00Z</code></td></tr>
+    <tr><td><code>duration</code></td><td><code>PT1H30M</code></td><td><code>"5400"</code> with <code>unit: s</code></td><td><code>PT1H30M</code></td></tr>
+    <tr><td><code>account</code></td><td><code>k2t6j-…-teztq-6ae-6cc627i.1</code></td><td><code>{ owner, subaccount }</code>, <code>subaccount</code> a <code>Uint8Array(32)</code> or <code>null</code> for the default</td><td>the ICRC-1 textual encoding</td></tr>
+    <tr><td><code>subaccount</code></td><td><code>#7</code></td><td><code>Uint8Array(32)</code></td><td><code>#7</code></td></tr>
+    <tr><td><code>bytes</code></td><td><code>lunch</code> (<code>encoding: utf8</code>)</td><td><code>Uint8Array</code></td><td><code>lunch</code>; <code>0xfffe0001</code> for bytes that are not printable UTF-8</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  Integers are decimal strings, or <code>bigint</code> where <code>display</code> takes them. A
+  JavaScript number is refused on input and on display (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TYPE</span></span>): nanosecond timestamps
+  and 18-decimal amounts pass 2<sup>53</sup>. Text is bounded at 1024 characters, and
+  <code>bytes</code> input at 4 MiB.
+</p>
+
+<h3 id="times-and-durations">Times and durations<a class="heading-anchor" href="#times-and-durations" aria-label="Link to Times and durations">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">const</span> approve <span class="tok-punct">=</span> resolved<span class="tok-punct">.</span>methods<span class="tok-punct">.</span>icrc2_approve<span class="tok-punct">.</span>args<span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">.</span>fields<span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> expires <span class="tok-punct">=</span> <span class="tok-fn">formatterFor</span><span class="tok-punct">(</span>approve<span class="tok-punct">.</span>expires_at<span class="tok-punct">,</span> <span class="tok-punct">{</span> refs<span class="tok-punct">,</span> now<span class="tok-punct">:</span> <span class="tok-number">1_791_547_200_000_000_000n</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the ledger's clock, ns</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>expires <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"no value tag"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+expires<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"+PT24H"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "1791633600000000000"</span>
+expires<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"1791633600000000000"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "2026-10-10T12:00:00Z"</span>
+expires<span class="tok-punct">.</span><span class="tok-fn">safeParse</span><span class="tok-punct">(</span><span class="tok-string">"+P1M"</span><span class="tok-punct">)</span><span class="tok-punct">.</span>ok<span class="tok-punct">;</span> <span class="tok-comment">// false: E_CALENDAR_UNIT, a month has no fixed length</span>
+
+<span class="tok-fn">convertUnit</span><span class="tok-punct">(</span><span class="tok-string">"1791633600000000000"</span><span class="tok-punct">,</span> <span class="tok-string">"ns"</span><span class="tok-punct">,</span> <span class="tok-string">"s"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "1791633600"</span></code></pre></div>
+
+<p>
+  A relative time is <code>+</code> and an ISO 8601 duration, resolved against <code>now</code> floored
+  to the tag's unit; without a <code>now</code> it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NEEDS_NOW</span></span>. Pass the canister's
+  clock, not the machine's. Durations take <code>W</code>, <code>D</code>, <code>H</code>,
+  <code>M</code> and <code>S</code> only: <code>P1D</code> is exactly 86,400 s. A conversion that would
+  lose precision is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_INEXACT</span></span>, never rounded: <code>convertUnit</code> refuses
+  <code>1791547200500000000</code> ns as seconds. Display is canonical RFC 3339 in UTC; localizing is
+  the renderer's job. Calendar arithmetic is in <code>bigint</code> nanoseconds with the proleptic
+  Gregorian calendar, not <code>Date</code>, which has millisecond precision.
+</p>
+
+<h3 id="words-for-times">Words for times<a class="heading-anchor" href="#words-for-times" aria-label="Link to Words for times">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> displayTimestamp<span class="tok-punct">,</span> formatterFor <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/format"</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// Permit2's allowance expiration: seconds in a uint48, where 0 and the largest value are not dates.</span>
+<span class="tok-keyword">const</span> expiration <span class="tok-punct">=</span> <span class="tok-fn">formatterFor</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  abi<span class="tok-punct">:</span> <span class="tok-string">"uint48"</span><span class="tok-punct">,</span>
+  tags<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    timestamp<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      args<span class="tok-punct">:</span> <span class="tok-punct">{</span> unit<span class="tok-punct">:</span> <span class="tok-string">"s"</span><span class="tok-punct">,</span> epoch<span class="tok-punct">:</span> <span class="tok-string">"unix"</span><span class="tok-punct">,</span> threshold<span class="tok-punct">:</span> <span class="tok-string">"281474976710655"</span><span class="tok-punct">,</span> message<span class="tok-punct">:</span> <span class="tok-string">"Never"</span><span class="tok-punct">,</span> labels<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-number">0</span><span class="tok-punct">:</span> <span class="tok-string">"Only in the block it is used"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>expiration <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"no value tag"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+expiration<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"0"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "Only in the block it is used"</span>
+expiration<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"281474976710655"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "Never"</span>
+expiration<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"1798761600"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "2027-01-01T00:00:00Z"</span>
+expiration<span class="tok-punct">.</span><span class="tok-fn">safeParse</span><span class="tok-punct">(</span><span class="tok-string">"Never"</span><span class="tok-punct">)</span><span class="tok-punct">.</span>ok<span class="tok-punct">;</span> <span class="tok-comment">// false: E_SYNTAX, a word is never read back</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">MAX</span> <span class="tok-punct">=</span> <span class="tok-punct">(</span><span class="tok-number">2n</span> <span class="tok-punct">*</span><span class="tok-punct">*</span> <span class="tok-number">256n</span> <span class="tok-punct">-</span> <span class="tok-number">1n</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">toString</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-fn">displayTimestamp</span><span class="tok-punct">(</span><span class="tok-type">MAX</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> unit<span class="tok-punct">:</span> <span class="tok-string">"s"</span><span class="tok-punct">,</span> candid<span class="tok-punct">:</span> <span class="tok-string">"uint256"</span><span class="tok-punct">,</span> threshold<span class="tok-punct">:</span> <span class="tok-type">MAX</span><span class="tok-punct">,</span> message<span class="tok-punct">:</span> <span class="tok-string">"Never"</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "Never"</span></code></pre></div>
+
+<p>
+  A <code>timestamp</code> tag may carry words for values that are not dates, display only. <code>labels</code> maps
+  exact values (decimal strings of the tag's unit, 1 to 16 entries) to words; a value at or above
+  <code>threshold</code> shows as <code>message</code>. A label is checked first, then the threshold, then the time.
+  <code>threshold</code> and <code>message</code> come together, with no default word: one without the other is
+  <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ARG</span></span>, "a timestamp threshold and its message go together: give both or neither". Each word is 1 to 32
+  characters. Parsing is unchanged, so the formatter reads a date or a <code>+</code> duration and never a word.
+  <code>displayTimestamp(value, { unit, candid, threshold, message, labels })</code> does the same without a
+  formatter. Without the threshold, the largest <code>uint256</code> is no date: <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RANGE</span></span>, "the time is
+  outside 0000-01-01T00:00:00Z to 9999-12-31T23:59:59Z". The words work on any timestamp position; EVM deadlines are
+  why they exist (<a href="value-tags.html">value tags</a>).
+</p>
+
+<h3 id="bytes-and-memos">Bytes and memos<a class="heading-anchor" href="#bytes-and-memos" aria-label="Link to Bytes and memos">#</a></h3>
+
+<p>
+  <code>bytes</code> takes <code>encoding</code> <code>utf8</code>, <code>hex</code> or
+  <code>base64</code>, and an optional <code>max_len</code> that counts bytes after encoding
+  (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_MAX_LEN</span></span>). With <code>utf8</code>, input that starts with <code>0x</code> is read as hex,
+  and display shows <code>0x</code> and lowercase hex for bytes that are not valid UTF-8 or that hold
+  control, format or line-separator characters. <code>display</code> returns plain text and escapes
+  nothing: a memo can hold Markdown, and the renderer escapes it for its target
+  (<a href="consent-messages.html">consent messages</a> do).
+</p>
+
+<h2 id="accounts-addresses-and-integer-types">Accounts, addresses and integer types<a class="heading-anchor" href="#accounts-addresses-and-integer-types" aria-label="Link to Accounts, addresses and integer types">#</a></h2>
+
+<p>This is the part that differs by chain.</p>
+
+<div class="chain-switch" role="group" aria-label="Chain"><button type="button" data-chain="icp" aria-pressed="true">Internet Computer <span class="chain-code">ICP</span></button><button type="button" data-chain="evm" aria-pressed="false">Ethereum <span class="chain-code">EVM</span></button></div>
+
+<div data-chain-panel="icp">
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">const</span> to <span class="tok-punct">=</span> <span class="tok-fn">formatterFor</span><span class="tok-punct">(</span>fields<span class="tok-punct">.</span>to<span class="tok-punct">,</span> <span class="tok-punct">{</span> refs <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the transfer's `to`, tagged `account`</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>to <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"no value tag"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> alice <span class="tok-punct">=</span> to<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae-6cc627i.1"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// { owner: "k2t6j-…-teztq-6ae", subaccount: Uint8Array(32) [0, …, 0, 1] }</span>
+to<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span>alice<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae-6cc627i.1"</span>
+
+to<span class="tok-punct">.</span><span class="tok-fn">safeParse</span><span class="tok-punct">(</span><span class="tok-string">"k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae.1"</span><span class="tok-punct">)</span><span class="tok-punct">.</span>ok<span class="tok-punct">;</span> <span class="tok-comment">// false: E_CHECKSUM_MISSING</span></code></pre></div>
+  <p>
+    <code>account</code> is the ICRC-1 textual encoding: a principal for the default subaccount, or
+    <code>principal-checksum.subaccount</code>. The checksum is verified on input
+    (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHECKSUM</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHECKSUM_MISSING</span></span>), and a non-canonical form, such as an
+    explicit default subaccount or leading zeros in the subaccount, is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NOT_CANONICAL</span></span>.
+    <code>subaccount</code> reads <code>#n</code> or <code>n</code> below 2<sup>64</sup>, or exactly 64 hex
+    characters, and displays <code>#n</code> exactly when the first 24 bytes are zero.
+  </p>
+  <p>
+    <code>amount</code> applies to <code>nat</code>, <code>int</code>, <code>nat8</code> to
+    <code>nat64</code> and <code>int8</code> to <code>int64</code>. A negative amount at an unsigned
+    position is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NEGATIVE</span></span>, and a value outside the type's range is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RANGE</span></span>,
+    never wrapped or clamped.
+  </p>
+  <p>
+    The library parses principals itself (base32 and CRC-32, in <code>src/principal.mjs</code>), with no
+    dependency. <code>principalFromText</code> and
+    <code>principalToText</code> are exported.
+  </p>
+</div>
+
+<div data-chain-panel="evm">
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> formatterFor <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/format"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> readAddress <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/profile/evm"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">MAX</span> <span class="tok-punct">=</span> <span class="tok-punct">(</span><span class="tok-number">2n</span> <span class="tok-punct">*</span><span class="tok-punct">*</span> <span class="tok-number">256n</span> <span class="tok-punct">-</span> <span class="tok-number">1n</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">toString</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> usdc <span class="tok-punct">=</span> <span class="tok-fn">formatterFor</span><span class="tok-punct">(</span><span class="tok-punct">{</span> abi<span class="tok-punct">:</span> <span class="tok-string">"uint256"</span><span class="tok-punct">,</span> tags<span class="tok-punct">:</span> <span class="tok-punct">{</span> amount<span class="tok-punct">:</span> <span class="tok-punct">{</span> args<span class="tok-punct">:</span> <span class="tok-punct">{</span> decimals<span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-type">symbol</span><span class="tok-punct">:</span> <span class="tok-string">"USDC"</span><span class="tok-punct">,</span> threshold<span class="tok-punct">:</span> <span class="tok-type">MAX</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>usdc <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"no value tag"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+usdc<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"1.5 USDC"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "1500000"</span>
+usdc<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-type">MAX</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "Unlimited USDC"</span>
+
+<span class="tok-fn">formatterFor</span><span class="tok-punct">(</span><span class="tok-punct">{</span> abi<span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// null: an address takes no value tag</span>
+<span class="tok-fn">readAddress</span><span class="tok-punct">(</span><span class="tok-string">"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"</span>
+
+<span class="tok-comment">// Permit2's details.amount: its token is the one at details.token, whose metadata the caller reads and passes.</span>
+<span class="tok-keyword">const</span> allowance <span class="tok-punct">=</span> <span class="tok-fn">formatterFor</span><span class="tok-punct">(</span>
+  <span class="tok-punct">{</span> abi<span class="tok-punct">:</span> <span class="tok-string">"uint160"</span><span class="tok-punct">,</span> tags<span class="tok-punct">:</span> <span class="tok-punct">{</span> amount<span class="tok-punct">:</span> <span class="tok-punct">{</span> args<span class="tok-punct">:</span> <span class="tok-punct">{</span> token<span class="tok-punct">:</span> <span class="tok-string">"details.token"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span> token<span class="tok-punct">:</span> <span class="tok-punct">{</span> decimals<span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-type">symbol</span><span class="tok-punct">:</span> <span class="tok-string">"USDC"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">;</span>
+allowance<span class="tok-punct">?</span><span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"1500000"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "1.5 USDC"</span></code></pre></div>
+  <p>
+    <span class="claim fact">fact</span> EVM support is experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>,
+    phase 1 and the first part of phase 2). An EVM position is a node with <code>abi</code> where a Candid one has <code>candid</code>,
+    and it formats the same way. <code>amount</code> takes <code>uint8</code> to <code>uint256</code> and
+    <code>int8</code> to <code>int256</code>, each with the bounds of its bits; <code>timestamp</code> and
+    <code>duration</code> take <code>uint32</code> to <code>uint256</code> and <code>int64</code> to
+    <code>int256</code>; <code>bytes</code> takes <code>bytes</code> and <code>bytesN</code>, which holds
+    exactly N bytes (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_LENGTH</span></span>). <code>amount</code>'s <code>threshold</code> and
+    <code>message</code> show a value at or above the threshold as the message and the symbol,
+    <code>Unlimited USDC</code>; parsing is unchanged.
+  </p>
+  <p>
+    An <code>amount</code> with <code>token</code> takes no <code>decimals</code> or <code>symbol</code> of its own:
+    they are those of the token another field names, which you read with <code>eth_call</code> and pass as
+    <code>formatterFor(node, { token: { decimals, symbol } })</code>, one formatter per token. Called without that
+    option it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span>; a tag that gives <code>decimals</code> beside
+    <code>token</code> is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ARG</span></span>. <code>display</code> shows <code>1.5 USDC</code>; the consent text adds
+    the token's address beside it, because a symbol is the token's own claim.
+  </p>
+  <p>
+    <code>account</code> and <code>subaccount</code> do not apply to an ABI type. An address has one text
+    form, <code>0x</code> and 40 hex digits, and needs no tag: <code>readAddress</code> from
+    <code>@meantjs/profile/evm</code> reads it and returns its EIP-55 checksummed form. Text in mixed case
+    must match its checksum (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ADDRESS_CHECKSUM</span></span>); text all in one case carries no checksum
+    and is accepted. Show it shortened only beside the full form: <code>0xf39F…2266</code>. More on
+    <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div>
+
+<h2 id="errors">Errors<a class="heading-anchor" href="#errors" aria-label="Link to Errors">#</a></h2>
+
+<p>
+  Every rejection is a <code>FormatError</code> with a <code>code</code> from <code>CODES</code> and a
+  message that says how to fix the input. The meanings are the comments in
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/format/src/errors.mjs"><code>src/errors.mjs</code></a>.
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Code</th><th>Tags</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TYPE</span></span></td><td>all</td><td>The wrong JavaScript type, such as a number where a decimal string is required.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYNTAX</span></span></td><td>all</td><td>The text does not match the grammar.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RANGE</span></span></td><td>all</td><td>Outside the range of the type or of the representable calendar.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TOO_LONG</span></span></td><td>all</td><td>Input longer than the bound on work.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ARG</span></span></td><td>all</td><td>A tag argument is missing or invalid.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TYPE</span></span></td><td>all</td><td>The tag does not apply to this type.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_CONFLICT</span></span></td><td>all</td><td>Two value tags at one position.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span></td><td>all</td><td>The caller did not supply a dynamic value.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EXCESS_PRECISION</span></span></td><td><code>amount</code></td><td>More fractional digits than the token's decimals. Never rounded.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NEGATIVE</span></span></td><td><code>amount</code></td><td>Negative input for an unsigned type.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYMBOL_MISMATCH</span></span></td><td><code>amount</code></td><td>The symbol in the input is not the token's symbol.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_INEXACT</span></span></td><td>times</td><td>The value cannot be represented exactly in the requested unit.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CALENDAR_UNIT</span></span></td><td>times</td><td>Years and months have no fixed length.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NEEDS_NOW</span></span></td><td><code>timestamp</code></td><td>A relative time without a <code>now</code>.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHECKSUM</span></span></td><td><code>account</code></td><td>The checksum does not match.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHECKSUM_MISSING</span></span></td><td><code>account</code></td><td>A subaccount written without a checksum.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NOT_CANONICAL</span></span></td><td><code>account</code></td><td>A valid value written in a non-canonical way.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_PRINCIPAL</span></span></td><td><code>account</code></td><td>Invalid principal text.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_HEX</span></span></td><td><code>account</code>, <code>bytes</code></td><td>Malformed hex.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_BASE64</span></span></td><td><code>bytes</code></td><td>Malformed base64.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_UTF8</span></span></td><td><code>bytes</code></td><td>Text that cannot be encoded as UTF-8 (a lone surrogate).</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_LENGTH</span></span></td><td><code>account</code>, <code>subaccount</code>, <code>bytes</code></td><td>The wrong length in bytes.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_MAX_LEN</span></span></td><td><code>bytes</code></td><td>Longer than the tag's <code>max_len</code>.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="the-rules-and-where-they-are-tested">The rules, and where they are tested<a class="heading-anchor" href="#the-rules-and-where-they-are-tested" aria-label="Link to The rules, and where they are tested">#</a></h2>
+
+<p>
+  The rules are the normative behavior of
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>.
+  Each has a test in the package, most in
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/format/test/rejections.test.mjs"><code>test/rejections.test.mjs</code></a>:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Rule</th><th>Code</th><th>Also tested in</th></tr></thead>
+  <tbody>
+    <tr><td><code>amount</code>: more than <code>d</code> fractional digits is refused, even zeros</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EXCESS_PRECISION</span></span></td><td>a property in <code>amount.test.mjs</code></td></tr>
+    <tr><td><code>amount</code>: negative only when the type is signed</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NEGATIVE</span></span></td><td></td></tr>
+    <tr><td><code>amount</code>: the symbol matches, ignoring ASCII case only</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYMBOL_MISMATCH</span></span></td><td></td></tr>
+    <tr><td><code>timestamp</code>: conversion to the unit is exact</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_INEXACT</span></span></td><td>properties in <code>time.test.mjs</code></td></tr>
+    <tr><td><code>timestamp</code>: relative input resolves against <code>now</code> floored to the unit</td><td></td><td></td></tr>
+    <tr><td><code>timestamp</code>: words are display only, never parsed back; a threshold and its message come together</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYNTAX</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ARG</span></span></td><td><code>evm.test.mjs</code></td></tr>
+    <tr><td><code>amount</code>: with <code>token</code>, the decimals and symbol come from the caller, never a guess</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span></td><td><code>evm.test.mjs</code></td></tr>
+    <tr><td><code>duration</code>: <code>W</code>, <code>D</code>, <code>H</code>, <code>M</code>, <code>S</code> only; <code>P1Y</code> and <code>P1M</code> refused</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYNTAX</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CALENDAR_UNIT</span></span></td><td></td></tr>
+    <tr><td><code>account</code>: the checksum is verified on input</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHECKSUM</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHECKSUM_MISSING</span></span></td><td>the ICRC-1 vectors in <code>account.test.mjs</code></td></tr>
+    <tr><td><code>subaccount</code>: <code>0 &lt;= n &lt; 2^64</code>; hex is exactly 64 characters</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RANGE</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_LENGTH</span></span></td><td></td></tr>
+    <tr><td><code>subaccount</code>: <code>parse(display(x)) = x</code> for every 32-byte value</td><td></td><td>20,000 random values in <code>subaccount.test.mjs</code></td></tr>
+    <tr><td><code>bytes</code>: <code>max_len</code> counts bytes after encoding</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_MAX_LEN</span></span></td><td></td></tr>
+    <tr><td>Integers are never JavaScript numbers (D-006)</td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TYPE</span></span></td><td></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  <span class="claim fact">fact</span> The ICRC-1 textual-encoding examples come from
+  <code>standards/ICRC-1/TextualEncoding.md</code> of dfinity/ICRC-1 at commit
+  <code>5d670e54d9a58fbf472bf0a25f33743d60cfd0e6</code>; the tests read the committed JSON and check its
+  recorded sha256, never the network. Principal parsing is also checked against independent oracles in
+  the tests: CRC-32 from <code>node:zlib</code> and a base32 encoder built on big-integer division. The
+  property tests use a seeded generator (default seed <code>20261009</code>, set
+  <code>FORMAT_TEST_SEED</code> to change it), and every failure message carries the seed.
+</p>
+
+<h2 id="the-same-answers-in-rust">The same answers in Rust<a class="heading-anchor" href="#the-same-answers-in-rust" aria-label="Link to The same answers in Rust">#</a></h2>
+
+<p>
+  <code>meant-format</code> is the <code>amount</code> tag in Rust, for a canister, a signer or any host
+  without JavaScript. It has no dependencies and runs without the standard library:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">toml</span><span class="code-file">Cargo.toml</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="toml" data-highlighted="true"><span class="tok-type">[dependencies]</span>
+meant-format <span class="tok-punct">=</span> <span class="tok-string">"=0.2.0"</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">crates/meant-format/README.md</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">use</span> meant_format<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-punct">{</span><span class="tok-type">AmountFormat</span><span class="tok-punct">,</span> <span class="tok-type">Code</span><span class="tok-punct">,</span> <span class="tok-type">IntType</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">let</span> icp <span class="tok-punct">=</span> <span class="tok-type">AmountFormat</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-number">8</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">with_symbol</span><span class="tok-punct">(</span><span class="tok-string">"ICP"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-attr">assert_eq!</span><span class="tok-punct">(</span>icp<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"1.5 ICP"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-string">"150000000"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-attr">assert_eq!</span><span class="tok-punct">(</span>icp<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"150000000"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-string">"1.5 ICP"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// More digits than the token has: refused, never rounded.</span>
+<span class="tok-attr">assert_eq!</span><span class="tok-punct">(</span>icp<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"0.123456789"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap_err</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">code</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-type">Code</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">ExcessPrecision</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// The wrong token's symbol: refused.</span>
+<span class="tok-attr">assert_eq!</span><span class="tok-punct">(</span>icp<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"1.5 ckBTC"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap_err</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">code</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-type">Code</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">SymbolMismatch</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// Outside the integer type: refused, never wrapped or clamped.</span>
+<span class="tok-keyword">let</span> byte <span class="tok-punct">=</span> <span class="tok-type">AmountFormat</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">with_candid</span><span class="tok-punct">(</span><span class="tok-type">IntType</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Nat8</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-attr">assert_eq!</span><span class="tok-punct">(</span>byte<span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"256"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap_err</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">code</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-type">Code</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Range</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// An ERC-20 approval of 2^256 - 1, shown as what it means.</span>
+<span class="tok-keyword">let</span> max <span class="tok-punct">=</span> <span class="tok-string">"115792089237316195423570985008687907853269984665640564039457584007913129639935"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">let</span> usdc <span class="tok-punct">=</span> <span class="tok-type">AmountFormat</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-number">6</span><span class="tok-punct">)</span>
+    <span class="tok-punct">.</span><span class="tok-fn">with_symbol</span><span class="tok-punct">(</span><span class="tok-string">"USDC"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+    <span class="tok-punct">.</span><span class="tok-fn">with_candid</span><span class="tok-punct">(</span><span class="tok-type">IntType</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Uint256</span><span class="tok-punct">)</span>
+    <span class="tok-punct">.</span><span class="tok-fn">with_threshold</span><span class="tok-punct">(</span>max<span class="tok-punct">,</span> <span class="tok-type">None</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-attr">assert_eq!</span><span class="tok-punct">(</span>usdc<span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span>max<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">unwrap</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-string">"Unlimited USDC"</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  <code>@meantjs/format</code> is the reference. For the same input the crate gives the same answer:
+  the same value, or the same error code and the same message.
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-format/tests/parity.rs"><code>tests/parity.rs</code></a>
+  checks that against the vectors in <code>crates/meant-format/tests/vectors/amount.json</code>, which
+  <code>generate-amount.mjs</code> writes from the JavaScript package and never by hand. The file records
+  where it came from: <code>@meantjs/format</code> 0.2.0 at commit
+  <code>b6059abce12dc1b241a48deddc801db47d860b4d</code>, Node v22.22.0, Unicode 16.0. It holds 3,412
+  cases, the number the crate's README states and the test pins (<code>DOCUMENTED_CASES</code>): 1,994
+  <code>parse</code> cases, 1,331 <code>display</code> cases, 24 symbol cases, 27 type-name cases and 36
+  threshold cases. The test also fails when a regenerated file loses a whole class of answer, such as
+  every <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NEGATIVE</span></span> case, or has too few EVM or threshold cases.
+</p>
+
+<p>
+  Two details follow JavaScript exactly, because they decide what is accepted: whitespace is
+  ECMAScript's set (it includes U+FEFF and excludes U+0085), and the 1024 bound counts UTF-16 code
+  units, as JavaScript's <code>length</code> does.
+</p>
+
+<h3 id="versions">Versions<a class="heading-anchor" href="#versions" aria-label="Link to Versions">#</a></h3>
+
+<p>
+  <span class="claim fact">fact</span> crates.io holds two versions: 0.1.0, published on 2026-10-27, with the ten Candid integer types
+  and no threshold, and 0.2.0, published on 2026-10-29, which adds the EVM ABI's integer types, up to
+  <code>uint256</code> and <code>int256</code>, and <code>with_threshold</code> (observed on the crates.io API on
+  2026-10-29). The manifest in the repository holds 0.2.0. Before 1.0 any 0.x release may change the
+  API or the text <code>display</code> produces, so pin it exactly:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cargo</span> add meant-format@=0.2.0</code></pre></div>
+
+<p>
+  The minimum supported Rust version is 1.78. The crate is the <code>amount</code> tag only: for an amount whose
+  <code>token</code> a field names, build the format from that token's decimals and symbol, and there are no
+  timestamps or timestamp words. Every item is on the <a href="reference-meant-format.html">meant-format reference</a>.
+</p>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="resolve-profiles.html"><span class="dir">Previous</span><span class="label">Validate and resolve profiles</span></a><a class="next" href="consent-messages.html"><span class="dir">Next</span><span class="label">Generate consent messages</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/format-values.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#build-a-formatter-for-a-position">Build a formatter for a position</a></li><li class="toc-h2"><a href="#read-input-and-show-results">Read input and show results</a></li><li class="toc-h2"><a href="#the-six-value-tags">The six value tags</a></li><li class="toc-h3"><a href="#times-and-durations">Times and durations</a></li><li class="toc-h3"><a href="#words-for-times">Words for times</a></li><li class="toc-h3"><a href="#bytes-and-memos">Bytes and memos</a></li><li class="toc-h2"><a href="#accounts-addresses-and-integer-types">Accounts, addresses and integer types</a></li><li class="toc-h2"><a href="#errors">Errors</a></li><li class="toc-h2"><a href="#the-rules-and-where-they-are-tested">The rules, and where they are tested</a></li><li class="toc-h2"><a href="#the-same-answers-in-rust">The same answers in Rust</a></li><li class="toc-h3"><a href="#versions">Versions</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

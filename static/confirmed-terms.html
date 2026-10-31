@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirm terms for a task · Meant</title>
+<meta name="description" content="Let the person confirm once what an agent's task may grant, then check each request against those terms before anything is signed or sent.">
+<meta property="og:title" content="Confirm terms for a task · Meant">
+<meta property="og:description" content="Let the person confirm once what an agent's task may grant, then check each request against those terms before anything is signed or sent.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Confirm terms for a task</h1><p class="page-lead">Let the person confirm once what an agent's task may grant, then check each request against those terms before anything is signed or sent.</p><p>
+  Alice asks her agent to let Dex, a swap app on her local replica, spend up to 500 TKA until the end of November.
+  Before the agent builds the request, Alice confirms those terms once, on her wallet's own screen. The wallet then
+  reads what the request grants and compares it with what she confirmed: a request that fits may be signed or sent
+  without a second yes, and one that does not is refused with its reasons. <code>@meantjs/consent/terms</code> holds the steps;
+  the rules are <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec
+  §5.3</a> ("What a call grants", "Confirmed terms") and
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#11-security-considerations">§11</a> item
+  10, decision D-056.
+</p>
+
+<h2 id="check-a-request-against-the-person-s-terms">Check a request against the person's terms<a class="heading-anchor" href="#check-a-request-against-the-person-s-terms" aria-label="Link to Check a request against the person's terms">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npm</span> install<span class="tok-attr"> --save-exact</span> @meantjs/consent@0.5.0 @meantjs/profile@0.5.0<span class="tok-keyword">
+npx</span> candid-profile resolve ledger.did<span class="tok-attr"> --packs</span> <span class="tok-punct">&gt;</span> ledger.resolved.json</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> generateConsent <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> checkGrant<span class="tok-punct">,</span> confirmTerms<span class="tok-punct">,</span> readTerms<span class="tok-punct">,</span> termsText <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/terms"</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// What the wallet knows: its tokens, the apps the person named, its clock.</span>
+<span class="tok-keyword">const</span> <span class="tok-type">LEDGER</span> <span class="tok-punct">=</span> <span class="tok-string">"bkyz2-fmaaa-aaaaa-qaaaq-cai"</span><span class="tok-punct">;</span> <span class="tok-comment">// TKA, a ledger on your local replica</span>
+<span class="tok-keyword">const</span> wallet <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  tokens<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">TKA</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> canister<span class="tok-punct">:</span> <span class="tok-type">LEDGER</span><span class="tok-punct">,</span> decimals<span class="tok-punct">:</span> <span class="tok-number">8</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  apps<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">Dex</span><span class="tok-punct">:</span> <span class="tok-string">"bd3sg-teaaa-aaaaa-qaaba-cai"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  now<span class="tok-punct">:</span> <span class="tok-type">BigInt</span><span class="tok-punct">(</span><span class="tok-type">Date</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"2026-11-02T12:00:00Z"</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">*</span> <span class="tok-number">1_000_000n</span><span class="tok-punct">,</span> <span class="tok-comment">// nanoseconds</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 1. The agent writes the person's terms, a tool's arguments; the wallet reads them.</span>
+<span class="tok-keyword">const</span> terms <span class="tok-punct">=</span> <span class="tok-fn">readTerms</span><span class="tok-punct">(</span><span class="tok-punct">{</span> token<span class="tok-punct">:</span> <span class="tok-string">"TKA"</span><span class="tok-punct">,</span> spender<span class="tok-punct">:</span> <span class="tok-string">"Dex"</span><span class="tok-punct">,</span> max_amount<span class="tok-punct">:</span> <span class="tok-string">"500"</span><span class="tok-punct">,</span> expires_by<span class="tok-punct">:</span> <span class="tok-string">"2026-11-30"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> wallet<span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 2. The wallet shows them on its own screen. Once the person confirms that text:</span>
+<span class="tok-keyword">const</span> shown <span class="tok-punct">=</span> <span class="tok-fn">termsText</span><span class="tok-punct">(</span>terms<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> confirmed <span class="tok-punct">=</span> <span class="tok-fn">confirmTerms</span><span class="tok-punct">(</span>terms<span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 3. The agent builds its request, an icrc2_approve; the wallet receives its bytes.</span>
+<span class="tok-keyword">const</span> resolved <span class="tok-punct">=</span> <span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"ledger.resolved.json"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> argHex <span class="tok-punct">=</span>
+  <span class="tok-string">"4449444c086c08c6fcb60201ba89e5c20402a2de94eb060282f3f3910c04d8a38ca80d7d919c9cbf0d01dea7f7da0d04cb96dcb40e056e7d6e036d7b6e786c02b3b0dac30368ad86ca8305066e076d7b01000000000080e8eda1ba0100010080643addd0ec18010a8000000000100002010100"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> arg <span class="tok-punct">=</span> <span class="tok-type">Uint8Array</span><span class="tok-punct">.</span><span class="tok-keyword">from</span><span class="tok-punct">(</span>argHex<span class="tok-punct">.</span><span class="tok-fn">match</span><span class="tok-punct">(</span><span class="tok-punct">/</span><span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">/</span>g<span class="tok-punct">)</span> <span class="tok-punct">?</span><span class="tok-punct">?</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">(</span>byte<span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-fn">parseInt</span><span class="tok-punct">(</span>byte<span class="tok-punct">,</span> <span class="tok-number">16</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-punct">{</span> grant <span class="tok-punct">}</span> <span class="tok-punct">=</span> <span class="tok-fn">generateConsent</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  resolved<span class="tok-punct">,</span>
+  method<span class="tok-punct">:</span> <span class="tok-string">"icrc2_approve"</span><span class="tok-punct">,</span>
+  arg<span class="tok-punct">,</span>
+  refs<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-string">"query:icrc1_decimals"</span><span class="tok-punct">:</span> <span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-string">"query:icrc1_symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  canisterId<span class="tok-punct">:</span> <span class="tok-type">LEDGER</span><span class="tok-punct">,</span> <span class="tok-comment">// the ledger called: the token the request grants</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 4. Does the request fit the terms?</span>
+<span class="tok-keyword">const</span> verdict <span class="tok-punct">=</span> <span class="tok-fn">checkGrant</span><span class="tok-punct">(</span>confirmed<span class="tok-punct">,</span> grant<span class="tok-punct">,</span> wallet<span class="tok-punct">)</span><span class="tok-punct">;</span>
+console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span><span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">stringify</span><span class="tok-punct">(</span><span class="tok-punct">{</span> shown<span class="tok-punct">,</span> grant<span class="tok-punct">,</span> verdict <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-type">null</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"shown"</span><span class="tok-punct">:</span> <span class="tok-string">"Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until the end of 30 November 2026 (UTC)."</span><span class="tok-punct">,</span>
+  <span class="tok-type">"grant"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"approve"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"spender"</span><span class="tok-punct">:</span> <span class="tok-string">"bd3sg-teaaa-aaaaa-qaaba-cai"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"token"</span><span class="tok-punct">:</span> <span class="tok-string">"bkyz2-fmaaa-aaaaa-qaaaq-cai"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"amount"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"units"</span><span class="tok-punct">:</span> <span class="tok-string">"50000000000"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"unlimited"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"ends"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"1796040000"</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"verdict"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"fits"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span><span class="tok-punct">,</span>
+    <span class="tok-type">"reasons"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  The request lets Dex spend 500 TKA (50000000000 base units) until 30 November 2026 at 12:00 UTC (1796040000
+  seconds), inside the terms, so the wallet may send it without asking Alice again. The terms cover this one request:
+  the next task starts with new terms. A wallet keeps the steps in this order with <code>termsGate</code>
+  (<a href="#keep-the-order-with-termsgate">below</a>). Each step has its section; every export is on the
+  <a href="reference-profile-api.html">JavaScript API</a> reference.
+</p>
+
+<h2 id="read-the-agent-s-terms">Read the agent's terms<a class="heading-anchor" href="#read-the-agent-s-terms" aria-label="Link to Read the agent's terms">#</a></h2>
+
+<p>
+  The agent turns the person's words into four terms, the arguments of a tool the wallet gives it. Terms are what the
+  person allows one task: the token, who may take it, the most it may be (or unlimited) and the latest end (or never).
+  <code>readTerms(fields, wallet)</code> reads them in the wallet's own values:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Field</th><th>What the agent writes</th><th>What <code>readTerms</code> makes of it</th></tr></thead>
+  <tbody>
+    <tr><td><code>token</code></td><td>A symbol the wallet knows: <code>"TKA"</code></td><td>That token's canister id or EIP-55 address, with its symbol and decimals, from <code>wallet.tokens</code></td></tr>
+    <tr><td><code>spender</code> or <code>to</code>, exactly one</td><td>An app's name as the wallet knows it (<code>"Dex"</code>), or an address or account the person gave</td><td>The app's account or address from <code>wallet.apps</code>; an address or account given is checked, and named when the wallet knows it</td></tr>
+    <tr><td><code>max_amount</code></td><td><code>"500"</code>, <code>"0.5"</code>, <code>"500 TKA"</code>, or <code>"unlimited"</code></td><td>Base units as a decimal string, never rounded</td></tr>
+    <tr><td><code>expires_by</code></td><td><code>"2026-11-30"</code>, <code>"30 days"</code>, <code>"2 weeks"</code>, <code>"1 month"</code>, <code>"1 year"</code>, <code>"2 hours"</code>, or <code>"never"</code></td><td>The latest end in exact seconds: a date allows its whole day in the person's zone, a month is a calendar month, hours are an exact time from now</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  <code>spender</code> is who may spend the tokens: an allowance, or a signature someone else submits. <code>to</code>
+  is who is paid directly. <code>"unlimited"</code> and <code>"never"</code> are read only as those words. The wallet
+  argument is <code>{ tokens, apps, now, utcOffsetMinutes }</code>: <code>now</code> is the wallet's clock in
+  nanoseconds, as a <code>bigint</code>, and <code>utcOffsetMinutes</code> the person's zone, UTC when left out. The
+  functions have no clock or zone of their own.
+</p>
+
+<p>
+  Nothing is guessed. A term the wallet cannot read throws a <code>TermsError</code> whose <code>message</code> is
+  written for the agent, which fixes what it can and asks the person about the rest. With the wallet above:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>The agent wrote</th><th><code>code</code></th><th><code>message</code></th></tr></thead>
+  <tbody>
+    <tr><td>no <code>expires_by</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_MISSING</span></span></td><td><code>missing parameter: expires_by</code></td></tr>
+    <tr><td><code>token: "TKB"</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_TOKEN</span></span></td><td><code class="wrap">the wallet knows no token named "TKB"; it knows TKA. If the user named another token, or did not say which, ask the user</code></td></tr>
+    <tr><td><code>spender: "SwapCo"</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_PARTY</span></span></td><td><code class="wrap">the wallet knows no app named "SwapCo"; it knows Dex. If the user named another app, or none, ask the user which app they mean, or for its account</code></td></tr>
+    <tr><td><code>max_amount: "500.000000001"</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_AMOUNT</span></span></td><td><code class="wrap">max_amount: "500.000000001" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8</code></td></tr>
+    <tr><td><code>expires_by: "end of the month"</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_END</span></span></td><td><code class="wrap">expires_by must be a date as YYYY-MM-DD, a length of time from now as a number and a unit (hours, days, weeks, months or years), such as "2 hours", "30 days" or "1 month", or "never"; got "end of the month"</code></td></tr>
+    <tr><td><code>expires_by: "2026-10-31"</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_END</span></span></td><td><code class="wrap">expires_by 2026-10-31 is before today, 2026-11-02</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  A wallet argument that is not one (a <code>now</code> that is a number, not a <code>bigint</code>; two tokens with one
+  address) is the caller's mistake, not the agent's: <code>E_REQUEST</code>.
+</p>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">A term left out is not a loose term</span>
+  <p>
+    <span class="claim fact">fact</span> Observed 2026-10-29 in the everyday-wording test of Meant's signing guard (spec §11 item 10):
+    small models that wrote the terms from a user's everyday words filled a term the user had left out with the
+    loosest value ("unlimited", "never"), and a check against those terms passed requests the user never asked for;
+    the check itself held every time. So the agent asks for a missing term instead of filling it in, and the person's
+    confirmation of the exact text is what catches one it made up: <code>readTerms</code> cannot tell a "never" the
+    person said from one the agent wrote.
+  </p>
+</div></div>
+
+<h2 id="show-the-terms-on-the-wallet-s-own-screen">Show the terms on the wallet's own screen<a class="heading-anchor" href="#show-the-terms-on-the-wallet-s-own-screen" aria-label="Link to Show the terms on the wallet's own screen">#</a></h2>
+
+<p>
+  Whoever confirms terms authorizes every request that fits them, so the person confirms them on the wallet's own
+  screen, never through a tool the agent can call (spec §11 item 10). <code>termsText(terms)</code> writes them
+  exactly: the full address or account, the amount without rounding, and "unlimited" or "never ends" written out. For
+  the terms above, the wallet shows:
+</p>
+
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Terms · one task</span><h4 class="consent-title">Confirm terms for this task</h4><div class="consent-effects"></div></div><dl class="consent-fields"><div><dt>Terms</dt><dd><span>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until the end of 30 November 2026 (UTC).</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the person confirms, on the wallet's screen. The agent never does.</span></div></section></div>
+
+<p>The same function for other terms, as the package writes them:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Terms</th><th><code>termsText</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>expires_by: "2 hours"</code></td><td>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until 2 November 2026 at 14:00 (UTC).</td></tr>
+    <tr><td><code>max_amount: "unlimited"</code>, <code>expires_by: "never"</code></td><td>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend any amount of TKA (unlimited), and this permission never ends.</td></tr>
+    <tr><td><code>utcOffsetMinutes: 60</code> in the wallet</td><td>Dex (bd3sg-teaaa-aaaaa-qaaba-cai) may spend at most 500 TKA, until the end of 30 November 2026 (UTC+01:00).</td></tr>
+    <tr><td>On Anvil, <code>to: "Bob"</code>, <code>max_amount: "15"</code>, <code>expires_by: "2 hours"</code></td><td>Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) may be sent at most 15 TKA, until 2 November 2026 at 14:00 (UTC).</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  When the person confirms that text, <code>confirmTerms(terms)</code> returns the terms frozen, with
+  <code>id</code>: the SHA-256 of their canonical JSON (RFC 8785), lowercase hex,
+  <code>18c0e36c219f1afd8f69a63dfc1f97f93a18ab6531c2f206f770fc31afd8c115</code> for Alice's. A copy changed
+  afterwards is refused: <code>checkGrant</code> and <code>termsText</code> throw <code>E_REQUEST</code>,
+  <code>terms are not the ones the user confirmed: they changed after confirmTerms: they come from readTerms, then
+  confirmTerms</code>. <code>checkGrant</code> refuses terms that were never confirmed with <code>E_REQUEST</code>
+  too.
+</p>
+
+<h2 id="read-what-the-request-grants">Read what the request grants<a class="heading-anchor" href="#read-what-the-request-grants" aria-label="Link to Read what the request grants">#</a></h2>
+
+<p>
+  The wallet does not take the agent's word for what a request does. It reads the request's <code>grant</code> from
+  the consent function that writes the request's text: the profile's <code>effect</code> names the positions
+  (<a href="intent-and-effects.html">intent, effects and confirmation</a>), and the function reads their values from
+  this call or signature. The grant says who may take tokens because of the request, which token, how many and until
+  when:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Key</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td><code>kind</code></td><td><code>"approve"</code> or <code>"transfer"</code></td></tr>
+    <tr><td><code>spender</code> or <code>to</code></td><td>An EIP-55 address, or an account in its ICRC-1 text</td></tr>
+    <tr><td><code>token</code></td><td>An EIP-55 address, or a canister id in its canonical text</td></tr>
+    <tr><td><code>amount</code></td><td><code>{ units, unlimited }</code>: base units as a decimal string, <code>null</code> for an unlimited grant without a count (DAI's <code>allowed: true</code>); <code>"0"</code> grants nothing</td></tr>
+    <tr><td><code>ends</code></td><td><code>{ at }</code> in exact seconds as a decimal string, never rounded; <code>{ never: true }</code>; or <code>{ now: true }</code> for a transfer, made when it is sent</td></tr>
+  </tbody>
+</table></div>
+
+<p>How the wallet gets it depends on the chain:</p>
+
+<div class="chain-switch" role="group" aria-label="Chain"><button type="button" data-chain="icp" aria-pressed="true">Internet Computer <span class="chain-code">ICP</span></button><button type="button" data-chain="evm" aria-pressed="false">Ethereum <span class="chain-code">EVM</span></button></div>
+
+<div data-chain-panel="icp">
+  <p>
+    <code>generateConsent</code> reads the grant only when you pass <code>canisterId</code>, the canister called, which
+    is the token. Without it, <code>grant</code> is <code>null</code> and nothing warns, and
+    <code>icrc21ConsentMessage</code>, the ICRC-21 call, answers as before, with no grant. Beside the message the result
+    has <code>values</code>, the decoded arguments, one value tree per argument. An <code>icrc1_transfer</code> of 1.5
+    TKA to Bob on the same ledger grants:
+  </p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"transfer"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"to"</span><span class="tok-punct">:</span> <span class="tok-string">"ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"token"</span><span class="tok-punct">:</span> <span class="tok-string">"bkyz2-fmaaa-aaaaa-qaaaq-cai"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"amount"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"units"</span><span class="tok-punct">:</span> <span class="tok-string">"150000000"</span><span class="tok-punct">,</span> <span class="tok-type">"unlimited"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"ends"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"now"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span> <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+  <p>
+    An <code>icrc2_approve</code> whose <code>expires_at</code> is left out never ends: <code>{ "never": true }</code>.
+  </p>
+</div>
+
+<div data-chain-panel="evm">
+  <p>
+    <code>evmConsent</code> and <code>eip712Consent</code> in <code>@meantjs/consent/evm</code> always read the grant.
+    Its token is the contract called, or the verifying contract of a signature, unless the amount's tag names a field
+    that holds the token, as Permit2's do. Beside the text the result has <code>values</code>, the decoded arguments
+    or message by name. An ERC-20 <code>approve</code> of 500 TKA to Dex, on a token at
+    <code>0x5FbD…0aa3</code> on Anvil chain 31337, grants:
+  </p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"approve"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"spender"</span><span class="tok-punct">:</span> <span class="tok-string">"0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"token"</span><span class="tok-punct">:</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"amount"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"units"</span><span class="tok-punct">:</span> <span class="tok-string">"500000000"</span><span class="tok-punct">,</span> <span class="tok-type">"unlimited"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"ends"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"never"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span> <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+  <p>
+    An <code>approve</code> has no end among its arguments, so it never ends. EIP-2612's <code>permit</code> grants the
+    same: its <code>deadline</code> bounds only when the signature may be used, so it is not an end of what it grants
+    (spec §5.3). How a message names its grant: <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div>
+
+<h2 id="check-the-grant-against-the-terms">Check the grant against the terms<a class="heading-anchor" href="#check-the-grant-against-the-terms" aria-label="Link to Check the grant against the terms">#</a></h2>
+
+<p>
+  <code>checkGrant(confirmed, grant, wallet)</code> returns <code>{ fits, reasons }</code>. A grant fits when, by the
+  rules of spec §5.3:
+</p>
+
+<ul>
+  <li>its token and its <code>spender</code> or <code>to</code> are the terms', compared as values: an address by its 20 bytes, an account by its owner and its subaccount, the default subaccount equal to an absent one;</li>
+  <li>its amount is at most the terms' most; unlimited fits only unlimited terms, and a grant of nothing fits any terms;</li>
+  <li>it ends no later than the terms' latest end; one that never ends fits only terms that never end, and a transfer fits terms whose end has not passed.</li>
+</ul>
+
+<p>Alice's terms against four <code>icrc2_approve</code> requests:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>The request</th><th><code>reasons</code></th></tr></thead>
+  <tbody>
+    <tr><td>500 TKA to Dex, until 30 November 2026 at 12:00 UTC</td><td>none: <span class="pill ok">fits</span></td></tr>
+    <tr><td>600 TKA to Dex, the same end</td><td><code class="wrap">the request allows 600 TKA, the terms say at most 500 TKA</code></td></tr>
+    <tr><td>500 TKA to Dex, no <code>expires_at</code></td><td><code class="wrap">the permission never ends, the terms say until the end of 30 November 2026 (UTC)</code></td></tr>
+    <tr><td>500 TKA to <code>be2us-…-qaabq-cai</code></td><td><code class="wrap">the spender is be2us-64aaa-aaaaa-qaabq-cai, the terms say Dex (bd3sg-teaaa-aaaaa-qaaba-cai)</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  A payment is checked the same way. On Anvil, terms that let Bob be sent at most 15 TKA for two hours, against an
+  ERC-20 <code>transfer</code> of 15 TKA to him:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>The request</th><th><code>reasons</code></th></tr></thead>
+  <tbody>
+    <tr><td>The <code>transfer</code>, at 12:00 UTC</td><td>none: <span class="pill ok">fits</span></td></tr>
+    <tr><td>The same <code>transfer</code>, at 15:00 UTC</td><td><code class="wrap">the terms have ended: they said until 2 November 2026 at 14:00 (UTC)</code></td></tr>
+    <tr><td>An <code>approve</code> of 15 TKA to Bob instead</td><td><code class="wrap">the request lets Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) spend, the terms pay Bob (0x70997970C51812dc3A010C7d01b50e0d17dc79C8) directly</code>, <code class="wrap">the permission never ends, the terms say until 2 November 2026 at 14:00 (UTC)</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  A request that does not fit is refused with its reasons. The agent does not offer it to the person for a yes: it asks
+  the person for new terms, and new terms are a new task.
+</p>
+
+<h2 id="a-request-without-a-grant-needs-its-confirmation">A request without a grant needs its confirmation<a class="heading-anchor" href="#a-request-without-a-grant-needs-its-confirmation" aria-label="Link to A request without a grant needs its confirmation">#</a></h2>
+
+<p>
+  Terms cover only what a grant says. Given <code>null</code>, <code>checkGrant</code> answers
+  <code>{ fits: false }</code> with the reason
+  <code>the request has no grant a profile describes, so no terms cover it: it needs the user's confirmation</code>.
+  The person confirms such a request on its own, as every <span class="effect transfer">transfer</span>, <span class="effect approve">approve</span>,
+  <span class="effect admin">admin</span> and <span class="effect destroy">destroy</span> call is confirmed without terms. A request has no grant when:
+</p>
+
+<ul>
+  <li>its profile's <code>effect</code> carries none: ERC-20 <code>transferFrom</code> and ICRC-2 <code>icrc2_transfer_from</code> in the packs, which spend an allowance someone else gave, and any method whose profile names no grant;</li>
+  <li>it grants several tokens: Permit2's <code>PermitBatch</code> and <code>PermitBatchTransferFrom</code>, since a grant covers one token in v0;</li>
+  <li>its profile pins a position (<code>fixed</code>) and the pin does not hold in the service: the profile keeps its effects, without their grants (<a href="reference-tags.html#a-pin-fixed">Tags</a>). A request whose pinned position holds another address gets no text at all (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_FIXED</span></span>);</li>
+  <li><code>generateConsent</code> was not given <code>canisterId</code>;</li>
+  <li>
+    its grant cannot be read, which <span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_GRANT</span></span> says. An <code>icrc1_transfer</code> to an account whose
+    subaccount is 2 bytes long has the diagnostic
+    <code>grant to: a subaccount is 32 bytes, got 2; the request has no grant, so terms the user confirmed cannot cover it</code>.
+    The text of the message is the same with or without a grant.
+  </li>
+</ul>
+
+<h2 id="keep-the-order-with-termsgate">Keep the order with termsGate<a class="heading-anchor" href="#keep-the-order-with-termsgate" aria-label="Link to Keep the order with termsGate">#</a></h2>
+
+<p>
+  The terms must be confirmed before the agent reads the request, so that the request cannot shape them, and they cannot
+  change after. <code>termsGate()</code> keeps that order for one task. Here the task is Dex's EIP-2612 permit on
+  Anvil, which the wallet signs, and Alice has said plainly that the allowance need not end, since a permit's
+  allowance never does. <code>tka.abi.json</code> is the token's ABI as on <a href="chain-evm.html">EVM contracts</a>,
+  with EIP-2612's <code>permit</code>, <code>nonces</code> and <code>DOMAIN_SEPARATOR</code>:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npx</span> candid-profile resolve<span class="tok-attr"> --abi</span> tka.abi.json<span class="tok-attr"> --packs</span> <span class="tok-punct">&gt;</span> tka.resolved.json</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> readFileSync <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"node:fs"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> eip712Consent <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/evm"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> readTerms<span class="tok-punct">,</span> termsGate <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/consent/terms"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">TKA</span> <span class="tok-punct">=</span> <span class="tok-string">"0x5FbDB2315678afecb367f032d93F642f64180aa3"</span><span class="tok-punct">;</span> <span class="tok-comment">// a token with EIP-2612's permit, on a local Anvil chain</span>
+<span class="tok-keyword">const</span> wallet <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  tokens<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">TKA</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> address<span class="tok-punct">:</span> <span class="tok-type">TKA</span><span class="tok-punct">,</span> decimals<span class="tok-punct">:</span> <span class="tok-number">6</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  apps<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">Dex</span><span class="tok-punct">:</span> <span class="tok-string">"0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  now<span class="tok-punct">:</span> <span class="tok-type">BigInt</span><span class="tok-punct">(</span><span class="tok-type">Date</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"2026-11-02T12:00:00Z"</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">*</span> <span class="tok-number">1_000_000n</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> gate <span class="tok-punct">=</span> <span class="tok-fn">termsGate</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// one gate per task</span>
+<span class="tok-keyword">const</span> shown <span class="tok-punct">=</span> gate<span class="tok-punct">.</span><span class="tok-fn">propose</span><span class="tok-punct">(</span><span class="tok-fn">readTerms</span><span class="tok-punct">(</span><span class="tok-punct">{</span> token<span class="tok-punct">:</span> <span class="tok-string">"TKA"</span><span class="tok-punct">,</span> spender<span class="tok-punct">:</span> <span class="tok-string">"Dex"</span><span class="tok-punct">,</span> max_amount<span class="tok-punct">:</span> <span class="tok-string">"500"</span><span class="tok-punct">,</span> expires_by<span class="tok-punct">:</span> <span class="tok-string">"never"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> wallet<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// The wallet shows `shown` on its own screen. When the person confirms it:</span>
+gate<span class="tok-punct">.</span><span class="tok-fn">confirm</span><span class="tok-punct">(</span>shown<span class="tok-punct">)</span><span class="tok-punct">;</span>
+gate<span class="tok-punct">.</span><span class="tok-fn">read</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// only now may the agent read the request</span>
+
+<span class="tok-keyword">const</span> resolved <span class="tok-punct">=</span> <span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-fn">readFileSync</span><span class="tok-punct">(</span><span class="tok-string">"tka.resolved.json"</span><span class="tok-punct">,</span> <span class="tok-string">"utf8"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the ERC-20 and EIP-2612 packs apply</span>
+<span class="tok-keyword">const</span> request <span class="tok-punct">=</span> <span class="tok-fn">eip712Consent</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  resolved<span class="tok-punct">,</span>
+  typedData<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    types<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">Permit</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"owner"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"spender"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"value"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"nonce"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"deadline"</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span><span class="tok-punct">:</span> <span class="tok-string">"uint256"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    primaryType<span class="tok-punct">:</span> <span class="tok-string">"Permit"</span><span class="tok-punct">,</span>
+    domain<span class="tok-punct">:</span> <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"Token A"</span><span class="tok-punct">,</span> version<span class="tok-punct">:</span> <span class="tok-string">"1"</span><span class="tok-punct">,</span> chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> verifyingContract<span class="tok-punct">:</span> <span class="tok-type">TKA</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    message<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      owner<span class="tok-punct">:</span> <span class="tok-string">"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"</span><span class="tok-punct">,</span>
+      spender<span class="tok-punct">:</span> <span class="tok-string">"0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"</span><span class="tok-punct">,</span>
+      value<span class="tok-punct">:</span> <span class="tok-string">"500000000"</span><span class="tok-punct">,</span>
+      nonce<span class="tok-punct">:</span> <span class="tok-string">"0"</span><span class="tok-punct">,</span>
+      deadline<span class="tok-punct">:</span> <span class="tok-string">"1793622600"</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  chainId<span class="tok-punct">:</span> <span class="tok-number">31337</span><span class="tok-punct">,</span> <span class="tok-comment">// the wallet's active chain</span>
+  refs<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-string">"query:decimals"</span><span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> <span class="tok-string">"query:symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> verdict <span class="tok-punct">=</span> gate<span class="tok-punct">.</span><span class="tok-fn">check</span><span class="tok-punct">(</span>request<span class="tok-punct">.</span>grant<span class="tok-punct">,</span> wallet<span class="tok-punct">,</span> request<span class="tok-punct">.</span>digest<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the digest names the request</span></code></pre></div>
+
+<p>
+  <code>shown</code> is <code>Dex (0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0) may spend at most 500 TKA, and this
+  permission never ends.</code>, the request's digest is
+  <code>0x2c2508888c143ec60cf4e3d7df48cd0e02972246ee3ba7163baf8f254c765294</code>, and <code>verdict</code> is
+  <code>{ fits: true, reasons: [] }</code>. The gate moves from <code>"open"</code> to <code>"proposed"</code>,
+  <code>"confirmed"</code> and <code>"read"</code>:
+</p>
+
+<ul>
+  <li><code>propose(terms)</code> takes the agent's draft and returns the text to show. A new draft replaces the old one and its confirmation.</li>
+  <li><code>confirm(shown)</code> takes the text the person confirmed on the wallet's screen, which must be exactly the draft's, and returns the confirmed terms. <code>reject()</code> drops the draft when the person says no.</li>
+  <li><code>read()</code> comes before the agent reads the request, and is refused until the person has confirmed.</li>
+  <li><code>check(grant, wallet, requestId)</code> is <code>checkGrant</code> for the request read.</li>
+</ul>
+
+<p>A step out of order throws <code>TermsError</code> <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_ORDER</span></span>, with a message for the agent:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Step</th><th><code>message</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>read()</code> on a new gate</td><td><code class="wrap">there are no terms yet: propose the user's terms, and read the request once the user confirms them</code></td></tr>
+    <tr><td><code>read()</code> after <code>propose</code></td><td><code class="wrap">the user has not confirmed the terms yet; the request can be read once they do</code></td></tr>
+    <tr><td><code>confirm()</code> with another text</td><td><code class="wrap">the text the user confirmed is not the text of the terms proposed; show termsText(gate.proposed) and ask again</code></td></tr>
+    <tr><td><code>propose()</code> after <code>read()</code></td><td><code class="wrap">the request was read under the confirmed terms, so they cannot be changed now; new terms start a new task</code></td></tr>
+    <tr><td><code>check()</code> before <code>read()</code></td><td><code class="wrap">read the request first: its grant is checked against the terms it was read under</code></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="one-task-one-request">One task, one request<a class="heading-anchor" href="#one-task-one-request" aria-label="Link to One task, one request">#</a></h2>
+
+<p>
+  Terms cover one task: the request the agent was working on when the person confirmed them, and no other. A request is
+  named by what is signed or sent, not by its grant. <code>check</code> takes that name: <code>eip712Consent</code>'s
+  <code>digest</code> for a signature, or the wallet's own id of a call (an EVM transaction's hash, an Internet Computer
+  request's id). The same request may be checked again; another is refused even when it grants the same.
+</p>
+
+<p>
+  <span class="claim fact">fact</span> Two requests can grant the same and each be spent, as two Permit2 transfers that differ only in
+  their nonce do (spec §5.3). The same permit with <code>nonce: "1"</code> has the same grant and the digest
+  <code>0xbc5bb19c82bc8f4eb547ba6124340581f2838791a95da2690286904ff9b4843b</code>; checked on the gate above, after
+  the first, it throws <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TERMS_ORDER</span></span>:
+  <code>these terms cover one request, the one already checked; another request is a new task, with new terms</code>.
+  A new task gets a new gate and the person's confirmation of its terms.
+</p>
+
+<h2 id="what-terms-do-not-cover">What terms do not cover<a class="heading-anchor" href="#what-terms-do-not-cover" aria-label="Link to What terms do not cover">#</a></h2>
+
+<ul>
+  <li>
+    A grant is the profile's claim, like any effect (spec §11 item 1), and terms cover what a grant says. A request
+    outside its grant's words, another call or another chain, is checked by the rest of the wallet, as without terms:
+    the contract and chain an EVM consent text ends with, the deployments a profile lists, the decoded arguments shown
+    beside the intent (<a href="security-model.html">security model</a>).
+  </li>
+  <li>
+    Terms are not a budget: they cover one request of one task. <span class="claim open">open</span> Spending policies and budgets
+    that would let an agent commit many calls without a confirmation each are OQ-8 on
+    <a href="open-questions.html">Open questions</a>.
+  </li>
+  <li>
+    The person confirms; the model never does. No tool the agent can call may confirm terms.
+    <code>@meantjs/tools</code> has no terms of its own: it awaits the host's <code>confirm(preview)</code> before
+    every send (<a href="agent-tools.html">Give an agent tools</a>).
+  </li>
+</ul>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>The <code>effect</code> tag's <code>grant</code>: the positions a profile names, and their rules.</p>
+  </a>
+  <a class="card" href="consent-messages.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Generate consent messages</span>
+    <p>The consent functions that return a request's <code>values</code> and <code>grant</code> beside its text.</p>
+  </a>
+  <a class="card" href="security-model.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Security model</span>
+    <p>Why confirmed terms authorize in advance, and who may confirm them.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="agent-tools.html"><span class="dir">Previous</span><span class="label">Give an agent tools</span></a><a class="next" href="reconcile-outcomes.html"><span class="dir">Next</span><span class="label">Settle an unknown outcome</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/confirmed-terms.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#check-a-request-against-the-person-s-terms">Check a request against the person's terms</a></li><li class="toc-h2"><a href="#read-the-agent-s-terms">Read the agent's terms</a></li><li class="toc-h2"><a href="#show-the-terms-on-the-wallet-s-own-screen">Show the terms on the wallet's own screen</a></li><li class="toc-h2"><a href="#read-what-the-request-grants">Read what the request grants</a></li><li class="toc-h2"><a href="#check-the-grant-against-the-terms">Check the grant against the terms</a></li><li class="toc-h2"><a href="#a-request-without-a-grant-needs-its-confirmation">A request without a grant needs its confirmation</a></li><li class="toc-h2"><a href="#keep-the-order-with-termsgate">Keep the order with termsGate</a></li><li class="toc-h2"><a href="#one-task-one-request">One task, one request</a></li><li class="toc-h2"><a href="#what-terms-do-not-cover">What terms do not cover</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

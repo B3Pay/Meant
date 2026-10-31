@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation · Meant</title>
+<meta name="description" content="Structural validation with path-addressed issues, bounded traversal, and no exceptions for control flow.">
+<meta property="og:title" content="Validation · Meant">
+<meta property="og:description" content="Structural validation with path-addressed issues, bounded traversal, and no exceptions for control flow.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>Validation</h1><p class="page-lead">Structural validation with path-addressed issues, bounded traversal, and no exceptions for control flow.</p><div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Upgrading from an earlier release</span>
+  <p>
+    This page describes <code>@candid-core/schema</code> <code>0.5.0</code>, published on 2026-10-27
+    under the npm <code>latest</code> dist-tag. The previous stable release, <code>0.4.0</code>, differs in nothing this page describes; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means. The stable release before that, <code>0.3.0</code>, differs in nothing this page describes: <code>0.4.0</code> adds the type-only <code>WithMode</code> and <code>ModeOf</code>, and <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
+    The stable release before those,
+    <code>0.2.0</code>, has the old surface: it
+    accepts any object with <code>toText()</code> as a principal, and an options object with a
+    misspelled or non-integer limit does not throw.
+    <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
+    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code>, with <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which is this package&rsquo;s code under a new name: an import on this page changes name, its subpath keeps its own, and nothing else changes. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+  </p>
+</div></div>
+
+<p>
+  <a href="https://www.npmjs.com/package/@candid-core/schema"><code>@candid-core/schema</code></a>
+  keeps a Candid type alive at runtime as a plain data object.
+  <a href="schema-builders.html">The builders</a> construct it; the <code>./validate</code> subpath
+  walks it. Given a schema and any JavaScript value, <code>validate</code> answers whether that
+  value is one the schema describes — and when it is not, exactly which parts are wrong and where
+  they sit.
+</p>
+
+<p>
+  Two decisions shape the whole module. It never throws for a bad value: a failure is a return
+  value, so validation is not control flow through exceptions. And every walk is bounded, so a
+  value that arrived from a canister reply, a form submission or an attacker terminates whatever
+  shape it has. Nothing else in the package is pulled in — importing the validator does not drag a
+  codec or an agent with it.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> validate <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span></code></pre></div>
+
+<h2 id="the-signature-and-the-result">The signature and the result<a class="heading-anchor" href="#the-signature-and-the-result" aria-label="Link to The signature and the result">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/validate.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">function</span> validate<span class="tok-punct">&lt;</span><span class="tok-type">T</span><span class="tok-punct">&gt;</span><span class="tok-punct">(</span>
+  schema<span class="tok-punct">:</span> <span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">T</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+  value<span class="tok-punct">:</span> <span class="tok-type">unknown</span><span class="tok-punct">,</span>
+  options<span class="tok-punct">:</span> <span class="tok-type">ValidateOptions</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">ValidateResult</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/validate.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">ValidateResult</span> <span class="tok-punct">=</span>
+  <span class="tok-punct">{</span> <span class="tok-keyword">readonly</span> ok<span class="tok-punct">:</span> <span class="tok-type">true</span> <span class="tok-punct">}</span> <span class="tok-punct">|</span> <span class="tok-punct">{</span> <span class="tok-keyword">readonly</span> ok<span class="tok-punct">:</span> <span class="tok-type">false</span><span class="tok-punct">;</span> <span class="tok-keyword">readonly</span> issues<span class="tok-punct">:</span> <span class="tok-keyword">readonly</span> <span class="tok-type">ValidationIssue</span><span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  <code>value</code> is <code>unknown</code> on purpose. You hand over what you actually have — a
+  parsed JSON body, a decoded reply, whatever a form produced — without first writing a cast that
+  asserts the very thing you are asking about. <code>ok</code> discriminates the result, and a
+  failure always carries at least one issue, so on the branch where <code>issues</code> is readable
+  it is never empty.
+</p>
+
+<p>
+  The third argument bounds the walk. Each field has an exported default constant. Each limit is a
+  non-negative safe integer or absent (<code>undefined</code> means the default), and
+  <code>0</code> is a valid limit that fails closed. Anything else — an unknown key such as a
+  misspelled <code>maxDeph</code>, or a limit that is <code>NaN</code>, negative, fractional, a
+  string, <code>null</code> or <code>Infinity</code> — throws <code>TypeError</code> before the value
+  is read. A misspelled key used to leave the default in force without a word, and a
+  <code>NaN</code> limit switched its bound off: a depth-300 value passed under
+  <code>maxDepth: NaN</code>.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Option</th><th>Default</th><th>Bounds</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>maxDepth</code></td>
+      <td><code>DEFAULT_MAX_DEPTH</code> = 256</td>
+      <td>Value depth: the root is at 0 and each constructor's children one below it, a variant's <code>null</code> payload included. A <code>rec</code> hop is not a level. It mirrors the Rust crate's <code>max_value_depth</code>: a value <code>validate_host_value</code> accepts at the same limit is accepted here, as long as the limit is at least the schema's longest chain of consecutive <code>rec</code> hops (one for a Contract-loaded schema, two for a generated module), since more hops than <code>maxDepth</code> in one chain are refused.</td>
+    </tr>
+    <tr>
+      <td><code>maxElements</code></td>
+      <td><code>DEFAULT_MAX_ELEMENTS</code> = 1&nbsp;000&nbsp;000</td>
+      <td>Total traversal budget across the whole value, every branch included. Examined record keys are charged too, so a value with a million junk keys stops.</td>
+    </tr>
+    <tr>
+      <td><code>maxIssues</code></td>
+      <td><code>DEFAULT_MAX_ISSUES</code> = 100</td>
+      <td>How many failures one walk collects before it stops looking. The result is still not-ok.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2 id="the-issue-shape">The issue shape<a class="heading-anchor" href="#the-issue-shape" aria-label="Link to The issue shape">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/validate.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">interface</span> <span class="tok-type">ResourceLimitInfo</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">readonly</span> resource<span class="tok-punct">:</span> <span class="tok-string">"value_depth"</span> <span class="tok-punct">|</span> <span class="tok-string">"value_elements"</span> <span class="tok-punct">|</span> <span class="tok-string">"stack"</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">readonly</span> limit<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">readonly</span> observed<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">interface</span> <span class="tok-type">ValidationIssue</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">readonly</span> code<span class="tok-punct">:</span> <span class="tok-type">ValidationCode</span><span class="tok-punct">;</span>
+  <span class="tok-comment">/** `$`-rooted path to the offending value, meant style. */</span>
+  <span class="tok-keyword">readonly</span> path<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">readonly</span> message<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">readonly</span> resource_limit<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">ResourceLimitInfo</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  The snake_case <code>resource_limit</code> in an otherwise camelCase file is not a slip. This is
+  deliberately the shape a <code>meant</code> validation violation serializes to —
+  <code>{ code, path, message }</code>, plus <code>resource_limit</code> when a bound was hit — so a
+  consumer that already reads those reads these without a second parser. The
+  <a href="reference-diagnostics.html">diagnostics reference</a> covers the shared shape, and
+  <a href="limits-and-diagnostics.html">limits and diagnostics</a> covers the Rust side of the same
+  idea.
+</p>
+
+<h3 id="the-eleven-codes">The eleven codes<a class="heading-anchor" href="#the-eleven-codes" aria-label="Link to The eleven codes">#</a></h3>
+
+<p>
+  <code>ValidationCode</code> is a closed union. Adding a member is an API change, so you can switch
+  on it exhaustively.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Code</th><th>Fires when</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>invalid_type</code></td><td>The value is the wrong JavaScript type for the node: a <code>number</code> where <code>nat</code> wants a <code>bigint</code>, a non-array for <code>vec</code>, a non-<code>Uint8Array</code> for <code>blob</code>, a non-object where a record or variant is declared, a non-string variant tag.</td></tr>
+    <tr><td><code>not_integer</code></td><td>A fixed-width integer (<code>nat8</code>…<code>int32</code>) got a fractional <code>number</code>.</td></tr>
+    <tr><td><code>out_of_range</code></td><td>A negative <code>nat</code>, a <code>nat64</code>/<code>int64</code> outside its bigint range, or a fixed width outside its declared bounds. 255 passes <code>nat8</code>; 256 does not.</td></tr>
+    <tr><td><code>missing_field</code></td><td>A declared record field is absent, a variant value has no <code>tag</code>, a payload arm has no <code>value</code>, or a func reference is missing <code>principal</code> or <code>method</code>.</td></tr>
+    <tr><td><code>unexpected_field</code></td><td>A key the schema does not declare: an unknown record field, any key at all on <code>c.unit()</code>, anything besides <code>tag</code> on a bare-tag arm, anything besides <code>tag</code>/<code>value</code> on a variant, anything besides <code>principal</code>/<code>method</code> on a func reference.</td></tr>
+    <tr><td><code>unknown_tag</code></td><td>The variant's <code>tag</code> names no arm of this variant.</td></tr>
+    <tr><td><code>invalid_length</code></td><td>A tuple array has the wrong number of elements.</td></tr>
+    <tr><td><code>uninhabited_type</code></td><td><code>c.empty</code> was reached. No value passes, so every value fails here.</td></tr>
+    <tr><td><code>unsupported_schema</code></td><td>The <em>schema</em> object is not one this package builds: an unknown <code>kind</code>, an unknown primitive name, or a <code>rec</code> thunk that returned something other than a schema.</td></tr>
+    <tr><td><code>unreadable_value</code></td><td>The value threw while being inspected — an own accessor that raises, a hostile or revoked <code>Proxy</code>.</td></tr>
+    <tr><td><code>resource_limit_exceeded</code></td><td>A bound tripped. This is the only code that carries <code>resource_limit</code>.</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="the-path-grammar">The path grammar<a class="heading-anchor" href="#the-path-grammar" aria-label="Link to The path grammar">#</a></h3>
+
+<p>
+  Paths are <code>$</code>-rooted. An ASCII-identifier-shaped key renders as <code>.name</code>;
+  anything else renders bracketed and JSON-quoted, <code>["has space"]</code>; an index renders
+  <code>[3]</code>. A variant contributes <code>.tag</code> and <code>.value</code>, a func
+  reference <code>.principal</code> and <code>.method</code>. So a bad amount two records down reads
+  <code>$.amount.e8s</code>, and a bad element of a vector of records reads
+  <code>$.transactions[4].memo</code>.
+</p>
+
+<p>
+  This is the same grammar the Rust crate uses for <code>$.declarations[3].name</code>, so a path
+  means the same thing on both sides of the project.
+</p>
+
+<h2 id="three-worked-calls">Three worked calls<a class="heading-anchor" href="#three-worked-calls" aria-label="Link to Three worked calls">#</a></h2>
+
+<p>All three use the same two schemas, hand-written here so the shapes are visible.</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> principal <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> validate <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">Tokens</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> c<span class="tok-punct">.</span>nat64 <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-type">Account</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> owner<span class="tok-punct">:</span> c<span class="tok-punct">.</span>principal<span class="tok-punct">,</span> subaccount<span class="tok-punct">:</span> c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span><span class="tok-fn">blob</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-type">TransferArg</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> to<span class="tok-punct">:</span> <span class="tok-type">Account</span><span class="tok-punct">,</span> amount<span class="tok-punct">:</span> <span class="tok-type">Tokens</span><span class="tok-punct">,</span> memo<span class="tok-punct">:</span> c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span><span class="tok-fn">blob</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>A value the schema describes:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-fn">validate</span><span class="tok-punct">(</span><span class="tok-type">TransferArg</span><span class="tok-punct">,</span> <span class="tok-punct">{</span>
+  to<span class="tok-punct">:</span> <span class="tok-punct">{</span> owner<span class="tok-punct">:</span> <span class="tok-fn">principal</span><span class="tok-punct">(</span><span class="tok-string">"aaaaa-aa"</span><span class="tok-punct">)</span><span class="tok-punct">,</span> subaccount<span class="tok-punct">:</span> <span class="tok-type">null</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  amount<span class="tok-punct">:</span> <span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> <span class="tok-number">100_000n</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  memo<span class="tok-punct">:</span> <span class="tok-type">null</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// { ok: true }</span></code></pre></div>
+
+<p>
+  Note the two <code>null</code>s. <code>opt T</code> renders as <code>T | null</code> with the
+  property <em>present</em>, so <code>memo: null</code> is how you say "no memo". Omitting the key
+  is a different value, and it fails.
+</p>
+
+<p>Two failures at once, each addressed to its own path:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">const</span> result <span class="tok-punct">=</span> <span class="tok-fn">validate</span><span class="tok-punct">(</span><span class="tok-type">TransferArg</span><span class="tok-punct">,</span> <span class="tok-punct">{</span>
+  to<span class="tok-punct">:</span> <span class="tok-punct">{</span> owner<span class="tok-punct">:</span> <span class="tok-string">"AAAAA-AA"</span><span class="tok-punct">,</span> subaccount<span class="tok-punct">:</span> <span class="tok-type">null</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  amount<span class="tok-punct">:</span> <span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> <span class="tok-punct">-</span><span class="tok-number">1n</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  memo<span class="tok-punct">:</span> <span class="tok-type">null</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// {</span>
+<span class="tok-comment">//   ok: false,</span>
+<span class="tok-comment">//   issues: [</span>
+<span class="tok-comment">//     {</span>
+<span class="tok-comment">//       code: "invalid_type",</span>
+<span class="tok-comment">//       path: "$.to.owner",</span>
+<span class="tok-comment">//       message: "expected a Principal, got a string that is not canonical principal text"</span>
+<span class="tok-comment">//     },</span>
+<span class="tok-comment">//     {</span>
+<span class="tok-comment">//       code: "out_of_range",</span>
+<span class="tok-comment">//       path: "$.amount.e8s",</span>
+<span class="tok-comment">//       message: "nat64 must be in [0, 2^64-1], got -1n"</span>
+<span class="tok-comment">//     }</span>
+<span class="tok-comment">//   ]</span>
+<span class="tok-comment">// }</span></code></pre></div>
+
+<p>
+  The first is the principal check. A principal is its canonical text, typed as the branded
+  <code>Principal</code>, so <code>c.principal</code> is satisfied by exactly a string holding
+  canonical text — lowercase, dash-grouped by five, with a matching checksum. Upper case is not
+  canonical, and neither is an object with a <code>toText</code> method (an
+  <code>@icp-sdk/core</code> <code>Principal</code> included): both are <code>invalid_type</code>,
+  and <code>encode</code> refuses them with the same code at the same path. Convert once with
+  <code>principal(value)</code>, which throws <code>TypeError</code> on non-canonical text rather
+  than repairing it.
+</p>
+
+<p>And the omitted-versus-null case, plus an unknown key:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-fn">validate</span><span class="tok-punct">(</span><span class="tok-type">TransferArg</span><span class="tok-punct">,</span> <span class="tok-punct">{</span>
+  to<span class="tok-punct">:</span> <span class="tok-punct">{</span> owner<span class="tok-punct">:</span> <span class="tok-fn">principal</span><span class="tok-punct">(</span><span class="tok-string">"aaaaa-aa"</span><span class="tok-punct">)</span><span class="tok-punct">,</span> subaccount<span class="tok-punct">:</span> <span class="tok-type">null</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  amount<span class="tok-punct">:</span> <span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> <span class="tok-number">1n</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  reference<span class="tok-punct">:</span> <span class="tok-string">"abc"</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// issues: [</span>
+<span class="tok-comment">//   { code: "missing_field",    path: "$.memo",      message: "required field is missing" },</span>
+<span class="tok-comment">//   { code: "unexpected_field", path: "$.reference", message: "field is not part of this record" }</span>
+<span class="tok-comment">// ]</span></code></pre></div>
+
+<p>
+  Issue order is deterministic: declared fields in the schema's own enumeration order first, then
+  unexpected value keys in the value's enumeration order. Two runs over the same value give the same
+  list, which is what makes an issue list safe to snapshot in a test.
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Presence means own and enumerable</span>
+  <p>
+    A field counts as present only if it is an own <em>enumerable</em> property — the projection
+    <code>JSON.stringify</code>, object spread and structured clone all see. An inherited
+    <code>toString</code> does not satisfy a field named <code>toString</code>, and a
+    non-enumerable own property neither satisfies a required field nor counts as an unknown one. The
+    consequence is the useful part: a value that validates never serializes to something the schema
+    would reject.
+  </p>
+</div></div>
+
+<h2 id="bounds-and-what-you-observe-when-one-trips">Bounds, and what you observe when one trips<a class="heading-anchor" href="#bounds-and-what-you-observe-when-one-trips" aria-label="Link to Bounds, and what you observe when one trips">#</a></h2>
+
+<p>
+  A bound failure is terminal. The walk stops, and the result carries a
+  <code>resource_limit_exceeded</code> issue whose <code>resource_limit</code> names what ran out,
+  the configured <code>limit</code>, and the <code>observed</code> value that crossed it. This is
+  the case worth stating precisely: <strong>a truncated walk never reports <code>ok</code></strong>.
+  A completely valid value comes back not-ok if the budget stopped the examination early, because
+  reporting success would claim an inspection that never happened.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">const</span> big <span class="tok-punct">=</span> <span class="tok-keyword">new</span> <span class="tok-type">Array</span><span class="tok-punct">(</span><span class="tok-number">1000</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">fill</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> limited <span class="tok-punct">=</span> <span class="tok-fn">validate</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span><span class="tok-fn">vec</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span>nat8<span class="tok-punct">)</span><span class="tok-punct">,</span> big<span class="tok-punct">,</span> <span class="tok-punct">{</span> maxElements<span class="tok-punct">:</span> <span class="tok-number">10</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// {</span>
+<span class="tok-comment">//   ok: false,</span>
+<span class="tok-comment">//   issues: [</span>
+<span class="tok-comment">//     {</span>
+<span class="tok-comment">//       code: "resource_limit_exceeded",</span>
+<span class="tok-comment">//       path: "$[9]",</span>
+<span class="tok-comment">//       message: "value_elements limit 10 exceeded (observed 11)",</span>
+<span class="tok-comment">//       resource_limit: { resource: "value_elements", limit: 10, observed: 11 }</span>
+<span class="tok-comment">//     }</span>
+<span class="tok-comment">//   ]</span>
+<span class="tok-comment">// }</span></code></pre></div>
+
+<p>
+  Depth behaves the same way with <code>resource: "value_depth"</code>. Depth counts the value's
+  constructors, not the schema's <code>rec</code> hops: a linked-list-shaped value consumes depth
+  per element, so a hundred-thousand-node list stops at the default 256 rather than overflowing the
+  JavaScript stack, and a value is judged alike through a generated module, a Contract-loaded schema
+  or a schema built without <code>rec</code>, at any <code>maxDepth</code> of two or more. A value
+  that points at itself terminates by the same route. A hand-built <code>rec</code> chain that never resolves — a schema no validated Contract
+  produces, because the compiler refuses a degenerate cycle such as <code>type A = A</code> — ends
+  at its own bound: more than <code>maxDepth</code> consecutive hops resolving one reference are
+  refused with <code>value_depth</code>.
+</p>
+
+<p>
+  The walk keeps its work on an explicit stack rather than the JavaScript call stack, so
+  <code>maxDepth</code> is the only depth bound and the answer does not depend on the engine: raise
+  it, and a 100,000-level list validates the same way on every call.
+</p>
+
+<p>
+  <code>resource: "stack"</code> is the odd one out: it is not a bound you configure. It means the
+  host's own call stack ran out mid-walk, which no depth of value or schema causes; what does is
+  code the walk calls — a getter or Proxy trap on the value, a <code>rec</code> thunk — recursing
+  too deeply by itself. The walk reports <code>{ resource: "stack", limit, observed }</code> with
+  <code>limit</code> the <code>maxDepth</code> you set and <code>observed</code> the depth it had
+  reached. It is not a statement about the value's shape.
+</p>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Read ok, not issues.length</span>
+  <p>
+    Branch on <code>result.ok</code>. Treating an empty issue list as success is the mistake the
+    terminal-bound rule exists to prevent: a walk that halted early has issues but has not seen the
+    whole value, and a walk that succeeded has no issue list at all.
+  </p>
+</div></div>
+
+<h3 id="values-that-fight-inspection">Values that fight inspection<a class="heading-anchor" href="#values-that-fight-inspection" aria-label="Link to Values that fight inspection">#</a></h3>
+
+<p>
+  The no-throw guarantee holds against values built to break walkers. Every read of the value
+  happens behind one choke point, and any exception it raises becomes a terminal
+  <code>unreadable_value</code> issue at the path being examined:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">const</span> schema <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> a<span class="tok-punct">:</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> b<span class="tok-punct">:</span> c<span class="tok-punct">.</span>bool <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> value <span class="tok-punct">=</span> <span class="tok-punct">{</span> a<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-keyword">get</span> <span class="tok-fn">b</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">boolean</span> <span class="tok-punct">{</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"boom"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-fn">validate</span><span class="tok-punct">(</span>schema<span class="tok-punct">,</span> value <span class="tok-keyword">as</span> <span class="tok-type">never</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// issues: [{ code: "unreadable_value", path: "$.a.b", message: "the value threw while being inspected" }]</span></code></pre></div>
+
+<div class="callout tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg><div class="callout-body"><span class="callout-title">What does throw is always a programmer error</span>
+  <p>
+    <code>validate</code> never throws for a value, and a malformed <em>schema</em> object comes back
+    as an <code>unsupported_schema</code> issue rather than an exception. The helpers that
+    <em>read</em> a schema are stricter. <code>resolveSchema</code>, <code>isResultSchema</code>,
+    and <code>unwrapResult</code> throw <code>TypeError</code> on a foreign object, an unknown
+    <code>kind</code>, or a <code>rec</code> chain running past 256 hops, and
+    <code>unwrapResult</code> throws for a schema it reads without trouble that is not a result
+    variant. The classic case all of this catches is passing the decoded <em>value</em> where its
+    schema belongs. Both <code>validate</code> and <code>unwrapResult</code> also throw
+    <code>TypeError</code> for an options object they cannot honour, as above.
+  </p>
+</div></div>
+
+<h2 id="reading-ok-err-results">Reading ok/err results<a class="heading-anchor" href="#reading-ok-err-results" aria-label="Link to Reading ok/err results">#</a></h2>
+
+<p>
+  <code>variant { ok : T; err : E }</code> is the near-universal canister result convention, and the
+  usual way to unwrap one generically is to probe the decoded <em>value</em> for <code>ok</code> or
+  <code>err</code> keys. That guess misfires on any record that legitimately carries those field
+  names, and it cannot type the error payload at all, because a value knows nothing about the arm it
+  does not inhabit. Whether a reply <em>is</em> a result, and what each arm carries, is a fact about
+  the schema — so the two helpers read it off the schema.
+</p>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">isResultSchema</span>
+    <span class="pill">./validate</span>
+  </div>
+  <div class="api-body">
+    <div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/validate.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">function</span> <span class="tok-fn">isResultSchema</span><span class="tok-punct">(</span>schema<span class="tok-punct">:</span> <span class="tok-type">AnyFieldSchema</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">boolean</span></code></pre></div>
+    <p>
+      True when the schema resolves — through the <code>rec</code> indirections every generated
+      declaration arrives wrapped in — to a variant whose arms are <strong>exactly</strong> an ok arm
+      and an err arm. Two spellings are recognised as pairs: <code>ok</code>/<code>err</code>, which
+      Motoko's <code>Result.Result</code> produces, and <code>Ok</code>/<code>Err</code>, which
+      Rust's candid derive produces. Either order. A record carrying those field names is not a
+      result; neither is a variant with a third arm, nor one that mixes the two spellings.
+    </p>
+  </div>
+</div>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">unwrapResult</span>
+    <span class="pill">./validate</span>
+  </div>
+  <div class="api-body">
+    <div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/ts/validate.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">function</span> unwrapResult<span class="tok-punct">&lt;</span><span class="tok-type">S</span> <span class="tok-keyword">extends</span> <span class="tok-type">AnyFieldSchema</span><span class="tok-punct">&gt;</span><span class="tok-punct">(</span>
+  schema<span class="tok-punct">:</span> <span class="tok-type">S</span><span class="tok-punct">,</span>
+  value<span class="tok-punct">:</span> <span class="tok-type">unknown</span><span class="tok-punct">,</span>
+  options<span class="tok-punct">:</span> <span class="tok-type">ValidateOptions</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">UnwrapResult</span><span class="tok-punct">&lt;</span><span class="tok-type">ResultOk</span><span class="tok-punct">&lt;</span><span class="tok-type">S</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span> <span class="tok-type">ResultErr</span><span class="tok-punct">&lt;</span><span class="tok-type">S</span><span class="tok-punct">&gt;</span><span class="tok-punct">&gt;</span></code></pre></div>
+    <p>
+      Validates the value against the schema, then reads one arm. Three outcomes:
+      <code>{ ok: true, value }</code>, <code>{ ok: false, error }</code>, or
+      <code>{ ok: false, issues }</code> — that last one carrying the issues the failed
+      <code>validate</code> call produced. An err arm is a value, not an exception; nothing
+      throws for one. <code>options</code> is forwarded, so a bounded caller stays bounded. A schema
+      that is not a result variant is a programmer error rather than an outcome: it throws
+      <code>TypeError</code> eagerly, before the value is touched.
+    </p>
+  </div>
+</div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> isResultSchema<span class="tok-punct">,</span> unwrapResult <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">TransferError</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">variant</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  bad_fee<span class="tok-punct">:</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> expected_fee<span class="tok-punct">:</span> c<span class="tok-punct">.</span>nat <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+  too_old<span class="tok-punct">:</span> c<span class="tok-punct">.</span><span class="tok-type">null</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-type">TransferResult</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">variant</span><span class="tok-punct">(</span><span class="tok-punct">{</span> ok<span class="tok-punct">:</span> c<span class="tok-punct">.</span>nat<span class="tok-punct">,</span> err<span class="tok-punct">:</span> <span class="tok-type">TransferError</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-fn">isResultSchema</span><span class="tok-punct">(</span><span class="tok-type">TransferResult</span><span class="tok-punct">)</span><span class="tok-punct">;</span>                          <span class="tok-comment">// true</span>
+<span class="tok-fn">isResultSchema</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> ok<span class="tok-punct">:</span> c<span class="tok-punct">.</span>bool<span class="tok-punct">,</span> err<span class="tok-punct">:</span> c<span class="tok-punct">.</span>text <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>   <span class="tok-comment">// false: a record is not a variant</span>
+
+<span class="tok-keyword">declare</span> <span class="tok-keyword">const</span> reply<span class="tok-punct">:</span> <span class="tok-type">unknown</span><span class="tok-punct">;</span> <span class="tok-comment">// whatever the call decoded to</span>
+
+<span class="tok-keyword">const</span> outcome <span class="tok-punct">=</span> <span class="tok-fn">unwrapResult</span><span class="tok-punct">(</span><span class="tok-type">TransferResult</span><span class="tok-punct">,</span> reply<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>outcome<span class="tok-punct">.</span>issues<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">// Not a value of this schema at all.</span>
+  console<span class="tok-punct">.</span><span class="tok-fn">error</span><span class="tok-punct">(</span>outcome<span class="tok-punct">.</span>issues<span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">.</span>path<span class="tok-punct">,</span> outcome<span class="tok-punct">.</span>issues<span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">.</span>message<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>outcome<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> blockIndex<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">=</span> outcome<span class="tok-punct">.</span>value<span class="tok-punct">;</span>
+<span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> failure <span class="tok-punct">=</span> outcome<span class="tok-punct">.</span>error<span class="tok-punct">;</span>   <span class="tok-comment">// typed from the err arm, not from the value</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Every member of <code>UnwrapResult</code> declares all three keys, the ones it does not hold as
+  optional <code>undefined</code>, so <code>ok</code>, <code>error</code> and <code>issues</code>
+  can each be read and narrowed on directly without a type guard. The companion aliases
+  <code>ResultOk&lt;S&gt;</code> and <code>ResultErr&lt;S&gt;</code> name each arm's payload type on
+  its own. A bare-tag arm — <code>variant { ok; err : text }</code> — unwraps to <code>null</code>,
+  the single value of the Candid <code>null</code> it declares.
+</p>
+
+<h2 id="where-to-go-next">Where to go next<a class="heading-anchor" href="#where-to-go-next" aria-label="Link to Where to go next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="schema-codec.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">The binary codec</span>
+    <p>The same issue shape, applied to encoding and decoding Candid bytes.</p>
+  </a>
+  <a class="card" href="reference-diagnostics.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">Diagnostics</span>
+    <p>The structured error shape the Rust crate and this runtime share.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="schema-builders.html"><span class="dir">Previous</span><span class="label">Schema builders and inference</span></a><a class="next" href="schema-codec.html"><span class="dir">Next</span><span class="label">The binary codec</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/schema-validation.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#the-signature-and-the-result">The signature and the result</a></li><li class="toc-h2"><a href="#the-issue-shape">The issue shape</a></li><li class="toc-h3"><a href="#the-eleven-codes">The eleven codes</a></li><li class="toc-h3"><a href="#the-path-grammar">The path grammar</a></li><li class="toc-h2"><a href="#three-worked-calls">Three worked calls</a></li><li class="toc-h2"><a href="#bounds-and-what-you-observe-when-one-trips">Bounds, and what you observe when one trips</a></li><li class="toc-h3"><a href="#values-that-fight-inspection">Values that fight inspection</a></li><li class="toc-h2"><a href="#reading-ok-err-results">Reading ok/err results</a></li><li class="toc-h2"><a href="#where-to-go-next">Where to go next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

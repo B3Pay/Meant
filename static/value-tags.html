@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Values and exact conversion · Meant</title>
+<meta name="description" content="The value tags: what each one means, how input is parsed and output shown, and why nothing is rounded.">
+<meta property="og:title" content="Values and exact conversion · Meant">
+<meta property="og:description" content="The value tags: what each one means, how input is parsed and output shown, and why nothing is rounded.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Values and exact conversion</h1><p class="page-lead">The value tags: what each one means, how input is parsed and output shown, and why nothing is rounded.</p><div class="tool-view"><div class="tool-side sees"><span class="tool-label">The model sees</span><span class="tool-value">1.5 ICP</span><pre>prepare_icrc1_transfer({ amount: &quot;1.5 ICP&quot;, … })</pre></div><div class="tool-bridge" aria-hidden="true">exact, no rounding</div><div class="tool-side sends"><span class="tool-label">The call sends</span><span class="tool-value">150000000</span><pre>record { amount = 150_000_000 : nat; … }</pre></div></div>
+
+<p>
+  The model writes <code>"1.5 ICP"</code>. The ledger takes a <code>nat</code> in units of
+  10<sup>-8</sup>. Between the two sits one tag on one position:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">icrc1_transfer(0).amount</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">amount</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">decimals</span>: <span class="v">query:icrc1_decimals</span></li><li><span class="k">symbol</span>: <span class="v">query:icrc1_symbol</span></li></ul></dd></dl></figure>
+
+<p>
+  A value tag says what the number, the bytes or the record at a position <em>is</em>: a token
+  amount, a point in time, a span of time, an account, a subaccount, a byte string in some
+  encoding. From that, every consumer parses what a person types and shows what a call carries by
+  the same rules (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>). <code>@meantjs/format</code> implements them, and the agent tools
+  and the consent generator both use it, so they cannot disagree about what a value means:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> formatterFor <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/format"</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// The resolved form's node for icrc1_transfer(0).amount, as the ICRC-1 pack tags it.</span>
+<span class="tok-keyword">const</span> node <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  candid<span class="tok-punct">:</span> <span class="tok-string">"nat"</span><span class="tok-punct">,</span>
+  tags<span class="tok-punct">:</span> <span class="tok-punct">{</span> amount<span class="tok-punct">:</span> <span class="tok-punct">{</span> args<span class="tok-punct">:</span> <span class="tok-punct">{</span> decimals<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-keyword">from</span><span class="tok-punct">:</span> <span class="tok-string">"query:icrc1_decimals"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-type">symbol</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-keyword">from</span><span class="tok-punct">:</span> <span class="tok-string">"query:icrc1_symbol"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> amount <span class="tok-punct">=</span> <span class="tok-fn">formatterFor</span><span class="tok-punct">(</span>node<span class="tok-punct">,</span> <span class="tok-punct">{</span> refs<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-string">"query:icrc1_decimals"</span><span class="tok-punct">:</span> <span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-string">"query:icrc1_symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"ICP"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+amount<span class="tok-punct">?</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-string">"1.5 ICP"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "150000000"</span>
+amount<span class="tok-punct">?</span><span class="tok-punct">.</span><span class="tok-fn">display</span><span class="tok-punct">(</span><span class="tok-string">"150000000"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "1.5 ICP"</span>
+amount<span class="tok-punct">?</span><span class="tok-punct">.</span><span class="tok-fn">safeParse</span><span class="tok-punct">(</span><span class="tok-string">"1.500000000"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// { ok: false, error: { code: "E_EXCESS_PRECISION", … } }</span></code></pre></div>
+
+<p>
+  The functions, their options and their error codes are on
+  <a href="format-values.html">Parse and display values</a>; every tag's arguments in one table are
+  on <a href="reference-tags.html">Tags</a>.
+</p>
+
+<h2 id="why-nothing-is-rounded">Why nothing is rounded<a class="heading-anchor" href="#why-nothing-is-rounded" aria-label="Link to Why nothing is rounded">#</a></h2>
+
+<p>
+  Every rule below comes back to one: a conversion is exact, or it is refused. Input with more
+  fractional digits than the token has is rejected, even when the extra digits are zeros. A
+  value outside the range of its Candid type is rejected, never wrapped or clamped. A time that
+  does not fit the tagged unit exactly is rejected. An integer is a decimal string or a
+  <code>bigint</code>, never a JavaScript number, which cannot hold a nanosecond timestamp
+  (about 1.8&nbsp;×&nbsp;10<sup>18</sup>) or an 18-decimal amount exactly.
+</p>
+
+<p>
+  Rounding would be friendlier, and it would send an amount nobody asked for. "0.000000005 ICP" rounded to 8 decimals
+  is either nothing or one base unit, and neither is what the person wrote. A refusal costs one
+  correction; a silent rounding costs a wrong transfer that nobody sees until the balance is
+  wrong. The format library's message says how to fix the input:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">E_EXCESS_PRECISION "1.500000000" has 9 fractional digits but this token has 8; amounts are never rounded, so give at most 8</code></pre></div>
+
+<h2 id="amount">amount<a class="heading-anchor" href="#amount" aria-label="Link to amount">#</a></h2>
+
+<p>
+  <code>amount</code> applies to <code>nat</code>, <code>int</code> and the sized integers
+  <code>nat8</code> to <code>int64</code>. <code>decimals</code> (0 to 255, or a dynamic value)
+  is required, unless <code>token</code> names the token (below); <code>symbol</code> is optional. A base-unit integer <code>v</code> with
+  <code>d</code> decimals is shown as a decimal with trailing fractional zeros removed, a space and
+  the symbol: <code>150000000</code> with <code>d = 8</code> is <code>1.5 ICP</code>, and
+  <code>100000000</code> is <code>1 ICP</code>.
+</p>
+
+<p>
+  Input is an optionally negative decimal number, with digits on both sides of the point if it
+  has one, optionally followed by whitespace and the symbol. With <code>decimals: 8</code> and
+  <code>symbol: "ICP"</code>, on a <code>nat</code>:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Input</th><th>Result</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>1.5 ICP</code></td><td><code>"150000000"</code></td><td></td></tr>
+    <tr><td><code>1.5 icp</code></td><td><code>"150000000"</code></td><td>The symbol matches case-insensitively, for ASCII letters only</td></tr>
+    <tr><td><code>1.5</code></td><td><code>"150000000"</code></td><td>The symbol is optional</td></tr>
+    <tr><td><code>1.500000000</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EXCESS_PRECISION</span></span></td><td>Nine fractional digits, even though the ninth is a zero</td></tr>
+    <tr><td><code>1,000</code> · <code>1e3</code> · <code>+1</code> · <code>.5</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYNTAX</span></span></td><td>No thousands separators, exponents, leading <code>+</code> or bare point</td></tr>
+    <tr><td><code>-1</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NEGATIVE</span></span></td><td><code>nat</code> is unsigned</td></tr>
+    <tr><td><code>1.5 ckBTC</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYMBOL_MISMATCH</span></span></td><td>Not this token's symbol</td></tr>
+    <tr><td><code>300</code> on a <code>nat8</code> with <code>decimals: 0</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RANGE</span></span></td><td>Above 255, the type's maximum</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The symbol in the input is a check, not a conversion: "1.5 ckBTC" on an ICP ledger is refused
+  rather than read as 1.5 of whatever this ledger holds. Bounds in a <code>range</code> tag on the
+  same position are always in base units, so they never depend on the decimals.
+</p>
+
+<h3 id="unlimited-threshold-and-message">Unlimited: threshold and message<a class="heading-anchor" href="#unlimited-threshold-and-message" aria-label="Link to Unlimited: threshold and message">#</a></h3>
+
+<p>
+  Two arguments change only what is shown. A value at or above <code>threshold</code>, a decimal
+  string of base units, is shown as <code>message</code> (default <code>Unlimited</code>) and the
+  symbol: an approval of the largest <code>uint256</code> is <code>Unlimited USDC</code>, not a
+  78-digit number. <code>message</code> needs <code>threshold</code>. Input is unchanged: a number at
+  the threshold still parses to its base units. In an ICRC-21 fields message such a value is
+  <code>Text</code>, never a <code>TokenAmount</code> of the raw number
+  (<a href="consent-messages.html">consent messages</a>).
+</p>
+
+<h3 id="an-amount-in-another-token-token">An amount in another token: token<a class="heading-anchor" href="#an-amount-in-another-token-token" aria-label="Link to An amount in another token: token">#</a></h3>
+
+<p>
+  On an EVM contract, <code>token</code> names the token by a field instead of giving its decimals
+  and symbol. It is a relative path to an <code>address</code> in the same argument, in the same
+  array element as the amount or outside every array. Permit2's allowance names its token beside the
+  amount:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitSingle(0).details.amount</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">amount</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">token</span>: <span class="v">details.token</span></li><li><span class="k">threshold</span>: <span class="v">1461501637330902918203684832716283019655932542975</span></li></ul></dd></dl></figure>
+
+<p>
+  <code>decimals</code> and <code>symbol</code> are then not given (the schema refuses them): they
+  are that token's <code>decimals()</code> and <code>symbol()</code>, which the consumer reads and
+  passes in per token address. Without them there is no text (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span>), never
+  a number read in the wrong decimals, and the token's address is shown beside its symbol, because a
+  symbol is the token's own claim. A path that breaks these rules is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TOKEN_PATH</span></span>, and
+  so is <code>token</code> on a Candid service, whose ledger a field cannot name yet (OQ-6).
+  <a href="chain-evm.html">EVM contracts</a> has the consent text this gives.
+</p>
+
+<h2 id="timestamp">timestamp<a class="heading-anchor" href="#timestamp" aria-label="Link to timestamp">#</a></h2>
+
+<p>
+  <code>timestamp</code> applies to <code>nat</code>, <code>int</code>, <code>nat32</code>,
+  <code>nat64</code> and <code>int64</code>. Its <code>unit</code> (<code>ns</code>,
+  <code>us</code>, <code>ms</code> or <code>s</code>) is required, and <code>epoch</code> is
+  <code>unix</code>. <code>threshold</code>, <code>message</code> and <code>labels</code> are
+  optional and display only. The ICRC-1 pack tags <code>created_at_time</code> as nanoseconds since
+  the Unix epoch.
+</p>
+
+<ul>
+  <li>
+    <strong>Display</strong> is canonical RFC 3339 in UTC, with trailing zeros of the fraction
+    removed: <code>1791547200000000000</code> ns is <code>2026-10-09T12:00:00Z</code>. A human
+    renderer localizes it, using ICRC-21's <code>utc_offset_minutes</code> when the request has
+    one.
+  </li>
+  <li>
+    <strong>Input</strong> is an absolute RFC 3339 time with an explicit zone (leap seconds are
+    rejected), or a relative ISO 8601 duration with a <code>+</code>: <code>+PT24H</code>,
+    <code>+P7D</code>. A relative time is resolved when the call is prepared, against
+    <code>now</code> floored to the tagged unit, so <code>+PT24H</code> on a seconds field is
+    exactly 86,400 seconds after the current second.
+  </li>
+  <li>
+    <strong>Conversion</strong> to the unit is exact. <code>2026-10-09T12:00:00.5Z</code> on a
+    seconds field is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_INEXACT</span></span>: half a second is not a whole number of seconds.
+  </li>
+</ul>
+
+<h3 id="words-for-values-that-are-not-dates">Words for values that are not dates<a class="heading-anchor" href="#words-for-values-that-are-not-dates" aria-label="Link to Words for values that are not dates">#</a></h3>
+
+<p>
+  Some deadlines have extreme values that mean something else. EIP-2612 uses the largest
+  <code>uint256</code> for a permit that never expires, which as a time is out of range; Permit2
+  uses an expiration of 0 for an allowance that lasts only the block it is used in, which as a time
+  reads 1970. Words say what those values mean:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitSingle(0).details.expiration</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">timestamp</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">unit</span>: <span class="v">s</span></li><li><span class="k">epoch</span>: <span class="v">unix</span></li><li><span class="k">threshold</span>: <span class="v">281474976710655</span></li><li><span class="k">message</span>: <span class="v">Never</span></li><li><span class="k">labels</span>: <span class="v">{ &quot;0&quot;: &quot;Only in the block it is used&quot; }</span></li></ul></dd></dl></figure>
+
+<ul>
+  <li><code>labels</code> maps exact values, as decimal strings of the tagged unit, to words: 1 to 16 entries.</li>
+  <li>A value at or above <code>threshold</code> is shown as <code>message</code>. The two come together, and there is no default word.</li>
+  <li>A label is checked first, then the threshold, then the time.</li>
+  <li>A value shown as words is never read as a time: it is not localized, and it is <code>Text</code> in ICRC-21, never <code>TimestampSeconds</code>. Input is unchanged; a word is never parsed back, so typing <code>Never</code> is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SYNTAX</span></span>.</li>
+</ul>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Value of that <code>uint48</code></th><th>Display</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>0</code></td><td><code>Only in the block it is used</code></td><td>A label</td></tr>
+    <tr><td><code>281474976710655</code></td><td><code>Never</code></td><td>At the threshold, the type's maximum</td></tr>
+    <tr><td><code>1798761600</code></td><td><code>2027-01-01T00:00:00Z</code></td><td>A time</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  Without a threshold, the largest <code>uint256</code> is no date at all:
+  <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_RANGE</span></span>, "the time is outside 0000-01-01T00:00:00Z to 9999-12-31T23:59:59Z".
+</p>
+
+<h2 id="duration">duration<a class="heading-anchor" href="#duration" aria-label="Link to duration">#</a></h2>
+
+<p>
+  <code>duration</code> applies to the same types, with a required <code>unit</code>, and uses ISO
+  8601 durations for input and display. Only <code>W</code>, <code>D</code>, <code>H</code>,
+  <code>M</code> (after <code>T</code>) and <code>S</code> are allowed, because each has a fixed
+  length: <code>P1D</code> is exactly 86,400 seconds. A year or a month has no fixed length, so
+  <code>P1Y</code> and <code>P1M</code> are <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CALENDAR_UNIT</span></span>, and so is
+  <code>+P1M</code> as a relative timestamp.
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Seconds</th><th>Display</th></tr></thead>
+  <tbody>
+    <tr><td><code>86400</code></td><td><code>P1D</code></td></tr>
+    <tr><td><code>5400</code></td><td><code>PT1H30M</code></td></tr>
+    <tr><td><code>0</code></td><td><code>PT0S</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  Display never uses <code>W</code> and leaves out zero components. A fraction is allowed on the
+  seconds only and must convert exactly: <code>PT0.5S</code> is <code>500</code> on a
+  milliseconds field and <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_INEXACT</span></span> on a seconds field. A leading <code>-</code> is
+  allowed only when the Candid type is signed.
+</p>
+
+<h2 id="account">account<a class="heading-anchor" href="#account" aria-label="Link to account">#</a></h2>
+
+<p>
+  <code>account</code> applies to the ICRC-1 account record,
+  <code>record { owner : principal; subaccount : opt blob }</code>, and turns the whole record into
+  one piece of text: the ICRC-1 textual encoding, which is a principal alone for the default
+  subaccount and <code>principal-checksum.subaccount</code> otherwise. Input is case-insensitive,
+  and the checksum is verified. Non-canonical text is refused, as the ICRC-1 standard specifies,
+  because two spellings of one account are two chances for a person to compare the wrong one.
+  These are the standard's own examples, shortened in the middle:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Input</th><th>Result</th></tr></thead>
+  <tbody>
+    <tr><td><code>k2t6j-…-teztq-6ae</code></td><td>The principal's default subaccount</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae-6cc627i.1</code></td><td>Subaccount 1</td></tr>
+    <tr><td><code>K2T6J-…-TEZTQ-6AE-6CC627I.1</code></td><td>The same account; displayed in lowercase</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae-6cc627i.01</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NOT_CANONICAL</span></span>: leading zeros in the subaccount</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae-q6bn32y.</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NOT_CANONICAL</span></span>: the default subaccount written out</td></tr>
+    <tr><td><code>k2t6j-…-teztq-6ae.1</code></td><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHECKSUM_MISSING</span></span></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="subaccount">subaccount<a class="heading-anchor" href="#subaccount" aria-label="Link to subaccount">#</a></h2>
+
+<p>
+  <code>subaccount</code> applies to a <code>blob</code> of 32 bytes. Input is <code>#n</code> or a
+  plain decimal <code>n</code> with 0 ≤ n &lt; 2<sup>64</sup>, encoded big-endian into 32 bytes,
+  or exactly 64 hex characters, with or without <code>0x</code>. A string of 64 hex digits is
+  read as hex even when every digit is a decimal digit, and a decimal has no leading zeros, so no
+  input has two readings.
+</p>
+
+<p>
+  Display is <code>#n</code> when the first 24 bytes are zero, and 64 lowercase hex characters
+  otherwise: <code>#7</code> parses to 31 zero bytes and a 7, and displays as <code>#7</code>.
+  <code>parse(display(x)) = x</code> must hold for every 32-byte value, and the format library
+  checks it on 20,000 random values in its tests.
+</p>
+
+<h2 id="bytes">bytes<a class="heading-anchor" href="#bytes" aria-label="Link to bytes">#</a></h2>
+
+<p>
+  <code>bytes</code> applies to a <code>blob</code>, with a required <code>encoding</code>
+  (<code>utf8</code>, <code>hex</code> or <code>base64</code>) and an optional
+  <code>max_len</code>, which counts bytes after encoding. The ICRC-1 pack tags
+  <code>memo</code> as <code>utf8</code>.
+</p>
+
+<ul>
+  <li>
+    <strong><code>utf8</code></strong>: input is plain text, encoded as UTF-8; input that starts
+    with <code>0x</code> is read as hex, so any bytes can still be entered. Display shows the
+    text when the bytes are valid UTF-8 with no control, format or line-separator characters and
+    the text does not start with <code>0x</code>; otherwise it shows <code>0x</code> and lowercase
+    hex. A memo of <code>68 0a</code> ("h" and a newline) displays as <code>0x680a</code>, so a
+    line break cannot hide the rest of a message.
+  </li>
+  <li>
+    <strong><code>hex</code></strong> accepts an optional <code>0x</code> and either case, and
+    always displays <code>0x</code> and lowercase. <strong><code>base64</code></strong> uses the
+    standard alphabet, with padding optional on input and always written on display.
+  </li>
+  <li>
+    <strong><code>max_len</code></strong> is a byte count: <code>héllo</code> is six bytes, so a
+    <code>max_len</code> of 5 refuses it with <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_MAX_LEN</span></span>.
+  </li>
+</ul>
+
+<h2 id="default">default<a class="heading-anchor" href="#default" aria-label="Link to default">#</a></h2>
+
+<p>
+  <code>default</code> fills a position the person need not think about. Its <code>value</code> is
+  a Candid literal or a dynamic value, and its <code>mode</code> says who sees it:
+</p>
+
+<ul>
+  <li><code>auto</code>: the tool layer fills the value, and the position is left out of the agent's tool schema altogether. The ICRC-1 pack sets <code>fee</code> to <code>null</code> this way, so the ledger charges its current fee and the model is never asked to guess one.</li>
+  <li><code>suggest</code>: the position is shown, with the default filled in. The pack suggests <code>null</code> for <code>memo</code>.</li>
+</ul>
+
+<p>
+  <code>null</code> is allowed only on an <code>opt</code> position (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DEFAULT_NULL</span></span>).
+  The v0 validator does not check that other literals type-check against their position, so a
+  consumer checks a default before it uses one.
+</p>
+
+<h2 id="describe-text-range-and-ui">describe, text, range and ui<a class="heading-anchor" href="#describe-text-range-and-ui" aria-label="Link to describe, text, range and ui">#</a></h2>
+
+<ul>
+  <li>
+    <strong><code>describe</code></strong> gives any position, or a method, a <code>label</code>
+    and <code>help</code>. The ICRC-1 pack labels <code>fee</code> "Fee", with the help "Leave
+    empty to pay the ledger's current default fee. A wrong explicit fee fails with BadFee." Labels
+    become the rows of a consent message and the names of form fields.
+  </li>
+  <li>
+    <strong><code>text</code></strong> (experimental) applies to <code>text</code>:
+    <code>format</code> (<code>plain</code>, <code>markdown</code>, <code>email</code>,
+    <code>url</code>), <code>max_len</code> and a <code>pattern</code>.
+  </li>
+  <li>
+    <strong><code>range</code></strong> (experimental) bounds a number with <code>min</code> and
+    <code>max</code>, as decimal strings in base units, or a <code>text</code> or <code>vec</code>
+    with <code>min_len</code> and <code>max_len</code>.
+  </li>
+  <li>
+    <strong><code>ui</code></strong> (experimental) is for user interfaces only:
+    <code>order</code>, <code>group</code>, <code>hidden</code> and <code>widget</code>. Agents
+    ignore it. The ICRC-1 pack hides <code>created_at_time</code>, which the tool layer fills.
+  </li>
+</ul>
+
+<p>
+  A numeric argument of an update method with none of <code>amount</code>,
+  <code>timestamp</code>, <code>duration</code> or <code>describe</code> gets the info
+  <span class="diag info" title="info"><span class="sev">I</span><span class="code">I_UNTAGGED_NUMERIC</span></span>: a bare number is the kind of position where an agent guesses.
+</p>
+
+<h2 id="named">named<a class="heading-anchor" href="#named" aria-label="Link to named">#</a></h2>
+
+<p>
+  <code>named</code> (experimental) marks a position where a name from a <code>names</code> set
+  can stand in for the value: "Savings" for an account id, "Alice" for a principal. It stacks with
+  the position's other tags, and a name is tried only when the input is not already a valid value.
+  The matching rule, and why a name can never redirect a transfer, are on
+  <a href="names.html">Names</a>.
+</p>
+
+<h2 id="on-an-evm-contract">On an EVM contract<a class="heading-anchor" href="#on-an-evm-contract" aria-label="Link to On an EVM contract">#</a></h2>
+
+<p>
+  Profiles for EVM contracts are experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>). The rules above carry over unchanged
+  for <code>amount</code>, <code>timestamp</code>, <code>duration</code> and <code>bytes</code>,
+  with ABI types in place of Candid ones: <code>amount</code> applies to <code>uint8</code> to
+  <code>uint256</code> and <code>int8</code> to <code>int256</code>, each with the bounds of its
+  bits; <code>timestamp</code> and <code>duration</code> to <code>uint32</code> to
+  <code>uint256</code> and <code>int64</code> to <code>int256</code>; and <code>bytes</code> to
+  <code>bytes</code> and <code>bytes1</code> to <code>bytes32</code>.
+</p>
+
+<ul>
+  <li>An address has one text form, <code>0x</code> and 40 hex digits, shown with its EIP-55 checksum. It needs no tag, so <code>account</code> and <code>subaccount</code> on an EVM contract are <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_NOT_APPLICABLE</span></span>.</li>
+  <li>The ERC-20 pack gives <code>amount</code> a <code>threshold</code> and <code>message</code>, so that an approval of the largest <code>uint256</code> shows as <code>Unlimited USDC</code> (<a href="#unlimited-threshold-and-message">above</a>).</li>
+  <li><code>amount</code>'s <code>token</code> is EVM only: an amount in the token an <code>address</code> field names, as in an EIP-712 message such as Permit2's (<a href="#an-amount-in-another-token-token">above</a>).</li>
+  <li><code>timestamp</code>'s words are for EVM deadlines first: the EIP-2612 pack shows a deadline of <code>uint256</code> max as "Never" (<a href="#words-for-values-that-are-not-dates">above</a>).</li>
+</ul>
+
+<p><a href="chain-evm.html">EVM contracts</a> has the rest.</p>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="format-values.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Parse and display values</span>
+    <p>The <code>@meantjs/format</code> API: formatters, safe results and error codes.</p>
+  </a>
+  <a class="card" href="reference-tags.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">Tags</span>
+    <p>All 19 tags in one table: where each applies, its arguments, core or experimental.</p>
+  </a>
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>How these values become the line a person reads before a call is sent.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="addresses.html"><span class="dir">Previous</span><span class="label">Addresses</span></a><a class="next" href="intent-and-effects.html"><span class="dir">Next</span><span class="label">Intent, effects and confirmation</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/value-tags.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#why-nothing-is-rounded">Why nothing is rounded</a></li><li class="toc-h2"><a href="#amount">amount</a></li><li class="toc-h3"><a href="#unlimited-threshold-and-message">Unlimited: threshold and message</a></li><li class="toc-h3"><a href="#an-amount-in-another-token-token">An amount in another token: token</a></li><li class="toc-h2"><a href="#timestamp">timestamp</a></li><li class="toc-h3"><a href="#words-for-values-that-are-not-dates">Words for values that are not dates</a></li><li class="toc-h2"><a href="#duration">duration</a></li><li class="toc-h2"><a href="#account">account</a></li><li class="toc-h2"><a href="#subaccount">subaccount</a></li><li class="toc-h2"><a href="#bytes">bytes</a></li><li class="toc-h2"><a href="#default">default</a></li><li class="toc-h2"><a href="#describe-text-range-and-ui">describe, text, range and ui</a></li><li class="toc-h2"><a href="#named">named</a></li><li class="toc-h2"><a href="#on-an-evm-contract">On an EVM contract</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

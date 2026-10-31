@@ -1,0 +1,18 @@
+{
+  "$schema": "https://b3pay.net/schemas/b3pay-module.schema.json",
+  "schema": 1,
+  "id": "meant",
+  "title": "Meant",
+  "description": "The meaning layer for contract calls: Candid interfaces compiled into a canonical, identity-addressed graph, and profiles that say what each value means and what each call does.",
+  "group": "internet-computer",
+  "status": "maintained",
+  "links": {
+    "repository": "https://github.com/B3Pay/Meant",
+    "package": "https://crates.io/crates/meant"
+  },
+  "home": "index.html",
+  "origin": {
+    "repository": "B3Pay/Meant",
+    "commit": "8f1bdf4eb84259b745ead7ecc258d80e897edfeb"
+  }
+}

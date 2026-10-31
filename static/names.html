@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Names · Meant</title>
+<meta name="description" content="How a person's &quot;Savings&quot; or &quot;Alice&quot; stands in for a value, by one rule every consumer shares.">
+<meta property="og:title" content="Names · Meant">
+<meta property="og:description" content="How a person's &quot;Savings&quot; or &quot;Alice&quot; stands in for a value, by one rule every consumer shares.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Names</h1><p class="page-lead">How a person's "Savings" or "Alice" stands in for a value, by one rule every consumer shares.</p><div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">wallet.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Kind <span class="tok-punct">=</span> <span class="tok-keyword">variant</span> <span class="tok-punct">{</span> Icp<span class="tok-punct">;</span> Bitcoin <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Account <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">id</span> <span class="tok-punct">:</span> <span class="tok-type">nat32</span><span class="tok-punct">;</span> <span class="tok-fn">label</span> <span class="tok-punct">:</span> <span class="tok-type">text</span><span class="tok-punct">;</span> <span class="tok-fn">address</span> <span class="tok-punct">:</span> <span class="tok-type">text</span><span class="tok-punct">;</span> <span class="tok-fn">kind</span> <span class="tok-punct">:</span> Kind <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Transfer <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">from</span> <span class="tok-punct">:</span> <span class="tok-type">nat32</span><span class="tok-punct">;</span> <span class="tok-fn">to</span> <span class="tok-punct">:</span> <span class="tok-type">text</span><span class="tok-punct">;</span> <span class="tok-fn">amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">accounts</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-keyword">variant</span> <span class="tok-punct">{</span> <span class="tok-fn">Ok</span> <span class="tok-punct">:</span> <span class="tok-keyword">vec</span> Account<span class="tok-punct">;</span> <span class="tok-fn">Err</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">propose</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>Transfer<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">wallet.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"accounts"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"names"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"set"</span><span class="tok-punct">:</span> <span class="tok-string">"account"</span><span class="tok-punct">,</span> <span class="tok-type">"items"</span><span class="tok-punct">:</span> <span class="tok-string">"Ok"</span><span class="tok-punct">,</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"label"</span><span class="tok-punct">,</span> <span class="tok-type">"value"</span><span class="tok-punct">:</span> <span class="tok-string">"id"</span><span class="tok-punct">,</span> <span class="tok-type">"show"</span><span class="tok-punct">:</span> <span class="tok-string">"address"</span><span class="tok-punct">,</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"kind"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"propose(0).from"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"named"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"set"</span><span class="tok-punct">:</span> <span class="tok-string">"account"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">{</span> <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"propose(0).to"</span><span class="tok-punct">,</span> <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"named"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"set"</span><span class="tok-punct">:</span> <span class="tok-string">"account"</span><span class="tok-punct">,</span> <span class="tok-type">"by"</span><span class="tok-punct">:</span> <span class="tok-string">"show"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  A wallet canister keeps accounts that its owner has labelled: "Main", "Savings", "BTC Savings".
+  When the owner says "move 1 BTC from Savings", the call needs <code>from = 4</code>, the
+  account's id. The first annotation says where the canister lists its named things; the other
+  two say which positions a name can stand in for. With those written down once (D-045, <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a>), every
+  consumer, whether an agent tool, a consent message or a guard, turns "Savings" into a value by
+  the same rule, instead of each by its own. Both tags are experimental.
+</p>
+
+<h2 id="a-names-set">A names set<a class="heading-anchor" href="#a-names-set" aria-label="Link to A names set">#</a></h2>
+
+<p>
+  <code>names</code> sits on a method that lists named things. <code>items</code> is a
+  results path to the list, and <code>name</code>, <code>value</code>, <code>show</code> and
+  <code>kind</code> are paths inside one item:
+</p>
+
+<ul>
+  <li><code>name</code> is the text a person uses, and must be <code>text</code> (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_FIELD</span></span>).</li>
+  <li><code>value</code> is what the name stands for, here the account's <code>id</code>.</li>
+  <li><code>show</code>, when given, is what to display beside the name, typically an address when <code>value</code> is an id.</li>
+  <li><code>kind</code>, when given, splits the set, so a consumer can ask for "the account named Main that holds Bitcoin".</li>
+</ul>
+
+<p>
+  The method must be a query, a composite query or a <a href="intent-and-effects.html">read-only
+  update</a> (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_MODE</span></span>), must take no arguments, and its <code>items</code> must
+  be a <code>vec</code> of records (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_SHAPE</span></span>). Those rules make the canister
+  vouch for its own names in the same way it vouches for its own decimals: one call, no input, one
+  answer. A set's name is declared once among all the merged profiles
+  (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_SET_DUPLICATE</span></span>).
+</p>
+
+<h2 id="a-named-position">A named position<a class="heading-anchor" href="#a-named-position" aria-label="Link to A named position">#</a></h2>
+
+<p>
+  <code>named</code> marks a position whose value a name from a set can stand in for. Its
+  <code>set</code> must be declared (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMED_SET</span></span>), and <code>by</code> says which
+  field of the entry fills the position: <code>value</code> by default, or <code>show</code>. The
+  position must have the same Candid type as that field (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMED_TYPE</span></span>): above,
+  <code>from</code> is a <code>nat32</code> like an account's <code>id</code>, and <code>to</code>
+  is a <code>text</code> like its <code>address</code>.
+</p>
+
+<p>
+  <code>named</code> stacks with the position's other tags. A transfer's <code>to</code> stays an
+  <code>account</code> or an address; a name is tried only when the input is not a value.
+</p>
+
+<h2 id="the-match">The match<a class="heading-anchor" href="#the-match" aria-label="Link to The match">#</a></h2>
+
+<p>
+  A name matches a text when both normalize to the same string. <code>normalize(t)</code> is, in
+  order: Unicode NFKC, then the Unicode default lowercase mapping (full, without locale rules), then
+  every run of <code>White_Space</code> characters made one space, then leading and trailing
+  spaces removed. Nothing else is removed. Words such as "my" or "the" are the reader's to drop,
+  not the resolver's: "my Savings" is not "Savings" until the agent or the person drops "my".
+</p>
+
+<p>
+  These are cases from <a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/names-vectors.json"><code>spec/names-vectors.json</code></a>,
+  the shared test vectors:
+</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Input</th><th>Normalized</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>Savings</code></td><td><code>savings</code></td><td>Letters lowercased</td></tr>
+    <tr><td><code>␣␣My␣␣␣Savings␣</code></td><td><code>my savings</code></td><td>Runs of spaces made one, ends trimmed</td></tr>
+    <tr><td><code>Savings</code> U+00A0 <code>Account</code></td><td><code>savings account</code></td><td>A no-break space is <code>White_Space</code></td></tr>
+    <tr><td><code>ＳＡＶＩＮＧＳ</code></td><td><code>savings</code></td><td>Fullwidth letters fold to ASCII (NFKC)</td></tr>
+    <tr><td><code>Straße</code></td><td><code>straße</code></td><td>Lowercase, not case folding: the sharp s stays</td></tr>
+    <tr><td><code>STRASSE</code></td><td><code>strasse</code></td><td>So this does not equal the line above</td></tr>
+    <tr><td><code>Sav</code> U+200B <code>ings</code></td><td><code>sav</code> U+200B <code>ings</code></td><td>A zero-width space is not <code>White_Space</code>: it stays, so this is not "savings"</td></tr>
+    <tr><td><code>Cafe</code> U+0301</td><td><code>café</code></td><td>A combining accent composes (NFKC)</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  The choice of lowercase over case folding is about agreement, not linguistics. The default
+  lowercase mapping is in the standard library of JavaScript, Rust and Python, and they give the
+  same answer, so an agent tool in one language and a guard in another cannot disagree about
+  whether "STRASSE" is "Straße". Under full Unicode case folding the two would be equal; the
+  spec chose the mapping that all three standard libraries apply the same way.
+</p>
+
+<h2 id="resolution">Resolution<a class="heading-anchor" href="#resolution" aria-label="Link to Resolution">#</a></h2>
+
+<p>
+  Given the text <code>t</code> a person or an agent typed at a named position, and the set's
+  entries (and optionally a kind), three rules decide:
+</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-title">A value is a value</span>
+    <p>
+      Input that is a valid value of the position by its own tags and type (an address, a
+      principal, a number) is that value, and is not looked up. For a <code>text</code> position,
+      the valid values are the texts its <code>text.pattern</code> matches. A named
+      <code>text</code> position without a pattern gets a warning, because then every input is
+      looked up first, and only input that matches no name is passed on as text:
+    </p>
+    <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">  warning W_NAMED_UNPATTERNED        [local-wallet] propose(0).to  named text without a text.pattern: every input is looked up as a name first, so a name could stand in for a value (spec 5.3)</code></pre></div>
+  </li>
+  <li>
+    <span class="step-title">Otherwise, exactly one entry, or no answer</span>
+    <p>
+      The entries whose normalized name equals <code>normalize(t)</code>, of the given kind if one
+      is given, decide: exactly one gives its <code>value</code> (or its <code>show</code>, with
+      <code>by: "show"</code>); none is <strong>not found</strong>; more than one is
+      <strong>ambiguous</strong>. A consumer never picks one of several: an agent tool asks the
+      person, and a guard reports "not checked".
+    </p>
+  </li>
+  <li>
+    <span class="step-title">Some names never match</span>
+    <p>
+      An entry whose name is itself a valid value of the position never matches, so a label
+      written as an address cannot redirect a transfer. An entry whose normalized name is empty
+      never matches either.
+    </p>
+  </li>
+</ol>
+
+<p>
+  <code>@meantjs/format</code> implements the rule once, for every consumer, as
+  <code>normalizeName</code> and <code>resolveName</code>. The entries here are from the shared
+  vectors:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> normalizeName<span class="tok-punct">,</span> resolveName<span class="tok-punct">,</span> principalFromText <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/format"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> entries <span class="tok-punct">=</span> <span class="tok-punct">[</span>
+  <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"Main"</span><span class="tok-punct">,</span> value<span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span> kind<span class="tok-punct">:</span> <span class="tok-string">"icp"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"Main"</span><span class="tok-punct">,</span> value<span class="tok-punct">:</span> <span class="tok-number">2</span><span class="tok-punct">,</span> kind<span class="tok-punct">:</span> <span class="tok-string">"bitcoin"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"Savings"</span><span class="tok-punct">,</span> value<span class="tok-punct">:</span> <span class="tok-number">4</span><span class="tok-punct">,</span> kind<span class="tok-punct">:</span> <span class="tok-string">"icp"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"BTC Savings"</span><span class="tok-punct">,</span> value<span class="tok-punct">:</span> <span class="tok-number">5</span><span class="tok-punct">,</span> kind<span class="tok-punct">:</span> <span class="tok-string">"bitcoin"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-punct">{</span> name<span class="tok-punct">:</span> <span class="tok-string">"rrkah-fqaaa-aaaaa-aaaaq-cai"</span><span class="tok-punct">,</span> value<span class="tok-punct">:</span> <span class="tok-number">6</span><span class="tok-punct">,</span> kind<span class="tok-punct">:</span> <span class="tok-string">"icp"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">]</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">/** A principal position's own values. @param {string} text */</span>
+<span class="tok-keyword">function</span> <span class="tok-fn">isPrincipal</span><span class="tok-punct">(</span>text<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">try</span> <span class="tok-punct">{</span>
+    <span class="tok-fn">principalFromText</span><span class="tok-punct">(</span>text<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> <span class="tok-type">true</span><span class="tok-punct">;</span>
+  <span class="tok-punct">}</span> <span class="tok-keyword">catch</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">return</span> <span class="tok-type">false</span><span class="tok-punct">;</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-fn">normalizeName</span><span class="tok-punct">(</span><span class="tok-string">"  My   Savings "</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "my savings"</span>
+<span class="tok-fn">resolveName</span><span class="tok-punct">(</span>entries<span class="tok-punct">,</span> <span class="tok-string">"  sAVINGS "</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> isValue<span class="tok-punct">:</span> isPrincipal <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// { value: 4, entry: { name: "Savings", … } }</span>
+<span class="tok-fn">resolveName</span><span class="tok-punct">(</span>entries<span class="tok-punct">,</span> <span class="tok-string">"Main"</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> isValue<span class="tok-punct">:</span> isPrincipal <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// { error: "ambiguous", entries: [ …two entries… ] }</span>
+<span class="tok-fn">resolveName</span><span class="tok-punct">(</span>entries<span class="tok-punct">,</span> <span class="tok-string">"Main"</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> isValue<span class="tok-punct">:</span> isPrincipal<span class="tok-punct">,</span> kind<span class="tok-punct">:</span> <span class="tok-punct">(</span>k<span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> k <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-string">"bitcoin"</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// { value: 2, entry: … }</span>
+<span class="tok-fn">resolveName</span><span class="tok-punct">(</span>entries<span class="tok-punct">,</span> <span class="tok-string">"rrkah-fqaaa-aaaaa-aaaaq-cai"</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> isValue<span class="tok-punct">:</span> isPrincipal <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// { value: "rrkah-…", direct: true }</span></code></pre></div>
+
+<p>
+  The last line is rule 1 and rule 3 together: the input is a principal, so it is that principal,
+  and the entry that is <em>named</em> like a principal is never consulted.
+</p>
+
+<h2 id="display">Display<a class="heading-anchor" href="#display" aria-label="Link to Display">#</a></h2>
+
+<p>
+  A consumer should show a named position's value with the name of the one entry it belongs to,
+  as <code>Savings (efadq-…-kjy554y.1)</code>; with no such entry, or several, the value alone.
+  For a call whose effect is <code>transfer</code>, <code>approve</code>, <code>admin</code> or
+  <code>destroy</code>, the value must be shown whenever a name is: the person confirms what the
+  call carries, not what someone called it. Names are untrusted text, so they are escaped like
+  any rendered value (<a href="intent-and-effects.html">Intent, effects and confirmation</a>), and
+  a name never stands in for the value on screen.
+</p>
+
+<h2 id="once-per-intent">Once per intent<a class="heading-anchor" href="#once-per-intent" aria-label="Link to Once per intent">#</a></h2>
+
+<p>
+  A name is resolved when the call is prepared, and the prepared call carries the value. If the
+  owner renames "Savings" after the person confirmed, the next display beside the value changes;
+  the value sent does not. This is the same reason the <a href="outcomes-and-retries.html">idempotency
+  stamp</a> is fixed per intent: what the person confirmed is the bytes, not a lookup that runs
+  again later.
+</p>
+
+<h2 id="names-are-untrusted-display-text">Names are untrusted display text<a class="heading-anchor" href="#names-are-untrusted-display-text" aria-label="Link to Names are untrusted display text">#</a></h2>
+
+<p>
+  Whoever may name an account, or join a group with a label, chooses the text. It can look like an
+  address, mimic another entry, or press the reader ("approved by the CEO"). The rules above are
+  written so that a name can never replace a value: a value always wins over a name, an ambiguous
+  name fails rather than picks, and the value is shown beside the name. Names read through a plain
+  query come from one replica, as the decimals of a dynamic reference do. The
+  <a href="security-model.html">security model</a> lists this beside the other things a profile
+  cannot vouch for.
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Not on EVM contracts yet</span>
+  <p>
+    <code>names</code> and <code>named</code> on an EVM contract are <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>
+    until a later phase adds the reads they need (<a href="chain-evm.html">EVM contracts</a>).
+  </p>
+</div></div>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="value-tags.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Values and exact conversion</span>
+    <p>The value tags a named position keeps, and how their input is read.</p>
+  </a>
+  <a class="card" href="agent-tools.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Give an agent tools</span>
+    <p>Tools that read names once per intent and ask the person when a name is ambiguous.</p>
+  </a>
+  <a class="card" href="security-model.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Security model</span>
+    <p>What a profile can and cannot vouch for, names included.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="outcomes-and-retries.html"><span class="dir">Previous</span><span class="label">Outcomes and retries</span></a><a class="next" href="security-model.html"><span class="dir">Next</span><span class="label">Security model</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/names.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#a-names-set">A names set</a></li><li class="toc-h2"><a href="#a-named-position">A named position</a></li><li class="toc-h2"><a href="#the-match">The match</a></li><li class="toc-h2"><a href="#resolution">Resolution</a></li><li class="toc-h2"><a href="#display">Display</a></li><li class="toc-h2"><a href="#once-per-intent">Once per intent</a></li><li class="toc-h2"><a href="#names-are-untrusted-display-text">Names are untrusted display text</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

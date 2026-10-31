@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meant</title>
+<meta name="description" content="The meaning layer for contract calls: Candid interfaces compiled into a canonical, identity-addressed graph, and profiles that say what each value means and what each call does.">
+<meta property="og:title" content="Meant">
+<meta property="og:description" content="The meaning layer for contract calls: Candid interfaces compiled into a canonical, identity-addressed graph, and profiles that say what each value means and what each call does.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<main id="main" class="landing"><section class="hero">
+  <a class="hero-eyebrow" href="status.html">meant 0.1.0 · @meantjs 0.5.0 · pre-1.0</a>
+  <h1>What you meant is what runs</h1>
+  <p class="hero-sub">
+    Meant is the meaning layer for contract calls. It compiles a Candid interface into a canonical
+    graph with an identity, and a profile bound to that identity says what each value means and
+    what each call does: 1 ICP is 10<sup>8</sup> base units, this call moves money, this error means
+    it already went through. From one profile come agent tools in human units, ICRC-21 consent
+    messages, and display and input formatting.
+  </p>
+  <div class="hero-actions">
+    <a class="button" href="what-is-meant.html">What Meant is</a>
+    <a class="button secondary" href="quickstart-profiles.html">Quickstart · Profiles</a>
+    <a class="button secondary" href="quickstart-typescript.html">Quickstart · TypeScript</a>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <h2>From an interface to a call the owner confirms</h2>
+  <p class="section-sub">
+    Two layers, one job. The interface layer says what a call's values are; the profile layer
+    says what they mean.
+  </p>
+  <ol class="pipeline">
+    <li class="pipeline-step"><span class="n">01</span><h3>Compile</h3><p>The <code>.did</code> becomes a validated Contract graph with an <code>interface_id</code>.</p></li>
+    <li class="pipeline-step"><span class="n">02</span><h3>Describe</h3><p>A profile bound to that id says what each value means and what each call does.</p></li>
+    <li class="pipeline-step"><span class="n">03</span><h3>Generate</h3><p>Agent tools, consent messages and formatters come from the resolved profile.</p></li>
+    <li class="pipeline-step"><span class="n">04</span><h3>Confirm</h3><p>The owner approves the exact call. Retries cannot pay twice.</p></li>
+  </ol>
+</section>
+
+<section class="section" id="showcase">
+  <h2>One transfer, start to finish</h2>
+  <p class="section-sub">
+    An ICRC-1 transfer of 1.5 ICP, from the interface to the result. The interface, the
+    annotation and the consent message are real: the first two are files in the repository, and
+    the message is what <code>@meantjs/consent</code> returns for this transfer with the ICRC-1
+    pack. The JavaScript is compiled against the package's declarations when the site is built.
+  </p>
+  <ol class="steps">
+  <li>
+    <span class="step-title">The interface says what the values are</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">profile/packages/consent/test/fixtures/ledger.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> TransferArg <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">from_subaccount</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> Subaccount<span class="tok-punct">;</span>
+  <span class="tok-fn">to</span> <span class="tok-punct">:</span> Account<span class="tok-punct">;</span>
+  <span class="tok-fn">amount</span> <span class="tok-punct">:</span> Tokens<span class="tok-punct">;</span>
+  <span class="tok-fn">fee</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> Tokens<span class="tok-punct">;</span>
+  <span class="tok-fn">memo</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">created_at_time</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> Timestamp
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-comment">// …</span>
+<span class="tok-fn">icrc1_transfer</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>TransferArg<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span>TransferResult<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<p>
+  The interface says <code>amount : nat</code>. It does not say that the ledger counts in
+  units of 10<sup>-8</sup>, that <code>created_at_time</code> makes a retry safe, or that
+  <code>Err.Duplicate</code> means the payment already went through. The <code>meant</code>
+  compiler turns the interface into a Contract graph whose identity moves only when the
+  callable interface does; the ICRC-1 standard's fragment has this one:
+</p>
+<p><span class="id-chip"><span class="id-kind">interface_id</span><span class="id-value" title="candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689">candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689</span><button type="button" data-copy="candid-core:interface:v1:sha256:7fae0dd330b20f53ae1e4e2cb1947c1c57791da0ae20299ceb499f63228d0689">Copy</button></span></p>
+  </li>
+  <li>
+    <span class="step-title">A profile says what they mean</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/icrc1.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"icrc1_transfer(0).amount"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"amount"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"decimals"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"from"</span><span class="tok-punct">:</span> <span class="tok-string">"query:icrc1_decimals"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"symbol"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"from"</span><span class="tok-punct">:</span> <span class="tok-string">"query:icrc1_symbol"</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span><span class="tok-punct">,</span></code></pre></div>
+<p>
+  A profile is a separate document bound to that identity. Each annotation names one position
+  in the interface and attaches a tag to it. This one, from the ICRC-1 pack, says the
+  transfer's <code>amount</code> is a token amount whose decimals and symbol the ledger
+  reports itself. The pack carries 29 such annotations, and applies to any ledger whose
+  interface is a subtype of the standard's.
+</p>
+  </li>
+  <li>
+    <span class="step-title">The agent writes what a person would</span>
+<div class="tool-view"><div class="tool-side sees"><span class="tool-label">The model sees</span><span class="tool-value">1.5 ICP</span><pre>send_tokens({
+  to: &quot;ig6pt-…-ig6&quot;,
+  amount: &quot;1.5 ICP&quot;
+})</pre></div><div class="tool-bridge" aria-hidden="true">exact, no rounding</div><div class="tool-side sends"><span class="tool-label">The call sends</span><span class="tool-value">150000000</span><pre>icrc1_transfer(record {
+  amount = 150_000_000;
+  created_at_time = opt 1_793_059_200_000_000_000;
+  …
+})</pre></div></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> parseAmount <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/format"</span><span class="tok-punct">;</span>
+
+<span class="tok-fn">parseAmount</span><span class="tok-punct">(</span><span class="tok-string">"1.5 ICP"</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> decimals<span class="tok-punct">:</span> <span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-type">symbol</span><span class="tok-punct">:</span> <span class="tok-string">"ICP"</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// "150000000"</span>
+<span class="tok-fn">parseAmount</span><span class="tok-punct">(</span><span class="tok-string">"1.123456789"</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> decimals<span class="tok-punct">:</span> <span class="tok-number">8</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// throws E_EXCESS_PRECISION: never rounded</span></code></pre></div>
+<p>
+  An agent writes amounts the way a person does. The tool layer converts them exactly, fills
+  the defaults, stamps <code>created_at_time</code> once per intent and keeps it out of the
+  model's hands, and refuses rather than rounds.
+</p>
+  </li>
+  <li>
+    <span class="step-title">The owner reads what the call does</span>
+<div style="margin: var(--space-4) 0 var(--space-6)"><section class="consent" aria-label="Consent preview"><div class="consent-head"><span class="consent-standard">Consent · ICRC-21</span><h4 class="consent-title">Send tokens</h4><div class="consent-effects"><span class="effect transfer">transfer</span><span class="effect irreversible">irreversible</span></div></div><dl class="consent-fields"><div><dt>Amount</dt><dd><span class="is-amount">1.5 ICP</span></dd></div><div><dt>Recipient</dt><dd><span>ig6pt-bilfj-…-4ysgf-ig6</span></dd></div></dl><div class="consent-foot"><button class="button secondary" type="button" data-consent="reject">Reject</button><button class="button" type="button" data-consent="confirm">Confirm</button><span class="consent-note" aria-live="polite">Only the owner confirms. The model never does.</span></div></section></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span> <span class="tok-type">"FieldsDisplayMessage"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"intent"</span><span class="tok-punct">:</span> <span class="tok-string">"Send tokens: Send 1.5 ICP to ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+      <span class="tok-punct">[</span><span class="tok-string">"Amount"</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> <span class="tok-type">"TokenAmount"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"decimals"</span><span class="tok-punct">:</span> <span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-type">"amount"</span><span class="tok-punct">:</span> <span class="tok-string">"150000000"</span><span class="tok-punct">,</span> <span class="tok-type">"symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"ICP"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-punct">[</span><span class="tok-string">"Recipient"</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> <span class="tok-type">"Text"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"content"</span><span class="tok-punct">:</span> <span class="tok-string">"ig6pt-bilfj-ewrb5-gyxsa-gisbm-b7z5p-o47mn-dswdx-s225j-4ysgf-ig6"</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">]</span>
+    <span class="tok-punct">]</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span></code></pre></div>
+<p>
+  The same profile writes the ICRC-21 consent message for the call, for any method, not only
+  <code>icrc1_transfer</code>. Calls whose effect is <code>transfer</code>,
+  <code>approve</code>, <code>admin</code> or <code>destroy</code> wait for the owner's
+  confirmation, unless a policy the owner set allows them: for a transfer or an approval, that
+  can be <a href="confirmed-terms.html">terms the owner confirmed</a> for the task. The model
+  never confirms.
+</p>
+  </li>
+  <li>
+    <span class="step-title">Every result has a class</span>
+<div class="table-wrap"><table>
+  <thead><tr><th>Result case of <code>icrc1_transfer</code></th><th>Class</th><th>What the caller does</th></tr></thead>
+  <tbody>
+    <tr><td><code>Ok</code></td><td><span class="outcome success"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="currentColor"/></svg>success</span></td><td>Report it done.</td></tr>
+    <tr><td><code>Err.Duplicate</code></td><td><span class="outcome already_done"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="2" fill="currentColor"/></svg>already_done</span></td><td>Report the earlier block. Never pay again.</td></tr>
+    <tr><td><code>Err.TemporarilyUnavailable</code></td><td><span class="outcome retry_same"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>retry_same</span></td><td>Resend the same encoded bytes.</td></tr>
+    <tr><td><code>Err.TooOld</code>, <code>Err.CreatedInFuture</code></td><td><span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span></td><td>Stamp again, and ask the person to confirm again.</td></tr>
+    <tr><td><code>Err.BadFee</code>, <code>Err.BadBurn</code></td><td><span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span></td><td>Show the hint and ask for a corrected value.</td></tr>
+    <tr><td><code>Err.InsufficientFunds</code>, <code>Err.GenericError</code>, anything else</td><td><span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span></td><td>Stop. Do not retry.</td></tr>
+    <tr><td>A timeout, then <code>TooOld</code></td><td><span class="outcome reconcile"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 4.3a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="6" cy="10" r=".9" fill="currentColor"/></svg>reconcile</span></td><td>Check the ledger's history for the first attempt before anything else.</td></tr>
+  </tbody>
+</table></div>
+<p>
+  Every result case has a class, so the caller knows whether to stop, fix the input, retry
+  with the same bytes, or find out whether the first attempt already went through.
+</p>
+  </li>
+  </ol>
+</section>
+
+<section class="section" id="layers">
+  <h2>Two layers</h2>
+  <div class="card-grid">
+    <a class="card" href="what-is-candid-core.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
+      <span class="card-title">Interface graphs and identities</span>
+      <p>The <code>meant</code> crate compiles a Candid interface through the official checker into
+      a canonical, validated graph with content-addressed identities. <code>@candid-core/schema</code>
+      gives TypeScript typed schemas, validation and a binary codec from the same graph.</p>
+    </a>
+    <a class="card" href="profiles.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
+      <span class="card-title">Profiles: what each value means</span>
+      <p>The Candid Profile spec, its standard packs, and the <code>@meantjs</code> packages that
+      resolve profiles and generate tools, consent and formatting from them. <code>meant-format</code>
+      does the <code>amount</code> tag in Rust.</p>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="capabilities">
+  <h2>What you can build on it</h2>
+  <div class="card-grid">
+    <a class="card" href="agent-tools.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
+      <span class="card-title">Give an agent a canister's tools</span>
+      <p>Input in human units, a preview the person confirms before every send, and retries that
+      cannot pay twice.</p>
+    </a>
+    <a class="card" href="consent-messages.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
+      <span class="card-title">Consent messages for any method</span>
+      <p>ICRC-21 messages, both forms, from a resolved profile and the encoded arguments, in a
+      browser, in Node, or inside the canister.</p>
+    </a>
+    <a class="card" href="format-values.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
+      <span class="card-title">Show and read values exactly</span>
+      <p>Amounts, times, durations, accounts, subaccounts and bytes, parsed and shown by one rule
+      that refuses excess precision rather than rounding it.</p>
+    </a>
+    <a class="card" href="identities.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
+      <span class="card-title">Tell whether an interface actually changed</span>
+      <p>Compare one string. Renamed types, reordered fields and comments leave
+      <code>interface_id</code> where it was; a changed argument type moves it.</p>
+    </a>
+    <a class="card" href="schema-codec.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
+      <span class="card-title">Encode and decode Candid in TypeScript</span>
+      <p>A schema-directed implementation of the wire format with no runtime dependencies, which
+      returns issues instead of throwing.</p>
+    </a>
+    <a class="card" href="limits-and-diagnostics.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
+      <span class="card-title">Accept <code>.did</code> source you did not write</span>
+      <p>Every entry point is bounded: over-limit input comes back as a structured diagnostic
+      rather than exhausting memory, CPU or the stack.</p>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="packages">
+  <h2>What is published</h2>
+  <p class="section-sub">
+    One repository, <a href="https://github.com/B3Pay/Meant">B3Pay/Meant</a>. The crates and the two
+    package families version independently, and everything is pre-1.0.
+  </p>
+  <div class="card-grid">
+    <a class="card" href="rust-install.html">
+      <span class="card-kicker">crates.io · 0.1.0</span>
+      <span class="card-title">meant</span>
+      <p>The Rust compiler and model, and the <code>meant</code> binary.</p>
+    </a>
+    <a class="card" href="ts-overview.html">
+      <span class="card-kicker">npm · 0.5.0 / 0.4.0</span>
+      <span class="card-title">@candid-core/schema, @candid-core/cli</span>
+      <p>The TypeScript schema runtime, and the compiler and generator as WebAssembly.</p>
+    </a>
+    <a class="card" href="reference-profile-api.html">
+      <span class="card-kicker">npm · 0.5.0</span>
+      <span class="card-title">@meantjs/*</span>
+      <p><code>profile</code>, <code>format</code>, <code>consent</code>, <code>tools</code> and
+      <code>reconcile</code>: five packages released together.</p>
+    </a>
+    <a class="card" href="reference-meant-format.html">
+      <span class="card-kicker">crates.io · 0.2.0</span>
+      <span class="card-title">meant-format</span>
+      <p>The <code>amount</code> tag in Rust, with no dependencies and <code>no_std</code>.</p>
+    </a>
+    <a class="card" href="packages.html">
+      <span class="card-kicker">Reference</span>
+      <span class="card-title">The full inventory</span>
+      <p>Every crate and package, its version, what it depends on, and which one you need.</p>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="chains">
+  <h2>Chains</h2>
+  <p class="section-sub">
+    Meant was built on the Internet Computer. Most of the profile spec does not depend on the chain,
+    and a binding per chain covers what does.
+  </p>
+  <div class="card-grid">
+    <a class="card" href="chain-icp.html">
+      <span class="card-kicker">ICP · supported</span>
+      <span class="card-title">Internet Computer</span>
+      <p>Candid interfaces, the ICRC-1 and ICRC-2 packs, ICRC-21 consent and PocketIC.</p>
+    </a>
+    <a class="card" href="chain-evm.html">
+      <span class="card-kicker">EVM · experimental</span>
+      <span class="card-title">EVM contracts</span>
+      <p>Profiles for Solidity ABIs and EIP-712 messages, x402 payments included, consent text for calls and signatures, and ERC-7730 files.</p>
+    </a>
+    <a class="card" href="chain-solana.html">
+      <span class="card-kicker">SOL · planned</span>
+      <span class="card-title">Solana</span>
+      <p>Not supported yet: what a binding would need, and what is decided so far.</p>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="start">
+  <h2>Start where you are</h2>
+  <div class="card-grid">
+    <a class="card" href="quickstart-profiles.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
+      <span class="card-title">Profile a token ledger</span>
+      <p>Check the ICRC-1 pack against a ledger's interface and convert an amount exactly.</p>
+    </a>
+    <a class="card" href="quickstart-typescript.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
+      <span class="card-title">Typed, validated canister values</span>
+      <p>Install <code>@candid-core/schema</code>, describe an interface, validate a value and
+      encode it, with no Rust toolchain.</p>
+    </a>
+    <a class="card" href="quickstart-rust.html">
+      <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
+      <span class="card-title">Compile a <code>.did</code> to a Contract</span>
+      <p>One dependency line and one call give you a validated graph with identities you can
+      compare and cache on.</p>
+    </a>
+    <a class="card" href="guarantees.html">
+      <span class="card-kicker">Evaluating it</span>
+      <span class="card-title">What is actually proven</span>
+      <p>The verification gates, the cross-implementation evidence, and what is still pending.</p>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="status">
+  <div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Upgrading from an earlier release</span>
+    <p>
+      The TypeScript on this site is <code>@candid-core/schema</code> <code>0.5.0</code> and
+      <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27 under the npm <code>latest</code> dist-tag. The previous
+      stable releases, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, generate the same modules, type a decoded value as <code>unknown</code>, and have no <code>didToDocAttributes</code>; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+      The stable releases before those, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, differ more: CLI <code>0.2.0</code> declares each type as a <code>$</code>-prefixed local (<code>type $Status = …</code>) and types no method with its mode. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
+      The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface, and <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
+      after code. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which are this pair&rsquo;s code under new names: the CLI&rsquo;s command becomes <code>meant</code>, and the modules it generates differ from <code>0.4.0</code>&rsquo;s only in their first two lines, a new header and an import of <code>@meantjs/schema</code>. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    </p>
+  </div></div>
+
+  <div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Pre-1.0, and it says so</span>
+    <p>
+      The crates are <code>meant</code> <code>0.1.0</code> and <code>meant-format</code>
+      <code>0.2.0</code>; the npm packages are <code>@candid-core/schema</code> <code>0.5.0</code>,
+      <code>@candid-core/cli</code> <code>0.4.0</code> and the five <code>@meantjs</code> packages at
+      <code>0.5.0</code>; the profile spec is Draft 0.2. Any release before 1.0 may change the public
+      API, the serialized shapes, the canonical bytes and every identity computed over them, so pin
+      exact versions: <code>meant = "=0.1.0"</code>, <code>npm install --save-exact</code>.
+      <a href="status.html">Versions, changes and release policy →</a>
+    </p>
+  </div></div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

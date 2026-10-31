@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outcomes and retries · Meant</title>
+<meta name="description" content="Every result case gets a class, so the caller knows whether to stop, fix the input, retry or reconcile.">
+<meta property="og:title" content="Outcomes and retries · Meant">
+<meta property="og:description" content="Every result case gets a class, so the caller knows whether to stop, fix the input, retry or reconcile.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Outcomes and retries</h1><p class="page-lead">Every result case gets a class, so the caller knows whether to stop, fix the input, retry or reconcile.</p><div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/packs/icrc1.profile.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"icrc1_transfer"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"idempotency"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"mode"</span><span class="tok-punct">:</span> <span class="tok-string">"replay_same_payload"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"stamp"</span><span class="tok-punct">:</span> <span class="tok-string">"created_at_time"</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">{</span>
+  <span class="tok-type">"at"</span><span class="tok-punct">:</span> <span class="tok-string">"icrc1_transfer"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"tag"</span><span class="tok-punct">:</span> <span class="tok-string">"outcome"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"classes"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-type">"Ok"</span><span class="tok-punct">:</span> <span class="tok-string">"success"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.Duplicate"</span><span class="tok-punct">:</span> <span class="tok-string">"already_done"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.TemporarilyUnavailable"</span><span class="tok-punct">:</span> <span class="tok-string">"retry_same"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.TooOld"</span><span class="tok-punct">:</span> <span class="tok-string">"retry_new"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.CreatedInFuture"</span><span class="tok-punct">:</span> <span class="tok-string">"retry_new"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.BadFee"</span><span class="tok-punct">:</span> <span class="tok-string">"fix_input"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.BadBurn"</span><span class="tok-punct">:</span> <span class="tok-string">"fix_input"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.InsufficientFunds"</span><span class="tok-punct">:</span> <span class="tok-string">"fail"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"Err.GenericError"</span><span class="tok-punct">:</span> <span class="tok-string">"fail"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">"default"</span><span class="tok-punct">:</span> <span class="tok-string">"fail"</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  A ledger answers a transfer with one of nine result cases. Read as a type, they are one
+  variant. Read by a caller that has to decide what happens next, they are very different:
+  <code>Duplicate</code> means the money already moved, <code>TemporarilyUnavailable</code> means
+  try the same thing again, <code>TooOld</code> means the attempt can no longer be repeated as it
+  was. The ICRC-1 pack gives every case an <strong>outcome class</strong>, and says which argument
+  makes a retry safe.
+</p>
+
+<h2 id="six-classes">Six classes<a class="heading-anchor" href="#six-classes" aria-label="Link to Six classes">#</a></h2>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Class</th><th>What the caller does</th><th>ICRC-1 cases</th></tr></thead>
+  <tbody>
+    <tr><td><span class="outcome success"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="currentColor"/></svg>success</span></td><td>Done.</td><td><code>Ok</code></td></tr>
+    <tr><td><span class="outcome already_done"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="2" fill="currentColor"/></svg>already_done</span></td><td>An identical call already executed. Treat it as success and report the referenced result.</td><td><code>Err.Duplicate</code>, which carries <code>duplicate_of</code>, the block of the first transfer</td></tr>
+    <tr><td><span class="outcome retry_same"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>retry_same</span></td><td>Transient. Retry with the same encoded bytes.</td><td><code>Err.TemporarilyUnavailable</code></td></tr>
+    <tr><td><span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span></td><td>The idempotency stamp expired or is ahead of the canister's clock. Re-stamp, show the person the new intent, and retry only after they confirm it.</td><td><code>Err.TooOld</code>, <code>Err.CreatedInFuture</code></td></tr>
+    <tr><td><span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span></td><td>The input needs correcting; the error's fields carry the hint.</td><td><code>Err.BadFee</code> (with <code>expected_fee</code>), <code>Err.BadBurn</code></td></tr>
+    <tr><td><span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span></td><td>Do not retry.</td><td><code>Err.InsufficientFunds</code>, <code>Err.GenericError</code>, and anything unclassified</td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  <code>retry_new</code> is the class that needs a person. Re-stamping makes a new intent, and a new
+  intent is a new call that the person must see and confirm. A seventh word,
+  <span class="outcome reconcile"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 4.3a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="6" cy="10" r=".9" fill="currentColor"/></svg>reconcile</span>, appears in consumers but in no pack: it is what a consumer
+  concludes from history, covered under the consumer rules below.
+</p>
+
+<h2 id="keys-select-variant-cases">Keys select variant cases<a class="heading-anchor" href="#keys-select-variant-cases" aria-label="Link to Keys select variant cases">#</a></h2>
+
+<p>
+  The keys of <code>classes</code> are <a href="addresses.html">relative paths</a> into the result
+  tuple, and each must select a case of a variant (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_OUTCOME_NOT_CASE</span></span>):
+  <code>Err.BadFee</code> is the <code>BadFee</code> case of the <code>Err</code> case of result 0.
+  Four rules settle every reply:
+</p>
+
+<ul>
+  <li>
+    <strong>The most specific key wins.</strong> When both <code>Err</code> and
+    <code>Err.BadFee</code> are given, a <code>BadFee</code> reply takes the longer key's class.
+  </li>
+  <li>
+    <strong>Unclassified cases fall back to <code>default</code></strong>, reported at info level.
+    A case with no key and no default gets <span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_OUTCOME_UNCLASSIFIED</span></span> as a warning.
+  </li>
+  <li>
+    <strong>A case with no class and no default is <code>fail</code>.</strong> Consumers must treat
+    it so. That covers cases the profile never saw, including the extra result cases a pack match
+    allows.
+  </li>
+  <li>
+    <strong>Packs should set a default</strong> (<span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_PACK_NO_DEFAULT</span></span> otherwise), because
+    a pack applies to canisters it was not written against.
+  </li>
+</ul>
+
+<p>
+  The third rule is what makes the pack-matching relaxation of D-019 safe. A local ledger with an
+  extra <code>Frozen</code> error still matches the ICRC-1 pack, and its new case is a
+  <code>fail</code>, never a guess:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">  info    W_OUTCOME_UNCLASSIFIED     [icrc1] icrc1_transfer  result case "Err.Frozen" has no class (falls back to default)</code></pre></div>
+
+<h2 id="results-that-are-not-a-variant">Results that are not a variant<a class="heading-anchor" href="#results-that-are-not-a-variant" aria-label="Link to Results that are not a variant">#</a></h2>
+
+<p>
+  Not every method answers with a variant. A method that returns a record, a number or nothing has
+  no case to select, so D-049 allows <code>classes</code> to be left out. <code>default</code> is
+  then required and is the class of every reply. Such a method can only fail by a reject, which
+  the consumer handles as for any update: a rejection by the replica means the call did not
+  execute, and an unknown outcome follows the retry rules below. On a method whose result does
+  have a variant, <code>default</code> alone leaves every case unclassified, as any case without a
+  key.
+</p>
+
+<h2 id="idempotency-the-same-bytes-sent-again">idempotency: the same bytes, sent again<a class="heading-anchor" href="#idempotency-the-same-bytes-sent-again" aria-label="Link to idempotency: the same bytes, sent again">#</a></h2>
+
+<p>
+  A call over a network can time out after it executed. Sending it again is safe only if the
+  canister can tell the second send from a new call. <code>idempotency</code> with
+  <code>mode: "replay_same_payload"</code> declares that it can: a retry that carries exactly the
+  same payload is either executed once or answered with the <code>already_done</code> case. Its
+  <code>stamp</code> names the argument field that makes payloads unique; for ICRC-1 that is
+  <code>created_at_time</code>.
+</p>
+
+<ul>
+  <li>
+    The stamp field must carry a <code>timestamp</code> tag (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_STAMP_UNTAGGED</span></span>), so the
+    tool layer knows its unit. A stamp field that is not optional gets
+    <span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_STAMP_REQUIRED</span></span>, since the tool layer must then always fill it, and
+    <code>idempotency</code> on a query is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_IDEMPOTENCY_MODE</span></span>.
+  </li>
+  <li>
+    <strong>The tool layer owns the stamp.</strong> The stamp position never appears in an agent's
+    tool schema and cannot be edited in a user interface. The tool layer fills it from the
+    canister's clock, never the host's (<a href="addresses.html">why</a>).
+  </li>
+  <li>
+    <strong>It fills the stamp once per intent</strong>, encodes the arguments once, and reuses
+    the exact encoded bytes for every retry of that intent. Re-encoding is not enough: any
+    difference in the bytes, a fresh stamp above all, is a new call to the ledger.
+  </li>
+</ul>
+
+<h2 id="one-intent-one-stamp">One intent, one stamp<a class="heading-anchor" href="#one-intent-one-stamp" aria-label="Link to One intent, one stamp">#</a></h2>
+
+<p>
+  The stamp has to follow the person's intent, not the agent's attempts. An agent that is unsure
+  whether a transfer went through may prepare it again; if that minted a new stamp, the ledger
+  would see a second transfer and execute it. So the spec defines an intent and ties the stamp to
+  it.
+</p>
+
+<p>
+  An intent is identified by the canister, the method and the converted arguments without the
+  stamp: base units, defaults applied, <code>auto</code> fields filled. Inputs that convert to the
+  same value are the same intent (<code>"1.5 ICP"</code> and <code>"1.50"</code>), a relative time
+  counts by its duration rather than the instant it resolves to, and the all-zero subaccount
+  equals an absent one. The tool layer keeps every intent it stamped during the session.
+</p>
+
+<ul>
+  <li>
+    An intent is <strong>unsettled</strong> while it was prepared but not committed, its last
+    attempt was <code>retry_same</code>, it was rejected by the replica, or its outcome is unknown.
+    Preparing the same intent again then returns the existing prepared call, with the same
+    identifier and the same bytes, and says so; it never mints a new stamp.
+  </li>
+  <li>
+    It is <strong>settled</strong> by <code>success</code>, <code>already_done</code>,
+    <code>fail</code>, <code>fix_input</code> or a reconciliation. Only then may the same arguments
+    be stamped again, as a new intent the person confirms again, with a stamp later than every
+    earlier one of the same identity.
+  </li>
+</ul>
+
+<h2 id="unknown-outcomes-and-rejections">Unknown outcomes and rejections<a class="heading-anchor" href="#unknown-outcomes-and-rejections" aria-label="Link to Unknown outcomes and rejections">#</a></h2>
+
+<p>
+  An unknown outcome (a timeout, a lost connection, a reply that says the call may have executed)
+  and a rejection are different facts, and the rules keep them apart.
+</p>
+
+<ul>
+  <li>
+    <strong>Unknown outcome, with the tag:</strong> the consumer may send the same bytes again
+    <em>within the canister's deduplication window</em>, where the canister either executes the
+    call once or answers <code>already_done</code>. The tool layer's answer must tell the caller to
+    commit the same prepared call again, and must not suggest preparing a new one.
+  </li>
+  <li>
+    <strong>Rejected by the replica:</strong> a trap or a refused call did not execute. It is not an
+    unknown outcome, and the same bytes may be sent again. <code>@meantjs/tools</code> reads this
+    narrowly: only reject codes 1, 2 and 3 count as "did not execute", and any other reject is
+    treated as an unknown outcome (<a href="agent-tools.html">Give an agent tools</a>).
+  </li>
+  <li>
+    <strong>Unknown outcome, without the tag:</strong> nothing can make a second send safe, so a
+    consumer must not retry the update automatically.
+  </li>
+</ul>
+
+<h2 id="why-icrc-1-deduplication-works-this-way">Why ICRC-1 deduplication works this way<a class="heading-anchor" href="#why-icrc-1-deduplication-works-this-way" aria-label="Link to Why ICRC-1 deduplication works this way">#</a></h2>
+
+<p>
+  The idempotency rules are written around the deduplication an ICRC-1 ledger already does.
+  <span class="claim fact">fact</span> These are ICRC-1's rules, as the spec records them (verified 2026-10-08,
+  <a href="https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-1/README.md">ICRC-1
+  standard</a>):
+</p>
+
+<ul>
+  <li>
+    <strong>Deduplication applies only when <code>created_at_time</code> is set.</strong> A transfer
+    without it is never recognized as a repeat, which is why the stamp is the field the pack names
+    and why the tool layer always fills it.
+  </li>
+  <li>
+    <strong>Only within <code>TX_WINDOW</code> plus <code>PERMITTED_DRIFT</code></strong>, which
+    the ledger defines. A stamp older than that is refused as <code>TooOld</code>; one ahead of the
+    ledger's clock by more than the drift as <code>CreatedInFuture</code>.
+    <span class="claim fact">fact</span> For the DFINITY ledger the two add up to 24 hours and 2 minutes
+    (<code>DEDUP_WINDOW_NS</code> in <code>@meantjs/reconcile</code>).
+  </li>
+  <li>
+    <strong>Different memos are never duplicates.</strong> Changing the memo makes a different
+    transfer, which is one more reason the retry reuses the bytes rather than the person's words.
+  </li>
+  <li>
+    <strong>A duplicate returns <code>Duplicate { duplicate_of }</code></strong>, the block of the
+    transfer that did execute. The pack classes it <code>already_done</code>, so the caller reports
+    that block as the result.
+  </li>
+</ul>
+
+<h2 id="three-rules-that-depend-on-history">Three rules that depend on history<a class="heading-anchor" href="#three-rules-that-depend-on-history" aria-label="Link to Three rules that depend on history">#</a></h2>
+
+<p>
+  A class map is static: it says what one reply means. Three rules depend on what happened to the
+  same intent before, so they live in the consumers, and <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#53-normative-behavior">spec §5.3</a> states them for every consumer.
+</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-title"><code>reconcile</code> overrides <code>retry_new</code> after an unknown outcome</span>
+    <p>
+      If an earlier attempt of the intent had an unknown outcome and a later attempt returns a
+      <code>retry_new</code> case such as <code>TooOld</code>, the window has passed and the first
+      attempt may have executed. The consumer treats this as <span class="outcome reconcile"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 4.3a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="6" cy="10" r=".9" fill="currentColor"/></svg>reconcile</span>: it
+      checks the canister's history for the original before any new attempt, in ICRC-3 blocks since
+      the stamp, matched on operation, stamp, amount, accounts, memo and caller. Balances and
+      allowances cannot settle it. If the history cannot settle it, the consumer asks the person,
+      and sends or re-stamps nothing until they answer.
+      <a href="reconcile-outcomes.html">Settle an unknown outcome</a> shows the matcher.
+    </p>
+  </li>
+  <li>
+    <span class="step-title"><code>CreatedInFuture</code> caps the new stamp</span>
+    <p>
+      The error reports the ledger's time, <code>ledger_time</code>. The new stamp must not exceed
+      it: re-stamping from the same clock that ran ahead would fail again.
+    </p>
+  </li>
+  <li>
+    <span class="step-title">Retries stop before the window can close</span>
+    <p>
+      <code>retry_same</code> retries are limited to a few attempts with backoff, ending before the
+      deduplication window can close; after that, rule 1 applies. <code>@meantjs/tools</code> stops
+      an intent at its third <code>retry_same</code>.
+    </p>
+  </li>
+</ol>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Not on EVM contracts yet</span>
+  <p>
+    <code>idempotency</code> and <code>outcome</code> on an EVM contract are
+    <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>: retries by nonce and classes over reverts need receipts and nonces
+    that a later phase adds. See <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div></div>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="reconcile-outcomes.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Settle an unknown outcome</span>
+    <p>Find out from the ledger's history whether the first attempt went through, before anything is sent again.</p>
+  </a>
+  <a class="card" href="agent-tools.html">
+    <span class="card-kicker">Guide</span>
+    <span class="card-title">Give an agent tools</span>
+    <p>A tool layer that stamps once, replays the same bytes and returns a class for every reply.</p>
+  </a>
+  <a class="card" href="intent-and-effects.html">
+    <span class="card-kicker">Concept</span>
+    <span class="card-title">Intent, effects and confirmation</span>
+    <p>What the person confirms before the first send, and again after a re-stamp.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="intent-and-effects.html"><span class="dir">Previous</span><span class="label">Intent, effects and confirmation</span></a><a class="next" href="names.html"><span class="dir">Next</span><span class="label">Names</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/outcomes-and-retries.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#six-classes">Six classes</a></li><li class="toc-h2"><a href="#keys-select-variant-cases">Keys select variant cases</a></li><li class="toc-h2"><a href="#results-that-are-not-a-variant">Results that are not a variant</a></li><li class="toc-h2"><a href="#idempotency-the-same-bytes-sent-again">idempotency: the same bytes, sent again</a></li><li class="toc-h2"><a href="#one-intent-one-stamp">One intent, one stamp</a></li><li class="toc-h2"><a href="#unknown-outcomes-and-rejections">Unknown outcomes and rejections</a></li><li class="toc-h2"><a href="#why-icrc-1-deduplication-works-this-way">Why ICRC-1 deduplication works this way</a></li><li class="toc-h2"><a href="#three-rules-that-depend-on-history">Three rules that depend on history</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

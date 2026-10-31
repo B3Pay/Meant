@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The code generator · Meant</title>
+<meta name="description" content="candid-core-ts: how a Contract graph becomes a TypeScript module that tsc itself proves correct.">
+<meta property="og:title" content="The code generator · Meant">
+<meta property="og:description" content="candid-core-ts: how a Contract graph becomes a TypeScript module that tsc itself proves correct.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>The code generator</h1><p class="page-lead">candid-core-ts: how a Contract graph becomes a TypeScript module that tsc itself proves correct.</p><div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Upgrading from an earlier release</span>
+  <p>
+    This page describes the generator the repository builds, the one <code>@candid-core/cli</code> <code>0.4.0</code> embeds, published
+    on 2026-10-27 under the npm <code>latest</code> dist-tag with <code>@candid-core/schema</code> <code>0.5.0</code>. The previous stable release, <code>@candid-core/cli</code> <code>0.3.0</code>, names every use of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> after the first alias of that shape (marked below), and its envelopes name <code>candid-core</code> <code>0.1.0-beta.3</code> as their producer, where <code>0.4.0</code>'s name <code>meant</code> <code>0.1.0</code>, the compiler crate published as <code>candid-core</code> before its rename; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+    The stable release before that, <code>@candid-core/cli</code> <code>0.2.0</code>, differs in two more ways: it declares a <code>$</code>-prefixed local for each type too (<code>type $Item = …</code>), where <code>0.3.0</code> declares the type under its Candid name, and it types each <code>Actor</code> method as a bare call signature, where <code>0.3.0</code> adds its mode (<code>$.WithMode&lt;"query"&gt;</code>), which needs <code>0.4.0</code>. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means, and the package changelogs record it under <code>0.4.0</code> and <code>0.3.0</code>.
+    The stable release before those, <code>@candid-core/cli</code> <code>0.1.0</code>, emits
+    the old layout: bare module-scope bindings, an object-shaped type for principals, a refusal of the
+    whole interface for one declaration it cannot represent, and no JSDoc.
+    <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code, and each is recorded in the package
+    changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/cli</code> <code>0.5.0</code> and <code>@meantjs/schema</code> <code>0.6.0</code>, not yet published, the pair&rsquo;s code under new names: the CLI&rsquo;s command becomes <code>meant</code>, and every module the generator writes opens with a new header and imports <code>@meantjs/schema</code>, as the modules below already do; nothing else in a module changes. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+  </p>
+</div></div>
+
+<p><code>candid-core-ts</code> is a Rust library that turns a validated
+<a href="contract-graph.html"><strong>Contract</strong></a> into one TypeScript module. A Contract is
+the canonical, arena-based type graph that
+<a href="rust-compiling.html">the root crate compiles</a> a <code>.did</code> file into. For every
+declaration in that graph, the generated module carries two things: a type alias a developer reads and
+uses, and a runtime schema object built from the <code>c</code> combinators. The schema is annotated
+with the alias, and because <code>Schema&lt;in out T&gt;</code> is invariant, <code>tsc</code>
+compiling that file is a proof that the two agree in both directions.</p>
+
+<p>It is a one-way consumer. The crate depends on <code>meant</code> with
+<code>default-features = false</code>, which makes the boundary structural: a generator needs no Candid
+parser, no filesystem capability and no host-value ABI, so nothing here can influence the Contract
+model, its canonical bytes, or its identities.</p>
+
+<h2 id="what-one-declaration-becomes">What one declaration becomes<a class="heading-anchor" href="#what-one-declaration-becomes" aria-label="Link to What one declaration becomes">#</a></h2>
+
+<p>Every Candid declaration produces exactly three lines: the alias, the builder, and the export
+that gives both their Candid name.</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/tests/goldens/collections.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Item</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> id<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span> label<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">;</span> payload<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Item</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Item</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> id<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat32<span class="tok-punct">,</span> label<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>text<span class="tok-punct">,</span> payload<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">blob</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Item</span> <span class="tok-keyword">as</span> <span class="tok-type">Item</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>The emitter renders each declaration twice, once for the alias and once for the builder, through
+one shared traversal whose guards all run before the syntax split, so the alias and the builder can
+never disagree about what is representable. The
+<code>c.rec(() =&gt; …)</code> thunk is doing two jobs: declarations are emitted in canonical
+(name-sorted) order rather than dependency order, so a builder can legitimately reference a name that
+appears further down the file, and the same laziness is what terminates recursive types.</p>
+
+<p>Every binding the module declares is a local whose name starts with <code>$</code>: the schema
+runtime is the namespace <code>$</code>, and the declaration <code>Item</code> is the local
+<code>$Item</code>, exported as <code>Item</code>. A Candid name cannot contain <code>$</code>, so no
+declaration can collide with the runtime import, with the global types the lowerings use
+(<code>Array</code>, <code>Record</code>, <code>Uint8Array</code>, <code>Promise</code>), or with another
+declaration. A declaration named <code>c</code>, <code>Array</code>, <code>delete</code> or
+<code>string</code> therefore generates like any other, and you import it by that name
+(<code>import { delete as del } from "./service"</code>); one named <code>default</code> becomes the
+module's default export. Consumers only ever see the export names, which are the Candid names.</p>
+
+<p>The annotation <code>$.Schema&lt;$Item&gt;</code> is the load-bearing part. <code>Schema</code> is
+declared <code>in out T</code>, meaning invariant, so <code>Schema&lt;A&gt;</code> is assignable to
+<code>Schema&lt;B&gt;</code> only when A and B are the same type in both directions. A mapping mistake
+in either the Rust emitter or the TypeScript runtime therefore turns the type-check red instead of
+shipping. The full per-type table is on the
+<a href="reference-mapping.html">Candid to TypeScript mapping</a> page.</p>
+
+<h2 id="a-fixture-and-its-golden">A fixture and its golden<a class="heading-anchor" href="#a-fixture-and-its-golden" aria-label="Link to A fixture and its golden">#</a></h2>
+
+<p>These are both real files, verbatim. On the left is a fixture under
+<code>crates/candid-core-ts/tests/fixtures/</code>; on the right is the checked-in output the test suite
+requires the generator to produce byte for byte.</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-ts/tests/fixtures/collections.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Unit <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Pair <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-type">text</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Item <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">id</span> <span class="tok-punct">:</span> <span class="tok-type">nat32</span><span class="tok-punct">;</span> <span class="tok-fn">label</span> <span class="tok-punct">:</span> <span class="tok-type">text</span><span class="tok-punct">;</span> <span class="tok-fn">payload</span> <span class="tok-punct">:</span> <span class="tok-keyword">blob</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> MaybeItem <span class="tok-punct">=</span> <span class="tok-keyword">opt</span> Item<span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Note <span class="tok-punct">=</span> <span class="tok-keyword">opt</span> <span class="tok-type">text</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Items <span class="tok-punct">=</span> <span class="tok-keyword">vec</span> Item<span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Grid <span class="tok-punct">=</span> <span class="tok-keyword">vec</span> <span class="tok-keyword">vec</span> <span class="tok-type">nat8</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/tests/goldens/collections.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-comment">// Generated by Meant from a Meant Contract. Do not edit.</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">*</span> <span class="tok-keyword">as</span> $ <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Grid</span> <span class="tok-punct">=</span> <span class="tok-type">Array</span><span class="tok-punct">&lt;</span><span class="tok-type">Uint8Array</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Grid</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Grid</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">vec</span><span class="tok-punct">(</span>$<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">blob</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Grid</span> <span class="tok-keyword">as</span> <span class="tok-type">Grid</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Item</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> id<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span> label<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">;</span> payload<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Item</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Item</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> id<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat32<span class="tok-punct">,</span> label<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>text<span class="tok-punct">,</span> payload<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">blob</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Item</span> <span class="tok-keyword">as</span> <span class="tok-type">Item</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Items</span> <span class="tok-punct">=</span> <span class="tok-type">Array</span><span class="tok-punct">&lt;</span><span class="tok-type">Item</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Items</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Items</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">vec</span><span class="tok-punct">(</span>$<span class="tok-type">Item</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Items</span> <span class="tok-keyword">as</span> <span class="tok-type">Items</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">MaybeItem</span> <span class="tok-punct">=</span> <span class="tok-type">Item</span> <span class="tok-punct">|</span> <span class="tok-type">null</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">MaybeItem</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">MaybeItem</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>$<span class="tok-type">Item</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">MaybeItem</span> <span class="tok-keyword">as</span> <span class="tok-type">MaybeItem</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Note</span> <span class="tok-punct">=</span> <span class="tok-type">string</span> <span class="tok-punct">|</span> <span class="tok-type">null</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Note</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Note</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>$<span class="tok-punct">.</span>c<span class="tok-punct">.</span>text<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Note</span> <span class="tok-keyword">as</span> <span class="tok-type">Note</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Pair</span> <span class="tok-punct">=</span> <span class="tok-punct">[</span><span class="tok-type">bigint</span><span class="tok-punct">,</span> <span class="tok-type">string</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Pair</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Pair</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">tuple</span><span class="tok-punct">(</span><span class="tok-punct">[</span>$<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat<span class="tok-punct">,</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>text<span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Pair</span> <span class="tok-keyword">as</span> <span class="tok-type">Pair</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Unit</span> <span class="tok-punct">=</span> <span class="tok-type">Record</span><span class="tok-punct">&lt;</span><span class="tok-type">string</span><span class="tok-punct">,</span> <span class="tok-type">never</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Unit</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Unit</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">unit</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Unit</span> <span class="tok-keyword">as</span> <span class="tok-type">Unit</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>Several mapping decisions are visible in those thirty lines. <code>blob</code> and the inner
+<code>vec nat8</code> of <code>Grid</code> both become <code>Uint8Array</code>. The
+tuple-syntax record becomes a TypeScript tuple, because Candid lowers <code>record { nat; text }</code>
+to a record whose labels are the sequential ids <code>0..n</code>. <code>opt</code> becomes
+<code>| null</code>. <code>Items</code> references the declared <code>Item</code> by name instead of
+re-expanding its structure. The empty record becomes <code>Record&lt;string, never&gt;</code>, not
+<code>{}</code>, because <code>{}</code> in TypeScript means "anything non-nullish" while an empty
+Candid record is a unit value.</p>
+
+<p>Note also what the output order is <em>not</em>: declarations come out sorted by name and record
+fields sorted by Candid label id, because that is the Contract's canonical order. That is what makes
+output byte-identical across runs, but do not expect a generated file to read in the order you wrote
+your interface.</p>
+
+<h3 id="the-actor-surface">The actor surface<a class="heading-anchor" href="#the-actor-surface" aria-label="Link to The actor surface">#</a></h3>
+
+<p>When a Contract has an actor — the <code>service : { … }</code> block at the bottom of a
+<code>.did</code> — the module additionally emits the service schema and the call interface. Here is
+the <code>deferred</code> fixture, which also covers the two reference types:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-ts/tests/fixtures/deferred.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Callback <span class="tok-punct">=</span> <span class="tok-keyword">func</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">text</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Registry <span class="tok-punct">=</span> <span class="tok-keyword">service</span> <span class="tok-punct">{</span> <span class="tok-fn">register</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-type">text</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Kept <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">value</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-fn">ping</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/tests/goldens/deferred.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-comment">// Generated by Meant from a Meant Contract. Do not edit.</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">*</span> <span class="tok-keyword">as</span> $ <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Callback</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> principal<span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Principal</span><span class="tok-punct">;</span> method<span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Callback</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Callback</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">func</span><span class="tok-punct">(</span><span class="tok-punct">[</span>$<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat<span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span>$<span class="tok-punct">.</span>c<span class="tok-punct">.</span>text<span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-string">"query"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Callback</span> <span class="tok-keyword">as</span> <span class="tok-type">Callback</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Kept</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> value<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Kept</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Kept</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> value<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Kept</span> <span class="tok-keyword">as</span> <span class="tok-type">Kept</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Registry</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span><span class="tok-type">Principal</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Registry</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Registry</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">service</span><span class="tok-punct">(</span><span class="tok-punct">{</span> register<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">func</span><span class="tok-punct">(</span><span class="tok-punct">[</span>$<span class="tok-punct">.</span>c<span class="tok-punct">.</span>text<span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span>$<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat<span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-string">"update"</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Registry</span> <span class="tok-keyword">as</span> <span class="tok-type">Registry</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> $actor<span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span>$<span class="tok-punct">.</span><span class="tok-type">Principal</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">service</span><span class="tok-punct">(</span><span class="tok-punct">{</span> ping<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">func</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-string">"update"</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Actor</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  ping<span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-type">Promise</span><span class="tok-punct">&lt;</span><span class="tok-keyword">void</span><span class="tok-punct">&gt;</span><span class="tok-punct">)</span> <span class="tok-punct">&amp;</span> $<span class="tok-punct">.</span><span class="tok-type">WithMode</span><span class="tok-punct">&lt;</span><span class="tok-string">"update"</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $actor <span class="tok-keyword">as</span> actor <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>A <code>func</code> <em>value</em> is inert reference data, so its type is
+<code>{ principal, method }</code> while the signature lives in the <code>c.func</code> builder. A
+<code>service</code> value is the principal of a running service, so its type is
+<code>Principal</code> while the method table lives in <code>c.service</code>. The unannotated
+<code>register</code> and <code>ping</code> methods render their mode as the explicit
+<code>"update"</code>. The exports <code>actor</code> (the service schema) and <code>Actor</code> (a
+type) are the pair a call layer needs: the service schema to encode and decode with, and the typed interface it
+cannot re-derive from the schema's type. Each method of <code>Actor</code> is its call signature
+intersected with <code>$.WithMode&lt;mode&gt;</code>, the same mode literal, which the schema
+runtime's <code>ModeOf</code> reads back: a call layer can refuse an update where it builds a read at
+compile time. The mark is one optional property no value has, so the signature, the method names and
+the exports are unchanged, and a hand-written <code>Actor</code> without it reads as mode unknown.
+The mark is new in <code>@candid-core/cli</code> <code>0.3.0</code> and needs
+<code>@candid-core/schema</code> <code>0.4.0</code>, both published on 2026-10-10.</p>
+
+<h3 id="a-declared-primitive-names-only-itself">A declared primitive names only itself<a class="heading-anchor" href="#a-declared-primitive-names-only-itself" aria-label="Link to A declared primitive names only itself">#</a></h3>
+
+<p>The Contract arena stores one node per structure, so every <code>nat64</code> in an interface is
+the same node whichever declaration spelled it. Composite nodes render by the name of their first
+declaration; a <em>primitive</em> never does. Every use renders structurally and a declaration of
+it is still emitted and exported as itself:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-ts/tests/fixtures/fidelity.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Memo <span class="tok-punct">=</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> R <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">a</span> <span class="tok-punct">:</span> <span class="tok-type">nat64</span><span class="tok-punct">;</span> <span class="tok-fn">b</span> <span class="tok-punct">:</span> Memo <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">type</span> Byte <span class="tok-punct">=</span> <span class="tok-type">nat8</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Raw <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">raw</span> <span class="tok-punct">:</span> <span class="tok-keyword">blob</span><span class="tok-punct">;</span>
+  <span class="tok-fn">bytes</span> <span class="tok-punct">:</span> <span class="tok-keyword">vec</span> Byte<span class="tok-punct">;</span>
+  <span class="tok-fn">grid</span> <span class="tok-punct">:</span> <span class="tok-keyword">vec</span> <span class="tok-keyword">vec</span> Byte<span class="tok-punct">;</span>
+  <span class="tok-fn">maybe</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">vec</span> Byte<span class="tok-punct">;</span>
+  <span class="tok-fn">one</span> <span class="tok-punct">:</span> Byte<span class="tok-punct">;</span>
+  <span class="tok-fn">plain</span> <span class="tok-punct">:</span> <span class="tok-type">nat8</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">type</span> Tokens <span class="tok-punct">=</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> BlockIndex <span class="tok-punct">=</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Account <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">owner</span> <span class="tok-punct">:</span> <span class="tok-keyword">principal</span><span class="tok-punct">;</span> <span class="tok-fn">subaccount</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">blob</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> TransferArg <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">to</span> <span class="tok-punct">:</span> Account<span class="tok-punct">;</span> <span class="tok-fn">amount</span> <span class="tok-punct">:</span> Tokens<span class="tok-punct">;</span> <span class="tok-fn">fee</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> Tokens <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/tests/goldens/fidelity.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">BlockIndex</span> <span class="tok-punct">=</span> <span class="tok-type">bigint</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Byte</span> <span class="tok-punct">=</span> <span class="tok-type">number</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Memo</span> <span class="tok-punct">=</span> <span class="tok-type">bigint</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">R</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> a<span class="tok-punct">:</span> <span class="tok-type">bigint</span><span class="tok-punct">;</span> b<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Raw</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> one<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span> raw<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span><span class="tok-punct">;</span> maybe<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span> <span class="tok-punct">|</span> <span class="tok-type">null</span><span class="tok-punct">;</span> grid<span class="tok-punct">:</span> <span class="tok-type">Array</span><span class="tok-punct">&lt;</span><span class="tok-type">Uint8Array</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span> bytes<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span><span class="tok-punct">;</span> plain<span class="tok-punct">:</span> <span class="tok-type">number</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Tokens</span> <span class="tok-punct">=</span> <span class="tok-type">bigint</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">TransferArg</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> to<span class="tok-punct">:</span> <span class="tok-type">Account</span><span class="tok-punct">;</span> fee<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">|</span> <span class="tok-type">null</span><span class="tok-punct">;</span> amount<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>Before issue #191 one declaration renamed every use of its primitive: <code>Tokens</code> and
+<code>BlockIndex</code> collapsed to whichever came first, and the single <code>type Byte = nat8</code>
+turned every <code>blob</code> in the interface into <code>number[]</code>. A <code>blob</code> — any
+<code>vec</code> of a <code>nat8</code>, however named — is now always <code>Uint8Array</code>, in the
+generated module and in <code>schemaFromContract</code> alike. The price is the source spelling:
+<code>amount : Tokens</code> reads <code>amount: bigint</code>, the same type.</p>
+
+<p>The same rule covers the three composite shapes with one fixed rendering: <code>blob</code>,
+<code>record {}</code> and <code>variant {}</code>. Since issue #268, new in <code>@candid-core/cli</code>
+<code>0.4.0</code>, a declaration of one of them names only itself: <code>type Subaccount = blob</code> is emitted as
+<code>export type Subaccount = Uint8Array</code>, and every blob in the interface, the ones written
+<code>opt Subaccount</code> included, reads <code>Uint8Array</code>. Before, the alias whose name sorted
+first named every use, so beside a <code>type Hash = blob</code> the ICRC ledger&rsquo;s
+<code>memo : opt blob</code> read <code>Hash | null</code>. The value types never changed; only the
+names in the text did.</p>
+
+<h3 id="doc-comments-become-jsdoc">Doc comments become JSDoc<a class="heading-anchor" href="#doc-comments-become-jsdoc" aria-label="Link to Doc comments become JSDoc">#</a></h3>
+
+<p>The <code>.did</code>&rsquo;s doc comments and argument names travel in the provenance sidecar, and
+the generator writes them as JSDoc: above each exported type and const, on record properties and
+variant arms, and on the methods of <code>Actor</code>, with a <code>@param</code> for each argument
+the <code>.did</code> named. The <code>Actor</code> method&rsquo;s parameters take those names.</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-ts/tests/fixtures/docs.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-comment">/// Only the arm is documented.</span>
+<span class="tok-keyword">type</span> Choice <span class="tok-punct">=</span> <span class="tok-keyword">variant</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">/// The first arm.</span>
+  <span class="tok-fn">A</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span>
+  B<span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">/// Same signature as same_a, different names.</span>
+  <span class="tok-fn">same_b</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-fn">y</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/tests/goldens/docs.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-comment">/** Only the arm is documented. */</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Choice</span> <span class="tok-punct">=</span>
+  <span class="tok-punct">|</span> <span class="tok-punct">{</span>
+      <span class="tok-comment">/** The first arm. */</span>
+      tag<span class="tok-punct">:</span> <span class="tok-string">"A"</span><span class="tok-punct">;</span>
+      value<span class="tok-punct">:</span> <span class="tok-type">bigint</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">|</span> <span class="tok-punct">{</span> tag<span class="tok-punct">:</span> <span class="tok-string">"B"</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Actor</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">/**
+   * Same signature as same_a, different names.
+   * @param y
+   */</span>
+  same_b<span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">(</span>y<span class="tok-punct">:</span> <span class="tok-type">bigint</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-type">Promise</span><span class="tok-punct">&lt;</span><span class="tok-keyword">void</span><span class="tok-punct">&gt;</span><span class="tok-punct">)</span> <span class="tok-punct">&amp;</span> $<span class="tok-punct">.</span><span class="tok-type">WithMode</span><span class="tok-punct">&lt;</span><span class="tok-string">"update"</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>Candid&rsquo;s doc comment is the line comment (<code>///</code>, or plain <code>//</code> lines)
+directly above the item; block comments are not docs. Doc text is neutralised rather than
+interpreted: <code>*/</code> is written <code>*\/</code>, an <code>@</code> that could start a tag or an
+inline link is written <code>\@</code>, and a code fence is escaped, so a comment can neither end
+early nor forge or swallow a <code>@param</code>. A record or union with any documented member spans
+several lines; one with none keeps its single-line form, and tuple elements, which have no property
+to carry a doc, get none. When the arena has de-duplicated two spellings into one node, the docs come
+from the declaration whose structure is being emitted, and occurrences that disagree are dropped, not
+merged.</p>
+
+<h3 id="what-cannot-be-represented-is-omitted">What cannot be represented is omitted<a class="heading-anchor" href="#what-cannot-be-represented-is-omitted" aria-label="Link to What cannot be represented is omitted">#</a></h3>
+
+<p>A declaration the module cannot represent costs only itself and what depends on it, never the
+whole interface. Four causes make one unrepresentable: a record field or variant arm named like the
+<code>_N_</code> id rendering (<code>reserved_field_name</code> — as a schema key it would read back
+as numeric id <em>N</em> and encode the wrong wire id); a variant arm whose payload is a
+<em>declared</em> <code>opt</code> of an uninhabited type (<code>ambiguous_variant_arm</code> — its
+static type is indistinguishable from an alias of <code>null</code>, which marks a bare tag); a
+declaration named <code>actor</code> or <code>Actor</code>, the module's own export names
+(<code>reserved_export_name</code>); and, from a Contract document only, a name that is not
+identifier-shaped (<code>invalid_declaration_name</code>). The declaration is left out together with
+every declaration and actor method that references it, through any type edge — nested
+<code>func</code> and <code>service</code> types included — up to the containing declaration
+(<code>references_omitted</code>). A few lines of the <code>omissions</code> fixture, and the whole
+module they generate:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Good <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">a</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Bad <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">_0_</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">ok</span> <span class="tok-punct">:</span> <span class="tok-type">text</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Registry <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">svc</span> <span class="tok-punct">:</span> <span class="tok-keyword">service</span> <span class="tok-punct">{</span> <span class="tok-fn">f</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>Bad<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-fn">g</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>Good<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Directory <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">svc</span> <span class="tok-punct">:</span> <span class="tok-keyword">service</span> <span class="tok-punct">{</span> <span class="tok-fn">g</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>Good<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">ok</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>Good<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span>Good<span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+  <span class="tok-fn">bad</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span>Bad<span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-comment">// Generated by Meant from a Meant Contract. Do not edit.</span>
+<span class="tok-comment">// Omitted: type Bad (reserved_field_name)</span>
+<span class="tok-comment">// Omitted: type Registry (references_omitted via Bad)</span>
+<span class="tok-comment">// Omitted: method bad (references_omitted via Bad)</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">*</span> <span class="tok-keyword">as</span> $ <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Directory</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> svc<span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Principal</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Directory</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Directory</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> svc<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">service</span><span class="tok-punct">(</span><span class="tok-punct">{</span> g<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">func</span><span class="tok-punct">(</span><span class="tok-punct">[</span>$<span class="tok-type">Good</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-string">"update"</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Directory</span> <span class="tok-keyword">as</span> <span class="tok-type">Directory</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Good</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> a<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Good</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Good</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> a<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Good</span> <span class="tok-keyword">as</span> <span class="tok-type">Good</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> $actor<span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span>$<span class="tok-punct">.</span><span class="tok-type">Principal</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">service</span><span class="tok-punct">(</span><span class="tok-punct">{</span> ok<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">func</span><span class="tok-punct">(</span><span class="tok-punct">[</span>$<span class="tok-type">Good</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span>$<span class="tok-type">Good</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-string">"query"</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Actor</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span>
+  ok<span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">(</span>arg0<span class="tok-punct">:</span> <span class="tok-type">Good</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-type">Promise</span><span class="tok-punct">&lt;</span><span class="tok-type">Good</span><span class="tok-punct">&gt;</span><span class="tok-punct">)</span> <span class="tok-punct">&amp;</span> $<span class="tok-punct">.</span><span class="tok-type">WithMode</span><span class="tok-punct">&lt;</span><span class="tok-string">"query"</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $actor <span class="tok-keyword">as</span> actor <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p><code>Registry</code> is omitted whole rather than losing <code>f</code>: a service value is
+encoded with its full method table, so dropping a method from a service type in value position would
+change the wire type a peer sees. Only the actor's own service drops individual methods, from both the
+<code>actor</code> schema and the <code>Actor</code> type, because calling a method never encodes
+the actor's service type. The actor itself is never omitted. The header lists every omission,
+declarations first and then methods, each by name; a module that omits nothing carries no such line and
+is byte-identical to what the generator emitted before. Two tests hold the closure: nothing emitted
+mentions an omitted declaration's <code>$</code> local, and everything emitted is byte-identical to the
+module generated from the same source with the omitted declarations and methods deleted.
+<a href="schema-from-contract.html"><code>schemaFromContract</code></a> leaves out the same entries for
+the same reasons, and the golden crosscheck holds the two lists equal.</p>
+
+<h2 id="the-public-api">The public API<a class="heading-anchor" href="#the-public-api" aria-label="Link to The public API">#</a></h2>
+
+<p>The crate exposes one function, its result and omission types, two configuration types and one
+error enum. That is the whole surface.</p>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">generate_module</span>
+  </div>
+  <div class="api-body">
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">crates/candid-core-ts/src/lib.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">generate_module</span><span class="tok-punct">(</span>
+    contract<span class="tok-punct">:</span> <span class="tok-punct">&amp;</span><span class="tok-type">Contract</span><span class="tok-punct">,</span>
+    names<span class="tok-punct">:</span> <span class="tok-punct">&amp;</span><span class="tok-type">TsNames</span><span class="tok-punct">,</span>
+    options<span class="tok-punct">:</span> <span class="tok-punct">&amp;</span><span class="tok-type">TsOptions</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-type">Result</span><span class="tok-punct">&lt;</span><span class="tok-type">GeneratedModule</span><span class="tok-punct">,</span> <span class="tok-type">TsGenError</span><span class="tok-punct">&gt;</span></code></pre></div>
+    <p>Takes a validated Contract graph, a table of field label texts and options, and returns the
+    complete text of one TypeScript module with the list of what it left out. Generation is
+    deterministic: emission follows the Contract's canonical declaration and field order and depends on
+    nothing in the environment, so the same Contract always produces identical output and an identical
+    omitted list. A test asserts that generating twice, and generating from a Contract round-tripped
+    through its JSON serialization, all give the same result.</p>
+  </div>
+</div>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">GeneratedModule, Omission</span>
+  </div>
+  <div class="api-body">
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">crates/candid-core-ts/src/lib.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">GeneratedModule</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">pub</span> module<span class="tok-punct">:</span> <span class="tok-type">String</span><span class="tok-punct">,</span>
+    <span class="tok-keyword">pub</span> omitted<span class="tok-punct">:</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">Omission</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Omission</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">pub</span> kind<span class="tok-punct">:</span> <span class="tok-type">OmissionKind</span><span class="tok-punct">,</span>     <span class="tok-comment">// Declaration | Method</span>
+    <span class="tok-keyword">pub</span> name<span class="tok-punct">:</span> <span class="tok-type">String</span><span class="tok-punct">,</span>
+    <span class="tok-keyword">pub</span> reason<span class="tok-punct">:</span> <span class="tok-type">OmissionReason</span><span class="tok-punct">,</span>
+    <span class="tok-keyword">pub</span> via<span class="tok-punct">:</span> <span class="tok-type">Option</span><span class="tok-punct">&lt;</span><span class="tok-type">String</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>    <span class="tok-comment">// Some only for ReferencesOmitted</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">OmissionReason</span> <span class="tok-punct">{</span>
+    <span class="tok-type">ReservedFieldName</span><span class="tok-punct">,</span>          <span class="tok-comment">// "reserved_field_name"</span>
+    <span class="tok-type">AmbiguousVariantArm</span><span class="tok-punct">,</span>        <span class="tok-comment">// "ambiguous_variant_arm"</span>
+    <span class="tok-type">ReservedExportName</span><span class="tok-punct">,</span>         <span class="tok-comment">// "reserved_export_name"</span>
+    <span class="tok-type">InvalidDeclarationName</span><span class="tok-punct">,</span>     <span class="tok-comment">// "invalid_declaration_name"</span>
+    <span class="tok-type">ReferencesOmitted</span><span class="tok-punct">,</span>          <span class="tok-comment">// "references_omitted"</span>
+<span class="tok-punct">}</span></code></pre></div>
+    <p><code>omitted</code> lists declarations first, then actor methods, each sorted by name.
+    <code>OmissionKind::code</code> and <code>OmissionReason::code</code> give the stable snake_case
+    codes, which are what <code>@candid-core/cli</code>'s <code>ModuleSuccess.omitted</code> and
+    <code>schemaFromContract</code>'s <code>omitted</code> carry as <code>kind</code> and
+    <code>reason</code>; the reasons are a closed set. <code>via</code> names the omitted declaration a
+    <code>ReferencesOmitted</code> entry references. <code>Omission</code>'s <code>Display</code> is
+    the header line without its <code>// Omitted: </code> prefix.</p>
+  </div>
+</div>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">TsNames</span>
+  </div>
+  <div class="api-body">
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">crates/candid-core-ts/src/lib.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">TsNames</span> <span class="tok-punct">{</span> <span class="tok-comment">/* private */</span> <span class="tok-punct">}</span>
+
+<span class="tok-keyword">impl</span> <span class="tok-type">TsNames</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-keyword">Self</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">insert</span><span class="tok-punct">(</span><span class="tok-punct">&amp;</span><span class="tok-keyword">mut</span> <span class="tok-keyword">self</span><span class="tok-punct">,</span> container<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span><span class="tok-punct">,</span> id<span class="tok-punct">:</span> <span class="tok-type">u32</span><span class="tok-punct">,</span> label<span class="tok-punct">:</span> <span class="tok-keyword">impl</span> <span class="tok-type">Into</span><span class="tok-punct">&lt;</span><span class="tok-type">String</span><span class="tok-punct">&gt;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> from_pairs<span class="tok-punct">&lt;</span><span class="tok-type">I</span><span class="tok-punct">,</span> <span class="tok-type">S</span><span class="tok-punct">&gt;</span><span class="tok-punct">(</span>pairs<span class="tok-punct">:</span> <span class="tok-type">I</span><span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-keyword">Self</span>
+    <span class="tok-keyword">where</span>
+        <span class="tok-type">I</span><span class="tok-punct">:</span> <span class="tok-type">IntoIterator</span><span class="tok-punct">&lt;</span><span class="tok-type">Item</span> <span class="tok-punct">=</span> <span class="tok-punct">(</span><span class="tok-type">TypeRef</span><span class="tok-punct">,</span> <span class="tok-type">u32</span><span class="tok-punct">,</span> <span class="tok-type">S</span><span class="tok-punct">)</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+        <span class="tok-type">S</span><span class="tok-punct">:</span> <span class="tok-type">Into</span><span class="tok-punct">&lt;</span><span class="tok-type">String</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+
+    <span class="tok-attr">#[cfg(feature = "compiler")]</span>
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">from_source_info</span><span class="tok-punct">(</span>source_info<span class="tok-punct">:</span> <span class="tok-punct">&amp;</span>meant<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">SourceInfo</span><span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-keyword">Self</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+    <p>The caller-supplied table of record field and variant arm names, keyed by
+    <code>(container type node, Candid label id)</code>. <code>TypeRef</code> is an index into the
+    Contract's type arena. Derives <code>Debug</code>, <code>Clone</code>, <code>Default</code>,
+    <code>PartialEq</code> and <code>Eq</code>.</p>
+  </div>
+</div>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">TsOptions</span>
+  </div>
+  <div class="api-body">
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">crates/candid-core-ts/src/lib.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">TsOptions</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">pub</span> principal_import<span class="tok-punct">:</span> <span class="tok-type">String</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-comment">// Default:</span>
+<span class="tok-type">TsOptions</span> <span class="tok-punct">{</span> principal_import<span class="tok-punct">:</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">.</span><span class="tok-fn">to_string</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span></code></pre></div>
+    <p>One option: the module specifier <code>Principal</code> comes from. It defaults to
+    <code>"@candid-core/schema"</code> — the package the module already imports as the namespace
+    <code>$</code>, so the type is written <code>$.Principal</code> and a generated file has
+    exactly one import. Set to any other module, it adds
+    <code>import type { Principal } from "…"</code>, emitted only when the Contract actually uses
+    a principal (a contract with an actor always does, since the actor schema is typed with it), and
+    always as <code>import type</code>, so it never implies a runtime dependency. No declaration can
+    collide with that bare import: every declaration's value binds a <code>$</code>-prefixed local,
+    and a declaration named <code>Principal</code> then keeps that local for its type too.
+    The specifier is JSON-escaped into the output rather than interpolated raw.</p>
+  </div>
+</div>
+
+<p><code>Principal</code> is the schema runtime's principal type: canonical principal text as a
+branded string — what the codec decodes, and the only principal value it encodes. It is not the SDK
+class, which the runtime never constructs or accepts. Point <code>principal_import</code> somewhere
+else only if that module re-exports the runtime's own <code>Principal</code>: the brand makes the type
+nominal, so the generated <code>Schema&lt;…&gt;</code> annotations compile against no other type.</p>
+
+<h3 id="tsgenerror">TsGenError<a class="heading-anchor" href="#tsgenerror" aria-label="Link to TsGenError">#</a></h3>
+
+<p>Only a Contract graph the emitter cannot walk refuses the whole module; everything else either
+generates or is omitted (above), and no error path emits placeholder TypeScript. Every public
+<code>Contract</code> is validated when it is built or loaded, so the first two variants are not
+reachable through this API today — they guard the invariants the emitter relies on, and they match the
+documents <code>schemaFromContract</code> refuses whole. The third is reachable, from a validated
+Contract that no Candid source produced, and is the one refusal <code>schemaFromContract</code> does
+not share.</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Variant</th><th>Raised when</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>UnsupportedConstruct { declaration, kind }</code></td>
+      <td>A <code>class</code> type named by a declaration or nested inside a value type — <code>meant</code>'s
+      <code>class_not_actor_root</code> and <code>class_not_first_class_type</code>, shapes no Candid
+      source can produce.</td>
+    </tr>
+    <tr>
+      <td><code>DanglingTypeRef { reference }</code></td>
+      <td>A type reference points outside the Contract arena.</td>
+    </tr>
+    <tr>
+      <td><code>UndeclaredCycle { reference }</code></td>
+      <td>A cycle the module would render passes through no declared node; <code>reference</code> is
+      a node on it. A cycle the module never renders — in a class actor's init args, or reachable
+      only from an omitted declaration or method — does not refuse. A declared node renders as its name, which is what ends a recursive type, and a
+      TypeScript type alias has no spelling for an anonymous cycle. No <code>.did</code> source
+      produces one — a recursive Candid type needs a name — but Contract validation accepts every
+      cycle, so a Contract read with <code>Contract::from_json</code> can hold one.
+      <code>schemaFromContract</code> accepts the same graph, because it needs no names.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Generation uses constant call-stack depth in the Contract's nesting: the renderer keeps its
+pending work on an explicit stack, so a Contract of any depth the validator accepts generates on a
+small thread (issue #218).</p>
+
+<p>All three implement <code>Display</code> and <code>std::error::Error</code>. The refusals the generator
+made before issue #189 — <code>ReservedFieldName</code>, <code>AmbiguousVariantArm</code>,
+<code>ReservedDeclarationName</code> and <code>InvalidDeclarationName</code> — are the omission reasons
+now, and those variants are gone.</p>
+
+<h2 id="field-names-are-an-input-not-graph-data">Field names are an input, not graph data<a class="heading-anchor" href="#field-names-are-an-input-not-graph-data" aria-label="Link to Field names are an input, not graph data">#</a></h2>
+
+<p>Candid identifies a record field or variant arm by a numeric <strong>label id</strong>: either
+written literally, as in <code>5 : nat</code>, or derived as a hash of the name. A semantic Contract
+stores only that id, because the id is the authoritative identity and the spelling is provenance —
+held outside the identity domain, in the <code>SourceInfo</code> sidecar a compilation produces
+alongside the graph.</p>
+
+<p>So the generator takes names as caller-supplied data. Generate with <code>TsNames::new()</code> and
+every field renders by the ecosystem's <code>_id_</code> convention: <code>record { id : nat32 }</code>
+comes out as <code>{ _23515_: number }</code>, because 23515 is the Candid hash of <code>id</code>. That
+is legal, deterministic and unreadable, and it is exactly what you get from a Contract compiled with
+<code>--no-source-info</code>, which discards the spellings.</p>
+
+<p>There are three ways to fill the table. <code>insert</code> records one label at a time.
+<code>from_pairs</code> builds one from <code>(container, id, label)</code> triples, which is the shape
+a serialized name table takes when it travels alongside a Contract JSON document. And
+<code>from_source_info</code>, behind this crate's <span class="pill accent">compiler</span> feature,
+bridges straight from a compilation's provenance sidecar — the normal route when you compiled the
+<code>.did</code> yourself. Only labels whose provenance kind is <code>Named</code> are recorded: a
+numeric Candid label carries no name and must keep its <code>_N_</code> rendering.</p>
+
+<p><strong>Known limitation (issue #229).</strong> The table is keyed by <code>(container, id)</code>,
+and a container is a node of the canonical graph, not a declaration. Declarations whose records
+canonicalize to one node therefore share their field names, and <code>from_source_info</code> gives
+that node one name per label id. With
+<code>type A = record { c : record { d : text } }; type B = record { x : record { 100 : text } };</code>
+the label hash of <code>d</code> is 100, so both inner records are one node, and the generated
+<code>B</code> names that field <code>d</code> rather than <code>_100_</code>. The wire bytes are the
+same either way. A named spelling beats a numeric one, in any declaration and in any order. Two
+different names for one id need a 32-bit hash collision; then the name the sidecar lists last wins
+(it sorts by source file, then declaration name, then path, with the service's inline types after
+every declaration), not the first one written. Keeping names per declaration would change the
+Contract format, so it is deferred. <a href="schema-from-contract.html#a-shared-node-has-one-name-per-label-id">The
+same rule</a> applies to <code>schemaFromContract</code>.</p>
+
+<h2 id="calling-the-generator">Calling the generator<a class="heading-anchor" href="#calling-the-generator" aria-label="Link to Calling the generator">#</a></h2>
+
+<p>The complete path, lifted from the golden test harness. Compile <code>.did</code> text to a
+<code>Compilation</code>, bridge its provenance sidecar into a name table, then generate.</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">crates/candid-core-ts/tests/golden.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">use</span> std<span class="tok-punct">:</span><span class="tok-punct">:</span>path<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">PathBuf</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">use</span> candid_core_ts<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-punct">{</span>
+    generate_module<span class="tok-punct">,</span> <span class="tok-type">GeneratedModule</span><span class="tok-punct">,</span> <span class="tok-type">Omission</span><span class="tok-punct">,</span> <span class="tok-type">OmissionKind</span><span class="tok-punct">,</span> <span class="tok-type">OmissionReason</span><span class="tok-punct">,</span> <span class="tok-type">TsNames</span><span class="tok-punct">,</span> <span class="tok-type">TsOptions</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">use</span> meant<span class="tok-punct">:</span><span class="tok-punct">:</span>compile_did<span class="tok-punct">;</span>
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">generate_fixture</span><span class="tok-punct">(</span>name<span class="tok-punct">:</span> <span class="tok-punct">&amp;</span><span class="tok-type">str</span><span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-type">String</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">let</span> root <span class="tok-punct">=</span> <span class="tok-type">PathBuf</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">from</span><span class="tok-punct">(</span><span class="tok-attr">env!</span><span class="tok-punct">(</span><span class="tok-string">"CARGO_MANIFEST_DIR"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">join</span><span class="tok-punct">(</span><span class="tok-string">"tests"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">let</span> source <span class="tok-punct">=</span> std<span class="tok-punct">:</span><span class="tok-punct">:</span>fs<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">read_to_string</span><span class="tok-punct">(</span>root<span class="tok-punct">.</span><span class="tok-fn">join</span><span class="tok-punct">(</span><span class="tok-string">"fixtures"</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">join</span><span class="tok-punct">(</span><span class="tok-attr">format!</span><span class="tok-punct">(</span><span class="tok-string">"{name}.did"</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+        <span class="tok-punct">.</span><span class="tok-fn">expect</span><span class="tok-punct">(</span><span class="tok-string">"fixture must be readable"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">let</span> compilation <span class="tok-punct">=</span> <span class="tok-fn">compile_did</span><span class="tok-punct">(</span><span class="tok-punct">&amp;</span>source<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">expect</span><span class="tok-punct">(</span><span class="tok-string">"fixture must compile"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">let</span> names <span class="tok-punct">=</span> <span class="tok-type">TsNames</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">from_source_info</span><span class="tok-punct">(</span>
+        compilation
+            <span class="tok-punct">.</span><span class="tok-fn">source_info</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+            <span class="tok-punct">.</span><span class="tok-fn">expect</span><span class="tok-punct">(</span><span class="tok-string">"compile_did retains provenance by default"</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+    <span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-fn">generate_module</span><span class="tok-punct">(</span>compilation<span class="tok-punct">.</span><span class="tok-fn">contract</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">&amp;</span>names<span class="tok-punct">,</span> <span class="tok-punct">&amp;</span><span class="tok-type">TsOptions</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">default</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+        <span class="tok-punct">.</span><span class="tok-fn">expect</span><span class="tok-punct">(</span><span class="tok-string">"fixture must generate"</span><span class="tok-punct">)</span>
+        <span class="tok-punct">.</span>module
+<span class="tok-punct">}</span></code></pre></div>
+
+<p><code>compile_did</code> needs the root crate's <span class="pill accent">compiler</span> feature,
+and <code>TsNames::from_source_info</code> needs this crate's. The featureless library takes names as
+plain data instead, and that configuration is compiled on its own in CI
+(<code>cargo check -p candid-core-ts --locked</code>), so the boundary is held by the build rather
+than by convention.</p>
+
+<h2 id="the-golden-discipline">The golden discipline<a class="heading-anchor" href="#the-golden-discipline" aria-label="Link to The golden discipline">#</a></h2>
+
+<p>Fifteen fixtures live under <code>tests/fixtures/</code>: <code>primitives</code>,
+<code>collections</code>, <code>variants</code>, <code>recursion</code>, <code>quoting</code>,
+<code>deferred</code>, <code>proto</code>, <code>ledger</code>, <code>empties</code>,
+<code>arms</code>, <code>options</code>, <code>shadowing</code>, <code>fidelity</code>,
+<code>docs</code> and <code>omissions</code>. Each must generate output byte-identical to its
+checked-in <code>.ts</code> golden, or the test fails with a diff; the <code>omissions</code> fixture's
+omitted list is a golden too. The <code>ledger</code> fixture is separately asserted to be
+byte-for-byte the repository's benchmark corpus ledger interface, so the generator is exercised on a
+real interface rather than a toy.</p>
+
+<p>When a mapping decision genuinely changes, you regenerate:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true">UPDATE_GOLDENS=1 cargo test<span class="tok-attr"> -p</span> candid-core-ts<span class="tok-attr"> --features</span> compiler</code></pre></div>
+
+<p>That overwrites the checked-in files. The point is that regenerating is a reviewed act, not a test
+repair: the goldens are where the per-type mapping decisions actually live, so a diff there is a change
+to the public mapping and gets read as one.</p>
+
+<p>The goldens are then compiled a second time, by TypeScript itself. <code>ts/tsconfig.json</code> sets
+<code>"strict": true</code> and lists <code>"../tests/goldens/**/*.ts"</code> in its
+<code>include</code>, with <code>@candid-core/schema</code> mapped to the local
+<code>./schema.ts</code>, so <code>npm ci &amp;&amp; npx tsc --noEmit</code> in <code>ts/</code>
+type-checks every generated file against the real runtime under the exact TypeScript version pinned in
+<code>ts/package-lock.json</code>. Because of the invariance described above, that run is a proof and
+not a lint. The mapping is proven by a compiler, not asserted by a comment.</p>
+
+<div class="callout tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg><div class="callout-body"><span class="callout-title">A regression usually shows up twice</span>
+  <p>A bad regeneration fails the byte-comparison for anyone who did not regenerate, and fails the
+  type-check for everyone. That is deliberate: the two gates check different things — that the output
+  is what was reviewed, and that the output is internally consistent.</p>
+</div></div>
+
+<h2 id="publish-false-and-how-to-depend-on-it-anyway">publish = false, and how to depend on it anyway<a class="heading-anchor" href="#publish-false-and-how-to-depend-on-it-anyway" aria-label="Link to publish = false, and how to depend on it anyway">#</a></h2>
+
+<p>The crate is not on crates.io and cannot be pushed there. <code>publish = false</code> is set
+explicitly, and it stands until the registry name is decided deliberately: crate names on crates.io are
+as permanent as versions, and <code>candid-core-ts</code> is a working name rather than that decision.
+Do not expect a <code>cargo add</code> line for it.</p>
+
+<p>Everything else about it works normally, because <code>publish = false</code> only blocks
+<code>cargo publish</code>. Depend on it by path from a checkout, or straight from git:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">toml</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="toml" data-highlighted="true"><span class="tok-type">[dependencies]</span>
+<span class="tok-comment"># From a local checkout of the repository</span>
+candid-core-ts <span class="tok-punct">=</span> { path <span class="tok-punct">=</span> <span class="tok-string">"../Meant/crates/candid-core-ts"</span><span class="tok-punct">,</span> features <span class="tok-punct">=</span> <span class="tok-punct">[</span><span class="tok-string">"compiler"</span><span class="tok-punct">]</span> }
+
+<span class="tok-comment"># Or from git — pin a tag or rev, so your generated output cannot move under you</span>
+candid-core-ts <span class="tok-punct">=</span> { git <span class="tok-punct">=</span> <span class="tok-string">"https://github.com/B3Pay/Meant"</span><span class="tok-punct">,</span> tag <span class="tok-punct">=</span> <span class="tok-string">"v0.1.0"</span><span class="tok-punct">,</span> features <span class="tok-punct">=</span> <span class="tok-punct">[</span><span class="tok-string">"compiler"</span><span class="tok-punct">]</span> }</code></pre></div>
+
+<p>The crate itself is version <code>0.0.0</code>, edition 2021, MSRV 1.78, Apache-2.0. It has exactly
+one feature, <code>compiler = ["meant/compiler"]</code>, and exactly one runtime dependency:
+<code>meant = { version = "=0.1.0", path = "../..", default-features = false }</code>. The
+exact version requirement is deliberate — this is a pre-1.0 consumer of a format that is not a stable
+v1, so it pins rather than floats.</p>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">What emits TypeScript, and what does not</span>
+  <p><code>generate_module</code> is a library call, and the native <code>meant</code> binary
+  never emits TypeScript: it accepts <code>compile &lt;path&gt; [--no-source-info | --envelope]</code>
+  and <code>validate &lt;path&gt;</code>, and prints JSON.</p>
+  <p>The command that does emit a module is <a href="cli-npm.html"><code>@candid-core/cli</code></a>,
+  which is this generator compiled to WebAssembly. Its <code>gen</code> command,
+  <code>candid-core-cli gen &lt;service.did&gt;... [-o &lt;dir&gt;]</code>, writes
+  <code>&lt;stem&gt;.ts</code> alongside <code>&lt;stem&gt;.envelope.json</code>. That package is
+  published on npm, so <code>npx @candid-core/cli@0.4.0 gen ./service.did</code> runs the
+  generator this page describes with no Rust toolchain. The previous stable release, <code>0.3.0</code>,
+  names every use of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> after the
+  first alias of that shape, which <code>0.4.0</code> no longer does (see the note at the top). The
+  release before it, <code>0.2.0</code>, writes the <code>$</code>-prefixed type names and bare method
+  signatures that <code>0.3.0</code> replaced, and <code>0.1.0</code> predates both.</p>
+  <p>The route that needs no build step at all is <code>@candid-core/schema</code>'s
+  <code>schemaFromContract</code>, which builds the same schemas at runtime from a compiled Contract
+  document — see <a href="schema-from-contract.html">schemas at runtime</a>. What that route cannot
+  give you is the static <code>Actor</code> interface type, because that is generated
+  TypeScript source.</p>
+</div></div>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="reference-mapping.html">
+    <span class="card-kicker">Reference</span>
+    <span class="card-title">Candid to TypeScript mapping</span>
+    <p>The complete per-type table, including the declarations that are left out.</p>
+  </a>
+  <a class="card" href="schema-builders.html">
+    <span class="card-kicker">TypeScript</span>
+    <span class="card-title">Builders and inference</span>
+    <p>Every combinator on <code>c</code>, and how a schema and its type stay provably in step.</p>
+  </a>
+  <a class="card" href="schema-codec.html">
+    <span class="card-kicker">TypeScript</span>
+    <span class="card-title">The binary codec</span>
+    <p>Encoding a method's arguments and decoding its reply with the schemas a module exports.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="ts-overview.html"><span class="dir">Previous</span><span class="label">TypeScript overview</span></a><a class="next" href="reference-tags.html"><span class="dir">Next</span><span class="label">Tags</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/generator.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#what-one-declaration-becomes">What one declaration becomes</a></li><li class="toc-h2"><a href="#a-fixture-and-its-golden">A fixture and its golden</a></li><li class="toc-h3"><a href="#the-actor-surface">The actor surface</a></li><li class="toc-h3"><a href="#a-declared-primitive-names-only-itself">A declared primitive names only itself</a></li><li class="toc-h3"><a href="#doc-comments-become-jsdoc">Doc comments become JSDoc</a></li><li class="toc-h3"><a href="#what-cannot-be-represented-is-omitted">What cannot be represented is omitted</a></li><li class="toc-h2"><a href="#the-public-api">The public API</a></li><li class="toc-h3"><a href="#tsgenerror">TsGenError</a></li><li class="toc-h2"><a href="#field-names-are-an-input-not-graph-data">Field names are an input, not graph data</a></li><li class="toc-h2"><a href="#calling-the-generator">Calling the generator</a></li><li class="toc-h2"><a href="#the-golden-discipline">The golden discipline</a></li><li class="toc-h2"><a href="#publish-false-and-how-to-depend-on-it-anyway">publish = false, and how to depend on it anyway</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

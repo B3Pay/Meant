@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Migrating from 0.2.0 · Meant</title>
+<meta name="description" content="What changes in @candid-core/schema 0.3.0 and @candid-core/cli 0.2.0, published on 2026-10-06 (and in the betas 0.3.0-beta.1 and 0.2.0-beta.1 before them), for code written against @candid-core/schema 0.2.0 and @candid-core/cli 0.1.0, with before and after code where the compiler shows it.">
+<meta property="og:title" content="Migrating from 0.2.0 · Meant">
+<meta property="og:description" content="What changes in @candid-core/schema 0.3.0 and @candid-core/cli 0.2.0, published on 2026-10-06 (and in the betas 0.3.0-beta.1 and 0.2.0-beta.1 before them), for code written against @candid-core/schema 0.2.0 and @candid-core/cli 0.1.0, with before and after code where the compiler shows it.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>Migrating from 0.2.0</h1><p class="page-lead">What changes in @candid-core/schema 0.3.0 and @candid-core/cli 0.2.0, published on 2026-10-06 (and in the betas 0.3.0-beta.1 and 0.2.0-beta.1 before them), for code written against @candid-core/schema 0.2.0 and @candid-core/cli 0.1.0, with before and after code where the compiler shows it.</p><p>
+  This page is for code written against <code>@candid-core/schema</code> <code>0.2.0</code> or
+  <code>@candid-core/cli</code> <code>0.1.0</code>, and takes it to the surface published on 2026-10-06 as
+  <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>
+  under the npm <code>latest</code> dist-tag. <code>latest</code> has moved on since, to
+  <code>0.4.0</code> and <code>0.3.0</code>, published on 2026-10-10, and then to
+  <code>0.5.0</code> and <code>0.4.0</code>, published on 2026-10-27;
+  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
+  <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> cover those steps. Most of the surface below was first published on 2026-10-02 as
+  <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> under the <code>beta</code> dist-tag,
+  which still names those betas. The record of each change, with the reasoning, is
+  the <code>0.3.0</code> and <code>0.3.0-beta.1</code> entries of the
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md"><code>@candid-core/schema</code> changelog</a>
+  and the <code>0.2.0</code> and <code>0.2.0-beta.1</code> entries of the
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md"><code>@candid-core/cli</code> changelog</a>.
+</p>
+
+<p>
+  Both changelogs state the compatibility non-goal in one line:
+  <code>@candid-core/schema</code> 0.3 breaks the 0.2 API (principal values are canonical text,
+  collapsing opts are boxed, every <code>vec nat8</code> is a <code>Uint8Array</code>, generated
+  modules use a new binding layout and may omit declarations, and the <code>./actor</code>, <code>./transport-icp</code>, <code>./forms</code> and
+  <code>./labels</code> subpaths are gone); there is no compatibility layer.
+</p>
+
+<h2 id="installing-the-stable-pair">Installing the stable pair<a class="heading-anchor" href="#installing-the-stable-pair" aria-label="Link to Installing the stable pair">#</a></h2>
+
+<p>
+  A plain install selects the newest stable pair from <code>latest</code>,
+  <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code>
+  <code>0.4.0</code>, whose optional peer is exactly <code>0.5.0</code>. Everything below applies
+  there too, and where the CLI's <code>0.3.0</code> or <code>0.4.0</code> differs this page says so;
+  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
+  <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> have those steps:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npm</span> install<span class="tok-attr"> --save-exact</span> @candid-core/schema<span class="tok-keyword">
+npm</span> install<span class="tok-attr"> --save-dev</span><span class="tok-attr"> --save-exact</span> @candid-core/cli</code></pre></div>
+
+<p>
+  Keep both exact: while the two packages move in lockstep every schema release is paired with a
+  CLI release that peers it exactly, and npm refuses to install a mismatched pair
+  (<code>ERESOLVE could not resolve</code>).
+</p>
+
+<p>
+  If you installed the betas with <code>@beta</code>, those lines move you to the stable pair. The
+  <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>,
+  which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code>.
+</p>
+
+<p>
+  Removing published subpaths is a breaking change, so the 0.3 line is a minor: under npm's
+  pre-1.0 caret rules a <code>^0.2.0</code> dependency does not select it, and moving to it is a
+  deliberate edit. Nothing on the wire moved. No byte a <code>0.2.0</code> encoder wrote decodes
+  to a different value, and Contract JSON and every identity are untouched; what changed is the TypeScript
+  value shapes, the package's exports, what the generator emits, and what throws.
+</p>
+
+<div class="callout tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg><div class="callout-body"><span class="callout-title">The snippets below are compiled</span>
+  <p>
+    Each <em>before</em> block is 0.2.0-era code, and the site's check compiles it against this
+    tree and requires the compiler to reject it with the error shown. Each <em>after</em> block must
+    compile. The claim that a spelling stopped working is therefore the compiler's, not this page's.
+  </p>
+</div></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>What changed</th><th>What it breaks</th><th>Where</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A principal is canonical text, branded <code>Principal</code></td><td>Code that calls <code>.toText()</code> on a decoded principal, or hands an SDK object to <code>encode</code></td><td><a href="#principals">Principals</a></td></tr>
+    <tr><td><code>opt opt T</code>, <code>opt null</code> and <code>opt reserved</code> are <code>{ some: T } | null</code></td><td>Code that read or wrote those as a bare <code>T | null</code></td><td><a href="#boxed-options">Boxed options</a></td></tr>
+    <tr><td>Every <code>vec nat8</code> is a <code>Uint8Array</code></td><td>Code typed for <code>number[]</code> beside a declared <code>nat8</code> alias</td><td><a href="#blobs">Blobs</a></td></tr>
+    <tr><td>Four subpaths are gone, and the optional SDK peer</td><td>Any import of them</td><td><a href="#removed-subpaths">Removed subpaths</a></td></tr>
+    <tr><td>Bad options throw <code>TypeError</code>; encoded bytes do not depend on how a schema was built</td><td>A misspelled or non-integer limit that used to be ignored</td><td><a href="#strict-options">Strict options</a></td></tr>
+    <tr><td>Generated modules bind <code>$</code>-prefixed locals and carry JSDoc</td><td>Code that parses or patches generated source</td><td><a href="#generated-modules">Generated modules</a></td></tr>
+    <tr><td>A declaration that cannot be represented is omitted, not refused</td><td>A script that relied on the generator's non-zero exit</td><td><a href="#omission">Omission</a></td></tr>
+    <tr><td>Closed unions gain or lose a member</td><td>An exhaustive <code>switch</code> over a resource or a contract code</td><td><a href="#unions">Closed unions</a></td></tr>
+    <tr><td><code>schemaFromContract</code> refuses unknown keys, unreachable type nodes and a rootless arena</td><td>A hand-written or tool-mutated Contract document</td><td><a href="#contract-loading">Stricter Contract loading</a></td></tr>
+    <tr><td>A <code>rec</code> hop no longer counts against <code>maxDepth</code> or <code>maxElements</code></td><td>A value with a tag-only variant at exactly a caller-set <code>maxDepth</code>, or a message that omits an <code>opt</code> field at a <code>maxDepth</code> edge or past <code>maxElements</code>, which a large message reaches at the default limits</td><td><a href="#rec-hops">Resource limits</a></td></tr>
+    <tr><td>The CLI refuses a run of more than 256 consecutive comments</td><td>A <code>.did</code> with a long <code>//</code> header</td><td><a href="#comment-runs">Long comment runs</a></td></tr>
+    <tr><td>The CLI refuses a type on a cycle through <code>opt</code> alone</td><td>A script that matched on <code>ts_generation_refused</code> for it</td><td><a href="#opt-cycles">Cycles through opt</a></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="principals">Principals<a class="heading-anchor" href="#principals" aria-label="Link to Principals">#</a></h2>
+
+<p>
+  A principal's domain value was <code>{ toText(): string }</code>. It is now its canonical text, a
+  plain string branded <code>Principal</code> in the type system only. The object could not be
+  serialized (<code>JSON.stringify</code> gave <code>{}</code>), cloned
+  (<code>structuredClone</code> threw), or compared with <code>===</code>. The string does all
+  three. Decoding returns the text, for a <code>principal</code>, for a func reference's
+  <code>principal</code> and for a service reference alike. The root export
+  <code>PrincipalValue</code> and its <code>./codec</code> alias <code>DecodedPrincipal</code> are removed, with
+  no deprecated alias left, because an alias would keep the object shape alive.
+</p>
+
+<p>
+  In the other direction encoding is strict: it accepts exactly the strings <code>validate</code>
+  accepts, a string holding canonical text, and refuses everything else with
+  <code>invalid_type</code> at the same path. It no longer calls <code>toText()</code>.
+  <code>principal(value)</code> is the one conversion point. It takes a string or an object with
+  <code>toText()</code>, an SDK <code>Principal</code> for one, and returns the text branded, or throws
+  <code>TypeError</code>. It refuses rather than repairs: upper case, a misplaced dash, a checksum
+  mismatch and an id over 29 bytes all throw. <code>isPrincipal(value)</code> is the matching guard.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Infer</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">Account</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> owner<span class="tok-punct">:</span> c<span class="tok-punct">.</span>principal <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">declare</span> <span class="tok-keyword">const</span> account<span class="tok-punct">:</span> <span class="tok-type">Infer</span><span class="tok-punct">&lt;</span><span class="tok-keyword">typeof</span> <span class="tok-type">Account</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 0.2.0: a decoded principal was an object with toText().</span>
+<span class="tok-keyword">const</span> text<span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">=</span> account<span class="tok-punct">.</span>owner<span class="tok-punct">.</span><span class="tok-fn">toText</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Infer</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">Account</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> owner<span class="tok-punct">:</span> c<span class="tok-punct">.</span>principal <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">declare</span> <span class="tok-keyword">const</span> sdkPrincipal<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-fn">toText</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">}</span><span class="tok-punct">;</span> <span class="tok-comment">// an @icp-sdk/core Principal, say</span>
+
+<span class="tok-comment">// 0.2.0: any object with toText() was a principal, to validate and to encode.</span>
+<span class="tok-keyword">const</span> account<span class="tok-punct">:</span> <span class="tok-type">Infer</span><span class="tok-punct">&lt;</span><span class="tok-keyword">typeof</span> <span class="tok-type">Account</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> owner<span class="tok-punct">:</span> sdkPrincipal <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> isPrincipal<span class="tok-punct">,</span> principal<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Infer</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> encode <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/codec"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">Account</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> owner<span class="tok-punct">:</span> c<span class="tok-punct">.</span>principal <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">declare</span> <span class="tok-keyword">const</span> sdkPrincipal<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-fn">toText</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">}</span><span class="tok-punct">;</span> <span class="tok-comment">// an @icp-sdk/core Principal, say</span>
+
+<span class="tok-comment">// Convert once, at your boundary. The result is the canonical text.</span>
+<span class="tok-keyword">const</span> owner <span class="tok-punct">=</span> <span class="tok-fn">principal</span><span class="tok-punct">(</span>sdkPrincipal<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> account<span class="tok-punct">:</span> <span class="tok-type">Infer</span><span class="tok-punct">&lt;</span><span class="tok-keyword">typeof</span> <span class="tok-type">Account</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> owner <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> text<span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">=</span> account<span class="tok-punct">.</span>owner<span class="tok-punct">;</span> <span class="tok-comment">// no toText(): it is already the text</span>
+
+<span class="tok-fn">encode</span><span class="tok-punct">(</span><span class="tok-type">Account</span><span class="tok-punct">,</span> account<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// { ok: true, bytes }</span>
+<span class="tok-fn">isPrincipal</span><span class="tok-punct">(</span><span class="tok-string">"AAAAA-AA"</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// false, so principal("AAAAA-AA") throws TypeError</span></code></pre></div>
+
+<p>
+  The other direction needs the SDK, which this package no longer knows about: code that wants a
+  class instance from a decoded value converts with the SDK's own
+  <code>Principal.fromText(value)</code>. <code>Principal</code> is exported from the root with the
+  same name as the SDK's class; import one of them under an alias. Equal principal text encodes to
+  equal bytes whatever built the schema, and a string over 63 characters, the longest canonical
+  text, is refused before any work proportional to its length. Source:
+  <code>schema.ts</code>, the doc comments on <code>Principal</code>, <code>principal</code> and
+  <code>isPrincipal</code>; the changelog entry <em>Principals are canonical text</em>.
+</p>
+
+<h2 id="boxed-options">Boxed options<a class="heading-anchor" href="#boxed-options" aria-label="Link to Boxed options">#</a></h2>
+
+<p>
+  <code>opt T</code> is <code>T | null</code> unless <code>T</code> itself admits <code>null</code>.
+  For exactly the three collapsing inners, <code>opt opt T</code>, <code>opt null</code> and
+  <code>opt reserved</code>, the present value is boxed as <code>{ some: v }</code>, so
+  <code>None</code>, <code>Some(None)</code> and <code>Some(Some(x))</code> stay three values. Every
+  other <code>opt</code> is unchanged in type, value and wire bytes. In 0.2.0 an interface
+  containing one of the three was refused at generation and at load, and a hand-built
+  <code>c.opt(c.opt(…))</code> silently decoded <code>Some(None)</code> as <code>None</code>.
+  Interfaces such as Internet Identity's <code>config</code> now load.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Infer</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">Description</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span>text<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 0.2.0: the present value was the bare inner value.</span>
+<span class="tok-keyword">const</span> present<span class="tok-punct">:</span> <span class="tok-type">Infer</span><span class="tok-punct">&lt;</span><span class="tok-keyword">typeof</span> <span class="tok-type">Description</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> <span class="tok-string">"x"</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> isBoxedOpt<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Infer</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">OptDomain</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> decode<span class="tok-punct">,</span> encode <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/codec"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">Description</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span><span class="tok-fn">opt</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span>text<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Description</span> <span class="tok-punct">=</span> <span class="tok-type">Infer</span><span class="tok-punct">&lt;</span><span class="tok-keyword">typeof</span> <span class="tok-type">Description</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span> <span class="tok-comment">// { some: string | null } | null</span>
+
+<span class="tok-keyword">const</span> none<span class="tok-punct">:</span> <span class="tok-type">Description</span> <span class="tok-punct">=</span> <span class="tok-type">null</span><span class="tok-punct">;</span> <span class="tok-comment">// None</span>
+<span class="tok-keyword">const</span> cleared<span class="tok-punct">:</span> <span class="tok-type">Description</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> some<span class="tok-punct">:</span> <span class="tok-type">null</span> <span class="tok-punct">}</span><span class="tok-punct">;</span> <span class="tok-comment">// Some(None)</span>
+<span class="tok-keyword">const</span> <span class="tok-keyword">set</span><span class="tok-punct">:</span> <span class="tok-type">Description</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> some<span class="tok-punct">:</span> <span class="tok-string">"x"</span> <span class="tok-punct">}</span><span class="tok-punct">;</span> <span class="tok-comment">// Some(Some("x"))</span>
+
+<span class="tok-keyword">const</span> bytes <span class="tok-punct">=</span> <span class="tok-fn">encode</span><span class="tok-punct">(</span><span class="tok-type">Description</span><span class="tok-punct">,</span> cleared<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// the bytes any other opt would write</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>bytes<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> <span class="tok-fn">decode</span><span class="tok-punct">(</span><span class="tok-type">Description</span><span class="tok-punct">,</span> bytes<span class="tok-punct">.</span>bytes<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// { ok: true, value: { some: null } }</span>
+
+<span class="tok-fn">isBoxedOpt</span><span class="tok-punct">(</span><span class="tok-type">Description</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// true; isBoxedOpt(c.opt(c.text)) is false</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Plain</span> <span class="tok-punct">=</span> <span class="tok-type">OptDomain</span><span class="tok-punct">&lt;</span><span class="tok-type">bigint</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span> <span class="tok-comment">// bigint | null, unboxed</span></code></pre></div>
+
+<p>
+  The decision is made on the resolved inner node, so a declared alias and a recursive type
+  box the same way (an <code>opt</code> node that is its own inner, the graph of
+  <code>type Chain = opt Chain</code>, boxes too, though the compiler now refuses that source),
+  and <code>opt empty</code> stays
+  <code>null</code>. Validation and encoding require <code>{ some: v }</code> for a present value (a
+  bare <code>v</code> is <code>invalid_type</code>, and under <code>opt reserved</code>
+  <code>undefined</code> is no longer read as present), and issues inside a box carry the
+  <code>some</code> segment. <code>OptSchema&lt;T&gt;</code> now extends
+  <code>Schema&lt;OptDomain&lt;T&gt;&gt;</code>. See
+  <a href="reference-mapping.html#options-whose-inner-type-admits-null">the mapping reference</a>.
+</p>
+
+<h2 id="blobs">Blobs<a class="heading-anchor" href="#blobs" aria-label="Link to Blobs">#</a></h2>
+
+<p>
+  A declared alias of <code>nat8</code> (<code>type Byte = nat8</code>) used to turn every
+  <code>blob</code> and <code>vec Byte</code> in the interface into <code>number[]</code>, because the
+  generator and the loader gave a declaration's name to every use of the node it named. A
+  declaration of a primitive now names only itself, and every <code>vec nat8</code> is a
+  <code>Uint8Array</code>, in generated modules and in <code>schemaFromContract</code> alike. The
+  encoded bytes are the same, since <code>blob</code> and <code>vec nat8</code> are one wire type. The
+  same change stops <code>type Tokens = nat; type BlockIndex = nat</code> renaming each other's uses:
+  a field reads <code>bigint</code>, not whichever alias came first.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Schema</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 0.2.0, for `type Byte = nat8; type R = record { raw : vec Byte }`.</span>
+<span class="tok-keyword">type</span> <span class="tok-type">R</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> raw<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-type">R</span><span class="tok-punct">:</span> <span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">R</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> raw<span class="tok-punct">:</span> c<span class="tok-punct">.</span><span class="tok-fn">blob</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Schema</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">type</span> <span class="tok-type">R</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> raw<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-type">R</span><span class="tok-punct">:</span> <span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">R</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> raw<span class="tok-punct">:</span> c<span class="tok-punct">.</span><span class="tok-fn">blob</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<h2 id="removed-subpaths">Removed subpaths<a class="heading-anchor" href="#removed-subpaths" aria-label="Link to Removed subpaths">#</a></h2>
+
+<p>
+  The package is the Candid layer only: schemas, validation, the codec and the Contract loader. The
+  export map is exactly <code>.</code>, <code>./validate</code>, <code>./contract</code> and
+  <code>./codec</code>. Four subpaths that 0.2.0 exported are gone:
+</p>
+
+<ul>
+  <li>
+    <code>./actor</code>, with its actor factory, its call helper for a decoded func reference, its
+    error class, and the <code>Transport</code>, <code>CallTarget</code> and
+    <code>ActorOptions</code> types. Calling a canister is the job of the call layer built on this
+    package. A func value stays the inert <code>{ principal, method }</code> pair.
+  </li>
+  <li>
+    <code>./transport-icp</code>, the <code>@icp-sdk/core</code> adapter. It built an agent with no
+    identity, a second call path beside whatever identity-aware transport an application uses.
+  </li>
+  <li>
+    <code>./forms</code>, the form-model builder. The code stays in the repository, compiled and
+    tested, but is not built into the tarball.
+  </li>
+  <li>
+    <code>./labels</code>, the label-hash and UTF-8 helpers. The module still ships because the codec
+    and the loader import it, but it is not an entry point.
+  </li>
+</ul>
+
+<p>
+  An import of any of them now fails at resolution, with <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code> in
+  Node and <code>TS2307</code> in TypeScript, and so does a deep import into <code>dist/</code>. The
+  optional <code>@icp-sdk/core &gt;= 6</code> peer is dropped with them, since only the transport
+  used it. The package declares no runtime dependency and no peer of any kind, and the Node floor is
+  16 for every subpath. The packaged-consumer gate asserts each of these against the packed tarball.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> createActor <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/actor"</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> httpTransport <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/transport-icp"</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  What replaces them is what a call layer already needed from this package and still has: the method
+  table, and the codec that moves a call's arguments and reply as bytes. Sending those bytes, with
+  the agent, the identity, polling and certificate verification, is not done here.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> serviceMethods <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> decodeArgs<span class="tok-punct">,</span> encodeArgs <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/codec"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> actor<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">TransferArg</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"./ledger.ts"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">declare</span> <span class="tok-keyword">const</span> arg<span class="tok-punct">:</span> <span class="tok-type">TransferArg</span><span class="tok-punct">;</span>
+<span class="tok-keyword">declare</span> <span class="tok-keyword">function</span> <span class="tok-fn">send</span><span class="tok-punct">(</span>method<span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">,</span> payload<span class="tok-punct">:</span> <span class="tok-type">Uint8Array</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">Promise</span><span class="tok-punct">&lt;</span><span class="tok-type">Uint8Array</span><span class="tok-punct">&gt;</span><span class="tok-punct">;</span> <span class="tok-comment">// your agent</span>
+
+<span class="tok-keyword">const</span> transfer <span class="tok-punct">=</span> <span class="tok-fn">serviceMethods</span><span class="tok-punct">(</span>actor<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-keyword">get</span><span class="tok-punct">(</span><span class="tok-string">"transfer"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>transfer <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-type">undefined</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">"the interface has no transfer method"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> request <span class="tok-punct">=</span> <span class="tok-fn">encodeArgs</span><span class="tok-punct">(</span>transfer<span class="tok-punct">.</span>args<span class="tok-punct">,</span> <span class="tok-punct">[</span>arg<span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-punct">!</span>request<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span>request<span class="tok-punct">.</span>issues<span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">.</span>message<span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> reply <span class="tok-punct">=</span> <span class="tok-fn">decodeArgs</span><span class="tok-punct">(</span>transfer<span class="tok-punct">.</span>results<span class="tok-punct">,</span> <span class="tok-keyword">await</span> <span class="tok-fn">send</span><span class="tok-punct">(</span>transfer<span class="tok-punct">.</span>name<span class="tok-punct">,</span> request<span class="tok-punct">.</span>bytes<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>reply<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> reply<span class="tok-punct">.</span>values<span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">;</span> <span class="tok-comment">// the decoded TransferResult, as unknown until you narrow it: `results` is an erased list</span></code></pre></div>
+
+<h2 id="strict-options">Strict options, and bytes that do not depend on the schema<a class="heading-anchor" href="#strict-options" aria-label="Link to Strict options, and bytes that do not depend on the schema">#</a></h2>
+
+<p>
+  Every entry point that takes an options object, <code>validate</code> and <code>unwrapResult</code>,
+  <code>encode</code>, <code>encodeArgs</code>, <code>decode</code> and <code>decodeArgs</code>, and
+  <code>schemaFromContract</code>, throws <code>TypeError</code> on an own key it does not define and on
+  a limit that is not a non-negative safe integer: <code>NaN</code>, a negative, a fraction, a string,
+  <code>null</code> and <code>Infinity</code> all throw, and so does <code>maxIssues</code> passed to
+  <code>encode</code>, which only <code>validate</code> defines. In 0.2.0 a misspelled limit applied the default
+  silently, and a <code>NaN</code> limit switched its bound off: a depth-300 value validated under
+  <code>maxDepth: NaN</code>. <code>undefined</code> still means the default and <code>0</code> is
+  still a valid, fail-closed limit. A host that wants no practical bound passes a large safe integer.
+  Each option is read from your object exactly once, into a frozen snapshot the whole call reads
+  instead, so a getter or a Proxy cannot pass the check with one value and run with another. Values,
+  byte strings and Contract documents still never make these functions throw.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> validate <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// A typed caller now meets the misspelling at compile time; a caller with</span>
+<span class="tok-comment">// an untyped options object meets a TypeError at run time.</span>
+<span class="tok-fn">validate</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span>nat<span class="tok-punct">,</span> <span class="tok-number">1n</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> maxDeph<span class="tok-punct">:</span> <span class="tok-number">10</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> c <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> validate <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">declare</span> <span class="tok-keyword">const</span> limit<span class="tok-punct">:</span> <span class="tok-type">number</span><span class="tok-punct">;</span> <span class="tok-comment">// read from your configuration</span>
+<span class="tok-keyword">try</span> <span class="tok-punct">{</span>
+  <span class="tok-fn">validate</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span><span class="tok-fn">vec</span><span class="tok-punct">(</span>c<span class="tok-punct">.</span>nat8<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">{</span> maxDepth<span class="tok-punct">:</span> limit <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span> <span class="tok-keyword">catch</span> <span class="tok-punct">(</span>error<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-punct">!</span><span class="tok-punct">(</span>error <span class="tok-keyword">instanceof</span> <span class="tok-type">TypeError</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-keyword">throw</span> error<span class="tok-punct">;</span> <span class="tok-comment">// a NaN, a fraction, a string: the caller's bug</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  The second change is to bytes. <code>encode</code> and <code>encodeArgs</code> write a structural type
+  table, so the same value encoded through a generated module, through
+  <code>schemaFromContract</code> and through a hand-built schema produces one byte string, however
+  each shares or duplicates nodes and in whatever order a record's schema or value spells its keys.
+  Anything that keys a cache or deduplicates requests on argument bytes now sees one key for one call.
+  A schema with no repeated structure writes the bytes it always wrote, and one with repeated
+  anonymous structure writes a smaller table that every decoder still reads. Two separately
+  hand-built knots for one recursive type are not merged. Source: <code>options.ts</code> and
+  <code>typetable.ts</code> headers, and the codec header's <em>Determinism</em> section.
+</p>
+
+<h2 id="generated-modules">Generated modules<a class="heading-anchor" href="#generated-modules" aria-label="Link to Generated modules">#</a></h2>
+
+<p>
+  The generator changes the text of every module it emits, and nothing about what a module exports.
+  The schema runtime is imported as the namespace <code>$</code>, and every declaration is bound as a
+  <code>$</code>-prefixed local exported under its Candid name. A Candid name cannot contain
+  <code>$</code>, so a declaration named <code>c</code>, <code>Schema</code>, <code>Array</code> or
+  <code>delete</code> generates instead of being refused, and you import it by name
+  (<code>import { delete as del } from "./service"</code>). Code that imports the generated names is
+  unaffected; code that parses or patches the generated source, or relied on its module-scope names,
+  must follow the new layout. In <code>@candid-core/cli</code> <code>0.3.0</code>, published on
+  2026-10-10, the type moves back to the Candid name
+  (<code>export type Tokens = …</code>), so a compiler error names <code>Tokens</code>; only the value
+  keeps the <code>$</code> local, and a type keeps it too only where the name cannot be a type in the
+  module (<code>Array</code>, <code>delete</code>). The excerpts below show that layout,
+  <code>0.3.0</code>'s; <code>0.2.0</code> writes <code>type $Tokens = …</code> and
+  <code>$.Schema&lt;$Tokens&gt;</code>. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> has the
+  rest of that step.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-comment">// 0.2.0 layout: bare bindings, and a separate import for the principal type.</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> c<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">PrincipalValue</span><span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Schema</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Tokens</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">const</span> <span class="tok-type">Tokens</span><span class="tok-punct">:</span> <span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Tokens</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> c<span class="tok-punct">.</span>nat64 <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/tests/goldens/ledger.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-comment">// Generated by Meant from a Meant Contract. Do not edit.</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">*</span> <span class="tok-keyword">as</span> $ <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/schema"</span><span class="tok-punct">;</span>
+<span class="tok-comment">// …</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Tokens</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> <span class="tok-type">bigint</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Tokens</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Tokens</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span> e8s<span class="tok-punct">:</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat64 <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Tokens</span> <span class="tok-keyword">as</span> <span class="tok-type">Tokens</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> <span class="tok-type">Tokens</span><span class="tok-punct">,</span> actor<span class="tok-punct">,</span> <span class="tok-keyword">type</span> <span class="tok-type">Actor</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"./ledger.ts"</span><span class="tok-punct">;</span> <span class="tok-comment">// the same import as before</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> <span class="tok-type">Array</span> <span class="tok-keyword">as</span> <span class="tok-type">Arrays</span><span class="tok-punct">,</span> <span class="tok-keyword">delete</span> <span class="tok-keyword">as</span> del <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"./shadowing.ts"</span><span class="tok-punct">;</span> <span class="tok-comment">// names that used to be refused</span>
+
+<span class="tok-keyword">void</span> <span class="tok-punct">[</span><span class="tok-type">Tokens</span><span class="tok-punct">,</span> actor<span class="tok-punct">,</span> <span class="tok-type">Arrays</span><span class="tok-punct">,</span> del<span class="tok-punct">]</span><span class="tok-punct">;</span>
+<span class="tok-keyword">declare</span> <span class="tok-keyword">const</span> ledger<span class="tok-punct">:</span> <span class="tok-type">Actor</span><span class="tok-punct">;</span>
+<span class="tok-keyword">void</span> ledger<span class="tok-punct">.</span>fee<span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  Principals follow the change above: the generated type is <code>$.Principal</code> where it was
+  <code>PrincipalValue</code>, for principal fields, func references
+  (<code>{ principal: $.Principal; method: string }</code>), service references and the
+  <code>actor</code> schema. A declaration named <code>Principal</code> still generates. Two more things
+  came with the layout. The <code>.did</code>'s doc comments and argument names become JSDoc, above
+  each exported type and const, on record properties and variant arms, and on the methods of
+  <code>Actor</code> with a <code>@param</code> per named argument, so an editor hover shows what the
+  interface says. And a use of a primitive renders structurally (see <a href="#blobs">Blobs</a>).
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><span class="code-file">crates/candid-core-ts/tests/goldens/docs.ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-comment">// Generated by Meant from a Meant Contract. Do not edit.</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">*</span> <span class="tok-keyword">as</span> $ <span class="tok-keyword">from</span> <span class="tok-string">"@meantjs/schema"</span><span class="tok-punct">;</span>
+<span class="tok-comment">// …</span>
+<span class="tok-comment">/** The amount of a transfer, in e8s. */</span>
+<span class="tok-keyword">export</span> <span class="tok-keyword">type</span> <span class="tok-type">Tokens</span> <span class="tok-punct">=</span> <span class="tok-type">bigint</span><span class="tok-punct">;</span>
+<span class="tok-comment">/** The amount of a transfer, in e8s. */</span>
+<span class="tok-keyword">const</span> $<span class="tok-type">Tokens</span><span class="tok-punct">:</span> $<span class="tok-punct">.</span><span class="tok-type">Schema</span><span class="tok-punct">&lt;</span><span class="tok-type">Tokens</span><span class="tok-punct">&gt;</span> <span class="tok-punct">=</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span><span class="tok-fn">rec</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> $<span class="tok-punct">.</span>c<span class="tok-punct">.</span>nat<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">export</span> <span class="tok-punct">{</span> $<span class="tok-type">Tokens</span> <span class="tok-keyword">as</span> <span class="tok-type">Tokens</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  Declarations named <code>actor</code> or <code>Actor</code> are the module's own export names and stay
+  reserved. The generated <code>actor</code> schema and <code>Actor</code> interface type are still
+  emitted, under those names.
+</p>
+
+<h2 id="omission">Omission instead of refusal<a class="heading-anchor" href="#omission" aria-label="Link to Omission instead of refusal">#</a></h2>
+
+<p>
+  The generator no longer refuses a whole interface for one declaration it cannot represent. It leaves
+  that declaration out, with every declaration and actor method that references it, and lists what it
+  left out. Four causes remain: a field or arm named like the <code>_N_</code> id rendering, a
+  variant arm whose payload is a declared <code>opt</code> of an uninhabited type, a declaration named
+  <code>actor</code> or <code>Actor</code>, and, from a Contract document only, a name that is not
+  identifier-shaped. The exact rules, the reason codes and the closure are on
+  <a href="generator.html#what-cannot-be-represented-is-omitted">the code generator</a> page.
+  What changes for a consumer:
+</p>
+
+<ul>
+  <li>
+    <strong>Exit status.</strong> <code>candid-core-cli gen</code> used to print a
+    <code>ts_generation_refused</code> document and exit 1 for such an interface. It now writes the
+    module, prints one <code>warning: omitted …</code> line per entry on stderr, and exits 0. A script
+    that relied on the non-zero exit to reject the interface must read the warnings or the list.
+  </li>
+  <li>
+    <strong>Library result.</strong> <code>didToModule</code> returns
+    <code>{ ok: true, module, omitted }</code> for those inputs, where it returned
+    <code>{ ok: false, diagnostics }</code>. <code>omitted</code> is always present, and empty when
+    nothing is left out. <code>ts_generation_refused</code> is now reserved for an invalid Contract graph,
+    which Candid source never produces.
+  </li>
+  <li>
+    <strong>The loader.</strong> <code>schemaFromContract</code> omits exactly what the generator omits,
+    with the same reasons, and its success carries the same <code>omitted</code> list. A name-table entry
+    shaped like <code>_N_</code> that honestly hashes to its id no longer fails the document. A
+    declaration whose name is not identifier-shaped is now omitted there, where 0.2.0 loaded it.
+    An invalid document still fails whole.
+  </li>
+  <li>
+    <strong>The header.</strong> The module lists each entry as a <code>// Omitted:</code> line under
+    its first line. A module that omits nothing has no such line and is byte-identical to what it
+    would have been.
+  </li>
+</ul>
+
+<h2 id="unions">Closed unions<a class="heading-anchor" href="#unions" aria-label="Link to Closed unions">#</a></h2>
+
+<p>
+  Three closed unions changed, and an exhaustive <code>switch</code> over them stops compiling until it
+  is updated. <code>resource_limit_exceeded</code> issues gain a <code>"stack"</code> resource in both
+  <code>ResourceLimitInfo["resource"]</code> (<code>./validate</code>) and
+  <code>CodecResourceLimitInfo["resource"]</code> (<code>./codec</code>). It means the host's own call
+  stack ran out, and only user code a walk calls, a getter, a Proxy trap or a <code>rec</code> thunk
+  that itself recurses too deeply, can cause it: the walkers keep their work on explicit stacks.
+  Before, such an overflow was mislabelled <code>unreadable_value</code> or
+  <code>unsupported_schema</code>. <code>ContractIssueCode</code> loses
+  <code>unrepresentable_option</code>, because the documents it refused now load, and gains
+  <code>unknown_key</code>, <code>orphan_type_node</code> and <code>rootless_type_arena</code>, the
+  refusals of <a href="#contract-loading">stricter Contract loading</a> below; it has 17 members.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-keyword">type</span> <span class="tok-punct">{</span> <span class="tok-type">ResourceLimitInfo</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">function</span> <span class="tok-fn">describe</span><span class="tok-punct">(</span>info<span class="tok-punct">:</span> <span class="tok-type">ResourceLimitInfo</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">switch</span> <span class="tok-punct">(</span>info<span class="tok-punct">.</span>resource<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"value_depth"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"too deep"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"value_elements"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"too many elements"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">default</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">const</span> unhandled<span class="tok-punct">:</span> <span class="tok-type">never</span> <span class="tok-punct">=</span> info<span class="tok-punct">.</span>resource<span class="tok-punct">;</span> <span class="tok-comment">// 0.2.0: exhaustive with two cases</span>
+      <span class="tok-keyword">return</span> unhandled<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">void</span> describe<span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-keyword">type</span> <span class="tok-punct">{</span> <span class="tok-type">ContractIssueCode</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/contract"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">function</span> <span class="tok-fn">isOption</span><span class="tok-punct">(</span>code<span class="tok-punct">:</span> <span class="tok-type">ContractIssueCode</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">boolean</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">return</span> code <span class="tok-punct">=</span><span class="tok-punct">=</span><span class="tok-punct">=</span> <span class="tok-string">"unrepresentable_option"</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">void</span> isOption<span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-keyword">type</span> <span class="tok-punct">{</span> <span class="tok-type">ContractIssueCode</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/contract"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">function</span> <span class="tok-fn">kind</span><span class="tok-punct">(</span>code<span class="tok-punct">:</span> <span class="tok-type">ContractIssueCode</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">switch</span> <span class="tok-punct">(</span>code<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"invalid_contract_document"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_contract_format"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_format_version"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_semantics_profile"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_canonicalization_profile"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"format"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"dangling_type_ref"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_construct"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"duplicate_field_id"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"duplicate_field_name"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"types"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"empty_declaration_name"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"duplicate_declaration_name"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"invalid_name_table"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"invalid_extension_name"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"names"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"resource_limit_exceeded"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"limits"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">default</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">const</span> unhandled<span class="tok-punct">:</span> <span class="tok-type">never</span> <span class="tok-punct">=</span> code<span class="tok-punct">;</span> <span class="tok-comment">// 0.2.0's codes, less unrepresentable_option</span>
+      <span class="tok-keyword">return</span> unhandled<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">void</span> kind<span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-keyword">type</span> <span class="tok-punct">{</span> <span class="tok-type">ResourceLimitInfo</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/validate"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">function</span> <span class="tok-fn">describe</span><span class="tok-punct">(</span>info<span class="tok-punct">:</span> <span class="tok-type">ResourceLimitInfo</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">switch</span> <span class="tok-punct">(</span>info<span class="tok-punct">.</span>resource<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"value_depth"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"too deep"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"value_elements"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"too many elements"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"stack"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"user code recursed past the host stack"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">default</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">const</span> unhandled<span class="tok-punct">:</span> <span class="tok-type">never</span> <span class="tok-punct">=</span> info<span class="tok-punct">.</span>resource<span class="tok-punct">;</span>
+      <span class="tok-keyword">return</span> unhandled<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">void</span> describe<span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">ts</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="ts" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-keyword">type</span> <span class="tok-punct">{</span> <span class="tok-type">ContractIssueCode</span> <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/contract"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">function</span> <span class="tok-fn">kind</span><span class="tok-punct">(</span>code<span class="tok-punct">:</span> <span class="tok-type">ContractIssueCode</span><span class="tok-punct">)</span><span class="tok-punct">:</span> <span class="tok-type">string</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">switch</span> <span class="tok-punct">(</span>code<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"invalid_contract_document"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_contract_format"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_format_version"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_semantics_profile"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_canonicalization_profile"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unknown_key"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"format"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"dangling_type_ref"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"unsupported_construct"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"duplicate_field_id"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"duplicate_field_name"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"orphan_type_node"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"rootless_type_arena"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"types"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"empty_declaration_name"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"duplicate_declaration_name"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"invalid_name_table"</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"invalid_extension_name"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"names"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">"resource_limit_exceeded"</span><span class="tok-punct">:</span>
+      <span class="tok-keyword">return</span> <span class="tok-string">"limits"</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">default</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">const</span> unhandled<span class="tok-punct">:</span> <span class="tok-type">never</span> <span class="tok-punct">=</span> code<span class="tok-punct">;</span>
+      <span class="tok-keyword">return</span> unhandled<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">void</span> kind<span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  Two behaviours changed without changing a type. The limits are the only bounds on a walk:
+  <code>DEFAULT_MAX_DEPTH</code> stays 256, and with <code>maxDepth</code> raised a 100,000-level value
+  validates, encodes and decodes on any engine, where the recursive walkers used to overflow the host
+  stack from about 1,500 to 2,600 levels. And <code>encode</code> charges <code>maxDepth</code> for
+  Candid nesting depth only, never for a <code>rec</code> hop, so any type the <code>meant</code> compiler
+  accepts encodes through its generated module at the default limits, however it is split into
+  declarations. <a href="schema-codec.html#the-budgets-and-what-a-caller-observes">The codec page</a>
+  states both with their numbers.
+</p>
+
+<h2 id="rec-hops">Resource limits: a <code>rec</code> hop is not charged<a class="heading-anchor" href="#rec-hops" aria-label="Link to Resource limits: a rec hop is not charged">#</a></h2>
+
+<p>
+  In <code>0.3.0</code>, <code>validate</code>, <code>encode</code> and <code>decode</code> charge a
+  value for its constructors alone. <code>0.2.0</code> and <code>0.3.0-beta.1</code> also charged every
+  <code>rec</code> hop a depth step and an element, and a Contract-loaded schema makes every type
+  reference a hop, so its values reached the default <code>maxDepth</code> at about 128 levels and
+  <code>maxElements</code> at about 500,000 elements. Now a generated, a Contract-loaded and a
+  hand-built schema of one type accept the same values, 256 levels deep at the defaults as <code>meant</code>
+  does, and 1,000,000 elements wide, where <code>validate</code> and <code>encode</code> also count
+  each record or variant key they examine. Two narrow cases are refused that were accepted:
+</p>
+
+<ul>
+  <li>
+    a tag-only variant (<code>{ tag: "a" }</code> for an arm of type <code>null</code>) sitting at exactly
+    <code>maxDepth</code>: its <code>null</code> is now a level below it in <code>validate</code> and
+    <code>encode</code>, as it already was in <code>decode</code>. At the default of 256 no type the
+    compiler accepts reaches it;
+  </li>
+  <li>
+    a message that omits an <code>opt</code>, <code>null</code> or <code>reserved</code> field: the
+    <code>null</code> that <code>decode</code> supplies is now charged at the field's own level and as one
+    element. A record at exactly a <code>maxDepth</code> you set that omits one is refused, and so is a
+    message whose omitted fields take it past <code>maxElements</code>, which can happen at the default
+    limits: a <code>vec</code> of 500,000 or more records that each omit such a field the reader
+    expects costs one element more per record, so a <code>vec record {}</code> of 500,000 elements
+    read at <code>vec record { x : opt nat }</code> is now refused. Both are refused with
+    <code>resource_limit_exceeded</code>, as <code>validate</code> refuses the same value.
+  </li>
+</ul>
+
+<p>
+  A chain of more than <code>maxDepth</code> consecutive hops is still refused with
+  <code>value_depth</code>, so with <code>maxDepth</code> set to 0 a generated module refuses a value at
+  its first declaration reference, and at 1 wherever it reaches an alias of another declaration (a
+  two-hop chain). The changelog's <code>0.3.0</code> entry lists every case.
+</p>
+
+<h2 id="contract-loading">Stricter Contract loading<a class="heading-anchor" href="#contract-loading" aria-label="Link to Stricter Contract loading">#</a></h2>
+
+<p>
+  <code>schemaFromContract</code> now refuses three kinds of Contract document that 0.2.0 loaded,
+  because <code>meant</code>'s own loader, <code>Contract::from_json</code>, refuses them. Every Contract and
+  envelope <code>meant compile</code> writes still loads exactly as before, with the same
+  schemas, <code>actor</code> and <code>omitted</code>; only a hand-written or tool-mutated document
+  is affected.
+</p>
+
+<ul>
+  <li>
+    <strong>Unknown keys</strong> (<code>unknown_key</code>, at the key's path, such as
+    <code>$.types[0].extra</code>). The root, a type node, a field or arm, a method, a declaration and
+    the actor accept only the keys the format defines for them, and a key of another node kind counts
+    as unknown, so an <code>opt</code> node carrying <code>fields</code> is refused. An unknown
+    envelope key, already refused, is now reported the same way (<code>$.format</code>), where 0.2.0
+    reported <code>invalid_contract_document</code> at <code>$</code>.
+  </li>
+  <li>
+    <strong>Unreachable type nodes</strong> (<code>orphan_type_node</code>, one issue per node at
+    <code>$.types[i]</code>): every node must be reachable from a declaration or the actor, a class
+    actor's <code>init</code> arguments included.
+  </li>
+  <li>
+    <strong>A rootless arena</strong> (<code>rootless_type_arena</code> at <code>$.types</code>): a
+    non-empty <code>types</code> with no declarations and no actor. An empty one still loads.
+  </li>
+</ul>
+
+<p>
+  A tool that writes or edits Contract documents must emit only the format's keys and drop nodes
+  nothing reaches; code that matched on <code>invalid_contract_document</code> for an unknown
+  envelope key must match <code>unknown_key</code>. The three codes are in the
+  <a href="#unions">closed union</a> above.
+</p>
+
+<h2 id="comment-runs">Long comment runs<a class="heading-anchor" href="#comment-runs" aria-label="Link to Long comment runs">#</a></h2>
+
+<p>
+  <code>@candid-core/cli</code> <code>0.2.0</code> refuses a <code>.did</code> file with more than 256
+  consecutive comments between two tokens, line and block comments alike, with
+  <code>resource_limit_exceeded</code> and resource <code>source_nesting</code> (limit 256), exit
+  status 1. <code>0.1.0</code> and <code>0.2.0-beta.1</code> compiled such a run up to a
+  stack-dependent length, about 2,700 to 2,800 comments, and then failed. The likely case is a license
+  header written as hundreds of <code>//</code> lines: write it as one <code>/* */</code> block, which
+  counts as one comment, or shorten it. Blank lines between comments do not end a run; any token does.
+  The CLI has no flag to raise the limit.
+</p>
+
+<h2 id="opt-cycles">Cycles through opt<a class="heading-anchor" href="#opt-cycles" aria-label="Link to Cycles through opt">#</a></h2>
+
+<p>
+  <code>@candid-core/cli</code> <code>0.2.0</code> refuses a type that lies on a cycle passing only
+  through <code>opt</code>, such as <code>type T = opt T;</code>, with <code>did_type_check_error</code>
+  naming the type, exit status 1. No decoder can answer for a value that is not an <code>opt</code> at
+  such a type. <code>0.1.0</code> refused the same files at generation, with
+  <code>ts_generation_refused</code>, because each such type wraps <code>opt</code> in
+  <code>opt</code>; <code>0.2.0-beta.1</code> generated them, boxed. A cycle with any other constructor
+  on it, such as <code>type T = opt vec T</code>, still compiles.
+</p>
+
+<h2 id="order-of-upgrade">Order of upgrade<a class="heading-anchor" href="#order-of-upgrade" aria-label="Link to Order of upgrade">#</a></h2>
+
+<p>
+  The pieces are released together and depend on each other. A module the new generator emits imports
+  <code>Principal</code> from <code>@candid-core/schema</code>, which 0.2.0 does not export, and may
+  contain boxed aliases 0.2.0 cannot type. The <code>@candid-core/cli</code> that ships the generator
+  therefore must raise its <code>@candid-core/schema</code> peer range to the release that carries these
+  changes, and a generated module and a loader from opposite sides of the blob change disagree about
+  <code>vec Byte</code>. Move both packages in one step, regenerate committed modules, and then fix what
+  the compiler reports with the sections above. The generated module and the loader are held to the
+  same verdicts by the repository's cross-check, so regenerating and loading agree with each other.
+</p>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="migrating-from-0-3.html"><span class="dir">Previous</span><span class="label">Migrating from 0.3.0</span></a><a class="next" href="cli-rust.html"><span class="dir">Next</span><span class="label">The meant binary</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/migrating-from-0-2.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#installing-the-stable-pair">Installing the stable pair</a></li><li class="toc-h2"><a href="#principals">Principals</a></li><li class="toc-h2"><a href="#boxed-options">Boxed options</a></li><li class="toc-h2"><a href="#blobs">Blobs</a></li><li class="toc-h2"><a href="#removed-subpaths">Removed subpaths</a></li><li class="toc-h2"><a href="#strict-options">Strict options, and bytes that do not depend on the schema</a></li><li class="toc-h2"><a href="#generated-modules">Generated modules</a></li><li class="toc-h2"><a href="#omission">Omission instead of refusal</a></li><li class="toc-h2"><a href="#unions">Closed unions</a></li><li class="toc-h2"><a href="#rec-hops">Resource limits: a rec hop is not charged</a></li><li class="toc-h2"><a href="#contract-loading">Stricter Contract loading</a></li><li class="toc-h2"><a href="#comment-runs">Long comment runs</a></li><li class="toc-h2"><a href="#opt-cycles">Cycles through opt</a></li><li class="toc-h2"><a href="#order-of-upgrade">Order of upgrade</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

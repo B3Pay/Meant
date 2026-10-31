@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Contract graph · Meant</title>
+<meta name="description" content="The data model everything else is built on: a validated, arena-based type graph with declarations and an optional actor.">
+<meta property="og:title" content="The Contract graph · Meant">
+<meta property="og:description" content="The data model everything else is built on: a validated, arena-based type graph with declarations and an optional actor.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>The Contract graph</h1><p class="page-lead">The data model everything else is built on: a validated, arena-based type graph with declarations and an optional actor.</p><p>
+  A <strong>Contract</strong> is what <code>meant</code> hands you instead of a <code>.did</code> file.
+  It is the same interface, re-expressed as data: a flat array of type nodes, a table of
+  declared names pointing into that array, an optional actor describing what the canister
+  exposes, and a set of SHA-256 identities computed over the whole thing. Every consumer —
+  the TypeScript generator, the schema runtime, a form renderer, your own tool — reads that
+  one structure rather than parsing Candid again.
+</p>
+<p>
+  Two design choices shape everything on this page. Types live in an <em>arena</em>: one flat
+  array, with every edge stored as an integer index, so a recursive type is a cycle in a graph
+  rather than an infinitely nested tree. And the graph carries <em>wire semantics only</em>: a
+  record field keeps its numeric Candid label and drops its name, because the name is
+  provenance, not meaning. Both choices have consequences you will meet the first time you
+  walk a Contract, so they are worth understanding before you write the traversal.
+</p>
+
+<h2 id="the-arena-one-flat-array-integer-edges">The arena: one flat array, integer edges<a class="heading-anchor" href="#the-arena-one-flat-array-integer-edges" aria-label="Link to The arena: one flat array, integer edges">#</a></h2>
+
+<p>
+  A Contract stores every type node in a single array called <code>types</code>. A reference
+  to a type is not a name and not a pointer — it is the array index of the node. That index
+  type has a name of its own:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">src/model/type_graph.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">pub</span> <span class="tok-keyword">type</span> <span class="tok-type">TypeRef</span> <span class="tok-punct">=</span> <span class="tok-type">u32</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  So a record whose field holds the number <code>3</code> means "see <code>types[3]</code>".
+  Nothing nests. Nothing is looked up by name at traversal time. And because a node can point
+  back at a node that already points at it, <code>type List = opt record { head : nat; tail :
+  List }</code> is two nodes referring to each other rather than an expansion that never
+  terminates.
+</p>
+
+<p>
+  Reachability is enforced: validation requires every node to be reachable from the actor or
+  from a declaration root, and rejects an unreachable one with
+  <code>orphan_type_node</code>. A reference outside the array is
+  <code>dangling_type_ref</code>. You never have to defend against either while walking a
+  <code>Contract</code> value, because a <code>Contract</code> that failed those checks cannot
+  exist — see <a href="trust-boundary.html">the trust boundary</a> for how that is enforced.
+</p>
+
+<h2 id="the-eight-node-kinds">The eight node kinds<a class="heading-anchor" href="#the-eight-node-kinds" aria-label="Link to The eight node kinds">#</a></h2>
+
+<p>
+  <code>TypeNode</code> has exactly eight variants. There is no ninth, and there is no escape
+  hatch. In JSON each node is an object with a <code>"kind"</code> discriminator, and unknown
+  keys are rejected.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">src/model/type_graph.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]</span>
+<span class="tok-attr">#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]</span>
+<span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">TypeNode</span> <span class="tok-punct">{</span>
+    <span class="tok-type">Primitive</span> <span class="tok-punct">{</span>
+        primitive<span class="tok-punct">:</span> <span class="tok-type">PrimitiveType</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Opt</span> <span class="tok-punct">{</span>
+        inner<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Vec</span> <span class="tok-punct">{</span>
+        inner<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Record</span> <span class="tok-punct">{</span>
+        fields<span class="tok-punct">:</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">Field</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Variant</span> <span class="tok-punct">{</span>
+        fields<span class="tok-punct">:</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">Field</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Func</span> <span class="tok-punct">{</span>
+        args<span class="tok-punct">:</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">TypeRef</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+        results<span class="tok-punct">:</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">TypeRef</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+        mode<span class="tok-punct">:</span> <span class="tok-type">MethodMode</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Service</span> <span class="tok-punct">{</span>
+        methods<span class="tok-punct">:</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">ServiceMethod</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Class</span> <span class="tok-punct">{</span>
+        init<span class="tok-punct">:</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">TypeRef</span><span class="tok-punct">&gt;</span><span class="tok-punct">,</span>
+        service<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Kind</th><th>JSON shape</th><th>Outgoing edges</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>primitive</code></td><td><code>{ "kind": "primitive", "primitive": "nat8" }</code></td><td>none</td></tr>
+    <tr><td><code>opt</code></td><td><code>{ "kind": "opt", "inner": N }</code></td><td><code>inner</code></td></tr>
+    <tr><td><code>vec</code></td><td><code>{ "kind": "vec", "inner": N }</code></td><td><code>inner</code></td></tr>
+    <tr><td><code>record</code></td><td><code>{ "kind": "record", "fields": [ … ] }</code></td><td>each field's <code>type</code></td></tr>
+    <tr><td><code>variant</code></td><td><code>{ "kind": "variant", "fields": [ … ] }</code></td><td>each field's <code>type</code></td></tr>
+    <tr><td><code>func</code></td><td><code>{ "kind": "func", "args": [ … ], "results": [ … ], "mode": "query" }</code></td><td>every entry of <code>args</code> and <code>results</code></td></tr>
+    <tr><td><code>service</code></td><td><code>{ "kind": "service", "methods": [ … ] }</code></td><td>each method's <code>function</code></td></tr>
+    <tr><td><code>class</code></td><td><code>{ "kind": "class", "init": [ … ], "service": N }</code></td><td>every entry of <code>init</code>, plus <code>service</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  <code>PrimitiveType</code> is the eighteen Candid primitives, serialized in snake case:
+  <code>null</code>, <code>bool</code>, <code>nat</code>, <code>int</code>, <code>nat8</code>,
+  <code>nat16</code>, <code>nat32</code>, <code>nat64</code>, <code>int8</code>,
+  <code>int16</code>, <code>int32</code>, <code>int64</code>, <code>float32</code>,
+  <code>float64</code>, <code>text</code>, <code>reserved</code>, <code>empty</code> and
+  <code>principal</code>.
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">No blob, no tuple, no Result</span>
+  <p>
+    None of the three is a distinct wire type, so none of them is a node kind.
+    <code>blob</code> and tuple syntax are Candid spellings that lower to other kinds: a
+    <code>blob</code> arrives as a <code>vec</code> whose <code>inner</code> is
+    <code>nat8</code>, and a tuple arrives as a record with positional labels 0, 1, 2, ….
+    <code>Result</code> is not Candid syntax at all — it is a naming convention for an
+    ordinary variant, and that is what arrives. Recognising them is a view a consumer
+    builds on top of the graph. The graph itself never encodes the distinction.
+  </p>
+</div></div>
+
+<h2 id="a-one-line-did-and-the-document-it-becomes">A one-line .did and the document it becomes<a class="heading-anchor" href="#a-one-line-did-and-the-document-it-becomes" aria-label="Link to A one-line .did and the document it becomes">#</a></h2>
+
+<p>
+  This fixture is checked into the repository, and so is the document beside it. A test
+  compiles the first and compares the result to the second byte for byte.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-ts/tests/fixtures/quoting.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Weird <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-string">"has space"</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-string">"naïve"</span> <span class="tok-punct">:</span> <span class="tok-type">text</span><span class="tok-punct">;</span> <span class="tok-string">"quote\"mark"</span> <span class="tok-punct">:</span> <span class="tok-type">bool</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">crates/candid-core-ts/tests/goldens/quoting.contract.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"canonicalization_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core-canon-1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"declarations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Weird"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">0</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"format_version"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+  <span class="tok-type">"identities"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:contract:v1:sha256:f178391a8ed8a150dcca42417e2d3e15d452d9db62c4995a2dc880f02ddf1b10"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"producer"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"candid_parser_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.0.0-golden"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"candid_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.0.0-golden"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.0.0-golden"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"semantics_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">734960755</span><span class="tok-punct">,</span>
+          <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">1</span>
+        <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1451868782</span><span class="tok-punct">,</span>
+          <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">2</span>
+        <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1495684992</span><span class="tok-punct">,</span>
+          <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">3</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"bool"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"text"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat"</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>Five things in that document are worth naming.</p>
+
+<ol>
+  <li>
+    <strong>The arena is flat.</strong> The record is <code>types[0]</code>; its three members
+    are the numbers 1, 2 and 3.
+  </li>
+  <li>
+    <strong>The field names are gone.</strong> <code>1495684992</code> is
+    <code>has space</code>, <code>1451868782</code> is <code>naïve</code> and
+    <code>734960755</code> is <code>quote"mark</code>. The next section explains why.
+  </li>
+  <li>
+    <strong>The fields are in ID order, not source order.</strong> The source wrote
+    <code>has space</code> first; its label ID is the largest, so it is listed last. This is
+    part of <a href="canonical-bytes.html">canonicalisation</a>.
+  </li>
+  <li>
+    <strong>There is no <code>actor</code> key and no <code>interface</code> identity.</strong>
+    This <code>.did</code> declares a type and nothing callable.
+  </li>
+  <li>
+    <strong><code>producer</code> is in the document but in neither semantic identity.</strong>
+    The golden fixtures normalise it to <code>0.0.0-golden</code> so that a version bump does
+    not churn the checked-in files; two Contracts that differ only in <code>producer</code>
+    share the same <code>contract_id</code>. <a href="identities.html">Identities</a> covers
+    what each hash does and does not cover.
+  </li>
+</ol>
+
+<h2 id="fields-carry-a-label-id-and-no-name">Fields carry a label ID and no name<a class="heading-anchor" href="#fields-carry-a-label-id-and-no-name" aria-label="Link to Fields carry a label ID and no name">#</a></h2>
+
+<p>
+  A record or variant member is a <code>Field</code>, and a <code>Field</code> is two numbers:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">src/model/type_graph.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]</span>
+<span class="tok-attr">#[serde(deny_unknown_fields)]</span>
+<span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Field</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">/// The authoritative Candid label ID: numeric label or `idl_hash(name)`.</span>
+    <span class="tok-keyword">pub</span> id<span class="tok-punct">:</span> <span class="tok-type">u32</span><span class="tok-punct">,</span>
+    <span class="tok-attr">#[serde(rename = "type")]</span>
+    <span class="tok-keyword">pub</span> ty<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  That is not an omission. Candid identifies a record or variant member on the wire by a
+  32-bit number, never by its spelling. A source that writes an explicit numeric label —
+  <code>record { 0 : nat }</code> — uses that number directly; a source that writes a name uses
+  the Candid hash of the name's UTF-8 bytes, folding <code>h := h * 223 + byte</code> modulo
+  <code>2^32</code> from a starting value of zero. The crate implements that fold in eight lines
+  in the base feature set, so validation can check labels without linking a Candid source
+  engine at all.
+</p>
+
+<p>
+  The consequence is that a name is <em>derived from</em> the wire ID's history, not recoverable
+  from it. Two sources can write <code>record { nat; text }</code> and <code>record { 0 : nat;
+  1 : text }</code> and produce byte-identical Contracts, because they mean the same thing to a
+  caller. Keeping the names in the semantic core would make those two documents differ, and
+  would put a formatting decision inside a content identity.
+</p>
+
+<p>Names live in two places instead, both outside the canonical Contract:</p>
+
+<ul>
+  <li>
+    <strong>The provenance sidecar.</strong> <code>SourceInfo</code> records, for every source
+    occurrence of a label, whether it was written as a name, as an explicit number, or
+    positionally — <code>SourceLabel</code> is <code>{ "kind": "named", "name": … }</code>,
+    <code>{ "kind": "numeric" }</code> or <code>{ "kind": "positional" }</code> — along with the
+    original spelling. <a href="source-resolution.html">Sources, imports and provenance</a>
+    covers the sidecar.
+  </li>
+  <li>
+    <strong>The envelope extension.</strong> A <code>ContractEnvelope</code> wraps a Contract
+    with a namespaced extension map that sits outside the identities. The one extension this
+    repository emits is <code>org.candid-core.field-names/v1</code>, an array of
+    <code>[container, id, name]</code> triples. For the fixture above it is exactly this:
+  </li>
+</ul>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">crates/candid-core-ts/tests/goldens/quoting.names.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">[</span>
+  <span class="tok-punct">[</span>
+    <span class="tok-number">0</span><span class="tok-punct">,</span>
+    <span class="tok-number">734960755</span><span class="tok-punct">,</span>
+    <span class="tok-string">"quote\"mark"</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-punct">[</span>
+    <span class="tok-number">0</span><span class="tok-punct">,</span>
+    <span class="tok-number">1451868782</span><span class="tok-punct">,</span>
+    <span class="tok-string">"naïve"</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-punct">[</span>
+    <span class="tok-number">0</span><span class="tok-punct">,</span>
+    <span class="tok-number">1495684992</span><span class="tok-punct">,</span>
+    <span class="tok-string">"has space"</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">]</span></code></pre></div>
+
+<h3 id="a-node-has-one-name-per-label-id">A node has one name per label id<a class="heading-anchor" href="#a-node-has-one-name-per-label-id" aria-label="Link to A node has one name per label id">#</a></h3>
+
+<p>
+  <strong>Known limitation (issue #229).</strong> The first number of each triple is a node of the
+  graph, not a declaration, and canonicalisation merges structurally identical nodes. Two declarations
+  whose records have the same shape and the same label ids are one node, so they share one name per
+  id, whatever each source spelled. In
+  <code>type A = record { c : record { d : text } }; type B = record { x : record { 100 : text } };</code>
+  the label hash of <code>d</code> is 100, so both inner records are one node, and the table carries
+  <code>d</code> for it: <code>B</code>'s inner field is named <code>d</code>, not <code>_100_</code>,
+  in the generated module and in <code>schemaFromContract</code>. The wire bytes are the same either
+  way. A named spelling beats a numeric one, in any declaration and in any order, because numeric and
+  positional labels carry no name. When two different names share a hash, the one the provenance
+  sidecar lists last wins, not the first written. Keeping names per declaration would change the
+  Contract format, so it is deferred. The rule is spelled out in
+  <a href="schema-from-contract.html#a-shared-node-has-one-name-per-label-id">the
+  <code>schemaFromContract</code> page</a>.
+</p>
+
+<h3 id="service-methods-are-the-exception">Service methods are the exception<a class="heading-anchor" href="#service-methods-are-the-exception" aria-label="Link to Service methods are the exception">#</a></h3>
+
+<p>
+  A method on a service node keeps its text name:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">src/model/type_graph.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]</span>
+<span class="tok-attr">#[serde(deny_unknown_fields)]</span>
+<span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">ServiceMethod</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">/// Method text is required to invoke a service. `id` is retained as the</span>
+    <span class="tok-comment">/// authoritative Candid hash for reflection and validation.</span>
+    <span class="tok-keyword">pub</span> name<span class="tok-punct">:</span> <span class="tok-type">String</span><span class="tok-punct">,</span>
+    <span class="tok-keyword">pub</span> id<span class="tok-punct">:</span> <span class="tok-type">u32</span><span class="tok-punct">,</span>
+    <span class="tok-attr">#[serde(rename = "function")]</span>
+    <span class="tok-keyword">pub</span> function<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  The reason is practical: you cannot call a canister method by hash. The name is what goes on
+  the call, so dropping it would make the Contract unable to describe an invocation. The hash
+  is kept alongside it, and validation checks that <code>id</code> equals the Candid hash of
+  <code>name</code> — a mismatch is <code>method_id_mismatch</code>. Within one service, names
+  must be non-empty and unique; two <em>different</em> names may legitimately produce the same
+  32-bit number, which is another reason the name is kept: it is the name, not the hash, that
+  tells two methods apart.
+</p>
+
+<h2 id="declarations-are-a-name-table-over-the-arena">Declarations are a name table over the arena<a class="heading-anchor" href="#declarations-are-a-name-table-over-the-arena" aria-label="Link to Declarations are a name table over the arena">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">src/model/type_graph.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]</span>
+<span class="tok-attr">#[serde(deny_unknown_fields)]</span>
+<span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Declaration</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">pub</span> name<span class="tok-punct">:</span> <span class="tok-type">String</span><span class="tok-punct">,</span>
+    <span class="tok-attr">#[serde(rename = "type")]</span>
+    <span class="tok-keyword">pub</span> ty<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  One entry per <code>type Foo = …</code> in the source. A declaration is a label attached to a
+  position in the arena; it is not part of the type algebra. Nothing in the graph refers to a
+  declaration, and a type's identity is its shape and its edges, never its name.
+</p>
+
+<p>
+  Two consequences bite code that assumes otherwise. Distinct names can point at the same node,
+  because an alias produces a declaration entry but never a node of its own. And the number of
+  declarations has no relationship to the number of nodes — canonicalisation collapses
+  structurally equivalent nodes into one, so four declarations can share two nodes. Names must
+  be non-empty and unique (<code>empty_declaration_name</code>,
+  <code>duplicate_declaration_name</code>), but that is the only constraint between them.
+</p>
+
+<h2 id="the-actor-and-its-two-forms">The actor, and its two forms<a class="heading-anchor" href="#the-actor-and-its-two-forms" aria-label="Link to The actor, and its two forms">#</a></h2>
+
+<p>
+  The actor is the Contract's root: what the canister itself exposes. It has exactly two
+  shapes.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">src/model/type_graph.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]</span>
+<span class="tok-attr">#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]</span>
+<span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">Actor</span> <span class="tok-punct">{</span>
+    <span class="tok-type">Service</span> <span class="tok-punct">{</span> service<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-type">Class</span> <span class="tok-punct">{</span> class<span class="tok-punct">:</span> <span class="tok-type">TypeRef</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  A plain <code>service : { … }</code> gives the first form. A <em>service class</em> — a
+  canister whose installation takes constructor arguments, written <code>service : (nat) -> {
+  … }</code> — gives the second, and its <code>class</code> node keeps the constructor argument
+  types alongside the service it produces. A <code>class</code> node is valid <em>only</em> as
+  the actor root; one appearing anywhere else fails with <code>class_not_actor_root</code>.
+  Here is the whole conformance vector for a service class:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">tests/fixtures/conformance/class.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">{</span> <span class="tok-fn">get</span><span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span> <span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">tests/fixtures/conformance/class.contract.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"format"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"format_version"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+  <span class="tok-type">"semantics_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"canonicalization_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core-canon-1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"identities"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"contract"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:contract:v1:sha256:a91547c764a74b424776b2af1ea68cc68e3e47e879b0c498c20786a69da3c86b"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"interface"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:interface:v1:sha256:f7aeff5c83e4293731a993d4b4db82d32e3d5368800903956dcbb378b11ec6cf"</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"producer"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"meant"</span><span class="tok-punct">,</span> <span class="tok-type">"version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.1.0"</span><span class="tok-punct">,</span> <span class="tok-type">"candid_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.10.30"</span><span class="tok-punct">,</span> <span class="tok-type">"candid_parser_version"</span><span class="tok-punct">:</span> <span class="tok-string">"0.4.0"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"class"</span><span class="tok-punct">,</span> <span class="tok-type">"init"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"service"</span><span class="tok-punct">:</span> <span class="tok-number">2</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span> <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span> <span class="tok-type">"methods"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"get"</span><span class="tok-punct">,</span> <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">5144726</span><span class="tok-punct">,</span> <span class="tok-type">"function"</span><span class="tok-punct">:</span> <span class="tok-number">3</span> <span class="tok-punct">}</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"func"</span><span class="tok-punct">,</span> <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"results"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-type">"mode"</span><span class="tok-punct">:</span> <span class="tok-string">"query"</span> <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-type">"declarations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-type">"actor"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"class"</span><span class="tok-punct">,</span> <span class="tok-type">"class"</span><span class="tok-punct">:</span> <span class="tok-number">0</span> <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  The actor's target is always node 0 when an actor is present: canonical renumbering walks the
+  actor first, then the declaration roots.
+</p>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Absent, empty and null are three different things</span>
+  <p>
+    A <code>.did</code> that declares only types produces a document with <em>no</em>
+    <code>actor</code> property, and the identity payload hashes it that way. An explicit
+    <code>"actor": null</code> is a decode error, not a second spelling of absence. And "no
+    actor" is not the same as "empty actor": <code>service : {}</code> produces a
+    <code>service</code> node with an empty <code>methods</code> array, and an
+    <code>actor</code> that points at it.
+  </p>
+  <p>
+    <code>interface_id</code> is present exactly when the actor is. An actorless Contract
+    carrying one fails with <code>actorless_contract_has_interface_id</code>; an actor Contract
+    missing one fails with <code>actor_contract_missing_interface_id</code>. In Rust,
+    <code>Contract::interface_id()</code> returns <code>Option&lt;&amp;str&gt;</code> — do not
+    write consumer code that assumes it is always there.
+  </p>
+</div></div>
+
+<h2 id="methodmode-update-is-stated-never-implied">MethodMode: "update" is stated, never implied<a class="heading-anchor" href="#methodmode-update-is-stated-never-implied" aria-label="Link to MethodMode: &quot;update&quot; is stated, never implied">#</a></h2>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">src/model/type_graph.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]</span>
+<span class="tok-attr">#[serde(rename_all = "snake_case")]</span>
+<span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">MethodMode</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">/// The absence of a Candid annotation, made explicit in the Contract.</span>
+    <span class="tok-type">Update</span><span class="tok-punct">,</span>
+    <span class="tok-type">Query</span><span class="tok-punct">,</span>
+    <span class="tok-type">CompositeQuery</span><span class="tok-punct">,</span>
+    <span class="tok-type">Oneway</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  In Candid source, a method with no annotation is an update call. In a Contract that is not
+  represented as a missing field or a null — the <code>func</code> node carries
+  <code>"mode": "update"</code> outright. The four serialized values are <code>update</code>,
+  <code>query</code>, <code>composite_query</code> and <code>oneway</code>, and validation
+  requires a <code>oneway</code> function to have no results
+  (<code>oneway_has_results</code>).
+</p>
+
+<p>
+  This fixture shows the default made explicit. The source annotates nothing on
+  <code>ping</code>; the Contract states the mode:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-ts/tests/fixtures/deferred.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> Callback <span class="tok-punct">=</span> <span class="tok-keyword">func</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">text</span><span class="tok-punct">)</span> <span class="tok-keyword">query</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Registry <span class="tok-punct">=</span> <span class="tok-keyword">service</span> <span class="tok-punct">{</span> <span class="tok-fn">register</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-type">text</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-type">nat</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Kept <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">value</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-fn">ping</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">crates/candid-core-ts/tests/goldens/deferred.contract.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"actor"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"service"</span><span class="tok-punct">:</span> <span class="tok-number">0</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+  <span class="tok-type">"canonicalization_profile"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core-canon-1"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"declarations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Callback"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">4</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Kept"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">2</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Registry"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">6</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+
+  … <span class="tok-string">"format"</span><span class="tok-punct">,</span> <span class="tok-string">"format_version"</span><span class="tok-punct">,</span> <span class="tok-string">"identities"</span><span class="tok-punct">,</span> <span class="tok-string">"producer"</span> and
+    <span class="tok-string">"semantics_profile"</span> elided; the <span class="tok-string">"types"</span> array below is complete …
+
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"methods"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"function"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1247277682</span><span class="tok-punct">,</span>
+          <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"ping"</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"func"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"mode"</span><span class="tok-punct">:</span> <span class="tok-string">"update"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"results"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">834174833</span><span class="tok-punct">,</span>
+          <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">3</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-number">3</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"func"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"mode"</span><span class="tok-punct">:</span> <span class="tok-string">"query"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"results"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-number">5</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"text"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"service"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"methods"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"function"</span><span class="tok-punct">:</span> <span class="tok-number">7</span><span class="tok-punct">,</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">3500123747</span><span class="tok-punct">,</span>
+          <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"register"</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"args"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-number">5</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"func"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"mode"</span><span class="tok-punct">:</span> <span class="tok-string">"update"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"results"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-number">3</span>
+      <span class="tok-punct">]</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  The actor points at <code>types[0]</code>, a service whose single method <code>ping</code>
+  points at <code>types[1]</code>, the <code>func</code> node with
+  <code>"mode": "update"</code>. Everything the actor reaches is numbered first, which is why
+  the <code>Registry</code> service — declared but not reachable from the actor — sits at
+  index 6. <code>Callback</code>, the <code>func … query</code> declaration, is at index 4 and
+  is a first-class type: a <code>func</code> node is a value type in Candid, not only a method
+  signature.
+</p>
+
+<h2 id="recursion-stays-a-small-cycle">Recursion stays a small cycle<a class="heading-anchor" href="#recursion-stays-a-small-cycle" aria-label="Link to Recursion stays a small cycle">#</a></h2>
+
+<p>
+  This is where the arena earns its keep. Four declarations, two of them mutually recursive and
+  one a plain alias:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-ts/tests/fixtures/recursion.did</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">type</span> List <span class="tok-punct">=</span> <span class="tok-keyword">opt</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">head</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span><span class="tok-punct">;</span> <span class="tok-fn">tail</span> <span class="tok-punct">:</span> List <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Even <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">next</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> Odd <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> Odd <span class="tok-punct">=</span> <span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">next</span> <span class="tok-punct">:</span> <span class="tok-keyword">opt</span> Even <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">type</span> ListAlias <span class="tok-punct">=</span> List<span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  The whole graph is five nodes. The head keys of the document are elided; the
+  <code>declarations</code> and <code>types</code> arrays are complete and verbatim:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">crates/candid-core-ts/tests/goldens/recursion.contract.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true">  <span class="tok-type">"declarations"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Even"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">3</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"List"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">0</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"ListAlias"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">0</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"Odd"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">3</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+
+  … <span class="tok-string">"canonicalization_profile"</span><span class="tok-punct">,</span> <span class="tok-string">"format"</span><span class="tok-punct">,</span> <span class="tok-string">"format_version"</span><span class="tok-punct">,</span>
+    <span class="tok-string">"identities"</span><span class="tok-punct">,</span> <span class="tok-string">"producer"</span> and <span class="tok-string">"semantics_profile"</span> elided …
+
+  <span class="tok-type">"types"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"inner"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"opt"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1158359328</span><span class="tok-punct">,</span>
+          <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">2</span>
+        <span class="tok-punct">}</span><span class="tok-punct">,</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1291237008</span><span class="tok-punct">,</span>
+          <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">0</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"primitive"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"primitive"</span><span class="tok-punct">:</span> <span class="tok-string">"nat"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"fields"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+        <span class="tok-punct">{</span>
+          <span class="tok-type">"id"</span><span class="tok-punct">:</span> <span class="tok-number">1224901875</span><span class="tok-punct">,</span>
+          <span class="tok-type">"type"</span><span class="tok-punct">:</span> <span class="tok-number">4</span>
+        <span class="tok-punct">}</span>
+      <span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"record"</span>
+    <span class="tok-punct">}</span><span class="tok-punct">,</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"inner"</span><span class="tok-punct">:</span> <span class="tok-number">3</span><span class="tok-punct">,</span>
+      <span class="tok-type">"kind"</span><span class="tok-punct">:</span> <span class="tok-string">"opt"</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span></code></pre></div>
+
+<p>
+  Follow the cycle literally: <code>types[0]</code> is <code>opt</code> with
+  <code>inner: 1</code>; <code>types[1]</code> is the record whose second field
+  (<code>1291237008</code> is the hash of <code>tail</code>) has <code>type: 0</code>. That is
+  the recursion, closed in two nodes.
+</p>
+
+<p>
+  Two more things happened here. <code>List</code> and <code>ListAlias</code> both resolve to
+  node 0, because an alias never becomes a node. And <code>Even</code> and <code>Odd</code>
+  are structurally indistinguishable, so canonicalisation collapsed them into the single node
+  3, which references itself through node 4. Four declarations, two nodes between them.
+</p>
+
+<h3 id="how-to-walk-it">How to walk it<a class="heading-anchor" href="#how-to-walk-it" aria-label="Link to How to walk it">#</a></h3>
+
+<p>
+  The idiomatic traversal is an explicit worklist plus a visited set — never recursion over a
+  type tree, because the graph has cycles and a hostile graph could be deep. This test compiles
+  a recursive interface and asserts the result stays finite:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">tests/ecosystem_examples.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">fn</span> <span class="tok-fn">children</span><span class="tok-punct">(</span>node<span class="tok-punct">:</span> <span class="tok-punct">&amp;</span><span class="tok-type">TypeNode</span><span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-type">Vec</span><span class="tok-punct">&lt;</span><span class="tok-type">TypeRef</span><span class="tok-punct">&gt;</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">match</span> node <span class="tok-punct">{</span>
+        <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Primitive</span> <span class="tok-punct">{</span> <span class="tok-punct">.</span><span class="tok-punct">.</span> <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-type">Vec</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+        <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Opt</span> <span class="tok-punct">{</span> inner <span class="tok-punct">}</span> <span class="tok-punct">|</span> <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Vec</span> <span class="tok-punct">{</span> inner <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-attr">vec!</span><span class="tok-punct">[</span><span class="tok-punct">*</span>inner<span class="tok-punct">]</span><span class="tok-punct">,</span>
+        <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Record</span> <span class="tok-punct">{</span> fields <span class="tok-punct">}</span> <span class="tok-punct">|</span> <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Variant</span> <span class="tok-punct">{</span> fields <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-punct">{</span>
+            fields<span class="tok-punct">.</span><span class="tok-fn">iter</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">|</span>field<span class="tok-punct">|</span> field<span class="tok-punct">.</span>ty<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">collect</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+        <span class="tok-punct">}</span>
+        <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Func</span> <span class="tok-punct">{</span> args<span class="tok-punct">,</span> results<span class="tok-punct">,</span> <span class="tok-punct">.</span><span class="tok-punct">.</span> <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> args<span class="tok-punct">.</span><span class="tok-fn">iter</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">chain</span><span class="tok-punct">(</span>results<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">copied</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">collect</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+        <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Service</span> <span class="tok-punct">{</span> methods <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> methods<span class="tok-punct">.</span><span class="tok-fn">iter</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">map</span><span class="tok-punct">(</span><span class="tok-punct">|</span>method<span class="tok-punct">|</span> method<span class="tok-punct">.</span>function<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">collect</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+        <span class="tok-type">TypeNode</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Class</span> <span class="tok-punct">{</span> init<span class="tok-punct">,</span> service <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> init
+            <span class="tok-punct">.</span><span class="tok-fn">iter</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+            <span class="tok-punct">.</span><span class="tok-fn">copied</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+            <span class="tok-punct">.</span><span class="tok-fn">chain</span><span class="tok-punct">(</span>std<span class="tok-punct">:</span><span class="tok-punct">:</span>iter<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">once</span><span class="tok-punct">(</span><span class="tok-punct">*</span>service<span class="tok-punct">)</span><span class="tok-punct">)</span>
+            <span class="tok-punct">.</span><span class="tok-fn">collect</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">let</span> compilation <span class="tok-punct">=</span> <span class="tok-fn">compile</span><span class="tok-punct">(</span>
+    <span class="tok-string">r#"
+    type List = opt record { head: nat; tail: List };
+    service : { get: () -&gt; (List) query };
+    "#</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">let</span> contract <span class="tok-punct">=</span> compilation<span class="tok-punct">.</span><span class="tok-fn">contract</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">let</span> root <span class="tok-punct">=</span> <span class="tok-keyword">match</span> contract<span class="tok-punct">.</span><span class="tok-fn">actor</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">as_ref</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">expect</span><span class="tok-punct">(</span><span class="tok-string">"service actor"</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-type">Actor</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Service</span> <span class="tok-punct">{</span> service <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-punct">*</span>service<span class="tok-punct">,</span>
+    <span class="tok-type">Actor</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-type">Class</span> <span class="tok-punct">{</span> <span class="tok-punct">.</span><span class="tok-punct">.</span> <span class="tok-punct">}</span> <span class="tok-punct">=</span><span class="tok-punct">&gt;</span> <span class="tok-attr">panic!</span><span class="tok-punct">(</span><span class="tok-string">"expected service actor"</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> seen <span class="tok-punct">=</span> <span class="tok-type">BTreeSet</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> work <span class="tok-punct">=</span> <span class="tok-attr">vec!</span><span class="tok-punct">[</span>root<span class="tok-punct">]</span><span class="tok-punct">;</span>
+<span class="tok-keyword">while</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span><span class="tok-punct">(</span>reference<span class="tok-punct">)</span> <span class="tok-punct">=</span> work<span class="tok-punct">.</span><span class="tok-fn">pop</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">if</span> seen<span class="tok-punct">.</span><span class="tok-fn">insert</span><span class="tok-punct">(</span>reference<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        work<span class="tok-punct">.</span><span class="tok-fn">extend</span><span class="tok-punct">(</span><span class="tok-fn">children</span><span class="tok-punct">(</span><span class="tok-punct">&amp;</span>contract<span class="tok-punct">.</span><span class="tok-fn">types</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">[</span>reference <span class="tok-keyword">as</span> <span class="tok-type">usize</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-attr">assert_eq!</span><span class="tok-punct">(</span>seen<span class="tok-punct">.</span><span class="tok-fn">len</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> contract<span class="tok-punct">.</span><span class="tok-fn">types</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">len</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-attr">assert!</span><span class="tok-punct">(</span>
+    seen<span class="tok-punct">.</span><span class="tok-fn">len</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">&lt;</span> <span class="tok-number">10</span><span class="tok-punct">,</span>
+    <span class="tok-string">"recursive syntax should remain a finite graph"</span>
+<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<p>
+  The <code>children</code> helper enumerates the outgoing edges of all eight kinds and is
+  worth copying as a starting point. The <code>seen.len() == contract.types().len()</code>
+  assertion is the reachability property from the top of this page, checked from the outside.
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">This is pre-1.0, and the shape can still move</span>
+  <p>
+    The crate is <code>0.1.0</code> and the Contract format is not a stable v1. Any
+    pre-1.0 release may change the public API, the serialized shapes, the canonical bytes and
+    therefore every identity computed over them. What is settled is written down: the format
+    markers <code>candid-core</code> / <code>1</code>, the semantics profile
+    <code>candid-1</code>, and the canonicalisation profile
+    <code>candid-core-canon-1</code>, all of which fail closed on an unrecognised value. See
+    <a href="status.html">status and releases</a>.
+  </p>
+</div></div>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<p>
+  <a href="canonical-bytes.html">Canonical bytes</a> explains how the arena above gets its
+  ordering and its byte-exact form; <a href="identities.html">content-addressed identities</a>
+  explains what each of the hashes in these documents actually commits to. If you are about to
+  accept one of these documents from somewhere you do not control, read
+  <a href="trust-boundary.html">the trust boundary</a> first, and
+  <a href="reference-json.html">JSON document formats</a> for the full key-by-key reference.
+</p>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="security-model.html"><span class="dir">Previous</span><span class="label">Security model</span></a><a class="next" href="identities.html"><span class="dir">Next</span><span class="label">Content-addressed identities</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/contract-graph.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#the-arena-one-flat-array-integer-edges">The arena: one flat array, integer edges</a></li><li class="toc-h2"><a href="#the-eight-node-kinds">The eight node kinds</a></li><li class="toc-h2"><a href="#a-one-line-did-and-the-document-it-becomes">A one-line .did and the document it becomes</a></li><li class="toc-h2"><a href="#fields-carry-a-label-id-and-no-name">Fields carry a label ID and no name</a></li><li class="toc-h3"><a href="#a-node-has-one-name-per-label-id">A node has one name per label id</a></li><li class="toc-h3"><a href="#service-methods-are-the-exception">Service methods are the exception</a></li><li class="toc-h2"><a href="#declarations-are-a-name-table-over-the-arena">Declarations are a name table over the arena</a></li><li class="toc-h2"><a href="#the-actor-and-its-two-forms">The actor, and its two forms</a></li><li class="toc-h2"><a href="#methodmode-update-is-stated-never-implied">MethodMode: &quot;update&quot; is stated, never implied</a></li><li class="toc-h2"><a href="#recursion-stays-a-small-cycle">Recursion stays a small cycle</a></li><li class="toc-h3"><a href="#how-to-walk-it">How to walk it</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

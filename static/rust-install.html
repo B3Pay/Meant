@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install and feature surfaces · Meant</title>
+<meta name="description" content="One package, four build surfaces. Which one you need, and what each pulls into your dependency graph.">
+<meta property="og:title" content="Install and feature surfaces · Meant">
+<meta property="og:description" content="One package, four build surfaces. Which one you need, and what each pulls into your dependency graph.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>Install and feature surfaces</h1><p class="page-lead">One package, four build surfaces. Which one you need, and what each pulls into your dependency graph.</p><p>
+  <code>meant</code> is one crate on crates.io. It reads Candid
+  <code>.did</code> interface source and projects it into a <strong>Contract</strong>:
+  a validated, canonically ordered type graph with named declarations, an optional
+  actor, and content-addressed identities computed over its canonical bytes. What
+  that crate <em>builds</em> is split into an always-present base plus three Cargo
+  features, so a consumer that only wants the data model never compiles a Candid
+  parser and never links a filesystem capability crate.
+</p>
+
+<p>
+  Everything on this page is pre-1.0. The crate is at
+  <code>0.1.0</code>, and any release before 1.0 may change the public API,
+  the serialized shapes, the canonical bytes, and therefore every identity computed
+  over them. Pin an exact version.
+</p>
+
+<h2 id="adding-the-dependency">Adding the dependency<a class="heading-anchor" href="#adding-the-dependency" aria-label="Link to Adding the dependency">#</a></h2>
+
+<p>
+  Write the exact requirement. <code>0.1.0</code> is the first version without a
+  prerelease suffix, so the usual caret spelling, <code>meant = "0.1"</code>,
+  now resolves to it — and to any later <code>0.1.x</code>, which before 1.0 may
+  change the API, the serialized shapes and the identities.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">toml</span><span class="code-file">Cargo.toml</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="toml" data-highlighted="true"><span class="tok-type">[dependencies]</span>
+<span class="tok-comment"># The full surface: compiler, filesystem-compiler and host-value are all</span>
+<span class="tok-comment"># enabled by default, so no feature selection is needed.</span>
+meant <span class="tok-punct">=</span> <span class="tok-string">"=0.1.0"</span></code></pre></div>
+
+<p>The same thing from the command line:</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cargo</span> add meant@=0.1.0</code></pre></div>
+
+<p>
+  The crate was published as <code>candid-core</code> until 0.1.0 and is
+  <code>meant</code> now: in code written against the old name, the dependency line
+  becomes the one above and <code>use candid_core::</code> becomes
+  <code>use meant::</code>.
+</p>
+
+<p>
+  With both the API and the wire format unstable before 1.0, moving to the next
+  release is a change you should opt into deliberately rather than inherit from a
+  <code>cargo update</code>. Pinning with <code>=</code> is what makes it a choice.
+</p>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Upgrade rather than pin a beta</span>
+  <p>
+    <code>0.1.0-beta.1</code> and <code>0.1.0-beta.2</code> walk a declaration graph
+    as a tree, so a small <code>.did</code> file with shared type aliases can drive
+    work that doubles per level — and no limit refused it, because the walk returned
+    <code>Ok</code>. <code>0.1.0-beta.3</code> fixes that and adds
+    <code>max_type_preflight_work</code> so the work is charged, and <code>0.1.0</code>
+    fixes four more inputs that crashed or stalled every beta. If you compile
+    <code>.did</code> source you did not write, do not pin any beta.
+  </p>
+</div></div>
+
+<h2 id="the-four-build-surfaces">The four build surfaces<a class="heading-anchor" href="#the-four-build-surfaces" aria-label="Link to The four build surfaces">#</a></h2>
+
+<p>
+  <code>default = ["compiler", "filesystem-compiler", "host-value"]</code>. The base
+  is what remains when <code>default-features = false</code> removes all three.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr>
+      <th>Surface</th>
+      <th>What it adds</th>
+      <th>What it pulls into your graph</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><em>(base)</em></td>
+      <td>
+        <code>Contract</code>, <code>ContractDraft</code>, <code>RawContract</code>,
+        <code>ContractEnvelope</code>, validation, canonicalization, the semantic
+        Contract identities, <code>artifact_id_with_limits</code> /
+        <code>ArtifactKind</code>, <code>Limits</code> / <code>RuntimeContext</code> /
+        <code>CancellationToken</code>, <code>Diagnostic</code>
+      </td>
+      <td><code>serde</code>, <code>serde_json</code>, <code>sha2</code>, <code>hex</code></td>
+    </tr>
+    <tr>
+      <td><span class="pill accent">host-value</span></td>
+      <td>
+        <code>HostValue</code>, <code>HostFieldValue</code>,
+        <code>validate_host_value</code>, <code>ContractTypeRef</code> /
+        <code>ContractMethodRef</code>
+      </td>
+      <td><code>ic_principal</code></td>
+    </tr>
+    <tr>
+      <td><span class="pill accent">compiler</span></td>
+      <td>
+        <code>compile_did</code> and its option/context variants,
+        <code>compile_with_resolver</code>, <code>Compilation</code>,
+        <code>CompileOptions</code>, <code>CompileError</code>,
+        <code>SourceId</code> / <code>SourceResolver</code> /
+        <code>ResolvedSource</code> / <code>MemoryResolver</code>, the
+        <code>SourceInfo</code> provenance sidecar
+      </td>
+      <td><code>candid</code>, <code>candid_parser</code></td>
+    </tr>
+    <tr>
+      <td><span class="pill accent">filesystem-compiler</span> (implies <code>compiler</code>)</td>
+      <td>
+        <code>WorkspaceResolver</code>, <code>compile_did_file</code> and its
+        variants, source materialization for
+        <code>candid_parser::check_file</code>, the <code>meant</code> binary
+      </td>
+      <td><code>cap-std</code></td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 id="base-the-pure-contract-model">Base — the pure Contract model<a class="heading-anchor" href="#base-the-pure-contract-model" aria-label="Link to Base — the pure Contract model">#</a></h3>
+
+<p>
+  The base surface can build a Contract from a graph you already hold
+  (<code>ContractDraft</code>), validate one that arrived as JSON
+  (<code>Contract::from_json_with_context</code>), canonicalize it, read its
+  <code>contract_id</code> and <code>interface_id</code>, and hash a serialized
+  document into a detached artifact identity. It cannot parse <code>.did</code> text,
+  because no Candid engine is in the graph at all.
+</p>
+
+<p>
+  <strong>Choose it if</strong> your process receives Contract documents rather than
+  Candid source — a registry that stores them, a service that validates uploads, a
+  build step downstream of someone else's compile. What that removes is a
+  dependency-graph size you can measure: resolved for
+  <code>x86_64-unknown-linux-gnu</code>, the base graph is 22 packages where the
+  default graph is 126. The figures move with the target, because
+  <code>cap-std</code> brings different platform dependencies on Linux, macOS and
+  Windows, so
+  <a href="https://github.com/B3Pay/Meant/blob/main/tests/fixtures/packaging/verify_feature_graph.py">verify_feature_graph.py</a>
+  resolves and prints every configuration for the host you run it on.
+</p>
+
+<h3 id="host-value-validating-values-against-a-graph"><span class="pill accent">host-value</span> — validating values against a graph<a class="heading-anchor" href="#host-value-validating-values-against-a-graph" aria-label="Link to host-value — validating values against a graph">#</a></h3>
+
+<p>
+  Adds <code>HostValue</code>, a lossless self-describing JSON encoding for Candid
+  values, and <code>validate_host_value</code>, which checks a value tree against a
+  type node in a Contract's graph. It takes <code>ic_principal</code> directly rather
+  than through <code>candid</code>, which is what keeps the parser stack out of a
+  value-only build.
+</p>
+
+<p>
+  <strong>Choose it if</strong> you accept user-entered or wire-received values and
+  want the interface itself to decide whether they are well-formed. See
+  <a href="rust-host-values.html">Validating host values</a>.
+</p>
+
+<h3 id="compiler-candid-source-no-filesystem"><span class="pill accent">compiler</span> — Candid source, no filesystem<a class="heading-anchor" href="#compiler-candid-source-no-filesystem" aria-label="Link to compiler — Candid source, no filesystem">#</a></h3>
+
+<p>
+  Adds the parsing and type-checking path. Parsing and semantic checking are
+  delegated to the official <code>candid_parser</code> crate rather than
+  reimplemented, so this feature is what brings <code>candid</code> and
+  <code>candid_parser</code> into the graph. It covers self-contained sources
+  through <code>compile_did</code> <em>and</em> multi-file bundles with imports
+  through <code>compile_with_resolver</code>, where the host supplies every source
+  synchronously as data.
+</p>
+
+<p>
+  <strong>Choose it if</strong> you compile Candid source in a place with no
+  filesystem, or with a filesystem you do not want the library to touch: a browser,
+  a sandboxed worker, an editor that already has the buffers in memory, a server
+  accepting pasted source.
+</p>
+
+<h3 id="filesystem-compiler-native-files"><span class="pill accent">filesystem-compiler</span> — native files<a class="heading-anchor" href="#filesystem-compiler-native-files" aria-label="Link to filesystem-compiler — native files">#</a></h3>
+
+<p>
+  Adds <code>WorkspaceResolver</code>, which holds an open <code>cap-std</code>
+  directory capability for one authorized root and opens every path relative to it;
+  <code>compile_did_file</code>, which roots a resolver at the file's own parent
+  directory; and the <code>meant</code> binary. It implies
+  <code>compiler</code>, so it is a superset.
+</p>
+
+<p>
+  <strong>Choose it if</strong> you are a native tool that reads <code>.did</code>
+  files off disk, or you want the CLI. See
+  <a href="cli-rust.html">The <code>meant</code> binary</a>.
+</p>
+
+<h2 id="what-feature-selection-does-and-does-not-do">What feature selection does, and does not, do<a class="heading-anchor" href="#what-feature-selection-does-and-does-not-do" aria-label="Link to What feature selection does, and does not, do">#</a></h2>
+
+<p>
+  Two caveats are worth stating plainly, because both are easy to over-read.
+</p>
+
+<p>
+  <strong>Cargo unifies features across a build.</strong> Feature splitting bounds
+  what a <em>dependency graph</em> must contain — it cannot subtract from a graph
+  that already asked for more. If anything else in your build depends on
+  <code>meant</code> with defaults, the whole surface is compiled once for
+  every consumer in that build, including yours. Your
+  <code>default-features = false</code> line is still meaningful: it states what
+  <em>your</em> crate needs, and it is what makes a lean graph possible when nothing
+  else contradicts it. It is not a guarantee about the compiled output of a mixed
+  workspace.
+</p>
+
+<p>
+  <strong>Feature selection does not shrink the download.</strong> Every published
+  source file ships in the <code>.crate</code> archive regardless of features, so a
+  base-only consumer still downloads the <code>compiler</code> sources it will never
+  build. What the archive contains is governed separately, by a positive
+  <code>include</code> allowlist in the manifest — production source, runnable
+  examples, the public <code>docs/</code> set, and the three root documents. Test
+  suites, fixtures, benchmarks, the fuzz crate and CI assets are not published.
+</p>
+
+<p>
+  One thing features do <em>not</em> change: <code>ProducerInfo::current</code>
+  reports the same <code>name</code>, <code>version</code>,
+  <code>candid_version</code> and <code>candid_parser_version</code> in every
+  configuration, because it reads the pinned versions out of the manifest at compile
+  time rather than from a linked crate.
+</p>
+
+<h2 id="two-configurations-worth-copying">Two configurations worth copying<a class="heading-anchor" href="#two-configurations-worth-copying" aria-label="Link to Two configurations worth copying">#</a></h2>
+
+<h3 id="a-browser-or-wasm-host-that-compiles-source-it-already-holds">A browser or WASM host that compiles source it already holds<a class="heading-anchor" href="#a-browser-or-wasm-host-that-compiles-source-it-already-holds" aria-label="Link to A browser or WASM host that compiles source it already holds">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">toml</span><span class="code-file">Cargo.toml</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="toml" data-highlighted="true"><span class="tok-type">[dependencies]</span>
+meant <span class="tok-punct">=</span> { version <span class="tok-punct">=</span> <span class="tok-string">"=0.1.0"</span><span class="tok-punct">,</span> default-features <span class="tok-punct">=</span> <span class="tok-keyword">false</span><span class="tok-punct">,</span> features <span class="tok-punct">=</span> <span class="tok-punct">[</span><span class="tok-string">"compiler"</span><span class="tok-punct">]</span> }</code></pre></div>
+
+<p>
+  This keeps <code>cap-std</code> out of the graph entirely — and so does the default
+  configuration on that target, because <code>cap-std</code> is declared under
+  <code>cfg(not(target_os = "unknown"))</code> as well as behind the feature. A
+  <code>compiler</code>-only graph resolved for <code>wasm32-unknown-unknown</code> is
+  107 packages. Compile a bundle the host supplies:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><span class="code-file">examples/hermetic_bundle.rs</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">use</span> meant<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-punct">{</span>compile_with_resolver<span class="tok-punct">,</span> <span class="tok-type">CompileOptions</span><span class="tok-punct">,</span> <span class="tok-type">MemoryResolver</span><span class="tok-punct">,</span> <span class="tok-type">RuntimeContext</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> resolver <span class="tok-punct">=</span> <span class="tok-type">MemoryResolver</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+resolver<span class="tok-punct">.</span><span class="tok-fn">insert</span><span class="tok-punct">(</span>
+    <span class="tok-string">"api/root.did"</span><span class="tok-punct">,</span>
+    <span class="tok-string">r#"import "</span>types<span class="tok-punct">.</span>did<span class="tok-string">"; service : { read: () -&gt; (Item) query };"</span>#<span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">?</span><span class="tok-punct">;</span>
+resolver<span class="tok-punct">.</span><span class="tok-fn">insert</span><span class="tok-punct">(</span>
+    <span class="tok-string">"api/types.did"</span><span class="tok-punct">,</span>
+    <span class="tok-string">"type Item = record { id: nat64; label: text };"</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">?</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">let</span> compilation <span class="tok-punct">=</span> <span class="tok-fn">compile_with_resolver</span><span class="tok-punct">(</span>
+    <span class="tok-string">"api/root.did"</span><span class="tok-punct">,</span>
+    <span class="tok-punct">&amp;</span>resolver<span class="tok-punct">,</span>
+    <span class="tok-type">CompileOptions</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">default</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+    <span class="tok-punct">&amp;</span><span class="tok-type">RuntimeContext</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">default</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+<span class="tok-punct">)</span><span class="tok-punct">?</span><span class="tok-punct">;</span>
+<span class="tok-attr">println!</span><span class="tok-punct">(</span><span class="tok-string">"contract: {}"</span><span class="tok-punct">,</span> compilation<span class="tok-punct">.</span><span class="tok-fn">contract</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">contract_id</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<h3 id="a-pure-model-consumer-that-never-sees-candid-source">A pure-model consumer that never sees Candid source<a class="heading-anchor" href="#a-pure-model-consumer-that-never-sees-candid-source" aria-label="Link to A pure-model consumer that never sees Candid source">#</a></h3>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">toml</span><span class="code-file">Cargo.toml</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="toml" data-highlighted="true"><span class="tok-type">[dependencies]</span>
+meant <span class="tok-punct">=</span> { version <span class="tok-punct">=</span> <span class="tok-string">"=0.1.0"</span><span class="tok-punct">,</span> default-features <span class="tok-punct">=</span> <span class="tok-keyword">false</span> }</code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">rust</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="rust" data-highlighted="true"><span class="tok-keyword">use</span> meant<span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-punct">{</span><span class="tok-type">Contract</span><span class="tok-punct">,</span> <span class="tok-type">ContractJsonError</span><span class="tok-punct">,</span> <span class="tok-type">Limits</span><span class="tok-punct">,</span> <span class="tok-type">RuntimeContext</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">accept</span><span class="tok-punct">(</span>document<span class="tok-punct">:</span> <span class="tok-punct">&amp;</span><span class="tok-punct">[</span><span class="tok-type">u8</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-type">Result</span><span class="tok-punct">&lt;</span><span class="tok-type">Contract</span><span class="tok-punct">,</span> <span class="tok-type">ContractJsonError</span><span class="tok-punct">&gt;</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// The byte gate runs before serde_json is invoked, so an oversized</span>
+    <span class="tok-comment">// document is rejected without being decoded; the gate, the decode and</span>
+    <span class="tok-comment">// validation then share one budget.</span>
+    <span class="tok-keyword">let</span> context <span class="tok-punct">=</span> <span class="tok-type">RuntimeContext</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">new</span><span class="tok-punct">(</span><span class="tok-type">Limits</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">default</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">with_max_input_bytes</span><span class="tok-punct">(</span><span class="tok-number">256</span> <span class="tok-punct">*</span> <span class="tok-number">1024</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">let</span> contract <span class="tok-punct">=</span> <span class="tok-type">Contract</span><span class="tok-punct">:</span><span class="tok-punct">:</span><span class="tok-fn">from_slice_with_context</span><span class="tok-punct">(</span>document<span class="tok-punct">,</span> <span class="tok-punct">&amp;</span>context<span class="tok-punct">)</span><span class="tok-punct">?</span><span class="tok-punct">;</span>
+
+    <span class="tok-attr">println!</span><span class="tok-punct">(</span><span class="tok-string">"{} type nodes"</span><span class="tok-punct">,</span> contract<span class="tok-punct">.</span><span class="tok-fn">types</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-fn">len</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-attr">println!</span><span class="tok-punct">(</span><span class="tok-string">"contract identity {}"</span><span class="tok-punct">,</span> contract<span class="tok-punct">.</span><span class="tok-fn">contract_id</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-type">Ok</span><span class="tok-punct">(</span>contract<span class="tok-punct">)</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Add <code>features = ["host-value"]</code> to that line if the same process also
+  validates Candid values against the graph.
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">A missing item is a compile error that names the fix</span>
+  <p>
+    Items outside the enabled set are absent at compile time rather than present as
+    stubs that fail at run time. If you call <code>compile_did</code> from a
+    base-only build, the error names the missing item and the fix is to turn on the
+    feature it belongs to.
+  </p>
+</div></div>
+
+<h2 id="toolchain-targets-and-licence">Toolchain, targets and licence<a class="heading-anchor" href="#toolchain-targets-and-licence" aria-label="Link to Toolchain, targets and licence">#</a></h2>
+
+<dl>
+  <dt>Minimum supported Rust version</dt>
+  <dd>
+    1.78, declared as <code>rust-version</code> in the manifest. CI runs the locked
+    dependency graph against 1.78.0, so a direct or transitive update that breaks it
+    fails before merge.
+  </dd>
+  <dt>Edition</dt>
+  <dd>2021, across every crate in the repository.</dd>
+  <dt>Licence</dt>
+  <dd>Apache-2.0.</dd>
+  <dt>Native targets exercised in CI</dt>
+  <dd>Linux, macOS and Windows on the rolling stable channel, plus Linux on 1.78.0 for MSRV.</dd>
+  <dt>WebAssembly</dt>
+  <dd>
+    <code>wasm32-unknown-unknown</code>. CI checks the library there in four
+    configurations — base, <code>host-value</code>, <code>compiler</code> and defaults
+    — and lints the <code>compiler</code> one with warnings denied. The browser runtime
+    suite then compiles source and an imported bundle inside headless Chrome and pins
+    the resulting identities, so running there is a runtime claim rather than only a
+    build claim.
+  </dd>
+</dl>
+
+<p>
+  The crate refuses to compile on targets whose pointer width is neither 32 nor 64
+  bits, with a message explaining why: portable wire values are fixed-width
+  <code>u64</code> widened from <code>usize</code>, and the default limit values do
+  not fit a 16-bit <code>usize</code>.
+</p>
+
+<h3 id="two-things-bare-wasm32-unknown-unknown-cannot-do">Two things bare wasm32-unknown-unknown cannot do<a class="heading-anchor" href="#two-things-bare-wasm32-unknown-unknown-cannot-do" aria-label="Link to Two things bare wasm32-unknown-unknown cannot do">#</a></h3>
+
+<p>
+  The <code>compiler</code> surface needs no filesystem and both builds and runs on
+  that target. Two limitations are stated rather than papered over.
+</p>
+
+<ul>
+  <li>
+    <strong>There is no directory to open.</strong>
+    <code>WorkspaceResolver</code> and <code>compile_did_file</code> still
+    <em>compile</em> for bare WASM, but <code>WorkspaceResolver::new</code> fails
+    there with <code>did_workspace_root_error</code>, and a load would fail with
+    <code>did_file_read_error</code>. Use <code>MemoryResolver</code> or your own
+    <code>SourceResolver</code> instead.
+  </li>
+  <li>
+    <strong>There is no clock.</strong> Cancellation and every quantitative limit
+    behave exactly as they do natively. An explicit
+    <code>Limits::with_deadline_unix_ms</code> cannot be measured, so it fails closed
+    with <code>operation_deadline_exceeded</code> rather than calling an unsupported
+    <code>std::time</code> function and aborting the module;
+    <code>Limits::deadline_exceeded</code> reports the same. No deadline configured
+    stays unbounded, as it is everywhere else. The crate takes no
+    <code>web-time</code>, <code>js-sys</code> or <code>wasm-bindgen</code>
+    production dependency to change that.
+  </li>
+</ul>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="rust-compiling.html">
+    <span class="card-kicker">Rust crate</span>
+    <span class="card-title">Compiling Candid sources</span>
+    <p>The three entry points, their variants, and a runnable example of each.</p>
+  </a>
+  <a class="card" href="rust-contracts.html">
+    <span class="card-kicker">Rust crate</span>
+    <span class="card-title">Building Contracts</span>
+    <p>Producing a Contract with no parser, and validating one that arrived from elsewhere.</p>
+  </a>
+  <a class="card" href="packages.html">
+    <span class="card-kicker">Start here</span>
+    <span class="card-title">Packages and crates</span>
+    <p>Every publishable and internal unit in the repository, and how to depend on it.</p>
+  </a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="serve-a-profile.html"><span class="dir">Previous</span><span class="label">Serve a profile from a canister</span></a><a class="next" href="rust-compiling.html"><span class="dir">Next</span><span class="label">Compiling Candid sources</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/rust-install.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#adding-the-dependency">Adding the dependency</a></li><li class="toc-h2"><a href="#the-four-build-surfaces">The four build surfaces</a></li><li class="toc-h3"><a href="#base-the-pure-contract-model">Base — the pure Contract model</a></li><li class="toc-h3"><a href="#host-value-validating-values-against-a-graph">host-value — validating values against a graph</a></li><li class="toc-h3"><a href="#compiler-candid-source-no-filesystem">compiler — Candid source, no filesystem</a></li><li class="toc-h3"><a href="#filesystem-compiler-native-files">filesystem-compiler — native files</a></li><li class="toc-h2"><a href="#what-feature-selection-does-and-does-not-do">What feature selection does, and does not, do</a></li><li class="toc-h2"><a href="#two-configurations-worth-copying">Two configurations worth copying</a></li><li class="toc-h3"><a href="#a-browser-or-wasm-host-that-compiles-source-it-already-holds">A browser or WASM host that compiles source it already holds</a></li><li class="toc-h3"><a href="#a-pure-model-consumer-that-never-sees-candid-source">A pure-model consumer that never sees Candid source</a></li><li class="toc-h2"><a href="#toolchain-targets-and-licence">Toolchain, targets and licence</a></li><li class="toc-h3"><a href="#two-things-bare-wasm32-unknown-unknown-cannot-do">Two things bare wasm32-unknown-unknown cannot do</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

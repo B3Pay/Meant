@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@candid-core/cli · Meant</title>
+<meta name="description" content="The same compiler as WebAssembly: a JavaScript-only on-ramp for Node and the browser.">
+<meta property="og:title" content="@candid-core/cli · Meant">
+<meta property="og:description" content="The same compiler as WebAssembly: a JavaScript-only on-ramp for Node and the browser.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</p><h1>@candid-core/cli</h1><p class="page-lead">The same compiler as WebAssembly: a JavaScript-only on-ramp for Node and the browser.</p><div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Published on npm</span>
+  <p>
+    <code>@candid-core/cli</code> <code>0.4.0</code> is on the npm registry under the
+    <code>latest</code> tag, published from this repository by its dispatch-only release workflow,
+    beside the earlier <code>0.1.0</code>, <code>0.2.0</code> and <code>0.3.0</code> and, under the <code>beta</code> tag,
+    <code>0.2.0-beta.1</code>.
+    The registry also holds <code>0.0.0-bootstrap</code> under the <code>bootstrap</code> tag, which
+    exists only so a trusted publisher could be attached to the name; do not install it. The
+    <a href="cli-rust.html"><code>meant</code> binary</a> does the same compilation from Rust.
+  </p>
+</div></div>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Upgrading from an earlier release</span>
+  <p>
+    This page describes the package the repository builds, published on 2026-10-27 as <code>0.4.0</code> under
+    the npm <code>latest</code> dist-tag, with <code>@candid-core/schema</code> <code>0.5.0</code>, which it peers exactly. The previous
+    stable release, <code>0.3.0</code>, lacks what this page marks as new in <code>0.4.0</code>: <code>didToDocAttributes</code> and each entry&rsquo;s identities in <code>gen --json</code>. It also names every use of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> after the first alias of that shape (<a href="generator.html">the code generator</a>), and writes envelopes whose producer is <code>candid-core</code> <code>0.1.0-beta.3</code>, where <code>0.4.0</code>'s is <code>meant</code> <code>0.1.0</code>, the compiler crate published as <code>candid-core</code> before its rename, so <code>0.4.0</code>'s <code>gen --check</code> reports every envelope <code>0.3.0</code> wrote as <code>drifted</code>. <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+    The stable release before that, <code>0.2.0</code>, also lacks what this page marks as new in <code>0.3.0</code>: the
+    <a href="#projection-and-compatibility"><code>project</code> and <code>check</code> commands</a>, with
+    <code>projectDid</code> and <code>checkCompatible</code>, and generated modules that declare each type under its Candid name and each
+    <code>Actor</code> method with its mode. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means, and the
+    package changelog records it under <code>0.3.0</code>.
+    The stable release before those, <code>0.1.0</code>, has the old behaviour: it
+    emits modules in the old layout with an object-shaped principal type, exits 1 with
+    <code>ts_generation_refused</code> for an interface with one declaration it cannot represent, and
+    returns no <code>omitted</code> list. <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code,
+    and each is recorded in the package changelog under <code>0.2.0</code> and <code>0.2.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.2.0-beta.1</code>, which lacks the changes recorded under <code>0.2.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/cli</code> <code>0.5.0</code>, with <code>@meantjs/schema</code> <code>0.6.0</code>, which it peers exactly, not yet published: this package&rsquo;s code under a new name, whose command is <code>meant</code> where this page writes <code>candid-core-cli</code>, and whose modules open with a new header and import <code>@meantjs/schema</code>. Its library, its envelopes and its <code>--json</code> documents are unchanged. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+  </p>
+</div></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-comment"># 0.4.0, the release this page describes (see the note above)</span><span class="tok-keyword">
+npx</span> @candid-core/cli@0.4.0 gen ./service.did<span class="tok-attr"> -o</span> ./generated</code></pre></div>
+
+<p>
+  Here is what the package is and what it does. Everything <code>meant</code> does to a
+  <code>.did</code> file normally happens in Rust. <code>@candid-core/cli</code> is that same Rust code
+  — the compiler's <span class="pill accent">compiler</span> feature surface plus the
+  <a href="generator.html"><code>candid-core-ts</code></a> TypeScript generator — compiled once to
+  WebAssembly and wrapped in a small Node CLI and an ES module. A JavaScript project can therefore go
+  from a Candid interface to typed, validated schemas with npm as its only toolchain.
+</p>
+
+<p>
+  It is not a reimplementation, and that is the point of its test suites: the same crates are compiled
+  into one wasm artifact, and CI compares the artifact's output byte-for-byte against the reviewed
+  goldens and against a document the native binary actually produced. The
+  <a href="https://github.com/B3Pay/Meant/tree/main/crates/candid-core-wasm">crate that produces
+  it</a> sets <code>publish = false</code> and is its own workspace root, so it never appears in the
+  published Rust crate's dependency graph; the npm package is the deliverable.
+</p>
+
+<h2 id="what-is-in-the-package">What is in the package<a class="heading-anchor" href="#what-is-in-the-package" aria-label="Link to What is in the package">#</a></h2>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name and version</td>
+      <td><code>@candid-core/cli</code>, <code>0.4.0</code> — published on npm under <code>latest</code></td>
+    </tr>
+    <tr>
+      <td>Binary</td>
+      <td><code>candid-core-cli</code> → <code>./bin/cli.js</code></td>
+    </tr>
+    <tr>
+      <td>Library entry point</td>
+      <td>
+        <code>"."</code> → <code>./lib/index.js</code>, under a <code>types</code> condition.
+        <code>./package.json</code> is the only other entry in the map
+      </td>
+    </tr>
+    <tr>
+      <td>Module format</td>
+      <td><code>"type": "module"</code> — ESM only, no CommonJS <code>require</code> path</td>
+    </tr>
+    <tr>
+      <td>Runtime dependencies</td>
+      <td>
+        None. <code>@candid-core/schema</code> is declared as an <em>optional</em> peer at exactly
+        <code>0.5.0</code> (new in <code>0.4.0</code>) — every module the CLI
+        emits imports from it, but a consumer calling only <code>didToContract</code> never loads it.
+        The modules this page's generator emits compile against <code>0.4.0</code> and
+        <code>0.5.0</code> alike and need the <code>WithMode</code> export that 0.3.0 lacks; while the two
+        packages move in lockstep every schema release is paired with a CLI release that names it
+        exactly. The published <code>0.3.0</code> declares exactly <code>0.4.0</code>,
+        <code>0.2.0</code> exactly <code>0.3.0</code>,
+        <code>0.2.0-beta.1</code> exactly <code>0.3.0-beta.1</code>,
+        and <code>0.1.0</code> still declares <code>^0.2.0</code>. The one
+        devDependency, <code>playwright-core</code>, drives the browser test
+      </td>
+    </tr>
+    <tr>
+      <td>Types</td>
+      <td>
+        A hand-written <code>lib/index.d.ts</code>, reached through the <code>types</code>
+        condition. The wasm-pack generated declarations are deliberately not shipped:
+        they name <code>BufferSource</code>, <code>URL</code>, <code>Response</code> and
+        <code>WebAssembly</code>, which do not resolve without the DOM library
+      </td>
+    </tr>
+    <tr>
+      <td>Licence</td>
+      <td>Apache-2.0</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2 id="the-command">The command<a class="heading-anchor" href="#the-command" aria-label="Link to The command">#</a></h2>
+
+<p><code>gen</code>, and these options, nothing else (the usage's first line; <code>project</code> and <code>check</code>, new in <code>0.3.0</code>, are under <a href="#projection-and-compatibility">Projection and compatibility</a>):</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-file">crates/candid-core-wasm/npm/bin/cli.js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">usage: candid-core-cli gen &lt;service.did&gt;... [-o &lt;dir&gt;] [--json] [--check]</code></pre></div>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Several entries, --json and --check are not in 0.1.0</span>
+  <p>
+    The first stable release, <code>0.1.0</code>, takes exactly one entry and neither flag:
+    <code>gen &lt;service.did&gt; [-o &lt;dir&gt;]</code>. Several entries, <code>--json</code> and
+    <code>--check</code>, described in <a href="#several-entries-json-and-check">their own section
+    below</a>, shipped in <code>0.2.0-beta.1</code> and are in every stable release since <code>0.2.0</code>. Everything else on this page describes both.
+  </p>
+</div></div>
+
+<p>It writes two files and prints the identities:</p>
+
+<ul>
+  <li>
+    <code>&lt;stem&gt;.ts</code> — the generated <code>@candid-core/schema</code> module: one reviewed
+    type alias and one schema builder per declaration.
+  </li>
+  <li>
+    <code>&lt;stem&gt;.envelope.json</code> — the one-document <code>ContractEnvelope</code>: the
+    canonical Contract plus its field-name table under the
+    <code>org.candid-core.field-names/v1</code> extension, ready to hand whole to
+    <a href="schema-from-contract.html"><code>schemaFromContract</code></a>.
+  </li>
+  <li>
+    the content-addressed identities, on stdout. The <code>interface:</code> line appears only when the
+    interface identity is present, which means only when the source has an actor.
+  </li>
+</ul>
+
+<p>
+  Run over the repository's two-line <code>basic.did</code> fixture — the same one shown on
+  <a href="cli-rust.html">the <code>meant</code> binary</a> page — with <code>-o generated</code>, stdout is
+  four lines and the exit status is 0:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">contract:  candid-core:contract:v1:sha256:0b553cb65eb436a7ac5d35869d0016d043867bab0a97e844350ae72a5b4aea7d
+interface: candid-core:interface:v1:sha256:99f400820c0ca2fb7c32cc3ab1df6d6c000bc614cffe0e350b6a9a576da18d48
+wrote generated/basic.ts
+wrote generated/basic.envelope.json</code></pre></div>
+
+<p>
+  Those are the real identities for that fixture, and they are the same addresses the Rust binary
+  computes — a test compares the emitted envelope against the native binary's committed output byte for
+  byte. The stem comes from the entry file's name, so <code>service.did</code> would produce
+  <code>service.ts</code> and <code>service.envelope.json</code>. <code>-o</code> defaults to
+  <code>"."</code> — the current working directory, not the entry file's directory — and the output
+  directory is created if it does not exist.
+</p>
+
+<h3 id="how-imports-are-found">How imports are found<a class="heading-anchor" href="#how-imports-are-found" aria-label="Link to How imports are found">#</a></h3>
+
+<p>
+  The wasm side never touches a filesystem, so the Node host does all the I/O. <code>gen</code> walks
+  the entry file's directory <em>recursively</em>, collects every <code>.did</code> beneath it keyed by
+  its <code>/</code>-separated relative path, and hands that map to the compiler as one in-memory
+  bundle. Relative imports then resolve inside the bundle with no filesystem access from wasm. The
+  consequence to plan for: unrelated sibling <code>.did</code> files under the same directory are pulled
+  in too. The parity tests copy each fixture into an otherwise-empty temporary directory precisely so
+  the walk cannot smuggle unrelated sources into provenance.
+</p>
+
+<p>
+  The walk is bounded before anything is read. File count, per-file size (through <code>stat</code>) and
+  aggregate size are checked against the compiler's own default limits — 256 sources, 1 MiB per file,
+  8 MiB in total — so an oversized tree fails with a structured diagnostic rather than by exhausting the
+  JavaScript heap:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span><span class="tok-punct">,</span>
+  <span class="tok-type">"diagnostics"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"code"</span><span class="tok-punct">:</span> <span class="tok-string">"resource_limit_exceeded"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"phase"</span><span class="tok-punct">:</span> <span class="tok-string">"load"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"severity"</span><span class="tok-punct">:</span> <span class="tok-string">"error"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"message"</span><span class="tok-punct">:</span> <span class="tok-string">"huge.did is 1048577 bytes, over the 1048576-byte source limit"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"resource_limit"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">"resource"</span><span class="tok-punct">:</span> <span class="tok-string">"source_bytes"</span><span class="tok-punct">,</span> <span class="tok-type">"limit"</span><span class="tok-punct">:</span> <span class="tok-number">1048576</span><span class="tok-punct">,</span> <span class="tok-type">"observed"</span><span class="tok-punct">:</span> <span class="tok-number">1048577</span> <span class="tok-punct">}</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Inside a file, the compiler refuses a run of more than 256 consecutive comments between two tokens,
+  line and block comments alike, with <code>resource_limit_exceeded</code> and resource
+  <code>source_nesting</code> (limit 256, <code>observed</code> 257): the upstream tokenizer spends a
+  stack frame on each comment it skips, so the run is counted first. This is new in
+  <code>0.2.0</code>; earlier releases compiled such a run up to a stack-dependent length and then
+  failed (<code>internal_error</code> in <code>0.2.0-beta.1</code>, an uncaught
+  <code>RangeError</code> in <code>0.1.0</code>). A license header written as hundreds of <code>//</code>
+  lines is the likely case: write it as one <code>/* */</code> block, which counts as one comment.
+  The CLI has no flag to raise the limit. <a href="reference-limits.html">Limits</a> lists it with the
+  others.
+</p>
+
+<h3 id="exit-codes">Exit codes<a class="heading-anchor" href="#exit-codes" aria-label="Link to Exit codes">#</a></h3>
+
+<p>They follow the native binary's convention exactly.</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr>
+      <th>Exit</th>
+      <th>When</th>
+      <th>Where the output goes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>0</code></td>
+      <td>Both files written, including a module that omits declarations</td>
+      <td>Identities and two <code>wrote</code> lines on stdout; one <code>warning: omitted …</code> line per omission on stderr</td>
+    </tr>
+    <tr>
+      <td><code>1</code></td>
+      <td>Compile or generation failure</td>
+      <td>The <code>{ "ok": false, "diagnostics": […] }</code> document on stdout</td>
+    </tr>
+    <tr>
+      <td><code>1</code></td>
+      <td>Entry file missing or unreadable, or a determinism mismatch</td>
+      <td>A plain message on stderr — the two paths that print no JSON</td>
+    </tr>
+    <tr>
+      <td><code>1</code></td>
+      <td>With several entries, any one entry failed; with <code>--check</code>, a file is missing or has drifted</td>
+      <td>As above, per entry; with <code>--json</code>, everything is in the one document on stdout</td>
+    </tr>
+    <tr>
+      <td><code>64</code></td>
+      <td>Usage error, including two entries that would write the same output stem</td>
+      <td>The usage line on stderr, nothing on stdout</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  That determinism path is unusual enough to name. Every generation is run twice and the results
+  compared; on any byte mismatch the tool prints
+  <code>determinism check failed: two &lt;label&gt; runs disagreed; refusing to write</code> and exits
+  without writing anything. Determinism is enforced at run time, not only asserted in CI.
+</p>
+
+<h2 id="several-entries-json-and-check">Several entries, <code>--json</code> and <code>--check</code><a class="heading-anchor" href="#several-entries-json-and-check" aria-label="Link to Several entries, --json and --check">#</a></h2>
+
+<p>
+  Since <code>0.2.0-beta.1</code> (<code>0.1.0</code> takes one entry and neither flag). Each entry generates its own
+  <code>&lt;stem&gt;.ts</code> and <code>&lt;stem&gt;.envelope.json</code> into the one
+  <code>-o</code>, byte for byte what a run of that entry alone writes, and a failing entry does not
+  stop the others: every entry is attempted, and the exit status is <code>1</code> if any failed.
+  Omissions never fail an entry. Two rules are recommendations the maintainer may still overturn: an
+  entry's bundle is the <code>.did</code> files beneath its own directory, with the limits above applied
+  per entry (entries sharing a directory share one read of it); and two entries with the same stem,
+  compared case-insensitively, are a usage error before any work. An output that already holds the
+  generated bytes is not rewritten, and is reported <code>unchanged</code>. The CLI never reads stdin
+  and never writes outside <code>-o</code>.
+</p>
+
+<p>
+  <code>--check</code> generates in memory and compares byte for byte with the files on disk. It writes
+  nothing, not even the output directory, and exits <code>1</code> if any file is missing or differs,
+  which makes it the CI gate for committed output.
+</p>
+
+<p>
+  <code>--json</code> prints exactly one document on stdout, with stderr empty; combine it with
+  <code>--check</code>. Each compiled entry carries its content-addressed identities. A usage error
+  prints no document.
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">identities in --json are new in 0.4.0</span>
+  <p>
+    <code>0.3.0</code> and earlier leave the identities out of the <code>--json</code> document; read them
+    from the envelope's <code>contract.identities</code> there. <code>0.4.0</code>, published on
+    2026-10-27, adds each entry's <code>identities</code>. Every other
+    field below is the same in <code>0.3.0</code>.
+  </p>
+</div></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-punct">{</span>
+  <span class="tok-type">"schemaVersion"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
+  <span class="tok-type">"ok"</span><span class="tok-punct">:</span> <span class="tok-keyword">true</span><span class="tok-punct">,</span>
+  <span class="tok-type">"check"</span><span class="tok-punct">:</span> <span class="tok-keyword">false</span><span class="tok-punct">,</span>
+  <span class="tok-type">"entries"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
+    <span class="tok-punct">{</span>
+      <span class="tok-type">"entry"</span><span class="tok-punct">:</span> <span class="tok-string">"a/service.did"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"status"</span><span class="tok-punct">:</span> <span class="tok-string">"written"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"module"</span><span class="tok-punct">:</span> <span class="tok-string">"generated/service.ts"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"envelope"</span><span class="tok-punct">:</span> <span class="tok-string">"generated/service.envelope.json"</span><span class="tok-punct">,</span>
+      <span class="tok-type">"identities"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+        <span class="tok-type">"contract_id"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:contract:v1:sha256:…"</span><span class="tok-punct">,</span>
+        <span class="tok-type">"interface_id"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-core:interface:v1:sha256:…"</span>
+      <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      <span class="tok-type">"omitted"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+      <span class="tok-type">"diagnostics"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
+    <span class="tok-punct">}</span>
+  <span class="tok-punct">]</span><span class="tok-punct">,</span>
+  <span class="tok-type">"drift"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  <code>status</code> is <code>written</code>, <code>unchanged</code>, <code>drifted</code>
+  (<code>--check</code> only) or <code>failed</code>. <code>identities</code> is
+  <code>{ contract_id, interface_id }</code>, equal to the envelope's <code>contract.identities</code> under
+  the key names <code>project</code> and <code>check</code> use; <code>interface_id</code> is absent
+  when the source has no actor, and a failed entry has no <code>identities</code>. <code>omitted</code> is the list
+  <code>didToModule</code> returns, and <code>diagnostics</code> is the compiler's own, unchanged in
+  shape; <code>ok</code> is true exactly when the exit status is <code>0</code>; <code>drift</code> lists
+  the paths <code>--check</code> found missing or different. <code>schemaVersion</code> changes only when
+  an existing field's meaning or shape does. The types ship as <code>CliReport</code>,
+  <code>CliEntryReport</code> and <code>CliIdentities</code>.
+</p>
+
+<h2 id="the-library-api">The library API<a class="heading-anchor" href="#the-library-api" aria-label="Link to The library API">#</a></h2>
+
+<p>
+  Six exports, and the whole surface: <code>didToContract</code>, <code>didToModule</code>,
+  <code>didToDocAttributes</code> and <code>init</code> here, and <code>projectDid</code> and
+  <code>checkCompatible</code> under
+  <a href="#projection-and-compatibility">Projection and compatibility</a>
+  (<code>didToDocAttributes</code> is new in <code>0.4.0</code>;
+  <code>projectDid</code> and <code>checkCompatible</code> are new in <code>0.3.0</code>;
+  <code>0.2.0</code> has <code>didToContract</code>, <code>didToModule</code> and <code>init</code>).
+  <code>didToContract</code>, <code>didToModule</code> and <code>didToDocAttributes</code> each take one JSON-serializable request;
+  <code>projectDid</code> and <code>checkCompatible</code> take two arguments, described in that section.
+  Every operation returns one parsed JSON document, and nothing is thrown for a data error.
+</p>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">didToContract</span>
+  </div>
+  <div class="api-body">
+    <div class="code-block"><div class="code-head"><span class="code-lang">js</span><span class="code-file">crates/candid-core-wasm/npm/lib/index.js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">async</span> <span class="tok-keyword">function</span> <span class="tok-fn">didToContract</span><span class="tok-punct">(</span>sources<span class="tok-punct">)</span></code></pre></div>
+    <p>
+      Compiles Candid sources into a one-document <code>ContractEnvelope</code> carrying the
+      <code>org.candid-core.field-names/v1</code> extension — the same document the native
+      compiler's <code>compile &lt;path&gt; --envelope</code> emits. <code>sources</code> is either a
+      string of Candid text or <code>{ entry, files: { name: text } }</code> for a bundle. On success it
+      returns the envelope <em>itself</em>, so you test <code>"contract" in result</code>; on failure it
+      returns <code>{ ok: false, diagnostics }</code>.
+    </p>
+  </div>
+</div>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">didToModule</span>
+  </div>
+  <div class="api-body">
+    <div class="code-block"><div class="code-head"><span class="code-lang">js</span><span class="code-file">crates/candid-core-wasm/npm/lib/index.js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">async</span> <span class="tok-keyword">function</span> <span class="tok-fn">didToModule</span><span class="tok-punct">(</span>sources<span class="tok-punct">)</span></code></pre></div>
+    <p>
+      Generates the <code>@candid-core/schema</code> TypeScript module for the same two source shapes.
+      Returns <code>{ ok: true, module, omitted }</code>, where <code>module</code> is the generated
+      text and <code>omitted</code> lists what it left out (empty when nothing; see
+      <a href="#omissions">Omissions</a>), or <code>{ ok: false, diagnostics }</code>.
+    </p>
+  </div>
+</div>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">didToDocAttributes</span>
+  </div>
+  <div class="api-body">
+    <div class="code-block"><div class="code-head"><span class="code-lang">js</span><span class="code-file">crates/candid-core-wasm/npm/lib/index.js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">async</span> <span class="tok-keyword">function</span> <span class="tok-fn">didToDocAttributes</span><span class="tok-punct">(</span>sources<span class="tok-punct">)</span></code></pre></div>
+    <p>
+      New in <code>0.4.0</code>. Compiles the same two source shapes and reads the
+      <code>@name(key = value, …)</code> attributes in their doc comments. Returns
+      <code>{ ok: true, contract, source_info, doc_attributes }</code> — the Contract, the SourceInfo
+      sidecar, which no other function of the package exposes, and every documented item's prose and
+      attributes (see <a href="#doc-attributes">Doc attributes</a>) — or
+      <code>{ ok: false, diagnostics }</code>.
+    </p>
+  </div>
+</div>
+
+<div class="api-entry">
+  <div class="api-head">
+    <span class="api-name">init</span>
+  </div>
+  <div class="api-body">
+    <div class="code-block"><div class="code-head"><span class="code-lang">js</span><span class="code-file">crates/candid-core-wasm/npm/lib/index.js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">export</span> <span class="tok-keyword">function</span> <span class="tok-fn">init</span><span class="tok-punct">(</span>input<span class="tok-punct">)</span></code></pre></div>
+    <p>
+      Initializes the embedded wasm module, memoized, so calling it again is a no-op. Under Node with no
+      argument it reads the <code>.wasm</code> bytes from inside the package; in a browser with no
+      argument the artifact is fetched relative to the module, and a browser may instead pass its own
+      <code>BufferSource</code>, <code>URL</code> or <code>Response</code>. The functions above await it
+      internally, so calling it yourself is optional.
+    </p>
+  </div>
+</div>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">The two functions signal success differently</span>
+  <p>
+    <code>didToModule</code> returns <code>{ ok: true, module, omitted }</code>. <code>didToContract</code> does
+    <em>not</em> carry an <code>ok</code> key on success — it returns the envelope document, and you
+    check for <code>"contract" in result</code>. This mirrors the native binary, where
+    <code>compile --envelope</code> prints the envelope rather than an <code>ok</code>-wrapped response.
+    Only failures share one shape.
+  </p>
+</div></div>
+
+<p>
+  The examples below import from the published package; from a clone, import
+  <code>crates/candid-core-wasm/npm/lib/index.js</code> directly.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> didToContract<span class="tok-punct">,</span> didToModule <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/cli"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> envelope <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">didToContract</span><span class="tok-punct">(</span><span class="tok-string">"service : { ping : () -&gt; () };"</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// → the ContractEnvelope document ("contract" in envelope), or</span>
+<span class="tok-comment">//   { ok: false, diagnostics } with the compiler's diagnostics verbatim.</span>
+
+<span class="tok-keyword">const</span> generated <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">didToModule</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+  entry<span class="tok-punct">:</span> <span class="tok-string">"main.did"</span><span class="tok-punct">,</span>
+  files<span class="tok-punct">:</span> <span class="tok-punct">{</span>
+    <span class="tok-string">"main.did"</span><span class="tok-punct">:</span> '<span class="tok-keyword">import</span> <span class="tok-string">"types.did"</span><span class="tok-punct">;</span>\nservice <span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-keyword">get</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">-</span><span class="tok-punct">&gt;</span> <span class="tok-punct">(</span><span class="tok-type">Item</span><span class="tok-punct">)</span> query <span class="tok-punct">}</span><span class="tok-punct">;</span>'<span class="tok-punct">,</span>
+    <span class="tok-string">"types.did"</span><span class="tok-punct">:</span> <span class="tok-string">"type Item = record { id : nat };"</span><span class="tok-punct">,</span>
+  <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// → { ok: true, module, omitted } with the generated TypeScript text and</span>
+<span class="tok-comment">//   what it left out (empty here), or { ok: false, diagnostics }.</span></code></pre></div>
+
+<p>
+  The envelope is designed to need no glue on the way out.
+  <code>schemaFromContract</code> accepts either a bare Contract or an envelope — it recognises the
+  envelope by its <code>contract</code> key — and consumes the field-name table itself, which is what
+  lets record and variant fields come back with their source spellings instead of numeric label hashes:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> schemaFromContract <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/schema/contract"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> didText <span class="tok-punct">=</span> <span class="tok-string">"type Payload = record { owner : principal; amount : nat };"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> built <span class="tok-punct">=</span> <span class="tok-fn">schemaFromContract</span><span class="tok-punct">(</span><span class="tok-keyword">await</span> <span class="tok-fn">didToContract</span><span class="tok-punct">(</span>didText<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+
+<h3 id="omissions">Omissions<a class="heading-anchor" href="#omissions" aria-label="Link to Omissions">#</a></h3>
+
+<p>
+  A declaration the generator cannot represent costs only itself and what depends on it. It is left out
+  together with every declaration and actor method that references it — through nested
+  <code>func</code> and <code>service</code> types too, up to the containing declaration — and the
+  module is still a success: <code>gen</code> writes it and exits 0, printing one line per omission on
+  stderr, worded exactly as the module header lists it:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">warning: omitted type Bad (reserved_field_name)
+warning: omitted type Registry (references_omitted via Bad)
+warning: omitted method bad (references_omitted via Bad)</code></pre></div>
+
+<p>
+  <code>didToModule</code> returns the same list as <code>omitted</code>: an array of
+  <code>{ kind, name, reason, via? }</code>, declarations first, then methods, each sorted by name.
+  <code>kind</code> is <code>"declaration"</code> or <code>"method"</code> (a method of the actor's
+  service, dropped from both <code>actor</code> and <code>Actor</code>). <code>reason</code> is one of a
+  closed set — <code>reserved_field_name</code>, <code>ambiguous_variant_arm</code>,
+  <code>reserved_export_name</code>, <code>invalid_declaration_name</code> (Contract documents only) and
+  <code>references_omitted</code> — explained on <a href="generator.html">the code generator</a> page;
+  <code>via</code>, present only for <code>references_omitted</code>, names the omitted declaration
+  referenced. Everything the module still emits is exactly what it would be had the omitted
+  declarations never been written, and <code>schemaFromContract</code> omits the same entries from the
+  envelope.
+</p>
+
+<h3 id="doc-attributes">Doc attributes<a class="heading-anchor" href="#doc-attributes" aria-label="Link to Doc attributes">#</a></h3>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">New in 0.4.0</span>
+  <p>
+    <code>didToDocAttributes</code> and the types it returns are new in <code>0.4.0</code>, published
+    on 2026-10-27; the package changelog records them under
+    <code>0.4.0</code>. <code>0.3.0</code> has no function that reads doc comments or exposes the
+    SourceInfo sidecar.
+  </p>
+</div></div>
+
+<p>
+  A doc comment line that starts with <code>@</code>, a lowercase name, then <code>(</code> or nothing
+  is an attribute, and the rest of the comment stays prose. The syntax is specified in
+  <a href="https://github.com/B3Pay/Meant/blob/main/docs/doc-attributes.md"><code>docs/doc-attributes.md</code></a>
+  (doc attributes v1):
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">candid</span><span class="code-file">crates/candid-core-wasm/npm/README.md</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="candid" data-highlighted="true"><span class="tok-keyword">service</span> <span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-comment">/// Send tokens to another principal.</span>
+  <span class="tok-comment">/// @intent(title = "Send", template = "Send {amount} to {to}")</span>
+  <span class="tok-comment">/// @amount(at = "amount", decimals = query(decimals))</span>
+  <span class="tok-fn">send</span> <span class="tok-punct">:</span> <span class="tok-punct">(</span><span class="tok-keyword">record</span> <span class="tok-punct">{</span> <span class="tok-fn">to</span> <span class="tok-punct">:</span> <span class="tok-keyword">principal</span><span class="tok-punct">;</span> <span class="tok-fn">amount</span> <span class="tok-punct">:</span> <span class="tok-type">nat</span> <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-punct">-&gt;</span> <span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> <span class="tok-punct">{</span> didToDocAttributes <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"@candid-core/cli"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> didText <span class="tok-punct">=</span> <span class="tok-string">`service : {
+  /// Send tokens to another principal.
+  /// @amount(at = "amount", decimals = query(decimals))
+  send : (record { to : principal; amount : nat }) -&gt; ();
+}`</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">const</span> result <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-fn">didToDocAttributes</span><span class="tok-punct">(</span>didText<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>result<span class="tok-punct">.</span>ok<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> item <span class="tok-keyword">of</span> result<span class="tok-punct">.</span>doc_attributes<span class="tok-punct">.</span>items<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// item.path is "actor.methods[0]"; item.prose is ["Send tokens to another principal."]</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> attribute <span class="tok-keyword">of</span> item<span class="tok-punct">.</span>attributes<span class="tok-punct">)</span> console<span class="tok-punct">.</span><span class="tok-fn">log</span><span class="tok-punct">(</span>item<span class="tok-punct">.</span>path<span class="tok-punct">,</span> attribute<span class="tok-punct">.</span>name<span class="tok-punct">,</span> attribute<span class="tok-punct">.</span>args<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-punct">}</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<p>
+  Each documented item — the actor, a declaration, a field or variant case, a method — is keyed by
+  its path (<code>actor</code>, <code>type:&lt;Name&gt;</code>, or the occurrence path SourceInfo records) and carries its prose lines and its attributes in order. An attribute is
+  <code>{ name, doc_line, args }</code>, and each argument value is tagged: <code>text</code>,
+  <code>number</code> (the digits as written, never a float), <code>bool</code>, <code>ident</code>,
+  <code>call</code> (<code>query(decimals)</code>), <code>list</code> or <code>record</code>. Once a line
+  is an attribute it must parse to its end, so a malformed one fails the call with
+  <code>doc_attribute_malformed</code>, and a repeated key with <code>doc_attribute_duplicate_key</code>;
+  each names its item's <code>path</code>. The compiler gives no name a meaning: the tool that reads the
+  attributes decides which names it knows. Comments never move <code>contract_id</code> or
+  <code>interface_id</code>.
+</p>
+
+<h3 id="failures">Failures<a class="heading-anchor" href="#failures" aria-label="Link to Failures">#</a></h3>
+
+<p>
+  Data errors never throw and never half-succeed. Every failure is
+  <code>{ ok: false, diagnostics: [...] }</code>. Compiler diagnostics pass through verbatim with their
+  stable codes — <code>did_parse_error</code>, resolver refusals such as
+  <code>did_source_scheme_mismatch</code>, resource bounds. Two codes originate in this layer:
+  <code>invalid_request</code> (phase <code>load</code>) when the request document is neither of the two
+  accepted shapes, and <code>ts_generation_refused</code> (phase <code>generate</code>), kept for a
+  generator refusal of an invalid Contract graph — which a Contract compiled from Candid source never
+  is, so no <code>.did</code> reaches it: what cannot be represented is omitted instead. A matrix of nine malformed requests — including
+  <code>"not json"</code>, <code>"{}"</code>, and a request carrying both <code>source</code> and
+  <code>entry</code> — is pinned to return <code>invalid_request</code> rather than panicking. The codes
+  <code>projectDid</code> and <code>checkCompatible</code> add are listed with them below.
+</p>
+
+<h2 id="projection-and-compatibility">Projection and compatibility<a class="heading-anchor" href="#projection-and-compatibility" aria-label="Link to Projection and compatibility">#</a></h2>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">New in 0.3.0</span>
+  <p>
+    <code>project</code>, <code>check</code>, <code>projectDid</code> and <code>checkCompatible</code>
+    are new in <code>0.3.0</code>, published on 2026-10-10; the package changelog records them under
+    <code>0.3.0</code>. The previous release, <code>0.2.0</code>, has none of them: it exits 64 with
+    its usage for either command.
+  </p>
+</div></div>
+
+<p>
+  Two commands for an interface you do not own, such as a canister's published <code>.did</code>.
+  Both read files already on disk; neither fetches anything, so getting the live interface is the
+  caller's job.
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="text" data-highlighted="true">candid-core-cli project &amp;lt;in.did&amp;gt; --methods &amp;lt;a,b,...&amp;gt; -o &amp;lt;out.did&amp;gt; [--json]
+candid-core-cli check &amp;lt;written.did&amp;gt; --against &amp;lt;live.did&amp;gt; [--json]</code></pre></div>
+
+<p>
+  <code>project</code> writes a self-contained <code>.did</code> holding only the named methods and
+  every declaration they reach, with their doc comments and argument names, and prints the interface
+  identities of the input and of the projection. The same input and the same set of names give the
+  same bytes. <code>gen</code> on the result emits an <code>Actor</code> listing only those methods,
+  each with its mode. Each distinct unknown name fails with one <code>unknown_method</code>, and the
+  failure's first diagnostic lists the service's methods in its <code>notes</code>, once; an empty
+  list fails with <code>empty_method_list</code>. The unknown-method diagnostics are bounded at 4 MiB
+  in all, each counted as the JSON writes it, the list of methods aside: past that bound the names
+  left are counted in one <code>resource_limit_exceeded</code> diagnostic
+  (<code>projection_diagnostic_bytes</code>) instead of reported. A projection must compile again, so it is at most 1 MiB, the compiler's bound on one
+  source; a larger one fails with <code>resource_limit_exceeded</code>
+  (<code>projection_bytes</code>) as soon as writing it reaches that bound. Every name, requested or
+  reached, is found by binary search among names sorted once. <code>-o</code> may not be, or become, a source of the input (the
+  file and every <code>.did</code> beneath its directory): naming one by any path or link, or a new
+  <code>.did</code> beneath that directory, fails with <code>output_is_input</code> and writes
+  nothing, so write the projection outside the input's directory. An output that cannot be written fails with <code>output_write_failed</code>.
+</p>
+
+<p>
+  <code>check</code> exits 0 when the live service is still a Candid subtype of the written one and 1
+  otherwise: every written method must exist in the live service with the same mode, arguments
+  contravariant and results covariant. Methods only the live service has are ignored. Each finding
+  names its method, a stable code (<code>method_missing</code>, <code>mode_changed</code>,
+  <code>method_incompatible</code>, the warning <code>special_opt_rule</code>, or
+  <code>resource_limit_exceeded</code>) and the path into the type where the check failed, such as
+  <code>$results[0].Err.TooOld</code>. A <code>special_opt_rule</code> warning is reported at every
+  path whose value decodes as <code>null</code> along which no pair of types repeats. A hand-written subset <code>.did</code> is as valid a written
+  side as a projection.
+</p>
+
+<p>
+  The check is bounded per method (384 pairs on one path, 1,000,000 steps, 1,000 reported warnings),
+  a step being one unit of work done: a pair of types visited, a field, arm, method or value examined
+  or passed over, or one path segment a warning or a failure copies, or a warning re-examines. A step
+  reads no name: service methods are paired by ranks computed once per check, and a field's name is
+  read by its position. So a step's cost does not grow with the length of the names: it does a bounded
+  amount of work, and its lookups in the maps of type pairs the walk keeps take time logarithmic in
+  their size. It is
+  bounded too, so that a service with many methods cannot multiply those bounds, as a whole: 10,000,000
+  steps, one more per method decided (<code>check_total_steps</code>), 10,000 <code>special_opt_rule</code> warnings
+  (<code>check_total_warnings</code>) and 4 MiB of reported diagnostics, each counted as the JSON
+  response writes it, keys and indentation included (<code>check_output_bytes</code>), measured only
+  up to the first string that passes that bound. Methods are checked in name order. When the check
+  reaches its step or warning bound, the method at which it did and every method after it fail closed:
+  each gets one <code>resource_limit_exceeded</code> error naming the bound, with its limit and
+  observed value, and nothing else. Those count against the 4 MiB like any other diagnostic: once a
+  method's diagnostics would pass it, that method and every method after it are counted in one last
+  <code>resource_limit_exceeded</code> error (<code>check_output_bytes</code>), which names no method
+  and holds the count in <code>unreported_methods</code>. Either way the check exits 1. Below these
+  bounds a method's findings do not depend on the other methods; once one is reached, they do. Without
+  them, a 10-level shared two-field type reused by 100 methods turned a 5.3 KB request into a 27.8 MB
+  response; with them it is 2.8 MB, and however many methods the written side has, a response is at
+  most 4 MiB and 1,016 bytes. So the walk's time grows with its steps (times that logarithm) and the
+  reported diagnostics' with their bytes; compiling both sides, within the compiler's own limits, and
+  ranking the method names are done once per check, before the walk.
+</p>
+
+<p>
+  The check is one Rust implementation, compiled into the same WebAssembly. Its tests compare it with
+  the subtype check of the pinned <code>candid</code> crate on hand-written cases and a seeded random
+  campaign, and with the subtype relation <code>@candid-core/schema</code>'s decoder runs on a
+  reference. The one recorded disagreement is a <code>candid</code> crate defect: its coinductive memo
+  can keep a pair proven under an assumption it later retracted, and accept a pair that is not a
+  subtype. This check and the decoder refuse it.
+</p>
+
+<h2 id="in-a-browser">In a browser<a class="heading-anchor" href="#in-a-browser" aria-label="Link to In a browser">#</a></h2>
+
+<p>
+  The artifact is built for the <code>web</code> target, not <code>nodejs</code>, and one artifact serves
+  both hosts — under Node the wrapper supplies the bytes itself. The wasm side evaluates no code, opens
+  no network connection and touches no filesystem: it sees only the strings handed to it. The wrapper's
+  one <code>node:</code> import is a dynamic <code>node:fs/promises</code> inside <code>init</code>,
+  reached only when it detects Node and reads the packaged <code>.wasm</code>; a page never takes that
+  branch, which is what the headless-Chrome test below exercises. Candid imports are resolved from the
+  map you hand over, so a page that already fetched its <code>.did</code> sources can compile them in
+  place.
+</p>
+
+<p>
+  A headless-Chrome test in the repository serves the wasm and the schema runtime over HTTP and runs
+  this, asserting that the envelope-carried names really do become the schema's keys — a value keyed
+  <code>owner</code>/<code>amount</code> validates:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">js</span><span class="code-file">crates/candid-core-wasm/npm/test/browser/smoke.test.js</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="js" data-highlighted="true"><span class="tok-keyword">import</span> init<span class="tok-punct">,</span> <span class="tok-punct">{</span> didToContract <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"/wasm/candid_core_wasm.js"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> schemaFromContract <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"/schema/contract.js"</span><span class="tok-punct">;</span>
+<span class="tok-keyword">import</span> <span class="tok-punct">{</span> validate <span class="tok-punct">}</span> <span class="tok-keyword">from</span> <span class="tok-string">"/schema/validate.js"</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">await</span> <span class="tok-fn">init</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> envelope <span class="tok-punct">=</span> <span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">parse</span><span class="tok-punct">(</span><span class="tok-fn">didToContract</span><span class="tok-punct">(</span><span class="tok-type">JSON</span><span class="tok-punct">.</span><span class="tok-fn">stringify</span><span class="tok-punct">(</span><span class="tok-punct">{</span> source<span class="tok-punct">:</span> didText <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> built <span class="tok-punct">=</span> <span class="tok-fn">schemaFromContract</span><span class="tok-punct">(</span>envelope<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// built.schemas.Payload now validates { owner: &lt;a principal&gt;, amount: 5n }</span></code></pre></div>
+
+<p>
+  Note the shapes there: importing the wasm module directly gives you the raw wasm-bindgen exports,
+  which are string in, string out. The whole wasm ABI is five functions wide in <code>0.4.0</code>,
+  four in <code>0.3.0</code> and two in <code>0.2.0</code> (<code>didToDocAttributes</code> is new in
+  <code>0.4.0</code>, <code>projectDid</code> and <code>checkCompatible</code> in <code>0.3.0</code>) —
+  <code>didToContract(request: string): string</code>,
+  <code>didToModule(request: string): string</code>,
+  <code>didToDocAttributes(request: string): string</code>,
+  <code>projectDid(request: string): string</code> and
+  <code>checkCompatible(request: string): string</code> — and every richer shape lives in the JSON
+  documents, which is what keeps the boundary reviewable. Importing from the package instead gives you
+  the wrapper that does the JSON encoding for you.
+</p>
+
+<p>
+  Each request is one JSON document. <code>didToContract</code> and <code>didToModule</code> take a
+  sources request: <code>{ "source": "&lt;did text&gt;" }</code>, or
+  <code>{ "entry": "&lt;name&gt;", "files": { "&lt;name&gt;": "&lt;did text&gt;" } }</code> for a
+  bundle. <code>projectDid</code> takes a sources request with <code>"methods": ["a", "b"]</code>
+  added. <code>checkCompatible</code> takes <code>{ "written": &lt;sources request&gt;, "live":
+  &lt;sources request&gt; }</code>. Each response is one JSON document too, the same documents the
+  wrapper returns parsed: the envelope from <code>didToContract</code>;
+  <code>{ ok: true, module, omitted }</code> from <code>didToModule</code>;
+  <code>{ ok: true, did, methods, input, projection }</code> from <code>projectDid</code>, where
+  <code>input</code> and <code>projection</code> each hold a <code>contract_id</code> and an
+  <code>interface_id</code>; and <code>{ ok: true, compatible, written, live, diagnostics }</code>
+  from <code>checkCompatible</code>. Every failure is <code>{ ok: false, diagnostics }</code>. A
+  <code>checkCompatible</code> failure caused by one side adds <code>input</code>, naming that side,
+  <code>"written"</code> or <code>"live"</code>, when it does not compile or declares no service; a
+  malformed request carries no <code>input</code>.
+</p>
+
+<h2 id="building-it-from-a-clone">Building it from a clone<a class="heading-anchor" href="#building-it-from-a-clone" aria-label="Link to Building it from a clone">#</a></h2>
+
+<p>
+  The <code>wasm/</code> directory is a build output and is not checked in, so the build comes first.
+  The package's own <code>build</code> script is the exact command:
+</p>
+
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">crates/candid-core-wasm/npm/package.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"scripts"</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
+  <span class="tok-type">"build"</span><span class="tok-punct">:</span> <span class="tok-string">"cd .. &amp;&amp; wasm-pack build --target web --out-dir npm/wasm --no-pack --release"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"test"</span><span class="tok-punct">:</span> <span class="tok-string">"node --test test/*.test.js"</span><span class="tok-punct">,</span>
+  <span class="tok-type">"test:browser"</span><span class="tok-punct">:</span> <span class="tok-string">"node --test test/browser/*.test.js"</span>
+<span class="tok-punct">}</span></code></pre></div>
+
+<ol class="steps">
+  <li>
+    <h3 id="install-the-pinned-wasm-pack-and-the-wasm-target">Install the pinned wasm-pack and the wasm target<a class="heading-anchor" href="#install-the-pinned-wasm-pack-and-the-wasm-target" aria-label="Link to Install the pinned wasm-pack and the wasm target">#</a></h3>
+    <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cargo</span> install wasm-pack<span class="tok-attr"> --version</span> 0.14.0<span class="tok-attr"> --locked</span><span class="tok-keyword">
+rustup</span> target add wasm32-unknown-unknown</code></pre></div>
+  </li>
+  <li>
+    <h3 id="build-the-artifact">Build the artifact<a class="heading-anchor" href="#build-the-artifact" aria-label="Link to Build the artifact">#</a></h3>
+    <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">cd</span> crates/candid-core-wasm/npm<span class="tok-keyword">
+npm</span> run build</code></pre></div>
+  </li>
+  <li>
+    <h3 id="run-the-cli-and-its-suite">Run the CLI and its suite<a class="heading-anchor" href="#run-the-cli-and-its-suite" aria-label="Link to Run the CLI and its suite">#</a></h3>
+    <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="bash" data-highlighted="true"><span class="tok-keyword">npm</span> ci<span class="tok-keyword">
+node</span> bin/cli.js gen ./service.did<span class="tok-attr"> -o</span> ./out<span class="tok-keyword">
+npm</span> test</code></pre></div>
+    <p>
+      <code>node bin/cli.js gen …</code> is exactly how the tests invoke it, so it is the verified local
+      entry point. <code>npm test</code> runs the byte-for-byte parity suite.
+    </p>
+  </li>
+</ol>
+
+<p>
+  CI runs the same build with <code>-- --locked</code> appended, under the exact-pinned release
+  toolchain rather than the rolling <code>stable</code> of ordinary jobs. <code>wasm-opt</code> is
+  deliberately disabled so the artifact's bytes are a pure function of the pinned rustc and
+  wasm-bindgen, with no binaryen download anywhere in the build path.
+</p>
+
+<h2 id="what-the-parity-gate-actually-asserts">What the parity gate actually asserts<a class="heading-anchor" href="#what-the-parity-gate-actually-asserts" aria-label="Link to What the parity gate actually asserts">#</a></h2>
+
+<p>
+  The <code>wasm CLI</code> workflow runs three jobs, and it is worth being precise about what each one
+  establishes, because "there is a gate" and "there is a released package" are different claims.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr>
+      <th>Job</th>
+      <th>What it asserts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>host</code></td>
+      <td>
+        Format, clippy with warnings denied, and the Rust parity tests: every golden fixture reproduces
+        its reviewed <code>.ts</code> module byte for byte; the emitted envelope equals the committed
+        fixture the native <code>meant compile --envelope</code> binary produced, byte for byte;
+        the field-name triples equal the generator's reviewed <code>*.names.json</code> goldens for five
+        fixtures; identical requests produce identical responses.
+      </td>
+    </tr>
+    <tr>
+      <td><code>artifact</code></td>
+      <td>
+        The same comparisons again through the real WebAssembly under Node — the npm suite runs
+        <code>bin/cli.js</code>, which loads the compiled wasm — plus artifact determinism: hash the
+        build, <code>cargo clean</code>, delete the output, rebuild, and require the hashes to match.
+      </td>
+    </tr>
+    <tr>
+      <td><code>browser</code></td>
+      <td>
+        <code>didToContract</code> inside a pinned headless Chrome build, feeding
+        <code>schemaFromContract</code>, with envelope-carried field names rendering as schema keys.
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  What that buys you is specific: for those fixtures, at that commit, the WebAssembly path and the
+  native Rust path emit the same bytes, and the artifact is reproducible from its pinned inputs. What it
+  does not buy you is a published version: the gates run on a commit and publish nothing, and a version
+  reaches the registry only when its release workflow is dispatched, as <code>0.1.0</code> was. Nor does
+  it buy a promise about versions beyond the tested set. The version pairing is a <em>revision</em>
+  pairing: the package embeds the compiler and generator from the exact commit a release is dispatched from, and the
+  changelog names the revisions per release. Read the changelog for the pairing rather than assuming a
+  crate version.
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Pre-1.0, on both sides</span>
+  <p>
+    Until 1.0 any release may change the CLI grammar, the library API, and the request and response
+    shapes — the same warning the Rust crate carries. Pin an exact version.
+  </p>
+</div></div>
+
+<h2 id="next">Next<a class="heading-anchor" href="#next" aria-label="Link to Next">#</a></h2>
+
+<p>
+  <a href="schema-from-contract.html">Schemas from a Contract document</a> shows the TypeScript side
+  consuming the envelope this package writes. <a href="cli-rust.html">The <code>meant</code> binary</a>
+  produces the same envelope document from Rust. For where each unit stands, see
+  <a href="status.html">Status, versions and releases</a>.
+</p>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="cli-rust.html"><span class="dir">Previous</span><span class="label">The meant binary</span></a><a class="next" href="cli-profile.html"><span class="dir">Next</span><span class="label">The candid-profile command</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/cli-npm.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#what-is-in-the-package">What is in the package</a></li><li class="toc-h2"><a href="#the-command">The command</a></li><li class="toc-h3"><a href="#how-imports-are-found">How imports are found</a></li><li class="toc-h3"><a href="#exit-codes">Exit codes</a></li><li class="toc-h2"><a href="#several-entries-json-and-check">Several entries, --json and --check</a></li><li class="toc-h2"><a href="#the-library-api">The library API</a></li><li class="toc-h3"><a href="#omissions">Omissions</a></li><li class="toc-h3"><a href="#doc-attributes">Doc attributes</a></li><li class="toc-h3"><a href="#failures">Failures</a></li><li class="toc-h2"><a href="#projection-and-compatibility">Projection and compatibility</a></li><li class="toc-h2"><a href="#in-a-browser">In a browser</a></li><li class="toc-h2"><a href="#building-it-from-a-clone">Building it from a clone</a></li><li class="toc-h3"><a href="#install-the-pinned-wasm-pack-and-the-wasm-target">Install the pinned wasm-pack and the wasm target</a></li><li class="toc-h3"><a href="#build-the-artifact">Build the artifact</a></li><li class="toc-h3"><a href="#run-the-cli-and-its-suite">Run the CLI and its suite</a></li><li class="toc-h2"><a href="#what-the-parity-gate-actually-asserts">What the parity gate actually asserts</a></li><li class="toc-h2"><a href="#next">Next</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tags · Meant</title>
+<meta name="description" content="All 18 tags: where each applies, its arguments, and whether it is core or experimental.">
+<meta property="og:title" content="Tags · Meant">
+<meta property="og:description" content="All 18 tags: where each applies, its arguments, and whether it is core or experimental.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("candid-core-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (error) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <button class="icon-button" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="brand" href="./"><img class="brand-lockup on-dark" src="assets/meant-lockup-dark.svg" alt="Meant" width="194" height="48"><img class="brand-lockup on-light" src="assets/meant-lockup-light.svg" alt="" width="194" height="48"><span class="brand-tag">docs</span></a>
+  <span class="header-spacer"></span>
+  <button class="search-trigger" id="search-trigger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="search-label">Search</span><kbd>⌘K</kbd></button>
+  <div class="header-links">
+    <a class="header-link docs-link" href="https://b3pay.net/docs/"><span>All docs</span></a>
+    <a class="header-link" href="https://github.com/B3Pay/Meant" rel="noreferrer noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg><span>GitHub</span></a>
+    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+  </div>
+</header>
+<div class="layout">
+  <div class="nav-backdrop" hidden></div>
+  <aside class="sidebar" aria-label="Documentation navigation"><div class="nav-section"><h2>Learn</h2><ul><li><a href="./">Home</a></li><li><a href="what-is-meant.html">What is Meant?</a></li><li><a href="what-is-candid-core.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The interface layer</a></li><li><a href="quickstart-typescript.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · TypeScript</a></li><li><a href="quickstart-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Quickstart · Rust</a></li><li><a href="quickstart-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Quickstart · Profiles</a></li><li><a href="packages.html">Packages and crates</a></li></ul></div><div class="nav-section"><h2>Guides · Profiles</h2><ul><li><a href="write-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Write a profile</a></li><li><a href="annotate-a-did.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Annotate a .did file</a></li><li><a href="resolve-profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Validate and resolve</a></li><li><a href="format-values.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Parse and display values</a></li><li><a href="consent-messages.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Consent messages</a></li><li><a href="agent-tools.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Agent tools</a></li><li><a href="confirmed-terms.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Confirmed terms</a></li><li><a href="reconcile-outcomes.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Settle an unknown outcome</a></li><li><a href="serve-a-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Serve a profile</a></li></ul></div><div class="nav-section"><h2>Guides · Rust</h2><ul><li><a href="rust-install.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Install and features</a></li><li><a href="rust-compiling.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Compiling sources</a></li><li><a href="rust-contracts.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Building Contracts</a></li><li><a href="rust-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Working with limits</a></li><li><a href="rust-host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validating host values</a></li><li><a href="rust-examples.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Worked examples</a></li></ul></div><div class="nav-section"><h2>Guides · TypeScript</h2><ul><li><a href="schema-builders.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Builders and inference</a></li><li><a href="schema-validation.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Validation</a></li><li><a href="schema-codec.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Binary codec</a></li><li><a href="schema-from-contract.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Schemas at runtime</a></li><li><a href="migrating-from-0-5.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.5.0</a></li><li><a href="migrating-from-0-4.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.4.0</a></li><li><a href="migrating-from-0-3.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.3.0</a></li><li><a href="migrating-from-0-2.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Migrating from 0.2.0</a></li></ul></div><div class="nav-section"><h2>Guides · Command line</h2><ul><li><a href="cli-rust.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">meant (Rust)</a></li><li><a href="cli-npm.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">@candid-core/cli (npm)</a></li><li><a href="cli-profile.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">candid-profile (npm)</a></li></ul></div><div class="nav-section"><h2>Concepts · Profiles</h2><ul><li><a href="profiles.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profiles and binding</a></li><li><a href="addresses.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Addresses</a></li><li><a href="value-tags.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Values and exact conversion</a></li><li><a href="intent-and-effects.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Intent and effects</a></li><li><a href="outcomes-and-retries.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Outcomes and retries</a></li><li><a href="names.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Names</a></li><li><a href="security-model.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Security model</a></li></ul></div><div class="nav-section"><h2>Concepts · Interfaces</h2><ul><li><a href="contract-graph.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The Contract graph</a></li><li><a href="identities.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Content-addressed identities</a></li><li><a href="canonical-bytes.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Canonical bytes</a></li><li><a href="source-resolution.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Sources, imports and provenance</a></li><li><a href="limits-and-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits, budgets and diagnostics</a></li><li><a href="host-values.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Host values</a></li><li><a href="trust-boundary.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">The trust boundary</a></li><li><a href="ts-overview.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Overview</a></li><li><a href="generator.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Code generator</a></li></ul></div><div class="nav-section"><h2>Reference · Profiles</h2><ul><li><a href="reference-tags.html" aria-current="page"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Tags</a></li><li><a href="reference-profile-diagnostics.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Profile diagnostics</a></li><li><a href="reference-profile-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Document formats</a></li><li><a href="reference-packs.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Standard packs</a></li><li><a href="reference-profile-api.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">JavaScript API</a></li><li><a href="reference-meant-format.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">meant-format (Rust)</a></li></ul></div><div class="nav-section"><h2>Reference · Interfaces</h2><ul><li><a href="reference-mapping.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Candid ↔ TypeScript</a></li><li><a href="reference-limits.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Limits</a></li><li><a href="reference-json.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">JSON formats</a></li><li><a href="reference-diagnostics.html"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="14" height="14">Diagnostics</a></li></ul></div><div class="nav-section"><h2>Chains</h2><ul><li><a href="chain-icp.html">Internet Computer</a></li><li><a href="chain-evm.html">EVM (experimental)</a></li><li><a href="chain-solana.html">Solana (planned)</a></li></ul></div><div class="nav-section"><h2>Project</h2><ul><li><a href="guarantees.html">Guarantees</a></li><li><a href="decisions.html">Design decisions</a></li><li><a href="open-questions.html"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">Open questions</a></li><li><a href="status.html">Status and releases</a></li></ul></div></aside>
+  <main id="main" class="content wide">
+    <div class="content-inner">
+      <p class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</p><h1>Tags</h1><p class="page-lead">All 18 tags: where each applies, its arguments, and whether it is core or experimental.</p><p>
+  A tag gives one position of an interface a meaning. Twelve tags are <span class="pill ok">core</span>: the
+  preregistered eval depends on them, so they are stable within v0. Seven are
+  <span class="pill warn">experimental</span> and may change. The tables below are checked against
+  <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#5-tags">spec §5</a>, the JSON Schema
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/profile-v0.schema.json"><code>profile/spec/profile-v0.schema.json</code></a>,
+  the <code>args_*</code> definitions) and the resolver's applicability checks
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/packages/resolver/src/checks.mjs"><code>checks.mjs</code></a>).
+  Each tag links to the concept page that explains it.
+</p>
+
+<p>A tag is one annotation: an address, the tag's name and its arguments. This one is from the ICRC-1 pack:</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">icrc1_transfer(0).amount</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">amount</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">decimals</span>: <span class="v">{ &quot;from&quot;: &quot;query:icrc1_decimals&quot; }</span></li><li><span class="k">symbol</span>: <span class="v">{ &quot;from&quot;: &quot;query:icrc1_symbol&quot; }</span></li></ul></dd></dl></figure>
+
+<h2 id="value-tags">Value tags<a class="heading-anchor" href="#value-tags" aria-label="Link to Value tags">#</a></h2>
+
+<p>
+  A value tag sits at a value address (<code>method(i).path</code>, <code>method-&gt;(i).path</code> or, in a canister
+  profile, <code>type:Decl.path</code>; see <a href="addresses.html">Addresses</a>). <code>opt</code> is transparent: a
+  tag on <code>fee : opt nat</code> applies to the <code>nat</code>. A tag on a type it does not fit is
+  <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_NOT_APPLICABLE</span></span>; a value tag at a bare method name is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Tag</th><th>Status</th><th>Applies to</th><th>Arguments</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="value-tags.html"><code>amount</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>nat</code>, <code>int</code>, <code>nat8</code>, <code>nat16</code>, <code>nat32</code>, <code>nat64</code>, <code>int8</code>, <code>int16</code>, <code>int32</code>, <code>int64</code></td>
+      <td>
+        <code>decimals</code>, required unless <code>token</code> is given: an integer 0–255, or <code class="wrap">{ "from": "query:&lt;method&gt;" }</code>.<br>
+        <code>symbol</code>, optional: text of 1–32 characters, or a <code>query:</code> value.<br>
+        <code>token</code>, EVM only: a relative path to the <code>address</code> field that names the amount's token; <code>decimals</code> and <code>symbol</code> are then left out (<a href="#an-amount-in-the-token-a-field-names">below</a>).<br>
+        <code>threshold</code>, optional, display only: a decimal string in base units; a value at or above it displays as <code>message</code> and the symbol.<br>
+        <code>message</code>, optional: 1–32 characters, default <code>"Unlimited"</code>; needs <code>threshold</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>timestamp</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>nat</code>, <code>int</code>, <code>nat32</code>, <code>nat64</code>, <code>int64</code></td>
+      <td>
+        <code>unit</code>, required: <code>ns</code>, <code>us</code>, <code>ms</code> or <code>s</code>.<br>
+        <code>epoch</code>, optional: <code>unix</code>.<br>
+        <code>threshold</code> with <code>message</code>, optional, display only, always together: a value at or above <code>threshold</code> (a decimal string of the tagged unit) displays as <code>message</code> (1–32 characters, no default).<br>
+        <code>labels</code>, optional, display only: 1–16 exact values (decimal strings of the tagged unit) mapped to words of 1–32 characters.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>duration</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>as <code>timestamp</code></td>
+      <td><code>unit</code>, required: <code>ns</code>, <code>us</code>, <code>ms</code> or <code>s</code>.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>account</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code class="wrap">record { owner : principal; subaccount : opt blob }</code></td>
+      <td><code>encoding</code>, optional: <code>icrc1</code>.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>subaccount</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>blob</code></td>
+      <td>none: <code>args</code> is <code>{}</code>.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>bytes</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td><code>blob</code></td>
+      <td>
+        <code>encoding</code>, required: <code>utf8</code>, <code>hex</code> or <code>base64</code>.<br>
+        <code>max_len</code>, optional: an integer ≥ 0, counted in bytes after encoding.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>default</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>any position; the value <code>null</code> only on an <code>opt</code> (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DEFAULT_NULL</span></span>)</td>
+      <td>
+        <code>value</code>, required: a Candid textual literal (<code>"null"</code>, <code>"opt 0"</code>), or a dynamic value (<code>query:</code>, <code>now</code>, <code>caller</code>).<br>
+        <code>mode</code>, required: <code>auto</code> (filled by the tool layer, never exposed) or <code>suggest</code> (exposed, pre-filled).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>describe</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>any position, or a method</td>
+      <td>
+        <code>label</code>: 1–80 characters.<br>
+        <code>help</code>: 1–2000 characters.<br>
+        At least one of the two.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>text</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td><code>text</code></td>
+      <td>
+        <code>format</code>: <code>plain</code>, <code>markdown</code>, <code>email</code> or <code>url</code>.<br>
+        <code>max_len</code>: an integer ≥ 0.<br>
+        <code>pattern</code>: a regular expression.<br>
+        At least one of the three.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>range</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a numeric type, <code>text</code>, a <code>vec</code></td>
+      <td>
+        <code>min</code>, <code>max</code>: decimal strings, in base units.<br>
+        <code>min_len</code>, <code>max_len</code>: integers ≥ 0.<br>
+        At least one of the four.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>ui</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>any position</td>
+      <td>
+        <code>order</code> (integer), <code>group</code> (text), <code>hidden</code> (boolean), <code>widget</code> (text); at least one. UI only: agents ignore it.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="names.html"><code>named</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a position a name from a <code>names</code> set can stand for; its Candid type equals the set's field (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMED_TYPE</span></span>)</td>
+      <td>
+        <code>set</code>, required: a declared set (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMED_SET</span></span>), matching <code>^[a-z][a-z0-9_]*$</code>, at most 64 characters.<br>
+        <code>by</code>, optional: <code>value</code> (default) or <code>show</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#a-pin-fixed"><code>fixed</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>an <code>address</code> in the arguments of an EVM function or message (§15.4, D-058)</td>
+      <td>
+        <code>value</code>, required: one address; in mixed case it matches its EIP-55 checksum (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ADDRESS_CHECKSUM</span></span>).
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 id="dynamic-values">Dynamic values<a class="heading-anchor" href="#dynamic-values" aria-label="Link to Dynamic values">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Value</th><th>Allowed in</th><th>Rule</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>{ "from": "query:&lt;method&gt;" }</code></td>
+      <td><code>amount.decimals</code> (a number), <code>amount.symbol</code> (text), <code>default.value</code></td>
+      <td>A query or composite query of the same canister, with no arguments and one result of the expected kind: <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_NOT_QUERY</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_SHAPE</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_TYPE</span></span>.</td>
+    </tr>
+    <tr>
+      <td><code>{ "from": "now" }</code>, <code>{ "from": "caller" }</code></td>
+      <td><code>default.value</code> only</td>
+      <td>Anywhere else is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DYNAMIC_KIND</span></span>. <code>now</code> is the canister's clock, never the host's.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  Integers that can exceed 2<sup>53</sup> (amounts, bounds) are decimal strings, such as <code>"100000000"</code>. The
+  resolver leaves dynamic values unresolved in the resolved form: resolving them needs the network, so it is the
+  consumer's job (<a href="reference-profile-format.html">Profile and resolved form</a>).
+</p>
+
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Not checked by the v0 validator</span>
+  <p>
+    Whether a <code>default.value</code> literal other than <code>null</code> type-checks against its position. The
+    spec requires consumers to check it before they use a default.
+  </p>
+</div></div>
+
+<h3 id="words-for-extreme-values">Words for extreme values<a class="heading-anchor" href="#words-for-extreme-values" aria-label="Link to Words for extreme values">#</a></h3>
+
+<p>
+  <code>threshold</code>, <code>message</code> and <code>labels</code> change what a value displays as, never what it
+  is: input is unchanged, a number at the threshold still parses to that number, and a word is never parsed back
+  (spec §5.3, D-054 for <code>amount</code>, D-055 for <code>timestamp</code>). On a <code>timestamp</code> a label is
+  checked first, then the threshold, then the time. A timestamp shown as words is never read as a time: it is not localized, and in an ICRC-21 <code>fields</code> message it is <code>Text</code>, never
+  <code>TimestampSeconds</code>; an amount at or above its threshold is <code>Text</code>, never a
+  <code>TokenAmount</code>. The words exist for deadlines whose extreme values are not dates: <code>uint256</code> max
+  for "never", which is otherwise out of range, and Permit2's expiration 0 for "this block only", which otherwise reads
+  as 1970. From the Permit2 profile:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitSingle(0).details.expiration</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">timestamp</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">unit</span>: <span class="v">&quot;s&quot;</span></li><li><span class="k">epoch</span>: <span class="v">&quot;unix&quot;</span></li><li><span class="k">threshold</span>: <span class="v">&quot;281474976710655&quot;</span></li><li><span class="k">message</span>: <span class="v">&quot;Never&quot;</span></li><li><span class="k">labels</span>: <span class="v">{ &quot;0&quot;: &quot;Only in the block it is used&quot; }</span></li></ul></dd></dl></figure>
+
+<h3 id="an-amount-in-the-token-a-field-names">An amount in the token a field names<a class="heading-anchor" href="#an-amount-in-the-token-a-field-names" aria-label="Link to An amount in the token a field names">#</a></h3>
+
+<p>
+  <span class="pill warn">experimental</span> EVM only (spec §15.9). <code>amount.token</code> is a relative path from
+  the argument to an <code>address</code> field of the same argument whose path up to its last <code>[]</code> is the
+  amount's own: the token is in the same array element as the amount, or outside every array
+  (<code>"token": "details[].token"</code> for <code>details[].amount</code>). <code>decimals</code> and
+  <code>symbol</code> are not given (the schema refuses them): they are that token's <code>decimals()</code> and
+  <code>symbol()</code>, which the consumer reads and passes per token address
+  (<code>tokens: { "0xA0b8…eB48": { "decimals": 6, "symbol": "USDC" } }</code>); the libraries do no I/O. Without an
+  entry there is no text (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_REF_UNRESOLVED</span></span>; §12 rule 10), never a number read in the wrong decimals. A
+  token's <code>symbol()</code> is its own claim, so its address is always shown beside it. A path that breaks these
+  rules is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TOKEN_PATH</span></span>, and so is <code>token</code> on a Candid service, whose ledger a field cannot name
+  yet (<span class="claim open">open</span> OQ-6, on <a href="open-questions.html">Open questions</a>). <code>token</code> works on
+  functions too.
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitBatch(0).details[].amount</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">amount</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">token</span>: <span class="v">&quot;details[].token&quot;</span></li><li><span class="k">threshold</span>: <span class="v">&quot;1461501637330902918203684832716283019655932542975&quot;</span></li></ul></dd></dl></figure>
+
+<h2 id="method-tags">Method tags<a class="heading-anchor" href="#method-tags" aria-label="Link to Method tags">#</a></h2>
+
+<p>
+  A method tag sits at a bare method name. <code>intent</code> and <code>effect</code> may also sit at a case address,
+  an argument address whose last step selects a case of a variant (<code>propose(0).Transfer</code>, D-053); a
+  result address, a <code>type:</code> address or a path through <code>[]</code> is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>, and two
+  tagged cases one value can take both are <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CASE_OVERLAP</span></span>.
+</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Tag</th><th>Status</th><th>Address</th><th>Arguments</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>intent</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>a method, or a case of a variant in its arguments</td>
+      <td>
+        <code>title</code>, required: 1–60 characters.<br>
+        <code>template</code>, required: 1–500 characters, the grammar of spec §6 (<code>{relpath}</code> placeholders, <code>[ … ]</code> optional segments, escapes <code>{{ }} [[ ]]</code>).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>effect</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>a method, or a case of a variant in its arguments</td>
+      <td>
+        <code>kind</code>, required: <span class="effect read">read</span> <span class="effect write">write</span> <span class="effect transfer">transfer</span> <span class="effect approve">approve</span> <span class="effect admin">admin</span> <span class="effect destroy">destroy</span><br>
+        <code>irreversible</code>, required: boolean.<br>
+        <code>replicated</code>, optional: boolean; <code>true</code> only with <code>kind: "read"</code> and <code>irreversible: false</code> on an update method (a read-only update, D-038).<br>
+        <code>grant</code>, optional: an object, what a <code>transfer</code> or <code>approve</code> lets someone take: <code>spender</code> or <code>to</code>, <code>amount</code>, and <code>ends</code>, optional, as argument relpaths. Only on a method's effect, not a case's (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_GRANT</span></span>; <a href="#what-a-call-grants">below</a>, D-056).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="outcomes-and-retries.html"><code>idempotency</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>an update method (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_IDEMPOTENCY_MODE</span></span>)</td>
+      <td>
+        <code>mode</code>, required: <code>replay_same_payload</code>.<br>
+        <code>stamp</code>, required: an argument relpath to the field filled once per intent; it carries a <code>timestamp</code> tag (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_STAMP_UNTAGGED</span></span>).
+      </td>
+    </tr>
+    <tr>
+      <td><a href="outcomes-and-retries.html"><code>outcome</code></a></td>
+      <td><span class="pill ok">core</span></td>
+      <td>a method</td>
+      <td>
+        <code>classes</code>: <code>{ result relpath → class }</code>; every key selects a variant case (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_OUTCOME_NOT_CASE</span></span>).<br>
+        <code>default</code>: a class.<br>
+        At least one of the two. Classes: <span class="outcome success"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="currentColor"/></svg>success</span> <span class="outcome already_done"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="2" fill="currentColor"/></svg>already_done</span> <span class="outcome retry_same"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>retry_same</span> <span class="outcome retry_new"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 4.3A4 4 0 1 0 10 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 1.6v2.9H7.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="6.8" r="1.4" fill="currentColor"/></svg>retry_new</span> <span class="outcome fix_input"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 6L6 11L1 6Z" fill="currentColor"/></svg>fix_input</span> <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>list</code></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a method</td>
+      <td>
+        <code>cursor</code>, required: an argument relpath.<br>
+        <code>next</code>, <code>items</code>, required: result relpaths.
+      </td>
+    </tr>
+    <tr>
+      <td><a href="names.html"><code>names</code></a></td>
+      <td><span class="pill warn">experimental</span></td>
+      <td>a query, composite query or read-only update that takes no arguments (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_MODE</span></span>, <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_SHAPE</span></span>)</td>
+      <td>
+        <code>set</code>, required: the set's name, declared once (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_SET_DUPLICATE</span></span>).<br>
+        <code>items</code>, required: a result relpath to a <code>vec</code> of records.<br>
+        <code>name</code>, required: a path inside one item, of type <code>text</code> (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_NAMES_FIELD</span></span>).<br>
+        <code>value</code>, required; <code>show</code>, <code>kind</code>, optional: paths inside one item.
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 id="defaults-and-bounds">Defaults and bounds<a class="heading-anchor" href="#defaults-and-bounds" aria-label="Link to Defaults and bounds">#</a></h3>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Rule</th><th>Spec</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Without an <code>effect</code> tag, a query or composite query is <span class="effect read">read</span>; an update is <span class="effect write">write</span> with <code>irreversible: true</code>. The resolved form records these with <code>"origin": "default"</code>.</td>
+      <td>§5.3</td>
+    </tr>
+    <tr>
+      <td>A query declared as anything but <code>read</code> is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EFFECT_MODE</span></span>; a <code>read</code> on an update or oneway method is <span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_EFFECT_MODE</span></span>, except the read-only update form.</td>
+      <td>§5.3</td>
+    </tr>
+    <tr>
+      <td>A method's effect bounds its cases': when a case effect is <code>transfer</code>, <code>approve</code>, <code>admin</code> or <code>destroy</code>, the method's effect is one of these four, and when a case effect is irreversible, so is the method's (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CASE_EFFECT</span></span>).</td>
+      <td>§5.3, D-053</td>
+    </tr>
+    <tr>
+      <td>A result case with no class falls back to <code>default</code> (<span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_OUTCOME_UNCLASSIFIED</span></span> at info level), and is a warning when there is no default. Consumers treat a case with no class and no default as <span class="outcome fail"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>fail</span>.</td>
+      <td>§5.3</td>
+    </tr>
+    <tr>
+      <td><code>classes</code> may be left out when the result has no variant to select; <code>default</code> is then required and classes every reply.</td>
+      <td>§5.3, D-049</td>
+    </tr>
+    <tr>
+      <td>Overlapping <code>outcome</code> keys: the most specific (longest path) wins.</td>
+      <td>§5.3</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 id="what-a-call-grants">What a call grants<a class="heading-anchor" href="#what-a-call-grants" aria-label="Link to What a call grants">#</a></h3>
+
+<p>
+  Spec §5.3, D-056. An <code>effect</code> of kind <span class="effect transfer">transfer</span> or <span class="effect approve">approve</span> may carry
+  <code>grant</code>: who may take tokens because of the call or the signature, which token, how many and until when,
+  so that a consumer can compare a request with terms the person confirmed (<a href="confirmed-terms.html">Confirm
+  terms for a task</a>). Its values are relpaths into the method's arguments, written as an intent template's
+  placeholders are (§6). From the ICRC-2 pack:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">icrc2_approve</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">effect</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">kind</span>: <span class="v">&quot;approve&quot;</span></li><li><span class="k">irreversible</span>: <span class="v">false</span></li><li><span class="k">grant</span>: <span class="v">{ &quot;spender&quot;: &quot;spender&quot;, &quot;amount&quot;: &quot;amount&quot;, &quot;ends&quot;: [&quot;expires_at&quot;] }</span></li></ul></dd></dl></figure>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Key</th><th>Required</th><th>The position it names</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>spender</code> or <code>to</code></td>
+      <td>exactly one</td>
+      <td>Who may take the tokens. <code>spender</code> is for an allowance, or for a signature someone else submits; <code>to</code> is for a transfer that pays them directly. An <code>approve</code>'s grant names a <code>spender</code>. The position is an <code>address</code> (EVM, §15) or carries an <code>account</code> tag.</td>
+    </tr>
+    <tr>
+      <td><code>amount</code></td>
+      <td>yes</td>
+      <td>A position with an <code>amount</code> tag, of an unsigned type, where a value at or above the tag's <code>threshold</code> means unlimited; or a <code>bool</code>, where <code>true</code> is unlimited and <code>false</code> grants nothing (DAI's permit, §15.9).</td>
+    </tr>
+    <tr>
+      <td><code>ends</code></td>
+      <td>no</td>
+      <td>One to eight positions with a <code>timestamp</code> tag. The grant ends at the latest of them, and one at or above its tag's <code>threshold</code>, or an optional one left out, means it never ends. With no <code>ends</code>, an <code>approve</code> never ends and a <code>transfer</code> ends when it is made.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><code>spender</code>, <code>to</code> and <code>amount</code> are in every call: neither optional nor inside a case of a variant, and no position of a grant is inside one.</li>
+  <li>No position steps into <code>[]</code>: a grant covers one token, so a request that grants several (Permit2's <code>PermitBatch</code>) has none in v0.</li>
+  <li>The token is the one the <code>amount</code> tag names (<code>token</code>, §15.9), else the contract or canister the call is for.</li>
+  <li>A deadline that bounds only when a signature may be used is not an end of what it grants: EIP-2612's <code>deadline</code> and DAI's <code>expiry</code> set allowances that never end, so neither is in <code>ends</code>.</li>
+  <li>The <code>amount</code>, <code>timestamp</code> and <code>account</code> tags a grant needs may come from another profile of the merge: the resolver checks the grant against the merged tags.</li>
+</ul>
+
+<p>
+  A grant on another kind, on a case effect (§5.2), or whose positions break these rules is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_GRANT</span></span>. A
+  pack applied to a service where its grant does not hold keeps its effect and loses the grant
+  (<span class="diag info" title="info"><span class="sev">I</span><span class="code">I_PACK_ANNOTATION_SKIPPED</span></span>): dropping the effect would leave a transfer or approve with the default
+  effect. A grant is the author's claim, like any effect (§11.1). The grants the standard packs carry are on
+  <a href="reference-packs.html#what-the-packs-grant">Standard packs</a>.
+</p>
+
+<h2 id="tags-on-an-evm-contract">Tags on an EVM contract<a class="heading-anchor" href="#tags-on-an-evm-contract" aria-label="Link to Tags on an EVM contract">#</a></h2>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Experimental</span>
+  <p>
+    EVM support is spec §15, phase 1 and the first part of phase 2: profiles, consent text for calldata and for EIP-712
+    signing requests, and ERC-7730 export. Agent tools, outcome classes over reverts and idempotency by nonce are later
+    phases. See <a href="chain-evm.html">EVM contracts</a>.
+  </p>
+</div></div>
+
+<p>An ABI is read as the graph a <code>.did</code> compiles to, so the same tags apply, with these types (spec §15.4):</p>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Tag</th><th>On an EVM contract</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="value-tags.html"><code>amount</code></a></td>
+      <td><code>uint8</code>…<code>uint256</code>, <code>int8</code>…<code>int256</code>. <code>query:</code> refs are <code>eth_call</code>s of a <code>view</code> or <code>pure</code> function of the same contract with no argument and one result. <code>token</code> names the token by an <code>address</code> field instead (§15.9).</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>timestamp</code></a>, <a href="value-tags.html"><code>duration</code></a></td>
+      <td><code>uint32</code>…<code>uint256</code>, <code>int64</code>…<code>int256</code>. <code>timestamp</code> words (§5.3) are for EVM deadlines first.</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>bytes</code></a></td>
+      <td><code>bytes</code>, <code>bytes1</code>…<code>bytes32</code></td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>text</code></a></td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>range</code></a></td>
+      <td>an integer type, <code>string</code>, an array</td>
+    </tr>
+    <tr>
+      <td><a href="value-tags.html"><code>describe</code></a>, <a href="value-tags.html"><code>default</code></a>, <a href="value-tags.html"><code>ui</code></a>, <a href="intent-and-effects.html"><code>intent</code></a>, <a href="intent-and-effects.html"><code>effect</code></a></td>
+      <td>as on a canister. A template has no <code>[ ]</code> segments (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TEMPLATE</span></span>): an ABI value is never absent. <code>effect</code> defaults as in §5.3; a grant's <code>spender</code> or <code>to</code> is an <code>address</code>.</td>
+    </tr>
+    <tr>
+      <td><code>account</code>, <code>subaccount</code></td>
+      <td>none (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_NOT_APPLICABLE</span></span>): an address needs no tag; it is shown with its EIP-55 checksum.</td>
+    </tr>
+    <tr>
+      <td><a href="#a-pin-fixed"><code>fixed</code></a></td>
+      <td><code>address</code>, in the arguments of a function or a message, in a tuple or in every element of an array (<a href="#a-pin-fixed">below</a>).</td>
+    </tr>
+    <tr>
+      <td><code>idempotency</code>, <code>outcome</code>, <code>list</code>, <code>names</code>, <code>named</code></td>
+      <td>not yet (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>): they need nonces, receipts and reads that a later phase adds.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  The native value a <code>payable</code> function receives has no position yet (<span class="claim open">open</span> O2, on
+  <a href="open-questions.html">Open questions</a>).
+</p>
+
+<h3 id="a-pin-fixed">A pin: <code>fixed</code><a class="heading-anchor" href="#a-pin-fixed" aria-label="Link to A pin: fixed">#</a></h3>
+
+<p>
+  <span class="pill warn">experimental</span> Spec §15.4, D-058. <code>fixed</code> says that the profile describes the
+  call or the message only with one address at a position, its <code>value</code>. x402's Permit2 payment needs it:
+  Permit2 lets the spender choose where the tokens go, and only the code of x402's proxy sends them to the payee the
+  message names, so its words hold only when the spender is that proxy. From
+  <a href="reference-packs.html#x402-exact-permit2"><code>x402-exact-permit2</code></a>:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitWitnessTransferFrom(0).spender</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">fixed</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">value</span>: <span class="v">&quot;0x402085c248EeA27D92E8b30b2C58ed07f9E20001&quot;</span></li></ul></dd></dl></figure>
+
+<ul>
+  <li>It sits on an <code>address</code> in the arguments of a function or a message, in a tuple or in every element of an array. In a result or at a <code>type:</code> address it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>; on another type, or on a Candid service, whose positions hold no EVM address, it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_NOT_APPLICABLE</span></span>. Its <code>value</code> in mixed case must match its checksum (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ADDRESS_CHECKSUM</span></span>).</li>
+  <li>A consumer refuses a call or a signing request whose value at a pinned position is another address, before it shows any text: <code>evmConsent</code> and <code>eip712Consent</code> throw <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_FIXED</span></span>. Addresses are compared by their 20 bytes, so their case does not matter.</li>
+  <li><strong>A pin that does not hold takes the profile's words with it.</strong> The words were written for the pinned value, so a profile with a pin that is refused (any error above, an address that does not resolve, or a conflict) supplies only its <code>effect</code> tags, without their <code>grant</code>, and its pins that hold. Its other tags are left out of the resolved form, which is still written beside the errors. The call or the request then needs the person's confirmation, and no terms can pass it. A pin's error is never dropped as <span class="diag info" title="info"><span class="sev">I</span><span class="code">I_PACK_ANNOTATION_SKIPPED</span></span>.</li>
+  <li><strong>Pins do not give way to precedence.</strong> One position holds at most one pinned value across all the profiles of a service. A second, different value is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CONFLICT</span></span> at the profile of lower precedence (in one layer, the one given later), which loses its words as above; a profile that pins one position to two values loses its own. Equal pins are one pin.</li>
+  <li>The resolved form carries the tag, and the ERC-7730 export writes it as <code>visible: { "mustMatch": [value] }</code> on its field, so a wallet hides the field and refuses any other value (§15.7).</li>
+</ul>
+
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">A pin protects only the consumers that read it</span>
+  <p>
+    A consumer that skips <code>fixed</code> shows x402's words, and reads its grant, for any spender, and terms for one
+    payee would then pass a payment that another spender can send anywhere. A resolved form that holds a pin must not
+    be given to a consumer that does not read <code>fixed</code>: <code>@meantjs/consent</code> reads it from 0.5.0, and
+    an older one skips the tag (spec §11 item 11). <span class="claim open">open</span> OQ-17: the resolved form does not say which tags
+    a consumer must understand, so an older consumer cannot tell that it should refuse.
+  </p>
+</div></div>
+
+<h2 id="tags-on-eip-712-messages">Tags on EIP-712 messages<a class="heading-anchor" href="#tags-on-eip-712-messages" aria-label="Link to Tags on EIP-712 messages">#</a></h2>
+
+<p>
+  <span class="pill warn">experimental</span> Spec §15.9, D-055. A contract profile or an EVM pack may bind EIP-712
+  struct types in <code>binds.eip712.types</code> (<a href="reference-profile-format.html">Profile and resolved
+  form</a>). A <strong>message</strong> is a type the same document tags with <code>intent</code> at its bare name; its
+  struct is argument 0, as a function's parameters are, so its members are addressed like a function's:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitSingle</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">intent</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">title</span>: <span class="v">&quot;Permit2: allow token spending&quot;</span></li><li><span class="k">template</span>: <span class="v">&quot;Let {spender} spend up to {details.amount}. Allowance expires: {details.expiration}. Signature expires: {sigDeadline}.&quot;</span></li></ul></dd></dl></figure>
+
+<div class="table-wrap"><table>
+  <thead>
+    <tr><th>Tag</th><th>On an EIP-712 message</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>intent</code></a></td>
+      <td>At the type's bare name (<code>PermitSingle</code>): this is what makes the type a message. A type without an intent is a type only, and an address that names it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ADDR_UNRESOLVED</span></span>; its members are reached through a message that contains it (<code>PermitSingle(0).details.amount</code>).</td>
+    </tr>
+    <tr>
+      <td><a href="intent-and-effects.html"><code>effect</code></a></td>
+      <td>A signature runs nothing when it is signed, so <code>effect</code> says what it allows, of any kind: <span class="effect approve">approve</span> for an allowance, <span class="effect transfer">transfer</span> for a one-time transfer. Default <span class="effect write">write</span>, irreversible. <code>replicated</code> does not apply (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EFFECT_MODE</span></span>). Its <code>grant</code> names the struct's members, as its template does (<a href="#a-message-s-grant">below</a>).</td>
+    </tr>
+    <tr>
+      <td>every other tag</td>
+      <td>As on an EVM contract, in the table above (§15.4), at the message's member addresses: the value tags and <code>describe</code> apply, and the tags not yet defined for EVM are refused the same way. <code>amount.token</code> names the token a member holds (<code>"token": "details.token"</code>).</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  A message may not share its name with a function, and two profiles may not give one type name different members (the
+  later profile is invalid): each is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_EIP712</span></span>. A signing request matches a message by its type hash, never
+  by its name: DAI's <code>Permit</code> and EIP-2612's share a name and not a hash. The standard messages are on
+  <a href="reference-packs.html">Standard packs</a>.
+</p>
+
+<h3 id="a-message-s-grant">A message's grant<a class="heading-anchor" href="#a-message-s-grant" aria-label="Link to A message's grant">#</a></h3>
+
+<p>
+  Spec §15.9, D-056. A message's grant names its positions as its template does, from the struct. Permit2's
+  <code>PermitSingle</code>:
+</p>
+
+<figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitSingle</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">effect</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">kind</span>: <span class="v">&quot;approve&quot;</span></li><li><span class="k">irreversible</span>: <span class="v">false</span></li><li><span class="k">grant</span>: <span class="v">{ &quot;spender&quot;: &quot;spender&quot;, &quot;amount&quot;: &quot;details.amount&quot;, &quot;ends&quot;: [&quot;details.expiration&quot;, &quot;sigDeadline&quot;] }</span></li></ul></dd></dl></figure>
+
+<p>
+  <span class="claim fact">fact</span> (Uniswap <code>permit2</code> at <code>main</code>, read 2026-10-30,
+  <code>src/libraries/Allowance.sol</code>, as spec §15.9 records) An expiration of 0 is stored as the time of the block
+  the permit is used in, and that block may come as late as <code>sigDeadline</code>; the latest of the two is the end,
+  so 0 needs no rule of its own. The token is the one <code>amount.token</code> names
+  (<code>details.token</code>), not the verifying contract.
+</p>
+
+<h2 id="where-to-read-more">Where to read more<a class="heading-anchor" href="#where-to-read-more" aria-label="Link to Where to read more">#</a></h2>
+
+<div class="card-grid">
+  <a class="card" href="value-tags.html"><span class="card-title">Values and exact conversion</span><p>How each value tag parses input and displays output, without rounding.</p></a>
+  <a class="card" href="intent-and-effects.html"><span class="card-title">Intent, effects and confirmation</span><p>The line a person reads, and which calls need their confirmation.</p></a>
+  <a class="card" href="outcomes-and-retries.html"><span class="card-title">Outcomes and retries</span><p>Outcome classes, the idempotency stamp and the consumer's retry rules.</p></a>
+  <a class="card" href="names.html"><span class="card-title">Names</span><p>The <code>names</code> and <code>named</code> tags and the one matching rule.</p></a>
+  <a class="card" href="chain-evm.html"><span class="card-title">EVM contracts</span><p>The experimental binding: ABIs, calldata, EIP-712 messages and ERC-7730.</p></a>
+  <a class="card" href="reference-profile-diagnostics.html"><span class="card-title">Profile diagnostics</span><p>Every code a misplaced or misapplied tag produces.</p></a>
+</div>
+
+      <nav class="page-nav" aria-label="Page navigation"><a class="prev" href="generator.html"><span class="dir">Previous</span><span class="label">The code generator</span></a><a class="next" href="reference-profile-diagnostics.html"><span class="dir">Next</span><span class="label">Profile diagnostics</span></a></nav>
+      <p class="edit-link"><a href="https://github.com/B3Pay/Meant/blob/main/website/content/reference-tags.html">Edit this page on GitHub</a></p>
+    </div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc-h2"><a href="#value-tags">Value tags</a></li><li class="toc-h3"><a href="#dynamic-values">Dynamic values</a></li><li class="toc-h3"><a href="#words-for-extreme-values">Words for extreme values</a></li><li class="toc-h3"><a href="#an-amount-in-the-token-a-field-names">An amount in the token a field names</a></li><li class="toc-h2"><a href="#method-tags">Method tags</a></li><li class="toc-h3"><a href="#defaults-and-bounds">Defaults and bounds</a></li><li class="toc-h3"><a href="#what-a-call-grants">What a call grants</a></li><li class="toc-h2"><a href="#tags-on-an-evm-contract">Tags on an EVM contract</a></li><li class="toc-h3"><a href="#a-pin-fixed">A pin: fixed</a></li><li class="toc-h2"><a href="#tags-on-eip-712-messages">Tags on EIP-712 messages</a></li><li class="toc-h3"><a href="#a-message-s-grant">A message's grant</a></li><li class="toc-h2"><a href="#where-to-read-more">Where to read more</a></li></ul></nav>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img class="on-dark" src="assets/meant-mark-dark.svg" alt="" width="20" height="20"><img class="on-light" src="assets/meant-mark-light.svg" alt="" width="20" height="20">
+    <span>Meant, by B3Pay. Apache-2.0.</span>
+    <span class="sep"></span>
+    <a href="https://b3pay.net/docs/">All docs</a>
+    <a href="https://github.com/B3Pay/Meant">Repository</a>
+    <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
+    <a href="https://crates.io/crates/meant">crates.io</a>
+    <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
+    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
+  </div>
+</footer>
+
+<dialog class="search-dialog" id="search-dialog" aria-label="Search the documentation">
+  <div class="search-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search-input" type="search" placeholder="Search the documentation…" autocomplete="off" spellcheck="false"></div>
+  <ul id="search-results"></ul>
+</dialog>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
