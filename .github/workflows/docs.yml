@@ -1,11 +1,14 @@
 # The documentation site (website/).
 #
-# The site is published at https://ic-reactor.b3pay.net/candid-core/, beside
-# ic-reactor's docs: B3Pay/ic-reactor's docs deploy checks out this
-# repository's main, runs `node website/build.mjs` and serves website/dist
-# there, daily and on its own deploys. It runs neither check.mjs nor an
-# install, so the build here runs before the install, and the pull-request
-# check below is what stands between a page and that site. The address is a
+# The site is published at https://b3pay.net/docs/meant/, beside the docs of
+# B3Pay's other products: b3pay-site.yml runs `node website/build.mjs` with
+# b3pay.net's tools and, on main, publishes what it writes there. The docs
+# deploy of B3Pay/ic-reactor still builds a copy at the address before it,
+# https://ic-reactor.b3pay.net/candid-core/: it checks out this repository's
+# main, runs `node website/build.mjs` and serves website/dist there, daily and
+# on its own deploys. Neither installs anything for the site or runs
+# check.mjs, so the build here runs before the install, and the pull-request
+# check below is what stands between a page and those sites. The address is a
 # subpath, not a domain root, and every asset and internal link the generator
 # emits is relative for that reason (check.mjs fails a root-absolute href,
 # src or srcset, in the sources and in the built pages).

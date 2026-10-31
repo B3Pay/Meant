@@ -2,17 +2,17 @@
   "title": "Meant",
   "description": "The meaning layer for contract calls: Candid interfaces compiled into a canonical, identity-addressed graph, and profiles that say what each value means and what each call does.",
   "repo": "https://github.com/B3Pay/Meant",
-  "url": "https://ic-reactor.b3pay.net/candid-core/",
+  "url": "https://b3pay.net/docs/meant/",
   "docs": {
-    "title": "All libraries",
-    "url": "https://ic-reactor.b3pay.net/v4/"
+    "title": "All docs",
+    "url": "https://b3pay.net/docs/"
   },
   "footer": {
     "note": "Meant, by B3Pay. Apache-2.0.",
     "links": [
       {
-        "label": "All libraries",
-        "href": "https://ic-reactor.b3pay.net/v4/"
+        "label": "All docs",
+        "href": "https://b3pay.net/docs/"
       },
       {
         "label": "Repository",

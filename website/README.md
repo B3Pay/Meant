@@ -48,6 +48,7 @@ website/
     meant-*.svg     the lockup (header), the mark (footer) and the two layer
                     icons, one file per ground
   snippets.mjs      the TypeScript snippet gates, run by check.mjs
+  b3pay-module.json how b3pay.net builds and lists the site (see Publishing)
   dist/             generated; not committed
   redirects/        generated; not committed
 ```
@@ -292,19 +293,31 @@ pages under Guides · Profiles, Concepts · Profiles and Reference · Profiles.
 
 ## Publishing
 
-The site is published at <https://ic-reactor.b3pay.net/candid-core/>, beside
-the docs of the libraries built on it. B3Pay/ic-reactor's docs deploy checks
-out this repository's `main`, runs `node website/build.mjs` on Node 24.18.0
-and serves `website/dist` there as it was built, every day and on each of its
-own deploys. It installs nothing and runs neither `check.mjs` nor the snippet
-gates, so the pull-request check here is what keeps a broken page off that
-site; its own link check crawls these pages too, and fails its daily run on a
-broken link. So what that repository relies on is this directory's own rules:
-`build.mjs` takes no dependency and writes `website/dist`, and every link and
-asset reference it emits is relative (`check.mjs` fails a root-absolute
-`href`, `src` or `srcset`, in the sources and in the built pages). A merge to
-`main` normally reaches that site at its next daily run; a run that fails
-leaves the site as it was until the failure is fixed.
+The site is published at <https://b3pay.net/docs/meant/>, beside the docs of
+B3Pay's other products, as `b3pay-module.json` here describes.
+`.github/workflows/b3pay-site.yml` calls b3pay.net's reusable workflow, pinned
+to a commit of B3Pay/b3pay.net, which runs `node website/build.mjs --out <dir>`
+in a checkout of this repository with nothing installed, checks what it wrote,
+and builds the whole of b3pay.net with it, links checked, so a page that would
+break that site fails here. On a pull request touching `website/**` that is
+all it does. A merge to `main` touching it also commits the built pages to
+this repository's `b3pay-site` branch, which b3pay.net serves, and asks
+b3pay.net to rebuild; without the `B3PAY_SITE_DEPLOY_HOOK` secret the pages go
+live with b3pay.net's next deploy. It never writes to B3Pay/b3pay.net.
+
+B3Pay/ic-reactor's docs deploy still builds a copy at the address before it,
+<https://ic-reactor.b3pay.net/candid-core/>: it checks out this repository's
+`main`, runs `node website/build.mjs` on Node 24.18.0 and serves `website/dist`
+there as it was built, every day and on each of its own deploys. Neither site
+installs anything for these pages or runs `check.mjs` or the snippet gates, so
+the pull-request check here is what keeps a broken page off them; their own
+link checks crawl these pages too. So what they rely on is this directory's own
+rules: `build.mjs` takes no dependency and writes `website/dist`, or the folder
+`--out` names, and every link and asset reference it emits is relative
+(`check.mjs` fails a root-absolute `href`, `src` or `srcset`, in the sources
+and in the built pages). A merge to `main` normally reaches
+ic-reactor.b3pay.net at its next daily run; a run that fails leaves that copy
+as it was until the failure is fixed.
 
 `.github/workflows/docs.yml` builds and checks the site, and publishes this
 repository's own Pages site. That was <https://b3hr4d.github.io/candid-core/>,
