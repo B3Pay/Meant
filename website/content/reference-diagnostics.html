@@ -446,19 +446,19 @@ match Contract::from_slice_with_context(document, &context) {
 
 <callout type="note" title="Upgrading from an earlier release">
   <p>
-    The TypeScript half of this page describes <code>@candid-core/schema</code> <code>0.5.0</code>, published on
-    2026-10-27 under the npm <code>latest</code> dist-tag. The previous stable releases, <code>0.4.0</code> and
+    The TypeScript half of this page describes <code>@meantjs/schema</code> <code>0.6.0</code>, published on
+    2026-11-01 under the npm <code>latest</code> dist-tag. The previous stable release, <code>@candid-core/schema</code> <code>0.5.0</code>, is the same code under the old name: a module on this page names <code>@candid-core/schema</code> there, its subpath keeps its own, and nothing else changes; <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means. The stable releases before that, <code>0.4.0</code> and
     <code>0.3.0</code>, differ in nothing this page describes; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> and
     <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> say what those upgrades mean.
     The stable release before those, <code>0.2.0</code>, has
     the old surface: its closed unions differ (no <code>stack</code> resource, and a contract code for
     <code>opt opt</code>), and a bad options object does not throw.
-    <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The Rust half is unchanged. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code>, with <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which is this package&rsquo;s code under a new name: an import on this page changes name, its subpath keeps its own, and nothing else changes. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The Rust half is unchanged. The old name&rsquo;s <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since.
   </p>
 </callout>
 
 <p>
-  <code>@candid-core/schema</code> reproduces the same serialized item shape on purpose. Its issue
+  <code>@meantjs/schema</code> reproduces the same serialized item shape on purpose. Its issue
   interfaces carry exactly <code>{ code, path, message, resource_limit? }</code>, its codes are stable
   snake_case strings, and its paths are <code>$</code>-rooted with <code>.name</code> for
   ASCII-identifier-shaped keys and <code>["…"]</code> or <code>[3]</code> otherwise — the same
@@ -551,15 +551,15 @@ export type ValidateResult =
   </thead>
   <tbody>
     <tr>
-      <td><code>@candid-core/schema/validate</code></td>
+      <td><code>@meantjs/schema/validate</code></td>
       <td><code>invalid_type</code>, <code>not_integer</code>, <code>out_of_range</code>, <code>missing_field</code>, <code>unexpected_field</code>, <code>unknown_tag</code>, <code>invalid_length</code>, <code>uninhabited_type</code>, <code>unsupported_schema</code>, <code>unreadable_value</code>, <code>resource_limit_exceeded</code></td>
     </tr>
     <tr>
-      <td><code>@candid-core/schema/codec</code></td>
+      <td><code>@meantjs/schema/codec</code></td>
       <td>all eleven above, produced by the encode walk, plus <code>duplicate_field_id</code>, <code>unrepresentable_float32</code>, <code>invalid_text</code>, <code>invalid_principal</code>, <code>invalid_magic</code>, <code>malformed_type_table</code>, <code>overlong_leb128</code>, <code>invalid_utf8</code>, <code>invalid_tag_byte</code>, <code>truncated</code>, <code>trailing_bytes</code>, <code>type_mismatch</code>, <code>unknown_variant_tag</code></td>
     </tr>
     <tr>
-      <td><code>@candid-core/schema/contract</code></td>
+      <td><code>@meantjs/schema/contract</code></td>
       <td><code>invalid_contract_document</code>, <code>unsupported_contract_format</code>, <code>unsupported_format_version</code>, <code>unsupported_semantics_profile</code>, <code>unsupported_canonicalization_profile</code>, <code>dangling_type_ref</code>, <code>unsupported_construct</code>, <code>duplicate_field_id</code>, <code>duplicate_field_name</code>, <code>empty_declaration_name</code>, <code>duplicate_declaration_name</code>, <code>unknown_key</code>, <code>orphan_type_node</code>, <code>rootless_type_arena</code>, <code>invalid_name_table</code>, <code>invalid_extension_name</code>, <code>resource_limit_exceeded</code></td>
     </tr>
   </tbody>
@@ -572,7 +572,7 @@ export type ValidateResult =
 </p>
 
 <pre data-lang="ts" data-check>
-import { validate } from "@candid-core/schema/validate";
+import { validate } from "@meantjs/schema/validate";
 import { Account } from "./ledger.ts";
 
 declare const incoming: unknown; // a value you were handed

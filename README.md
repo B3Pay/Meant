@@ -3,12 +3,11 @@
 > **Renamed.** The Rust crate formerly published as `candid-core` is now
 > [`meant`](https://crates.io/crates/meant): `use candid_core::…` becomes
 > `use meant::…`, and the `candid-core` binary becomes `meant`. The npm pair
-> follows ([issue #306](https://github.com/B3Pay/Meant/issues/306)):
-> `@candid-core/schema` and `@candid-core/cli` become `@meantjs/schema` 0.6.0
-> and `@meantjs/cli` 0.5.0, whose command is `meant`. That pair is prepared
-> in this repository and not yet published, so the install lines
-> [below](#typescript-candid-coreschema) still name the published one. The
-> Contract format and its `candid-core:` identity prefixes are as before.
+> followed on 2026-11-01 ([issue #306](https://github.com/B3Pay/Meant/issues/306)):
+> `@candid-core/schema` and `@candid-core/cli` became `@meantjs/schema` 0.6.0
+> and `@meantjs/cli` 0.5.0, whose command is `meant`
+> ([below](#typescript-meantjsschema)). The Contract format and its
+> `candid-core:` identity prefixes are as before.
 
 > **Pre-1.0: the Rust crate.** `meant` `0.1.0` is `candid-core` `0.1.0`
 > under its new name; that was the crate's first version without a prerelease
@@ -18,7 +17,7 @@
 > See the [changelog](CHANGELOG.md) for the release's scope and
 > [known limitations](CHANGELOG.md#known-limitations), and
 > [docs/releasing.md](docs/releasing.md) for the release procedure. The npm
-> packages [below](#typescript-candid-coreschema) version independently: their
+> packages [below](#typescript-meantjsschema) version independently: their
 > current releases are under npm's `latest` dist-tag and are not prereleases,
 > though they are pre-1.0 too.
 
@@ -35,23 +34,16 @@ Those three are not one family. `contract_id` and `interface_id` are **semantic 
 
 See [architecture](docs/architecture.md) and the [Contract graph](docs/contract-graph.md) for the v1 model, constraints, and the explicitly deferred host-value ↔ Candid binary bridge. The byte-level algorithm for the three canonicalized identities is specified normatively in [canonicalization v1](docs/canonicalization-v1.md), and the detached artifact identity in [artifact identity v1](docs/artifact-identity-v1.md). See [release verification gates](docs/verification.md) for the checks required before declaring the format stable across implementations. See [performance benchmarks](docs/benchmarks.md) for reproducible comparisons with the pinned official Candid checker and for allocation measurements. See the [changelog](CHANGELOG.md) for what this release contains and what it does not, and [releasing](docs/releasing.md) for the exact release-candidate procedure and what is irreversible about publishing.
 
-## TypeScript: `@candid-core/schema`
+## TypeScript: `@meantjs/schema`
 
-This repository also produces a TypeScript package, published on npm as [`@candid-core/schema`](https://www.npmjs.com/package/@candid-core/schema): a Zod-style schema runtime driven by the same canonical Contract model — builders with static inference, fail-closed structural validation, a TypeScript-native Candid binary codec, and a loader that builds the same schemas from a Contract document at runtime.
+This repository also produces a TypeScript package, published on npm as [`@meantjs/schema`](https://www.npmjs.com/package/@meantjs/schema): a Zod-style schema runtime driven by the same canonical Contract model — builders with static inference, fail-closed structural validation, a TypeScript-native Candid binary codec, and a loader that builds the same schemas from a Contract document at runtime.
 
 ```sh
-npm install --save-exact @candid-core/schema
-npm install --save-dev --save-exact @candid-core/cli   # .did to TypeScript, no Rust toolchain
+npm install --save-exact @meantjs/schema
+npm install --save-dev --save-exact @meantjs/cli   # .did to TypeScript, no Rust toolchain
 ```
 
-**Prepared, not yet published:** the next pair takes the Meant name.
-`@meantjs/schema` 0.6.0 is `@candid-core/schema` 0.5.0's code under the new
-name, and `@meantjs/cli` 0.5.0 is `@candid-core/cli` 0.4.0's, whose command
-becomes `meant` and whose modules import `@meantjs/schema`. Until both are on
-npm, the lines above install the published pair; the two changelogs record
-the upgrade under `0.6.0` and `0.5.0`.
-
-Its source of truth, README, and changelog live in [crates/candid-core-ts/ts/](crates/candid-core-ts/ts/), and it versions independently of this crate (pre-1.0, like everything here). The package is the Candid layer only: it has no runtime dependencies and no peers, and calling a canister belongs to the layer built on top of it. The npm `latest` dist-tag holds `0.5.0`, published on 2026-10-27 with `@candid-core/cli` `0.4.0`, which peers it exactly. Against the previous stable pair, `@candid-core/schema` `0.4.0` and `@candid-core/cli` `0.3.0` (published on 2026-10-10), they type `decode` and `decodeArgs` by their schemas, add the CLI's `didToDocAttributes` and the `identities` of `gen --json`, render a declared `blob`, `record {}` or `variant {}` as itself in generated modules, and embed `meant` 0.1.0, whose envelopes name `meant` as their producer (recorded under `0.5.0` and `0.4.0` in the two changelogs, and on the [migration page from 0.4.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-4.html)). The stable pair before those, `@candid-core/schema` `0.3.0` and `@candid-core/cli` `0.2.0` (published on 2026-10-06), lacks `WithMode` and `ModeOf`, generated modules that declare each type under its Candid name and each `Actor` method with its mode, and the CLI's `project` and `check` commands (recorded under `0.4.0` and `0.3.0` in the two changelogs, and on the [migration page from 0.3.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-3.html)). The `beta` dist-tag still names the earlier `0.3.0-beta.1` and `0.2.0-beta.1`, which lack the changes recorded under `0.3.0` and `0.2.0` and every stable release since. The stable release before the 0.3 line, `0.2.0`, still ships `./actor`, `./transport-icp` (with an optional `@icp-sdk/core` peer), `./forms`, and `./labels`, among other differences listed under `0.3.0` and `0.3.0-beta.1` in [its changelog](crates/candid-core-ts/ts/CHANGELOG.md) and on the [migration page](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-2.html). The `meant` binary above is what turns a `.did` file into the Contract JSON that package's `schemaFromContract` consumes; the generator crate around it, `candid-core-ts`, is unpublishable by design. A second npm package, [`@candid-core/cli`](https://www.npmjs.com/package/@candid-core/cli) ([crates/candid-core-wasm/npm/](crates/candid-core-wasm/npm/)), compiles that same pipeline to WebAssembly so a JavaScript-only consumer gets `.did` → generated module + contract envelope with no Rust toolchain — byte-identical to the native outputs, asserted by the `wasm CLI` workflow.
+Its source of truth, README, and changelog live in [crates/candid-core-ts/ts/](crates/candid-core-ts/ts/), and it versions independently of this crate (pre-1.0, like everything here). The package is the Candid layer only: it has no runtime dependencies and no peers, and calling a canister belongs to the layer built on top of it. The npm `latest` dist-tag holds `0.6.0`, published on 2026-11-01 with `@meantjs/cli` `0.5.0`, which peers it exactly. Until then the pair was published as `@candid-core/schema` and `@candid-core/cli`: `0.6.0` and `0.5.0` are `@candid-core/schema` `0.5.0` and `@candid-core/cli` `0.4.0`'s code (published on 2026-10-27) under the new names, the CLI's command becomes `meant`, and its modules import `@meantjs/schema` (recorded under `0.6.0` and `0.5.0` in the two changelogs, and on the [migration page from 0.5.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-5.html)). Against the stable pair before those, `@candid-core/schema` `0.4.0` and `@candid-core/cli` `0.3.0` (published on 2026-10-10), the 0.5 / 0.4 pair types `decode` and `decodeArgs` by their schemas, adds the CLI's `didToDocAttributes` and the `identities` of `gen --json`, renders a declared `blob`, `record {}` or `variant {}` as itself in generated modules, and embeds `meant` 0.1.0, whose envelopes name `meant` as their producer (recorded under `0.5.0` and `0.4.0` in the two changelogs, and on the [migration page from 0.4.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-4.html)). The stable pair before those, `@candid-core/schema` `0.3.0` and `@candid-core/cli` `0.2.0` (published on 2026-10-06), lacks `WithMode` and `ModeOf`, generated modules that declare each type under its Candid name and each `Actor` method with its mode, and the CLI's `project` and `check` commands (recorded under `0.4.0` and `0.3.0` in the two changelogs, and on the [migration page from 0.3.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-3.html)). The old names' `beta` dist-tag still names the earlier `0.3.0-beta.1` and `0.2.0-beta.1`, which lack the changes recorded under `0.3.0` and `0.2.0` and every stable release since. The stable release before the 0.3 line, `0.2.0`, still ships `./actor`, `./transport-icp` (with an optional `@icp-sdk/core` peer), `./forms`, and `./labels`, among other differences listed under `0.3.0` and `0.3.0-beta.1` in [its changelog](crates/candid-core-ts/ts/CHANGELOG.md) and on the [migration page](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-2.html). The `meant` binary above is what turns a `.did` file into the Contract JSON that package's `schemaFromContract` consumes; the generator crate around it, `candid-core-ts`, is unpublishable by design. A second npm package, [`@meantjs/cli`](https://www.npmjs.com/package/@meantjs/cli) ([crates/candid-core-wasm/npm/](crates/candid-core-wasm/npm/)), compiles that same pipeline to WebAssembly so a JavaScript-only consumer gets `.did` → generated module + contract envelope with no Rust toolchain — byte-identical to the native outputs, asserted by the `wasm CLI` workflow.
 
 ## What each identity claims
 

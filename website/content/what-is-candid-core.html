@@ -1,7 +1,7 @@
 <p>
   Meant has two layers, and this page is about the first one, the interface layer: the Rust crate
-  <code>meant</code>, the npm packages <code>@candid-core/schema</code> and
-  <code>@candid-core/cli</code>, and the <strong>Contract</strong> they share. It settles what a
+  <code>meant</code>, the npm packages <code>@meantjs/schema</code> and
+  <code>@meantjs/cli</code>, and the <strong>Contract</strong> they share. It settles what a
   call's values <em>are</em> — their Candid types, checked once and named by a hash.
 </p>
 
@@ -423,7 +423,7 @@ export { $Odd as Odd };
 <ul>
   <li>
     <strong>You want a drop-in replacement for the agent-js runtime.</strong> It is not one.
-    <code>@candid-core/schema</code> deliberately produces modern domain shapes —
+    <code>@meantjs/schema</code> deliberately produces modern domain shapes —
     <code>opt T</code> is <code>T | null</code>, variants are <code>{ tag, value }</code>
     unions, every <code>vec nat8</code> (<code>blob</code>) is <code>Uint8Array</code>, <code>nat</code> /
     <code>int</code> and the 64-bit integers are <code>bigint</code> — not the
@@ -462,23 +462,22 @@ meant = "=0.1.0"
 
 <p>
   The npm packages version independently of the crate and install normally from
-  <code>latest</code>: <code>@candid-core/schema</code>
-  for the runtime, and <a href="cli-npm.html"><code>@candid-core/cli</code></a> for <code>.did</code>
-  to TypeScript with no Rust toolchain at all. <code>latest</code> holds <code>0.5.0</code> and
-  <code>0.4.0</code>, published on 2026-10-27, which is the release this site describes: its
+  <code>latest</code>: <code>@meantjs/schema</code>
+  for the runtime, and <a href="cli-npm.html"><code>@meantjs/cli</code></a> for <code>.did</code>
+  to TypeScript with no Rust toolchain at all. <code>latest</code> holds <code>0.6.0</code> and
+  <code>0.5.0</code>, published on 2026-11-01, which is the release this site describes: its
   generated modules (such as the one above) declare each type under its Candid name, as CLI
   <code>0.3.0</code>'s did, where <code>0.2.0</code> writes <code>type $Even = …</code>.
-  The repository is prepared as their next release under new names, <code>@meantjs/schema</code>
-  <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published: the same
-  code, a CLI command named <code>meant</code>, and modules that open with the header and the
-  import the one above shows, where <code>0.4.0</code>'s header names <code>candid-core-ts</code>
-  and its import <code>@candid-core/schema</code>
+  The release before it, <code>@candid-core/schema</code> <code>0.5.0</code> and
+  <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27, is the same code under
+  the old names: its command is <code>candid-core-cli</code>, and its modules open with a header that
+  names <code>candid-core-ts</code> and an import of <code>@candid-core/schema</code>
   (<a href="migrating-from-0-5.html">Migrating from 0.5.0</a>).
 </p>
 
 <pre data-lang="bash">
-npm install --save-exact @candid-core/schema
-npm install --save-dev --save-exact @candid-core/cli
+npm install --save-exact @meantjs/schema
+npm install --save-dev --save-exact @meantjs/cli
 </pre>
 
 <p>

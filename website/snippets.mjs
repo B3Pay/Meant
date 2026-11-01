@@ -10,12 +10,12 @@
  * The five profile packages under the same scope resolve to their hand-written
  * `.d.mts` under profile/packages, again exactly the subpaths each one exports.
  *
- * Until the new names are published, the pages teach the published ones,
- * `@candid-core/schema` and `@candid-core/cli`, and those resolve to the same
- * files: `@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0 are `@candid-core/schema`
- * 0.5.0 and `@candid-core/cli` 0.4.0's code under new names, which their
- * release notes measure (issue #306). The publish-day change moves the pages to
- * the new names and drops the old ones from PAIR_NAMES below.
+ * The pair was published as `@candid-core/schema` and `@candid-core/cli`
+ * through 0.5.0 and 0.4.0. The pages moved to the new names when
+ * `@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0, the same code, were
+ * published on 2026-11-01 (issue #306), and the old names left PAIR_NAMES
+ * below, so a block that imports one no longer resolves. A later rename adds
+ * its old names back there for the days its new ones are prepared.
  *
  * Every `<pre>` whose language is ts or js is in exactly one of four classes,
  * and a block in none of them fails the gate, so an unverified snippet cannot
@@ -175,10 +175,9 @@ function profileExports(root) {
   return paths;
 }
 
-/* The names the pair resolves under, the new one first; see the header. */
+/* The names the pair resolves under; see the header. */
 const PAIR_NAMES = [
   { schema: "@meantjs/schema", cli: "@meantjs/cli" },
-  { schema: "@candid-core/schema", cli: "@candid-core/cli" },
 ];
 
 function pairExports(root, cli) {

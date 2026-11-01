@@ -5,7 +5,7 @@ code generation — you describe the interface once with the builder API, and
 TypeScript infers the rest. The two sections after them show how to stop
 hand-writing the description, and those routes do involve the Rust crate.</p>
 
-<p>The package is <a href="https://www.npmjs.com/package/@candid-core/schema"><code>@candid-core/schema</code></a>.
+<p>The package is <a href="https://www.npmjs.com/package/@meantjs/schema"><code>@meantjs/schema</code></a>.
 It is a schema runtime for Candid in the shape
 Zod made familiar: a builder object called <code>c</code>, one combinator per
 Candid type, and a type-level <code>Infer</code> that reads the domain type
@@ -13,19 +13,20 @@ back out of a schema. It has no runtime dependencies and no peers, so the
 install below pulls in nothing else.</p>
 
 <callout type="note" title="Upgrading from an earlier release">
-  <p>This guide describes <code>@candid-core/schema</code> <code>0.5.0</code> and
-  <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27 under the npm <code>latest</code> dist-tag, which is what the install and <code>npx</code> lines below
-  select. The previous stable releases, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, type a decoded value as <code>unknown</code>, so the annotation in the codec step below needs <code>as Account</code> there; nothing else this guide does differs, and <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+  <p>This guide describes <code>@meantjs/schema</code> <code>0.6.0</code> and
+  <code>@meantjs/cli</code> <code>0.5.0</code>, published on 2026-11-01 under the npm <code>latest</code> dist-tag, which is what the install and <code>npx</code> lines below
+  select. The previous stable releases, <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, are the same code under the old names: their install lines and imports name <code>@candid-core/schema</code> and <code>@candid-core/cli</code>, the CLI&rsquo;s command is <code>candid-core-cli</code>, and the modules it generates open with the old header and import <code>@candid-core/schema</code>; nothing else this guide does differs, and <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+  The stable releases before those, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, also type a decoded value as <code>unknown</code>, so the annotation in the codec step below needs <code>as Account</code> there. <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means.
   The stable releases before those, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, also lack method modes on the generated <code>Actor</code> (<code>WithMode</code>, <code>ModeOf</code>), plain type names in generated modules, and the CLI's <code>project</code> and <code>check</code>. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
   The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface: a principal is an object with <code>toText()</code>,
   there is no <code>principal()</code> function, and the generated modules use the old layout. What
   changes, with before and after code, is on <a href="migrating-from-0-2.html">Migrating from 0.2.0</a>, and each change is recorded in the package
-  changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which are this pair&rsquo;s code under new names. Once they are published, this guide is the same with those names in its install lines and imports and <code>meant</code> as the CLI&rsquo;s command, and the modules the CLI generates open with a new header and import <code>@meantjs/schema</code>. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+  changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The old names&rsquo; <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since.
   </p>
 </callout>
 
 <callout type="note" title="Pre-1.0, on purpose">
-  <p><code>@candid-core/schema</code> is below 1.0 and versions independently of
+  <p><code>@meantjs/schema</code> is below 1.0 and versions independently of
   the Rust crate. The builder surface and the issue codes are the parts meant to
   be depended on; the serialized Contract format they are derived from is
   explicitly not a stable v1 yet. Pin an exact version and read the
@@ -37,7 +38,7 @@ install below pulls in nothing else.</p>
 <ol class="steps">
   <li>
     <h3>Install the package</h3>
-    <pre data-lang="bash">npm install --save-exact @candid-core/schema</pre>
+    <pre data-lang="bash">npm install --save-exact @meantjs/schema</pre>
     <p>That is the whole install. The package ships its own type declarations,
     so there is no <code>@types</code> package to add. It is ESM only — no
     CommonJS build ships — and it has no top-level <code>main</code> or
@@ -64,7 +65,7 @@ install below pulls in nothing else.</p>
     way the source nests.</p>
     <pre data-lang="candid" data-file="service.did">type Account = record { owner : principal; balance : nat };
 type TransferResult = variant { ok : nat; err : text; pending };</pre>
-    <pre data-lang="ts" data-check>import { c, type Infer } from "@candid-core/schema";
+    <pre data-lang="ts" data-check>import { c, type Infer } from "@meantjs/schema";
 
 const Account = c.record({ owner: c.principal, balance: c.nat });
 type Account = Infer<typeof Account>;
@@ -91,7 +92,7 @@ type TransferResult = Infer<typeof TransferResult>;
     <p>You do not have to take the comments on faith. Annotate the schema with
     the type you would have written by hand and let <code>tsc</code> check
     them against each other:</p>
-    <pre data-lang="ts" data-check="flow">import { c, type Principal, type Schema } from "@candid-core/schema";
+    <pre data-lang="ts" data-check="flow">import { c, type Principal, type Schema } from "@meantjs/schema";
 
 type Account = { owner: Principal; balance: bigint };
 
@@ -114,8 +115,8 @@ const Account: Schema<Account> = c.rec(() => c.record({ owner: c.principal, bala
     <code>{ ok: false, issues }</code>, and it never throws for any value you
     hand it — a getter that throws or a revoked <code>Proxy</code> comes back as
     an <code>unreadable_value</code> issue instead.</p>
-    <pre data-lang="ts" data-check="flow">import { principal } from "@candid-core/schema";
-import { validate } from "@candid-core/schema/validate";
+    <pre data-lang="ts" data-check="flow">import { principal } from "@meantjs/schema";
+import { validate } from "@meantjs/schema/validate";
 
 // The one way to make a Principal: canonical text, or an object with toText()
 // such as an SDK Principal. Non-canonical text such as "AAAAA-AA" throws a
@@ -192,7 +193,7 @@ export function decode<T>(
 ): { ok: true; value: Decoded<T> } | { ok: false; issues: readonly CodecIssue[] }</pre>
     <p><code>encodeArgs</code> and <code>decodeArgs</code> take one schema and one value per argument of
     a call, which is what a message really carries.</p>
-    <pre data-lang="ts" data-check="flow">import { decode, encode } from "@candid-core/schema/codec";
+    <pre data-lang="ts" data-check="flow">import { decode, encode } from "@meantjs/schema/codec";
 
 const encoded = encode(Account, { owner, balance: 5n });
 if (!encoded.ok) {
@@ -270,8 +271,8 @@ A semantic Contract stores field label <em>ids</em>, not text, so names have to
 travel beside it — and envelope extensions sit outside the canonical identities
 by design, so carrying them never moves a <code>contract_id</code>.</p>
 
-<pre data-lang="ts" data-check>import { readFileSync } from "node:fs";
-import { schemaFromContract } from "@candid-core/schema/contract";
+<pre data-lang="ts" data-file="crates/candid-core-ts/ts/README.md" data-check>import { readFileSync } from "node:fs";
+import { schemaFromContract } from "@meantjs/schema/contract";
 
 const built = schemaFromContract(JSON.parse(readFileSync("./service.json", "utf8")));
 if (!built.ok) {
@@ -290,15 +291,15 @@ at runtime</a> covers the options and the failure modes;
 <a href="cli-rust.html">the <code>meant</code> binary</a> covers the compile side.</p>
 
 <callout type="tip" title="The same compile step with no Rust toolchain">
-  <p>A second package, <code>@candid-core/cli</code>, compiles the same pipeline
+  <p>A second package, <code>@meantjs/cli</code>, compiles the same pipeline
   to WebAssembly so that <code>.did</code> → schemas needs no Rust at all. It
   writes the generated module and the same envelope document the Rust binary
-  prints. See <a href="cli-npm.html">@candid-core/cli</a> for what it does.</p>
+  prints. See <a href="cli-npm.html">@meantjs/cli</a> for what it does.</p>
 </callout>
 
 <pre data-lang="bash">
-# the CLI release that pairs with @candid-core/schema 0.5.0
-npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
+# the CLI release that pairs with @meantjs/schema 0.6.0
+npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
 </pre>
 
 <h2>Next: calling a canister</h2>

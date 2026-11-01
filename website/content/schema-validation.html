@@ -1,18 +1,18 @@
 <callout type="note" title="Upgrading from an earlier release">
   <p>
-    This page describes <code>@candid-core/schema</code> <code>0.5.0</code>, published on 2026-10-27
-    under the npm <code>latest</code> dist-tag. The previous stable release, <code>0.4.0</code>, differs in nothing this page describes; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means. The stable release before that, <code>0.3.0</code>, differs in nothing this page describes: <code>0.4.0</code> adds the type-only <code>WithMode</code> and <code>ModeOf</code>, and <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
+    This page describes <code>@meantjs/schema</code> <code>0.6.0</code>, published on 2026-11-01
+    under the npm <code>latest</code> dist-tag. The previous stable release, <code>@candid-core/schema</code> <code>0.5.0</code>, is the same code under the old name: an import on this page names <code>@candid-core/schema</code> there, its subpath keeps its own, and nothing else changes; <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means. The stable release before that, <code>0.4.0</code>, differs in nothing this page describes; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means. The stable release before that, <code>0.3.0</code>, differs in nothing this page describes: <code>0.4.0</code> adds the type-only <code>WithMode</code> and <code>ModeOf</code>, and <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
     The stable release before those,
     <code>0.2.0</code>, has the old surface: it
     accepts any object with <code>toText()</code> as a principal, and an options object with a
     misspelled or non-integer limit does not throw.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
-    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code>, with <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which is this package&rsquo;s code under a new name: an import on this page changes name, its subpath keeps its own, and nothing else changes. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The old name&rsquo;s <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since.
   </p>
 </callout>
 
 <p>
-  <a href="https://www.npmjs.com/package/@candid-core/schema"><code>@candid-core/schema</code></a>
+  <a href="https://www.npmjs.com/package/@meantjs/schema"><code>@meantjs/schema</code></a>
   keeps a Candid type alive at runtime as a plain data object.
   <a href="schema-builders.html">The builders</a> construct it; the <code>./validate</code> subpath
   walks it. Given a schema and any JavaScript value, <code>validate</code> answers whether that
@@ -28,8 +28,8 @@
   codec or an agent with it.
 </p>
 
-<pre data-lang="ts" data-check>import { c } from "@candid-core/schema";
-import { validate } from "@candid-core/schema/validate";</pre>
+<pre data-lang="ts" data-check>import { c } from "@meantjs/schema";
+import { validate } from "@meantjs/schema/validate";</pre>
 
 <h2>The signature and the result</h2>
 
@@ -162,8 +162,8 @@ export interface ValidationIssue {
 
 <p>All three use the same two schemas, hand-written here so the shapes are visible.</p>
 
-<pre data-lang="ts" data-check="worked">import { c, principal } from "@candid-core/schema";
-import { validate } from "@candid-core/schema/validate";
+<pre data-lang="ts" data-check="worked">import { c, principal } from "@meantjs/schema";
+import { validate } from "@meantjs/schema/validate";
 
 const Tokens = c.record({ e8s: c.nat64 });
 const Account = c.record({ owner: c.principal, subaccount: c.opt(c.blob()) });
@@ -390,7 +390,7 @@ validate(schema, value as never);
   </div>
 </div>
 
-<pre data-lang="ts" data-check="worked">import { isResultSchema, unwrapResult } from "@candid-core/schema/validate";
+<pre data-lang="ts" data-check="worked">import { isResultSchema, unwrapResult } from "@meantjs/schema/validate";
 
 const TransferError = c.variant({
   bad_fee: c.record({ expected_fee: c.nat }),

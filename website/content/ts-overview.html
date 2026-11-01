@@ -1,12 +1,13 @@
 <callout type="note" title="Upgrading from an earlier release">
   <p>
-    This page describes <code>@candid-core/schema</code> <code>0.5.0</code> and
-    <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27 under the npm <code>latest</code> dist-tag, and the generated excerpts below are that CLI's. The previous
-    stable releases, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, generate the same excerpts and type <code>decode</code> and <code>decodeArgs</code> values as <code>unknown</code>; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+    This page describes <code>@meantjs/schema</code> <code>0.6.0</code> and
+    <code>@meantjs/cli</code> <code>0.5.0</code>, published on 2026-11-01 under the npm <code>latest</code> dist-tag, and the generated excerpts below are that CLI's. The previous
+    stable releases, <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, are the same code under the old names: that CLI&rsquo;s command is <code>candid-core-cli</code>, and every module it generates opens with the old header and imports <code>@candid-core/schema</code>; the rest of each excerpt is the same in both CLI releases. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    The stable releases before those, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, also generate the same excerpts under the old names, and type <code>decode</code> and <code>decodeArgs</code> values as <code>unknown</code>; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means.
     The stable releases before those, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, differ in the excerpts: <code>@candid-core/cli</code> <code>0.3.0</code> declares each type under its Candid name (<code>export type Item = …</code>, where CLI <code>0.2.0</code> writes <code>type $Item = …</code>) and types each <code>Actor</code> method with its mode, which needs <code>@candid-core/schema</code> <code>0.4.0</code>'s <code>WithMode</code>. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
     The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code, and every change is recorded in the
-    package changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which are this pair&rsquo;s code under new names: the CLI&rsquo;s command becomes <code>meant</code>, and every module it generates opens with a new header and imports <code>@meantjs/schema</code>, as the generated excerpts below already do; the rest of each excerpt is the same in both CLI releases. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    package changelogs under <code>0.3.0</code> and <code>0.2.0</code> and the betas before them. The old names&rsquo; <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since.
   </p>
 </callout>
 
@@ -22,7 +23,7 @@
 <p>
   The pieces split across a language boundary. A Rust crate, <code>candid-core-ts</code>, turns a
   validated <strong>Contract</strong> — Meant's canonical model of a <code>.did</code> file —
-  into a TypeScript module. An npm package, <a href="https://www.npmjs.com/package/@candid-core/schema"><code>@candid-core/schema</code></a>,
+  into a TypeScript module. An npm package, <a href="https://www.npmjs.com/package/@meantjs/schema"><code>@meantjs/schema</code></a>,
   is what that module imports and what everything downstream is built on. You can also skip the
   generator entirely and build the same schemas at runtime from a compiled Contract document.
 </p>
@@ -54,8 +55,8 @@ pub fn generate_module(
   <code>publish = false</code> and is not on crates.io — a registry name is a permanent decision and
   has not been made — so you depend on it by path or git from the repository, or use the runtime
   route below instead. One command in the repository does emit a module:
-  <a href="cli-npm.html"><code>@candid-core/cli</code></a> is the same compiler and generator built to
-  WebAssembly, and <code>candid-core-cli gen &lt;service.did&gt; [-o &lt;dir&gt;]</code> writes
+  <a href="cli-npm.html"><code>@meantjs/cli</code></a> is the same compiler and generator built to
+  WebAssembly, and <code>meant gen &lt;service.did&gt; [-o &lt;dir&gt;]</code> writes
   <code>&lt;stem&gt;.ts</code> alongside <code>&lt;stem&gt;.envelope.json</code>. It is published on
   npm. See <a href="packages.html">Packages and crates</a>.
 </p>
@@ -95,13 +96,13 @@ export { $Items as Items };
 <h3>The schema runtime (npm)</h3>
 
 <p>
-  <code>@candid-core/schema</code> is where <code>c</code>, <code>Schema</code> and
+  <code>@meantjs/schema</code> is where <code>c</code>, <code>Schema</code> and
   <code>Infer</code> live, along with the node interfaces a walker narrows on and the two functions
   for reading a schema back: <code>resolveSchema</code> and <code>serviceMethods</code>. It is ESM
   only, and it installs with nothing else:
 </p>
 
-<pre data-lang="bash">npm install --save-exact @candid-core/schema</pre>
+<pre data-lang="bash">npm install --save-exact @meantjs/schema</pre>
 
 <h3>Validation</h3>
 
@@ -196,7 +197,7 @@ export { $Items as Items };
   Or skip generation. The <code>./contract</code> subpath builds the same schemas from a compiled
   Contract JSON document. Producing that document from <code>.did</code> is a separate step, and the
   route below uses the published <code>meant</code> binary: two commands, whose output is data
-  you can ship, fetch or cache. <a href="cli-npm.html"><code>@candid-core/cli</code></a> compiles
+  you can ship, fetch or cache. <a href="cli-npm.html"><code>@meantjs/cli</code></a> compiles
   the same sources in WebAssembly with no Rust toolchain, and its
   <code>&lt;stem&gt;.envelope.json</code> is the same document.
 </p>
@@ -208,7 +209,7 @@ meant compile ./service.did --envelope > ./service.json
 
 <pre data-lang="ts" data-check>
 import { readFileSync } from "node:fs";
-import { schemaFromContract } from "@candid-core/schema/contract";
+import { schemaFromContract } from "@meantjs/schema/contract";
 
 const built = schemaFromContract(JSON.parse(readFileSync("./service.json", "utf8")));
 if (!built.ok) {
@@ -324,7 +325,7 @@ for (const sample of samples) {
 
 <callout type="warn" title="Pin the version">
   <p>
-    <code>@candid-core/schema</code> is pre-1.0. Until 1.0, a release may change the builder API, the
+    <code>@meantjs/schema</code> is pre-1.0. Until 1.0, a release may change the builder API, the
     inferred domain types, the codec's wire behaviour, and the codes and paths validation reports. Pin
     an exact version rather than a range. The Rust side is <code>0.1.0</code> and carries the
     same caveat — see <a href="status.html">Status and releases</a>.

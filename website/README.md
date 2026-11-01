@@ -1,11 +1,12 @@
 # The Meant documentation site
 
 One site for everything in this repository, in two layers: **Interfaces** (the
-`meant` crate, `@candid-core/schema`, `@candid-core/cli`, the generator) and
+`meant` crate, `@meantjs/schema`, `@meantjs/cli`, the generator) and
 **Profiles** (the Candid Profile spec under `profile/`, the five `@meantjs`
-profile packages and the `meant-format` crate). The pair is prepared under new
-names, `@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0 (issue #306); until
-they are published, the pages teach the published names. The navigation follows the Meant Docs
+profile packages and the `meant-format` crate). The pair took its new names
+with `@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0, published on
+2026-11-01 (issue #306); until then it was `@candid-core/schema` and
+`@candid-core/cli`. The navigation follows the Meant Docs
 design system's site structure: Learn, Guides, Concepts, Reference, Chains,
 then Project, with each page of one layer marked by that layer's icon.
 
@@ -216,7 +217,7 @@ node website/build.mjs && node website/check.mjs
   this repository builds (the five profile packages and the pair) or not the
   version its `package.json` holds;
 - a name `@candid-core/schema` 0.2.0 has and 0.3.0 removes (and so `latest`,
-  0.5.0, lacks)
+  `@meantjs/schema` 0.6.0, lacks)
   (`createActor`, `httpTransport`, `PrincipalValue`, the four removed
   subpaths, `unrepresentable_option`, …) on any page but the migration page and
   the release history on the status page — in prose or in a code block, because
@@ -225,16 +226,17 @@ node website/build.mjs && node website/check.mjs
   `Upgrading from an earlier release` callout (`NOTE_TITLE` in `check.mjs`)
   that links the four migration pages, `migrating-from-0-5.html`,
   `migrating-from-0-4.html`, `migrating-from-0-3.html` and
-  `migrating-from-0-2.html`, inside the callout itself (`NOTE_LINKS`). While
-  the renamed pair is prepared, each note ends by saying so, with
-  `migrating-from-0-5.html`. The site describes the surface the repository
-  builds, which is what the `latest` dist-tag holds (`@candid-core/schema`
-  0.5.0 and `@candid-core/cli` 0.4.0, published on 2026-10-27). Each page's
-  note names what the previous stable pair (0.4.0 / 0.3.0) lacks of what the
-  page shows, with `migrating-from-0-4.html`, and what the pair before it
-  (0.3.0 / 0.2.0) lacks, with `migrating-from-0-3.html`; the stable pair
-  before that (0.2.0 / 0.1.0) differs more, and each page says how once, in
-  that one place, with `migrating-from-0-2.html`;
+  `migrating-from-0-2.html`, inside the callout itself (`NOTE_LINKS`). The
+  site describes the surface the repository builds, which is what the `latest`
+  dist-tag holds (`@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0, published
+  on 2026-11-01). Each page's note says that the previous stable pair,
+  `@candid-core/schema` 0.5.0 and `@candid-core/cli` 0.4.0, is the same code
+  under the old names, with `migrating-from-0-5.html`; names what the pair
+  before it (0.4.0 / 0.3.0) lacks of what the page shows, with
+  `migrating-from-0-4.html`, and what the pair before that (0.3.0 / 0.2.0)
+  lacks, with `migrating-from-0-3.html`; the stable pair before that
+  (0.2.0 / 0.1.0) differs more, and each page says how once, in that one
+  place, with `migrating-from-0-2.html`;
 - any TypeScript or JavaScript snippet that is not verified (next section).
 
 And, **in a code block only** — because a page is expected to discuss the
@@ -242,17 +244,18 @@ broken spellings, and a copyable line is the thing that must work:
 
 - an install, `npx` or bare `import` line for any name in `UNPUBLISHED_NPM`
   in `check.mjs` — the list this repository keeps of names it has prepared but
-  not published. It holds the pair's new names, `@meantjs/schema` and
-  `@meantjs/cli`, until their publish; adding a name is what preparing the
-  next package does, and emptying it is what publishing one does. A block
+  not published. It is empty since the pair's new names, `@meantjs/schema`
+  and `@meantjs/cli`, were published on 2026-11-01; adding a name is what
+  preparing the next package does, and emptying it is what publishing one
+  does. A block
   whose first line is the header the generator writes (`GENERATED_HEADER`,
   read from a golden) is the generator's output, so the import rule skips it:
   a generated module shows the import the generator in this repository
   writes. Install lines get no such exemption;
 - an install, `npx` or import line naming a spec in `UNPUBLISHED_NPM_SPECS` —
   a version or dist-tag of a published name that the registry does not hold
-  yet, such as a prepared beta (`@candid-core/schema@0.3.0-beta.2`, or
-  `@candid-core/schema@beta` before any beta exists). The version-bump pull
+  yet, such as a prepared beta of `@meantjs/schema`, or
+  `@meantjs/schema@beta` before any beta exists. The version-bump pull
   request adds its specs; the publish-day pull request removes them;
 - the crate's old name: `use candid_core::`, a `candid-core = …` dependency
   line, or `cargo add`/`cargo install candid-core`. The crate is `meant`
@@ -304,11 +307,10 @@ reader copying it would get.
 Compilation uses the TypeScript pinned in `crates/candid-core-ts/ts`
 (`npm ci` there installs it; the site itself still takes no dependency) with
 `strict`, resolving `@meantjs/schema` and its three subpaths to the source in
-that directory and `@meantjs/cli` to its hand-written declarations. Until the
-new names are published, `@candid-core/schema` and `@candid-core/cli`, which
-the pages still teach, resolve to the same files (`PAIR_NAMES` in
-`snippets.mjs`): 0.6.0 and 0.5.0 are 0.5.0 and 0.4.0's code under new names,
-as their release notes measure.
+that directory and `@meantjs/cli` to its hand-written declarations
+(`PAIR_NAMES` in `snippets.mjs`). The old names, `@candid-core/schema` and
+`@candid-core/cli`, left that list when the new ones were published, so a
+block that imports one does not compile.
 Exactly the four exported subpaths resolve, so an import of a removed one is a
 compile error, which is what the migration page's "before" blocks rely on.
 The five `@meantjs` profile packages, and exactly the subpaths each one

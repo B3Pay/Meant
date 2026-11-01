@@ -2,17 +2,22 @@
   This page is for code written against <code>@candid-core/schema</code> <code>0.2.0</code> or
   <code>@candid-core/cli</code> <code>0.1.0</code>, and takes it to the surface published on 2026-10-06 as
   <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>
-  under the npm <code>latest</code> dist-tag. <code>latest</code> has moved on since, to
-  <code>0.4.0</code> and <code>0.3.0</code>, published on 2026-10-10, and then to
-  <code>0.5.0</code> and <code>0.4.0</code>, published on 2026-10-27;
-  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
-  <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> cover those steps. Most of the surface below was first published on 2026-10-02 as
-  <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> under the <code>beta</code> dist-tag,
+  under the npm <code>latest</code> dist-tag. The newest stable pair has moved on since, to
+  <code>0.4.0</code> and <code>0.3.0</code>, published on 2026-10-10, then to
+  <code>0.5.0</code> and <code>0.4.0</code>, published on 2026-10-27, and then to the same code
+  under new names, <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code>
+  <code>0.5.0</code>, published on 2026-11-01 under the npm <code>latest</code> dist-tag;
+  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a>,
+  <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> and
+  <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> cover those steps. The blocks on this
+  page import the new names, as code does after those steps; on the old pairs they import
+  <code>@candid-core/schema</code>, with the same subpaths. Most of the surface below was first published on 2026-10-02 as
+  <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code> under the old names&rsquo; <code>beta</code> dist-tag,
   which still names those betas. The record of each change, with the reasoning, is
   the <code>0.3.0</code> and <code>0.3.0-beta.1</code> entries of the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md"><code>@candid-core/schema</code> changelog</a>
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md">schema package's changelog</a>
   and the <code>0.2.0</code> and <code>0.2.0-beta.1</code> entries of the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md"><code>@candid-core/cli</code> changelog</a>.
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
 </p>
 
 <p>
@@ -27,16 +32,17 @@
 
 <p>
   A plain install selects the newest stable pair from <code>latest</code>,
-  <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code>
-  <code>0.4.0</code>, whose optional peer is exactly <code>0.5.0</code>. Everything below applies
-  there too, and where the CLI's <code>0.3.0</code> or <code>0.4.0</code> differs this page says so;
-  <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
-  <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> have those steps:
+  <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code>
+  <code>0.5.0</code>, whose optional peer is exactly <code>0.6.0</code>. Everything below applies
+  there too, under the new names, and where the CLI's <code>0.3.0</code> or <code>0.4.0</code>
+  differs this page says so; <a href="migrating-from-0-3.html">Migrating from 0.3.0</a>,
+  <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> and
+  <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> have those steps:
 </p>
 
 <pre data-lang="bash">
-npm install --save-exact @candid-core/schema
-npm install --save-dev --save-exact @candid-core/cli
+npm install --save-exact @meantjs/schema
+npm install --save-dev --save-exact @meantjs/cli
 </pre>
 
 <p>
@@ -47,7 +53,7 @@ npm install --save-dev --save-exact @candid-core/cli
 
 <p>
   If you installed the betas with <code>@beta</code>, those lines move you to the stable pair. The
-  <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>,
+  old names&rsquo; <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>,
   which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code>.
 </p>
 
@@ -111,7 +117,7 @@ npm install --save-dev --save-exact @candid-core/cli
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2339@7">
-import { c, type Infer } from "@candid-core/schema";
+import { c, type Infer } from "@meantjs/schema";
 
 const Account = c.record({ owner: c.principal });
 declare const account: Infer<typeof Account>;
@@ -121,7 +127,7 @@ const text: string = account.owner.toText();
 </pre>
 
 <pre data-lang="ts" data-check-fails="TS2322@7">
-import { c, type Infer } from "@candid-core/schema";
+import { c, type Infer } from "@meantjs/schema";
 
 const Account = c.record({ owner: c.principal });
 declare const sdkPrincipal: { toText(): string }; // an @icp-sdk/core Principal, say
@@ -131,8 +137,8 @@ const account: Infer<typeof Account> = { owner: sdkPrincipal };
 </pre>
 
 <pre data-lang="ts" data-check>
-import { c, isPrincipal, principal, type Infer } from "@candid-core/schema";
-import { encode } from "@candid-core/schema/codec";
+import { c, isPrincipal, principal, type Infer } from "@meantjs/schema";
+import { encode } from "@meantjs/schema/codec";
 
 const Account = c.record({ owner: c.principal });
 declare const sdkPrincipal: { toText(): string }; // an @icp-sdk/core Principal, say
@@ -171,7 +177,7 @@ isPrincipal("AAAAA-AA"); // false, so principal("AAAAA-AA") throws TypeError
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2322@6">
-import { c, type Infer } from "@candid-core/schema";
+import { c, type Infer } from "@meantjs/schema";
 
 const Description = c.opt(c.opt(c.text));
 
@@ -180,8 +186,8 @@ const present: Infer<typeof Description> = "x";
 </pre>
 
 <pre data-lang="ts" data-check>
-import { c, isBoxedOpt, type Infer, type OptDomain } from "@candid-core/schema";
-import { decode, encode } from "@candid-core/schema/codec";
+import { c, isBoxedOpt, type Infer, type OptDomain } from "@meantjs/schema";
+import { decode, encode } from "@meantjs/schema/codec";
 
 const Description = c.opt(c.opt(c.text));
 type Description = Infer<typeof Description>; // { some: string | null } | null
@@ -224,7 +230,7 @@ type Plain = OptDomain<bigint>; // bigint | null, unboxed
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2322@5">
-import { c, type Schema } from "@candid-core/schema";
+import { c, type Schema } from "@meantjs/schema";
 
 // 0.2.0, for `type Byte = nat8; type R = record { raw : vec Byte }`.
 type R = { raw: number[] };
@@ -232,7 +238,7 @@ const R: Schema<R> = c.rec(() => c.record({ raw: c.blob() }));
 </pre>
 
 <pre data-lang="ts" data-check>
-import { c, type Schema } from "@candid-core/schema";
+import { c, type Schema } from "@meantjs/schema";
 
 type R = { raw: Uint8Array };
 const R: Schema<R> = c.rec(() => c.record({ raw: c.blob() }));
@@ -276,11 +282,11 @@ const R: Schema<R> = c.rec(() => c.record({ raw: c.blob() }));
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2307@1">
-import { createActor } from "@candid-core/schema/actor";
+import { createActor } from "@meantjs/schema/actor";
 </pre>
 
 <pre data-lang="ts" data-check-fails="TS2307@1">
-import { httpTransport } from "@candid-core/schema/transport-icp";
+import { httpTransport } from "@meantjs/schema/transport-icp";
 </pre>
 
 <p>
@@ -290,8 +296,8 @@ import { httpTransport } from "@candid-core/schema/transport-icp";
 </p>
 
 <pre data-lang="ts" data-check>
-import { serviceMethods } from "@candid-core/schema";
-import { decodeArgs, encodeArgs } from "@candid-core/schema/codec";
+import { serviceMethods } from "@meantjs/schema";
+import { decodeArgs, encodeArgs } from "@meantjs/schema/codec";
 import { actor, type TransferArg } from "./ledger.ts";
 
 declare const arg: TransferArg;
@@ -325,8 +331,8 @@ if (reply.ok) reply.values[0]; // the decoded TransferResult, as unknown until y
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2561@6">
-import { c } from "@candid-core/schema";
-import { validate } from "@candid-core/schema/validate";
+import { c } from "@meantjs/schema";
+import { validate } from "@meantjs/schema/validate";
 
 // A typed caller now meets the misspelling at compile time; a caller with
 // an untyped options object meets a TypeError at run time.
@@ -334,8 +340,8 @@ validate(c.nat, 1n, { maxDeph: 10 });
 </pre>
 
 <pre data-lang="ts" data-check>
-import { c } from "@candid-core/schema";
-import { validate } from "@candid-core/schema/validate";
+import { c } from "@meantjs/schema";
+import { validate } from "@meantjs/schema/validate";
 
 declare const limit: number; // read from your configuration
 try {
@@ -379,7 +385,7 @@ try {
 
 <pre data-lang="ts" data-check-fails="TS2305@2">
 // 0.2.0 layout: bare bindings, and a separate import for the principal type.
-import { c, type PrincipalValue, type Schema } from "@candid-core/schema";
+import { c, type PrincipalValue, type Schema } from "@meantjs/schema";
 
 export type Tokens = { e8s: bigint };
 export const Tokens: Schema<Tokens> = c.rec(() => c.record({ e8s: c.nat64 }));
@@ -489,7 +495,7 @@ export { $Tokens as Tokens };
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2322@10">
-import type { ResourceLimitInfo } from "@candid-core/schema/validate";
+import type { ResourceLimitInfo } from "@meantjs/schema/validate";
 
 function describe(info: ResourceLimitInfo): string {
   switch (info.resource) {
@@ -507,7 +513,7 @@ void describe;
 </pre>
 
 <pre data-lang="ts" data-check-fails="TS2367@4">
-import type { ContractIssueCode } from "@candid-core/schema/contract";
+import type { ContractIssueCode } from "@meantjs/schema/contract";
 
 function isOption(code: ContractIssueCode): boolean {
   return code === "unrepresentable_option";
@@ -516,7 +522,7 @@ void isOption;
 </pre>
 
 <pre data-lang="ts" data-check-fails="TS2322@24">
-import type { ContractIssueCode } from "@candid-core/schema/contract";
+import type { ContractIssueCode } from "@meantjs/schema/contract";
 
 function kind(code: ContractIssueCode): string {
   switch (code) {
@@ -548,7 +554,7 @@ void kind;
 </pre>
 
 <pre data-lang="ts" data-check>
-import type { ResourceLimitInfo } from "@candid-core/schema/validate";
+import type { ResourceLimitInfo } from "@meantjs/schema/validate";
 
 function describe(info: ResourceLimitInfo): string {
   switch (info.resource) {
@@ -568,7 +574,7 @@ void describe;
 </pre>
 
 <pre data-lang="ts" data-check>
-import type { ContractIssueCode } from "@candid-core/schema/contract";
+import type { ContractIssueCode } from "@meantjs/schema/contract";
 
 function kind(code: ContractIssueCode): string {
   switch (code) {

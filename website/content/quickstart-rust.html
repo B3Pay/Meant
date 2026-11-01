@@ -249,7 +249,7 @@ meant validate ./contract.json           # re-check a document you were given</p
     <code>org.candid-core.field-names/v1</code> extension carries the field-name
     table, because a semantic Contract stores label <em>ids</em> and not text.
     That document is exactly what <code>schemaFromContract</code> in
-    <code>@candid-core/schema</code> consumes whole. Extensions live outside the
+    <code>@meantjs/schema</code> consumes whole. Extensions live outside the
     canonical identities, so carrying them never moves a
     <code>contract_id</code>.</p>
     <callout type="warn" title="Failures print to stdout, not stderr">
@@ -288,6 +288,6 @@ into the TypeScript that consumes it.</p>
   <a class="card" href="quickstart-typescript.html">
     <span class="card-kicker">Quickstart</span>
     <span class="card-title">TypeScript</span>
-    <p>Turning that Contract document into typed, validated schemas with <code>@candid-core/schema</code>.</p>
+    <p>Turning that Contract document into typed, validated schemas with <code>@meantjs/schema</code>.</p>
   </a>
 </div>

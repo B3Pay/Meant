@@ -1,19 +1,19 @@
 <callout type="note" title="Upgrading from an earlier release">
   <p>
-    This page describes <code>@candid-core/schema</code> <code>0.5.0</code>, published on 2026-10-27
-    under the npm <code>latest</code> dist-tag. The previous stable release, <code>0.4.0</code>, differs in nothing this page describes; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means. The stable release before that, <code>0.3.0</code>, lacks the type-only <code>WithMode</code> and <code>ModeOf</code>, and the generated excerpts below are those of <code>@candid-core/cli</code> <code>0.4.0</code>, published with this release, which declares each type under its Candid name as <code>0.3.0</code> did (<code>0.2.0</code>, the CLI paired with <code>0.3.0</code>, writes <code>type $Grid = …</code>). <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
+    This page describes <code>@meantjs/schema</code> <code>0.6.0</code>, published on 2026-11-01
+    under the npm <code>latest</code> dist-tag. The previous stable release, <code>@candid-core/schema</code> <code>0.5.0</code>, is the same code under the old name: an import on this page names <code>@candid-core/schema</code> there, its subpath keeps its own, and nothing else changes; <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means. The stable release before that, <code>0.4.0</code>, differs in nothing this page describes; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means. The stable release before that, <code>0.3.0</code>, lacks the type-only <code>WithMode</code> and <code>ModeOf</code>, and the generated excerpts below are those of <code>@meantjs/cli</code> <code>0.5.0</code>, published with this release, which declares each type under its Candid name as <code>@candid-core/cli</code> <code>0.3.0</code> did (<code>0.2.0</code>, the CLI paired with <code>0.3.0</code>, writes <code>type $Grid = …</code>). <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
     The stable release before those,
     <code>0.2.0</code>, has the old surface; in
     particular a principal is an object with <code>toText()</code> there, and an <code>opt</code> over
     a type that admits <code>null</code> is not boxed.
     <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
-    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code>, with <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which is this package&rsquo;s code under a new name: an import on this page changes name, its subpath keeps its own, and nothing else changes. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    after code, and each is recorded in the package changelog under <code>0.3.0</code> and <code>0.3.0-beta.1</code>. The old name&rsquo;s <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code>, which lacks the changes recorded under <code>0.3.0</code> and every stable release since.
   </p>
 </callout>
 
 <p>
   <code>c</code> is the whole construction surface of
-  <a href="https://www.npmjs.com/package/@candid-core/schema"><code>@candid-core/schema</code></a>.
+  <a href="https://www.npmjs.com/package/@meantjs/schema"><code>@meantjs/schema</code></a>.
   There is no class to instantiate and no registry to populate: every member of <code>c</code>
   returns plain data. <code>c.record({ owner: c.principal, balance: c.nat })</code> evaluates to
   <code>{ kind: "record", fields: { … } }</code>, and that object is what the validator and the
@@ -95,8 +95,8 @@ opt<T>(inner: Schema<T>): OptSchema<T>
 </p>
 
 <pre data-lang="ts" data-check="opt">
-import { c, type Infer } from "@candid-core/schema";
-import { validate } from "@candid-core/schema/validate";
+import { c, type Infer } from "@meantjs/schema";
+import { validate } from "@meantjs/schema/validate";
 
 const Note = c.opt(c.text);
 type Note = Infer<typeof Note>; // string | null
@@ -345,7 +345,7 @@ export { $Registry as Registry };
 </p>
 
 <pre data-lang="ts" data-check>
-import { c, isPrincipal, principal, type Principal } from "@candid-core/schema";
+import { c, isPrincipal, principal, type Principal } from "@meantjs/schema";
 
 const ledger: Principal = principal("ryjl3-tyaaa-aaaaa-aaaba-cai");
 isPrincipal("aaaaa-aa"); // true: the management canister
@@ -367,7 +367,7 @@ rec<T>(body: () => Schema<T>): RecSchema<T>
 </p>
 
 <pre data-lang="ts" data-check>
-import { c, type Schema } from "@candid-core/schema";
+import { c, type Schema } from "@meantjs/schema";
 
 type List = { head: bigint; tail: List | null };
 const List: Schema<List> = c.rec(() => c.record({ head: c.nat, tail: c.opt(List) }));
@@ -433,7 +433,7 @@ export { $Tokens as Tokens };
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2322@6">
-import { c, type Schema } from "@candid-core/schema";
+import { c, type Schema } from "@meantjs/schema";
 
 type Tokens = { e8s: number };
 // The builder infers { e8s: bigint }; the alias says { e8s: number }.
@@ -522,7 +522,7 @@ export type FieldSchemas = Record<string, AnyFieldSchema>;
       ordinary entry. A call layer reads it to build a typed call surface, and the codec's
       <code>encodeArgs</code> and <code>decodeArgs</code> move each method's arguments and reply.
     </p>
-    <pre data-lang="ts" data-check>import { c, serviceMethods } from "@candid-core/schema";
+    <pre data-lang="ts" data-check>import { c, serviceMethods } from "@meantjs/schema";
 
 const table = serviceMethods(c.service({ fee: c.func([], [c.nat], "query") }));
 table.get("fee")?.mode; // "query"</pre>

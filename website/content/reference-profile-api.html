@@ -1,5 +1,5 @@
 <p>
-  The five <code>@meantjs</code> packages are plain ES modules with hand-written TypeScript declarations
+  The five profile packages are plain ES modules with hand-written TypeScript declarations
   (<code>src/*.d.mts</code>), one per exported entry. Every signature on this page is quoted verbatim from those files,
   and the build checks each quote against the file it names. The guides show the same functions in use:
   <a href="resolve-profiles.html">Validate and resolve</a>, <a href="format-values.html">Parse and display values</a>,
@@ -119,7 +119,7 @@ export function readServedProfile(
     <tr><td><code class="wrap">validateProfile(doc, opts)</code></td><td>The single-profile validator that <code>scripts/validate.mjs</code> wraps: <code class="wrap">{ ok, profile_id, interface_id, methods, annotations, diagnostics, resolved? }</code>.</td></tr>
     <tr><td><code>loadPacks(dir?)</code></td><td>Every <code>*.profile.json</code> of kind <code>"pack"</code> in a directory, sorted by file name (default: the shipped packs, <code>DEFAULT_PACKS_DIR</code>). Packs only: the two standard contract profiles shipped in the same directory, <code>permit2</code> and <code>dai-permit</code>, are not returned.</td></tr>
     <tr><td><code>profileId(doc)</code>, <code>jcs(value)</code></td><td><code>candid-profile:v0:sha256:&lt;hex&gt;</code> over the RFC 8785 (JCS) form; the JCS text itself.</td></tr>
-    <tr><td><code class="wrap">profileFromDocAttributes(response, opts?)</code></td><td>An author canister profile from the tags written as doc comments in a <code>.did</code>; <code>response</code> is what <code>didToDocAttributes</code> of <code>@candid-core/cli</code> returns (<a href="annotate-a-did.html">Annotate a .did file</a>).</td></tr>
+    <tr><td><code class="wrap">profileFromDocAttributes(response, opts?)</code></td><td>An author canister profile from the tags written as doc comments in a <code>.did</code>; <code>response</code> is what <code>didToDocAttributes</code> of <code>@meantjs/cli</code> returns (<a href="annotate-a-did.html">Annotate a .did file</a>).</td></tr>
     <tr><td><code class="wrap">readServedProfile(bytes, opts)</code>, <code>SERVED_SECTION</code>, <code>SERVED_METADATA</code>, <code>SERVED_MAX_BYTES</code></td><td>Checks the bytes of a canister's <code>candid:profile</code> metadata; <diag>E_SERVED</diag> when they cannot be used (<a href="serve-a-profile.html">Serve a profile</a>).</td></tr>
     <tr><td><code class="wrap">runCli(argv, io)</code>, <code>USAGE</code></td><td><code>candid-profile</code> as a function, returning its exit code; its help text.</td></tr>
     <tr><td><code>parseAddress</code>, <code>parseRelPath</code>, <code>idlHash</code></td><td>The address grammar and the Candid field-name hash (also in <code>/address</code>).</td></tr>
