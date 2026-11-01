@@ -458,8 +458,12 @@ one just fails. `npm version` updates the manifest and the lockfile
 together, so they stay in sync and `npm ci` remains valid either side of the
 bump.
 
-`--tag bootstrap` is what keeps the placeholder inert: `latest` still moves
-to the first real version, and a plain `npm i` never resolves to it. The
+`--tag bootstrap` is what keeps the placeholder inert once a real version
+exists: `latest` moves to the first real version, and from then a plain
+`npm i` never resolves to it. Until then npm points `latest` at the
+placeholder too (observed on 2026-11-01, when `@meantjs/cli`'s `latest`
+stayed on `0.0.0-bootstrap` until 0.5.0 published), so a plain `npm i`
+installs the empty placeholder: dispatch the first release soon after. The
 version bump is deliberately local and discarded — the repository's manifest
 stays at the version the workflow will verify.
 
@@ -1079,12 +1083,21 @@ command `candid-core-cli` becoming `meant` (issue #306), in this order:
    merge commit; then a trusted publisher for each, `npm-release.yml` for the
    schema and `npm-release-cli.yml` for the CLI. npm drops a new trusted
    publisher that no publish uses within 48 hours, so each is added right
-   before its dispatch.
+   before its dispatch. On 2026-11-01 each new name also gained a
+   `0.0.0-stage` version a minute before its bootstrap, as the five profile
+   packages' names did on 2026-10-28: two files, no code, the description
+   "Temporary package placeholder for staged publishing", and no dist-tag.
+   Its cause is open; it is inert.
 3. Both releases, dispatched from the merge commit, schema first, as for any
    stable pair. The downstream check builds ic-reactor's repin branch, which
    installs the new names (`--field downstream-ref=<that branch>`): until it
    merges, ic-reactor's `main` installs the old pair, so a run against `main`
-   fails on ic-reactor's side, at the repin.
+   fails on ic-reactor's side, at the repin. On 2026-11-01 the first attempt
+   of both publish jobs got `E404 Not Found` on its `PUT` and published
+   nothing, and a re-run of each failed job published. npm checks a trusted
+   publisher only at publish, so after an E404 compare its fields with
+   [the table above](#the-first-publish-of-a-new-package-is-manual-once)
+   before re-running.
 4. The publish-day pull request, as for any release, which here also moves
    the pages to the new names. Until then the site and the root README
    teach the published pair, and only generated modules show the new header
