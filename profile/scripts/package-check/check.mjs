@@ -46,6 +46,7 @@ const BROWSER = [
   ["@meantjs/consent/evm", []],
   ["@meantjs/consent/erc7730", []],
   ["@meantjs/consent/terms", []],
+  ["@meantjs/consent/guard", []],
   ["@meantjs/tools", []],
   ["@meantjs/reconcile", []],
 ];

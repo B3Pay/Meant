@@ -6,7 +6,7 @@ ICRC-21 consent messages, and the text an SNS proposal's validator returns, from
 npm install @meantjs/consent
 ```
 
-- **Runs on:** Node 22 or later and browsers for the main entry, the EVM subpaths and `./terms` (no Node built-in, no
+- **Runs on:** Node 22 or later and browsers for the main entry, the EVM subpaths, `./terms` and `./guard` (no Node built-in, no
   `Buffer`; checked with esbuild). `@meantjs/consent/sns` hashes with `node:crypto` and is Node only.
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
 - **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
@@ -71,7 +71,7 @@ a Candid one.
 |---|---|
 | `decodeCalldata(resolved, calldata, limits)` (`/evm`) | The function a selector names and its arguments, keyed by parameter name. Strict: values read from anything but their canonical ABI encoding are `E_DECODE`. |
 | `evmConsent({ resolved, calldata, to, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of a call: the same model and the same two forms as ICRC-21, without its envelope (`"generic"` Markdown, or `"fields"` as an intent line and `[label, text]` rows), ending with the contract's address and chain, which a person must see because a pack matches any contract with the right functions. A call to a contract its profiles do not list is `E_DEPLOYMENT`; a payable function is `E_UNSUPPORTED_TYPE` (its native value has no position yet); an argument a profile pins (`fixed`) that holds another address is `E_FIXED`. `tokens`: the decimals and symbol of each token an amount's `token` field names, by address; the address is shown beside the symbol. |
-| `eip712Consent({ resolved, typedData, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of an EIP-712 signing request (`eth_signTypedData_v4`'s JSON), matched to a message of the resolved form by its type hash, never its name. Refused before anything is shown: a domain for another chain than the wallet's, without `chainId` or `verifyingContract`, with a salt, or whose name or version is not its profiles' (`E_DOMAIN`); a contract its profiles do not list (`E_DEPLOYMENT`); no message with the type hash (`E_TYPE_HASH`); values that are not exactly the members, canonically written (`E_DECODE`); a member a profile pins (`fixed`) that holds another address, such as x402's Permit2 payment with a spender other than x402's proxy (`E_FIXED`); a token not in `tokens` (`E_REF_UNRESOLVED`). Ends with the verifying contract, the EIP-712 digest and "This is a signature, not a transaction: whoever holds it can submit it." Returns `typeHash`, `digest`, `verifyingContract` and `chainId` with the text. |
+| `eip712Consent({ resolved, typedData, chainId, refs, tokens, form, utcOffsetMinutes, rawArguments, limits })` (`/evm`) | The consent text of an EIP-712 signing request (`eth_signTypedData_v4`'s JSON; integers may also be bigints, as viem passes them), matched to a message of the resolved form by its type hash, never its name. Refused before anything is shown: a domain for another chain than the wallet's, without `chainId` or `verifyingContract`, with a salt, or whose name or version is not its profiles' (`E_DOMAIN`); a contract its profiles do not list (`E_DEPLOYMENT`); no message with the type hash (`E_TYPE_HASH`); values that are not exactly the members, canonically written (`E_DECODE`); a member a profile pins (`fixed`) that holds another address, such as x402's Permit2 payment with a spender other than x402's proxy (`E_FIXED`); a token not in `tokens` (`E_REF_UNRESOLVED`). Ends with the verifying contract, the EIP-712 digest and "This is a signature, not a transaction: whoever holds it can submit it." Returns `typeHash`, `digest`, `verifyingContract` and `chainId` with the text. |
 | `values`, `grant` (both, `/evm`) | `evmConsent` and `eip712Consent` also return the decoded arguments or message by name (`values`), and what the call or signature grants (`grant`, below), or null. |
 | `erc7730Descriptor(resolved, { context, deployments, owner, contractName, info, token })` (`/erc7730`) | The contract's ERC-7730 clear-signing file and its ERC-8176 `descriptorHash`: deterministic, `$schema` pinned to the exact 2.1.0 file, one entry per function a transaction calls, or with `context: "eip712"` one per message, keyed by its `encodeType`. What an ERC-7730 file cannot say (a time in ms, `utf8` bytes, an amount in another token, an unnamed parameter) is `E_EXPORT`, never written as something near it; no deployment is `E_DEPLOYMENT`. What it cannot say but changes no value (a timestamp's "Never", a template over an array) is left out and listed in `notes`. A pinned position (`fixed`) is a field with `visible: { mustMatch: [address] }`, which a wallet hides and checks, and a template that names it has no `interpolatedIntent` (a note says why). The mapping is spec §15.7 and §15.9. |
 | `descriptorHash(descriptor)` (`/erc7730`) | Keccak-256 of the RFC 8785 form: the hash of a file someone edited. |
@@ -145,6 +145,50 @@ The rules come from Meant's signing test, where the comparison in code held ever
 everyday words were the weak point (spec §11 item 10); hence the user's confirmation. The checks cover the eight
 requests of the proposal (Permit2 `PermitSingle` and `PermitTransferFrom`, EIP-2612, DAI, ERC-20 `approve` and
 `transfer`, ICRC-2 `icrc2_approve`, ICRC-1 `icrc1_transfer`) end to end, both traps, and the test's planted faults.
+
+## The guard in front of a signer (`src/guard.mjs`, `@meantjs/consent/guard`)
+
+D-062. `guardSigner(signer, { gate, wallet, chainId, forms })` puts the terms in front of an EVM signer: a viem
+`LocalAccount`, or x402's `ClientEvmSigner` (`@x402/evm`), which is the same shape. Its `signTypedData` signs only a
+request that one of `forms` reads (`eip712Consent`) and whose grant fits the gate's confirmed terms, and it signs the
+copy it checked. It throws otherwise and signs nothing:
+
+| Thrown | When |
+|---|---|
+| `TermsError` `E_TERMS_ORDER` | The user has not confirmed terms, or this is a second request: terms cover one request, and the same one may be signed again (a retry). |
+| `GuardError` `E_GUARD_UNKNOWN` | No profile in `forms` reads the request: another chain, a contract or domain its profiles do not list, a pinned value that does not hold (x402's proxy as the spender), a message no profile has. Or the profiles that read it disagree on what it grants. `reasons` lists each profile's refusal. |
+| `GuardError` `E_GUARD_REFUSED` | The grant does not fit the terms; `reasons` says why, in words, and `consent` is the request as read. |
+
+The guarded signer keeps `address`, `signTypedData` and the read-only `readContract`. It withholds every other way to
+sign (`signTransaction`, `signMessage`, `signAuthorization`), so nothing is signed around it; x402's gas-sponsored
+approval, which needs `signTransaction`, is therefore off. The wallet's tokens are the ones an amount may be in, and
+the guard reads the clock (`now`, default the system's) when a request comes.
+
+```js
+import { privateKeyToAccount } from "viem/accounts";
+import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { createSchemaValidator, validateProfile } from "@meantjs/profile";
+import { guardSigner } from "@meantjs/consent/guard";
+import { readTerms, termsGate } from "@meantjs/consent/terms";
+
+const validateSchema = await createSchemaValidator();
+const forms = []; // the contract profiles x402 payments need, shipped in @meantjs/profile
+for (const name of ["usdc", "usdc-domain-usdc", "usdc-base-sepolia", "permit2", "x402-exact-permit2", "x402-upto-permit2"]) {
+  const { default: doc } = await import(`@meantjs/profile/packs/${name}.profile.json`, { with: { type: "json" } });
+  forms.push((await validateProfile(doc, { validateSchema, resolved: true })).resolved);
+}
+const wallet = { tokens: { USDC: { address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", decimals: 6 } }, apps: { "Weather API": "0x5037546753d64F77A6fA95B6f85659B6a4A7F6FD" } };
+const gate = termsGate();
+const shown = gate.propose(readTerms({ token: "USDC", to: "Weather API", max_amount: "0.02", expires_by: "1 day" }, { ...wallet, now: BigInt(Date.now()) * 1_000_000n }));
+gate.confirm(shown); // after the user confirmed `shown` on the wallet's own screen
+
+const signer = guardSigner(privateKeyToAccount(key), { gate, wallet, chainId: 84532, forms });
+const scheme = new ExactEvmScheme(signer); // x402 pays only within the terms
+```
+
+Checked off chain with viem 2.57.4 and `@x402/evm` 2.28.0: x402's own client, given a viem account behind the guard,
+signs 0.015 USDC to the payee by EIP-3009 and by Permit2 under terms of 0.02, and the EIP-3009 signature verifies;
+it refuses 0.03 USDC, another payee, and a domain named "USD Coin" on Base Sepolia, whose USDC signs as "USDC".
 
 ## SNS proposal validators (`src/sns.mjs`)
 

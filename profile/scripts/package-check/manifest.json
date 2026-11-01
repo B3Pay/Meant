@@ -93,6 +93,7 @@
       "./evm",
       "./erc7730",
       "./terms",
+      "./guard",
       "./package.json"
     ],
     "files": [
@@ -110,6 +111,8 @@
       "src/evm.d.mts",
       "src/evm.mjs",
       "src/grant.mjs",
+      "src/guard.d.mts",
+      "src/guard.mjs",
       "src/icrc21-codec.mjs",
       "src/icrc21.mjs",
       "src/index.d.mts",
