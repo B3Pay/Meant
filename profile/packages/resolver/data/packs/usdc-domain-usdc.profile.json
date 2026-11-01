@@ -1,0 +1,437 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "contract",
+  "name": "usdc-domain-usdc",
+  "origin": "third_party",
+  "language": "en",
+  "description": "USDC's EIP-3009 messages and its EIP-2612 permit where USDC signs under the domain name `USDC`, not `USD Coin`: Monad, Sei, Celo and XDC, and the test networks Base Sepolia, Polygon Amoy, Monad testnet, Sei testnet, Celo Sepolia, Arc testnet and XDC Apothem (spec section 15.9, experimental), with the usdc profile's words. TransferWithAuthorization and ReceiveWithAuthorization pay `to` once, by a signature that someone else submits (only the payee, for ReceiveWithAuthorization), and CancelAuthorization cancels one that is unused (EIP-3009; Circle stablecoin-evm, FiatTokenV2.sol). Permit sets an allowance (EIP-2612), which never ends once it is submitted; x402's payments through Permit2 may come with one for Permit2 (coinbase/x402, specs/extensions/eip2612_gas_sponsoring.md). x402's `exact` scheme pays by TransferWithAuthorization by default (coinbase/x402, specs/schemes/exact/scheme_exact_evm.md). Only the messages are described: USDC's ABI names transferWithAuthorization, receiveWithAuthorization, cancelAuthorization and permit twice each, which the resolver refuses (O1). A profile binds one domain, so these chains have a profile of their own; it replaces usdc-base-sepolia, which describes Base Sepolia alone and is kept as it was published. Bound to USDC's domain (`USDC`, version `2`) and to its contracts, each read on chain on 2026-11-01 (DOMAIN_SEPARATOR, decimals 6, the four type hashes), so a look-alike token gets none of these words. x402 names each of these networks.",
+  "binds": {
+    "eip712": {
+      "domain": {
+        "name": "USDC",
+        "version": "2"
+      },
+      "types": {
+        "CancelAuthorization": [
+          {
+            "name": "authorizer",
+            "type": "address"
+          },
+          {
+            "name": "nonce",
+            "type": "bytes32"
+          }
+        ],
+        "Permit": [
+          {
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "ReceiveWithAuthorization": [
+          {
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "validAfter",
+            "type": "uint256"
+          },
+          {
+            "name": "validBefore",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "bytes32"
+          }
+        ],
+        "TransferWithAuthorization": [
+          {
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "validAfter",
+            "type": "uint256"
+          },
+          {
+            "name": "validBefore",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "bytes32"
+          }
+        ]
+      }
+    },
+    "deployments": [
+      {
+        "chain_id": 50,
+        "address": "0xfA2958CB79b0491CC627c1557F441eF849Ca8eb1"
+      },
+      {
+        "chain_id": 51,
+        "address": "0xb5AB69F7bBada22B28e79C8FFAECe55eF1c771D4"
+      },
+      {
+        "chain_id": 143,
+        "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603"
+      },
+      {
+        "chain_id": 1328,
+        "address": "0x4fCF1784B31630811181f670Aea7A7bEF803eaED"
+      },
+      {
+        "chain_id": 1329,
+        "address": "0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392"
+      },
+      {
+        "chain_id": 10143,
+        "address": "0x534b2f3A21130d7a60830c2Df862319e593943A3"
+      },
+      {
+        "chain_id": 42220,
+        "address": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"
+      },
+      {
+        "chain_id": 80002,
+        "address": "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582"
+      },
+      {
+        "chain_id": 84532,
+        "address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+      },
+      {
+        "chain_id": 5042002,
+        "address": "0x3600000000000000000000000000000000000000"
+      },
+      {
+        "chain_id": 11142220,
+        "address": "0x01C5C0122039549AD1493B8220cABEdD739BC44E"
+      }
+    ]
+  },
+  "annotations": [
+    {
+      "at": "TransferWithAuthorization",
+      "tag": "intent",
+      "args": {
+        "title": "Pay USDC by signature",
+        "template": "Send {value} from {from} to {to}, once. Valid after {validAfter}. Expires: {validBefore}."
+      }
+    },
+    {
+      "at": "TransferWithAuthorization",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true,
+        "grant": {
+          "to": "to",
+          "amount": "value",
+          "ends": [
+            "validBefore"
+          ]
+        }
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).from",
+      "tag": "describe",
+      "args": {
+        "label": "From"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).to",
+      "tag": "describe",
+      "args": {
+        "label": "To"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": 6,
+        "symbol": "USDC"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validAfter",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validAfter",
+      "tag": "describe",
+      "args": {
+        "label": "Valid after"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validBefore",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).validBefore",
+      "tag": "describe",
+      "args": {
+        "label": "Expires"
+      }
+    },
+    {
+      "at": "TransferWithAuthorization(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization",
+      "tag": "intent",
+      "args": {
+        "title": "Pay USDC by signature, collected by the payee",
+        "template": "Send {value} from {from} to {to}, once; only {to} can submit it. Valid after {validAfter}. Expires: {validBefore}."
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true,
+        "grant": {
+          "to": "to",
+          "amount": "value",
+          "ends": [
+            "validBefore"
+          ]
+        }
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).from",
+      "tag": "describe",
+      "args": {
+        "label": "From"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).to",
+      "tag": "describe",
+      "args": {
+        "label": "To"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": 6,
+        "symbol": "USDC"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validAfter",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validAfter",
+      "tag": "describe",
+      "args": {
+        "label": "Valid after"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validBefore",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).validBefore",
+      "tag": "describe",
+      "args": {
+        "label": "Expires"
+      }
+    },
+    {
+      "at": "ReceiveWithAuthorization(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "CancelAuthorization",
+      "tag": "intent",
+      "args": {
+        "title": "Cancel a USDC payment signature",
+        "template": "Cancel the unused USDC payment signature of {authorizer} with nonce {nonce}."
+      }
+    },
+    {
+      "at": "CancelAuthorization",
+      "tag": "effect",
+      "args": {
+        "kind": "write",
+        "irreversible": true
+      }
+    },
+    {
+      "at": "CancelAuthorization(0).authorizer",
+      "tag": "describe",
+      "args": {
+        "label": "Signer of the payment"
+      }
+    },
+    {
+      "at": "CancelAuthorization(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "Permit",
+      "tag": "intent",
+      "args": {
+        "title": "Permit USDC spending",
+        "template": "Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."
+      }
+    },
+    {
+      "at": "Permit",
+      "tag": "effect",
+      "args": {
+        "kind": "approve",
+        "irreversible": false,
+        "grant": {
+          "spender": "spender",
+          "amount": "value"
+        }
+      }
+    },
+    {
+      "at": "Permit(0).owner",
+      "tag": "describe",
+      "args": {
+        "label": "Owner"
+      }
+    },
+    {
+      "at": "Permit(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "Permit(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": 6,
+        "symbol": "USDC",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+      }
+    },
+    {
+      "at": "Permit(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "Permit(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "Permit(0).deadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "Permit(0).deadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    }
+  ]
+}

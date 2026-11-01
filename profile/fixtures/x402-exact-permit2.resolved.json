@@ -7,10 +7,38 @@
     {
       "name": "x402-exact-permit2",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:95f79ba50f10a6340d06e96527d9c944732599f87bca54ecfcfce877b9a8237b",
+      "profile_id": "candid-profile:v0:sha256:738df6785be150eccfbabf0f59473c7c4d23ddf3d9c53a8867bbcd9e56591c00",
       "deployments": [
         {
           "chain_id": 1,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 50,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 51,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 137,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 143,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 1328,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 1329,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 4326,
           "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
         },
         {
@@ -18,11 +46,47 @@
           "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
         },
         {
+          "chain_id": 10143,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 31612,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
           "chain_id": 42161,
           "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
         },
         {
+          "chain_id": 42220,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 43113,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 43114,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 80002,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
           "chain_id": 84532,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 421614,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 5042002,
+          "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        },
+        {
+          "chain_id": 11142220,
           "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
         }
       ],

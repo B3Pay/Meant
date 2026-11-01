@@ -1,0 +1,254 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "contract",
+  "name": "x402-upto-permit2",
+  "origin": "third_party",
+  "language": "en",
+  "description": "x402's `upto` payment through Permit2 (spec section 15.9, experimental): Permit2's PermitWitnessTransferFrom with x402's usage-based witness, Witness(address to,address facilitator,uint256 validAfter) (coinbase/x402, specs/schemes/upto/scheme_upto_evm.md). The payer signs a maximum, and the facilitator the witness names settles it once, for any amount from one unit up to that maximum, to `witness.to`, not before `validAfter` (contracts/evm/src/x402UptoPermit2Proxy.sol and x402BasePermit2Proxy.sol). Permit2 lets the spender choose where the tokens go and never reads the witness, so the witness's `to` is the payee only when the spender is x402's `upto` proxy, 0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002. The spender is therefore fixed to the proxy, and a request with any other spender gets no text (E_FIXED). The grant is the maximum, since the payer bears the risk of all of it being charged. Bound to Permit2's domain and to its deployments on the networks x402 names where the proxy has the same code (read on chain on 2026-11-01). Amounts are in the token the message names: a consumer supplies that token's decimals() and symbol(), and shows its address beside the symbol.",
+  "binds": {
+    "eip712": {
+      "domain": {
+        "name": "Permit2"
+      },
+      "types": {
+        "PermitWitnessTransferFrom": [
+          {
+            "name": "permitted",
+            "type": "TokenPermissions"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "name": "witness",
+            "type": "Witness"
+          }
+        ],
+        "TokenPermissions": [
+          {
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "Witness": [
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "facilitator",
+            "type": "address"
+          },
+          {
+            "name": "validAfter",
+            "type": "uint256"
+          }
+        ]
+      }
+    },
+    "deployments": [
+      {
+        "chain_id": 1,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 50,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 51,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 137,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 143,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 1328,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 1329,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 4326,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 8453,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 10143,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 31612,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 42161,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 43113,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 43114,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 80002,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 84532,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 421614,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 5042002,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      }
+    ]
+  },
+  "annotations": [
+    {
+      "at": "PermitWitnessTransferFrom",
+      "tag": "intent",
+      "args": {
+        "title": "Pay by x402 up to a maximum, through Permit2",
+        "template": "Send at most {permitted.amount} to {witness.to}, once, through x402's usage-based payment contract. Only {witness.facilitator} can settle it, and it chooses the amount. Usable from {witness.validAfter}. Signature expires: {deadline}."
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom",
+      "tag": "effect",
+      "args": {
+        "kind": "transfer",
+        "irreversible": true,
+        "grant": {
+          "to": "witness.to",
+          "amount": "permitted.amount",
+          "ends": [
+            "deadline"
+          ]
+        }
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).permitted.token",
+      "tag": "describe",
+      "args": {
+        "label": "Token"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).permitted.amount",
+      "tag": "amount",
+      "args": {
+        "token": "permitted.token"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).permitted.amount",
+      "tag": "describe",
+      "args": {
+        "label": "Maximum amount"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).spender",
+      "tag": "fixed",
+      "args": {
+        "value": "0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "x402's usage-based payment contract"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).deadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).deadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).witness.to",
+      "tag": "describe",
+      "args": {
+        "label": "To"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).witness.facilitator",
+      "tag": "describe",
+      "args": {
+        "label": "Settled by"
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).witness.validAfter",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "labels": {
+          "0": "now"
+        }
+      }
+    },
+    {
+      "at": "PermitWitnessTransferFrom(0).witness.validAfter",
+      "tag": "describe",
+      "args": {
+        "label": "Usable from"
+      }
+    }
+  ]
+}

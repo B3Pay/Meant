@@ -2,6 +2,17 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.6.0 — 2026-11-01
+
+- x402's usage-based payment, x402's other networks and USDC's permit (D-059, experimental). New standard contract
+  profiles, shipped beside the packs: `x402-upto-permit2`, x402's `upto` payment through Permit2 (witness
+  `Witness(address to,address facilitator,uint256 validAfter)`), its spender pinned to x402's `upto` proxy and its
+  grant the maximum to `witness.to`; and `usdc-domain-usdc`, USDC's messages on the eleven chains where it signs under
+  the domain name `USDC` (Base Sepolia among them). `usdc` and `usdc-domain-usdc` also read USDC's EIP-2612 `Permit`
+  (`approve`, a grant to `spender` that never ends). `usdc` lists chains 1, 137, 8453, 42161, 43113, 43114 and 421614;
+  `x402-exact-permit2` 20 networks; `permit2` 23. Their profile ids changed. `usdc-base-sepolia` is unchanged and kept
+  for 0.5.0 code; `usdc-domain-usdc` reads the same messages there with the same words.
+
 ## 0.5.0 — 2026-10-30
 
 - Pins, experimental (spec §15.4, D-058): the new tag `fixed`, with `value` one address, says that a profile describes

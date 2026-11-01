@@ -238,7 +238,7 @@ test("EIP-712 messages: Permit2 as ERC-7730 writes it, a field group per array, 
   const resolved = (await validateProfile(pack("permit2"), { validateSchema, resolved: true })).resolved;
   const { descriptor, descriptorHash: hash, notes } = erc7730Descriptor(resolved, { context: "eip712" });
   assertValid(descriptor);
-  assert.deepEqual(descriptor.context, { eip712: { domain: { name: "Permit2" }, deployments: [1, 8453, 42161, 84532].map((chainId) => ({ chainId, address: PERMIT2 })) } });
+  assert.deepEqual(descriptor.context, { eip712: { domain: { name: "Permit2" }, deployments: [1, 14, 50, 51, 137, 143, 988, 1328, 1329, 2201, 4326, 8453, 10143, 31612, 42161, 42220, 43113, 43114, 80002, 84532, 421614, 5042002, 11142220].map((chainId) => ({ chainId, address: PERMIT2 })) } });
   const formats = descriptor.display.formats;
   assert.deepEqual(Object.keys(formats), [
     "PermitBatch(PermitDetails[] details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)",
@@ -284,7 +284,7 @@ test("EIP-712 messages: Permit2 as ERC-7730 writes it, a field group per array, 
     "PermitBatch: intent template: {details[].amount} reads every element of an array; an ERC-7730 interpolation shows one value; interpolatedIntent is left out",
     "PermitBatchTransferFrom: intent template: {permitted[].amount} reads every element of an array; an ERC-7730 interpolation shows one value; interpolatedIntent is left out",
   ]);
-  assert.equal(hash, "0x0a1226d12d94b5e92526ea67f5cae15bee9f621b028fdecf60b9ec8cfb8faf4e");
+  assert.equal(hash, "0x18ff5558d529268a9d84f8111073cd9be77cfc596e3d20df58f6ff19dbf6c3b3");
   // a resolved form whose encode_type does not hash to its type_hash is not trusted
   const forged = structuredClone(resolved);
   forged.messages.PermitSingle.encode_type = forged.messages.PermitSingle.encode_type.replace("uint160 amount", "uint256 amount");
@@ -323,7 +323,7 @@ test("x402's Permit2 payment (D-058): the pinned spender is a hidden field that 
   const resolved = (await validateProfile(pack("x402-exact-permit2"), { validateSchema, resolved: true })).resolved;
   const { descriptor, descriptorHash: hash, notes } = erc7730Descriptor(resolved, { context: "eip712" });
   assertValid(descriptor);
-  assert.deepEqual(descriptor.context, { eip712: { domain: { name: "Permit2" }, deployments: [1, 8453, 42161, 84532].map((chainId) => ({ chainId, address: PERMIT2 })) } });
+  assert.deepEqual(descriptor.context, { eip712: { domain: { name: "Permit2" }, deployments: [1, 50, 51, 137, 143, 1328, 1329, 4326, 8453, 10143, 31612, 42161, 42220, 43113, 43114, 80002, 84532, 421614, 5042002, 11142220].map((chainId) => ({ chainId, address: PERMIT2 })) } });
   const date = (path, label) => ({ path, label, format: "date", params: { encoding: "timestamp" } });
   assert.deepEqual(descriptor.display.formats, {
     "PermitWitnessTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline,Witness witness)TokenPermissions(address token,uint256 amount)Witness(address to,uint256 validAfter)": {
@@ -345,7 +345,7 @@ test("x402's Permit2 payment (D-058): the pinned spender is a hidden field that 
     "PermitWitnessTransferFrom(0).deadline: the timestamp's threshold has no ERC-7730 date form and is left out; the file shows the date",
     "PermitWitnessTransferFrom(0).witness.validAfter: the timestamp's labels has no ERC-7730 date form and is left out; the file shows the date",
   ]);
-  assert.equal(hash, "0xdef7129dc352fc0a6b84b6d970e7bbe1437207cead85d43bf06afdf4e81832fe");
+  assert.equal(hash, "0xef256d057be9fa6ab23fe5275b7a438ec9f8528272719731f92a8247bb7c2119");
   // ERC-7730: an interpolation names only fields that are always shown, so a template that names the pin gets none
   const named = structuredClone(resolved);
   named.messages.PermitWitnessTransferFrom.tags.intent.args.template = "Send {permitted.amount} to {witness.to} through {spender}.";
@@ -359,29 +359,70 @@ test("x402's Permit2 payment (D-058): the pinned spender is a hidden field that 
   assert.match(codeOf(() => erc7730Descriptor(forged, { context: "eip712" })), /^E_RESOLVED_FORM: PermitWitnessTransferFrom\(0\)\.spender: fixed: /);
 });
 
-test("USDC's EIP-3009 messages (D-058): amounts in the verifying contract, USDC by name; Base Sepolia's file is its own", async () => {
+test("x402's upto payment (D-059): its proxy a hidden field that must match, its facilitator shown and named in the intent", async () => {
+  const UPTO = "0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002";
+  const resolved = (await validateProfile(pack("x402-upto-permit2"), { validateSchema, resolved: true })).resolved;
+  const { descriptor, descriptorHash: hash, notes } = erc7730Descriptor(resolved, { context: "eip712" });
+  assertValid(descriptor);
+  assert.deepEqual(descriptor.context, { eip712: { domain: { name: "Permit2" }, deployments: [1, 50, 51, 137, 143, 1328, 1329, 4326, 8453, 10143, 31612, 42161, 43113, 43114, 80002, 84532, 421614, 5042002].map((chainId) => ({ chainId, address: PERMIT2 })) } });
+  const date = (path, label) => ({ path, label, format: "date", params: { encoding: "timestamp" } });
+  assert.deepEqual(descriptor.display.formats, {
+    "PermitWitnessTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline,Witness witness)TokenPermissions(address token,uint256 amount)Witness(address to,address facilitator,uint256 validAfter)": {
+      intent: "Pay by x402 up to a maximum, through Permit2",
+      interpolatedIntent: "Send at most {permitted.amount} to {witness.to}, once, through x402's usage-based payment contract. Only {witness.facilitator} can settle it, and it chooses the amount. Usable from {witness.validAfter}. Signature expires: {deadline}.",
+      fields: [
+        { path: "permitted.token", label: "Token", format: "addressName" },
+        { path: "permitted.amount", label: "Maximum amount", format: "tokenAmount", params: { tokenPath: "permitted.token" } },
+        { path: "spender", label: "x402's usage-based payment contract", visible: { mustMatch: [UPTO] }, format: "addressName" },
+        { path: "nonce", label: "Nonce", format: "raw" },
+        date("deadline", "Signature expires"),
+        { path: "witness.to", label: "To", format: "addressName" },
+        { path: "witness.facilitator", label: "Settled by", format: "addressName" },
+        date("witness.validAfter", "Usable from"),
+      ],
+    },
+  });
+  assert.deepEqual(notes, [
+    "PermitWitnessTransferFrom(0).deadline: the timestamp's threshold has no ERC-7730 date form and is left out; the file shows the date",
+    "PermitWitnessTransferFrom(0).witness.validAfter: the timestamp's labels has no ERC-7730 date form and is left out; the file shows the date",
+  ]);
+  assert.equal(hash, "0xcaece68af1ae484378ae8641d6834d494e412bc55d24f939217a4787284d77f3");
+});
+
+test("USDC's EIP-3009 messages and permit (D-058, D-059): amounts in the verifying contract, USDC by name; a file per domain name", async () => {
   const usdc = (await validateProfile(pack("usdc"), { validateSchema, resolved: true })).resolved;
   const u = erc7730Descriptor(usdc, { context: "eip712", token: { name: "USD Coin" } });
   assertValid(u.descriptor);
   assert.deepEqual(u.descriptor.context.eip712.domain, { name: "USD Coin", version: "2" });
-  assert.deepEqual(u.descriptor.context.eip712.deployments.map((d) => d.chainId), [1, 8453, 42161]);
+  assert.deepEqual(u.descriptor.context.eip712.deployments.map((d) => d.chainId), [1, 137, 8453, 42161, 43113, 43114, 421614]);
   assert.deepEqual(u.descriptor.metadata, { token: { name: "USD Coin", ticker: "USDC", decimals: 6 } });
   const transfer = u.descriptor.display.formats["TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"];
   assert.equal(transfer.interpolatedIntent, "Send {value} from {from} to {to}, once. Valid after {validAfter}. Expires: {validBefore}.");
   assert.deepEqual(transfer.fields.find((f) => f.path === "value"), { path: "value", label: "Amount", format: "tokenAmount", params: { tokenPath: "@.to" } });
   assert.deepEqual(Object.keys(u.descriptor.display.formats), [
     "CancelAuthorization(address authorizer,bytes32 nonce)",
+    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)",
     "ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)",
     "TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)",
   ]);
-  assert.equal(u.descriptorHash, "0xbc15fc80f5bb9057472df1cef52cb0f85cd27fc5dbd96d8682d6d976724be49b");
+  // the permit's amount is in the verifying contract too, and uint256 max reads as unlimited, as EIP-2612's pack writes it
+  assert.deepEqual(u.descriptor.display.formats["Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"].fields.find((f) => f.path === "value"), { path: "value", label: "Amount", format: "tokenAmount", params: { tokenPath: "@.to", threshold: MAX, message: "Unlimited" } });
+  assert.equal(u.descriptorHash, "0xfdf2ec0e39037bbd78d80bf224c53ae7cd255145bcc1abd9e44dec0c2b064da0");
+  // where USDC signs as USDC: the same formats under the other name, on its eleven chains
+  const named = (await validateProfile(pack("usdc-domain-usdc"), { validateSchema, resolved: true })).resolved;
+  const n = erc7730Descriptor(named, { context: "eip712", token: { name: "USDC" } });
+  assertValid(n.descriptor);
+  assert.deepEqual(n.descriptor.context.eip712.domain, { name: "USDC", version: "2" });
+  assert.deepEqual(n.descriptor.context.eip712.deployments.map((d) => d.chainId), [50, 51, 143, 1328, 1329, 10143, 42220, 80002, 84532, 5042002, 11142220]);
+  assert.deepEqual(n.descriptor.display, u.descriptor.display);
+  assert.equal(n.descriptorHash, "0x3ea9c998bbb10657224d10511082d6fe6592af1df55b252e215ea89ec5a92afc");
   const sepolia = (await validateProfile(pack("usdc-base-sepolia"), { validateSchema, resolved: true })).resolved;
   const s = erc7730Descriptor(sepolia, { context: "eip712", token: { name: "USDC" } });
   assertValid(s.descriptor);
   assert.deepEqual(s.descriptor.context.eip712, { domain: { name: "USDC", version: "2" }, deployments: [{ chainId: 84532, address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e" }] });
   assert.equal(s.descriptorHash, "0x237a0464f4385456cad1690c04a7bbcdc5ab5469618ff0b99134f9d0cf42dc1e");
   // a literal amount is the contract's own token only when the caller says so
-  assert.match(codeOf(() => erc7730Descriptor(usdc, { context: "eip712" })), /^E_EXPORT: no ERC-7730 file: ReceiveWithAuthorization\(0\)\.value: amount with literal decimals and symbol: .*; TransferWithAuthorization\(0\)\.value: amount with literal decimals and symbol: /);
+  assert.match(codeOf(() => erc7730Descriptor(usdc, { context: "eip712" })), /^E_EXPORT: no ERC-7730 file: Permit\(0\)\.value: amount with literal decimals and symbol: .*; ReceiveWithAuthorization\(0\)\.value: amount with literal decimals and symbol: .*; TransferWithAuthorization\(0\)\.value: amount with literal decimals and symbol: /);
 });
 
 test("EIP-712 messages: an amount in a group whose token is outside it has no path ERC-7730 can write", async () => {

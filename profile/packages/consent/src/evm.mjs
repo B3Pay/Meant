@@ -88,8 +88,19 @@ function checkTarget(resolved, to, chain) {
     if (!Array.isArray(p?.deployments)) continue;
     if (chain === null) fail(CODES.REQUEST, `profile ${p.name} binds deployments: give the chainId of the call`);
     const listed = p.deployments.some((d) => String(d.chain_id) === chain && typeof d.address === "string" && d.address.toLowerCase() === to.toLowerCase());
-    if (!listed) fail(CODES.DEPLOYMENT, `profile ${p.name} describes ${p.deployments.map((d) => `${d.address} on chain ${d.chain_id}`).join(", ")}, not ${to} on chain ${chain}`);
+    if (!listed) fail(CODES.DEPLOYMENT, `profile ${p.name} describes ${deploymentsText(p.deployments)}, not ${to} on chain ${chain}`);
   }
+}
+
+/** A profile's deployments in words, each address once with its chains in the profile's order: "0xA0b8… on chain 1; 0x0000…8BA3 on chains 1, 8453". */
+function deploymentsText(deployments) {
+  const chains = new Map();
+  for (const d of deployments) {
+    const key = String(d?.address).toLowerCase();
+    if (!chains.has(key)) chains.set(key, { address: String(d?.address), ids: [] });
+    chains.get(key).ids.push(d?.chain_id);
+  }
+  return [...chains.values()].map(({ address, ids }) => `${address} on chain${ids.length > 1 ? "s" : ""} ${ids.join(", ")}`).join("; ");
 }
 
 /** The caller's `tokens`: the decimals and symbol of each token, keyed by its address in any valid spelling. */

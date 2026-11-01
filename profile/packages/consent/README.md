@@ -291,9 +291,12 @@ Untrusted third-party data lives in `test/upstream/icrc21/` (the standard, commi
 - A profile is a claim, not a proof (spec section 11 item 1). `provenance` tells the signer which profile wrote the words; `rawArguments: true` appends the decoded raw arguments for transfer, approve, admin and destroy.
 - Dynamic refs come from a single replica unless the caller certifies them (section 11 item 2). Resolve `decimals` and `symbol` through an update call or cross-check with `icrc1_metadata` before showing a transfer. Generation inside the canister avoids this.
 - The package has no I/O. Work is bounded: decoder budgets, field and element limits, message size.
-- A pin (`fixed`) protects only a consumer that reads it (section 11 item 11): x402's Permit2 payment pays its payee
-  only through x402's proxy, and a consumer that skips the tag shows its words for any spender. This package reads it
-  from 0.5.0; give a resolved form that holds pins to no older consumer.
+- A pin (`fixed`) protects only a consumer that reads it (section 11 item 11): x402's Permit2 payments pay their
+  payee only through x402's proxies, and a consumer that skips the tag shows their words for any spender. This package
+  reads it from 0.5.0; give a resolved form that holds pins to no older consumer.
+- An x402 `upto` payment's grant is its maximum, which the facilitator it names may settle in full; terms check that.
+  A USDC permit that comes with one lets Permit2 spend, with no end, so terms for the payee never pass it: it needs a
+  person's yes, terms that name Permit2 and never end, or an approval of Permit2 that the wallet makes once.
 
 ## Not done
 

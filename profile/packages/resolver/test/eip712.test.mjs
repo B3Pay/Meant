@@ -1,7 +1,8 @@
 // EIP-712 typed messages (spec section 15.9, D-055): the types a profile binds, the messages it describes, an amount in
-// a token another field names, and the standard files (EIP-2612, Permit2, DAI). The type hashes pinned below were
-// computed by an independent Python EIP-712 from the EIP's text, and the DAI one is the constant in dai.sol. Unit
-// tests only: no chain, no network, nothing signed.
+// a token another field names, and the standard files (EIP-2612, Permit2, DAI, USDC, x402's two Permit2 payments). The
+// type hashes pinned below were computed by an independent Python EIP-712 from the EIP's text; the DAI one is the
+// constant in dai.sol, and USDC's are its contracts' own constants (D-058, D-059). Unit tests only: no chain, no
+// network, nothing signed.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readJson, validateSchema } from "./helpers.mjs";
@@ -12,6 +13,11 @@ const erc20 = await readJson("packs/erc20.profile.json");
 const erc2612 = await readJson("packs/erc2612.profile.json");
 const permit2 = await readJson("packs/permit2.profile.json");
 const daiPermit = await readJson("packs/dai-permit.profile.json");
+const usdc = await readJson("packs/usdc.profile.json");
+const usdcNamed = await readJson("packs/usdc-domain-usdc.profile.json");
+const usdcSepolia = await readJson("packs/usdc-base-sepolia.profile.json");
+const x402Exact = await readJson("packs/x402-exact-permit2.profile.json");
+const x402Upto = await readJson("packs/x402-upto-permit2.profile.json");
 const codeOf = (fn) => {
   try {
     fn();
@@ -93,8 +99,21 @@ test("the standard files: their messages' type hashes are the standards' own", a
       PermitSingle: "0xf3841cd1ff0085026a6327b620b67997ce40f282c88a8e905a7a5626e310f3d0",
       PermitTransferFrom: "0x939c21a48a8dbe3a9a2404a1d46691e4d39f6583d6ec6b35714604c986d80106",
     },
+    // USDC's: each contract's own TRANSFER_, RECEIVE_ and CANCEL_AUTHORIZATION_TYPEHASH and PERMIT_TYPEHASH, read on chain
+    usdc: {
+      CancelAuthorization: "0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429",
+      Permit: "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9",
+      ReceiveWithAuthorization: "0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8",
+      TransferWithAuthorization: "0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267",
+    },
+    // x402's: Permit2's witness stub with each proxy's WITNESS_TYPE_STRING, the hash Permit2 checks
+    "x402-exact-permit2": { PermitWitnessTransferFrom: "0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7" },
+    "x402-upto-permit2": { PermitWitnessTransferFrom: "0x51dff6974ad4388c499e7fcfe838d2bd767162553a144098ce20ea661d70c2ee" },
   };
-  for (const doc of [erc2612, daiPermit, permit2]) {
+  expected["usdc-domain-usdc"] = expected.usdc;
+  const { Permit: _permit, ...eip3009 } = expected.usdc;
+  expected["usdc-base-sepolia"] = eip3009; // as 0.5.0 published it, without the permit
+  for (const doc of [erc2612, daiPermit, permit2, usdc, usdcNamed, usdcSepolia, x402Exact, x402Upto]) {
     const v = await validateProfile(doc, { validateSchema, resolved: true });
     assert.equal(v.ok, true, JSON.stringify(v.diagnostics));
     assert.deepEqual(v.diagnostics.filter((d) => d.severity !== "info"), [], doc.name);

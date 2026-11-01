@@ -5,7 +5,7 @@
   "name": "x402-exact-permit2",
   "origin": "third_party",
   "language": "en",
-  "description": "x402's `exact` payment through Permit2 (spec section 15.9, experimental): Permit2's PermitWitnessTransferFrom with x402's witness, Witness(address to,uint256 validAfter), which x402 uses for tokens without EIP-3009 (coinbase/x402, specs/schemes/exact/scheme_exact_evm.md). Permit2 lets the spender choose where the tokens go and never reads the witness, so the witness's `to` is the payee only when the spender is x402's proxy, 0x402085c248EeA27D92E8b30b2C58ed07f9E20001, whose `settle` sends exactly `permitted.amount` to `witness.to`, not before `validAfter` (contracts/evm/src/x402BasePermit2Proxy.sol). The spender is therefore fixed to the proxy, and a request with any other spender gets no text (E_FIXED). Bound to Permit2's domain and deployments; the proxy has the same code on each of these chains (read on chain on 2026-10-30). Amounts are in the token the message names: a consumer supplies that token's decimals() and symbol(), and shows its address beside the symbol.",
+  "description": "x402's `exact` payment through Permit2 (spec section 15.9, experimental): Permit2's PermitWitnessTransferFrom with x402's witness, Witness(address to,uint256 validAfter), which x402 uses for tokens without EIP-3009 (coinbase/x402, specs/schemes/exact/scheme_exact_evm.md). Permit2 lets the spender choose where the tokens go and never reads the witness, so the witness's `to` is the payee only when the spender is x402's proxy, 0x402085c248EeA27D92E8b30b2C58ed07f9E20001, whose `settle` sends exactly `permitted.amount` to `witness.to`, not before `validAfter` (contracts/evm/src/x402BasePermit2Proxy.sol). The spender is therefore fixed to the proxy, and a request with any other spender gets no text (E_FIXED). Bound to Permit2's domain and to its deployments on the networks x402 names where the proxy has the same code (read on chain: chains 1, 8453, 42161 and 84532 on 2026-10-30, the others on 2026-11-01). x402's `upto` payment signs another witness, described by the x402-upto-permit2 profile. Amounts are in the token the message names: a consumer supplies that token's decimals() and symbol(), and shows its address beside the symbol.",
   "binds": {
     "eip712": {
       "domain": {
@@ -62,7 +62,43 @@
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       },
       {
+        "chain_id": 50,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 51,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 137,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 143,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 1328,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 1329,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 4326,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
         "chain_id": 8453,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 10143,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 31612,
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       },
       {
@@ -70,7 +106,35 @@
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       },
       {
+        "chain_id": 42220,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 43113,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 43114,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 80002,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
         "chain_id": 84532,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 421614,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 5042002,
+        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+      },
+      {
+        "chain_id": 11142220,
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       }
     ]
