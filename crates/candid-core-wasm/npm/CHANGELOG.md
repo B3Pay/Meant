@@ -17,7 +17,7 @@ fixtures.
 grammar, the library API, and the request/response shapes. Pin an exact
 version.
 
-## 0.5.0 — 2026-10-31
+## 0.5.0 — 2026-10-30
 
 Embeds `meant` 0.1.0 and the `candid-core-ts` generator from the repository
 commit the release is dispatched from; the release record names the exact
