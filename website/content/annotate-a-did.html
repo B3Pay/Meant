@@ -37,12 +37,12 @@ service : {
 
 <h2>Read the comments into a profile</h2>
 
-<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.6.0 @candid-core/cli@0.4.0</pre>
+<pre data-lang="bash">npm install --save-exact @meantjs/profile@0.6.0 @meantjs/cli@0.5.0</pre>
 
 <p>Save this as <code>from-docs.mjs</code> beside <code>tokens.did</code>:</p>
 
 <pre data-lang="js" data-check>import { readFileSync } from "node:fs";
-import { didToDocAttributes } from "@candid-core/cli";
+import { didToDocAttributes } from "@meantjs/cli";
 import { createSchemaValidator, profileFromDocAttributes, resolveService } from "@meantjs/profile";
 
 const did = readFileSync("tokens.did", "utf8");
@@ -70,7 +70,7 @@ type:Tokens.e8s           describe     {"label":"Amount"}
 true [ 'tokens-docs applied' ] 0</pre>
 
 <p>
-  Two calls do the work. <code>didToDocAttributes</code> from <code>@candid-core/cli</code> compiles
+  Two calls do the work. <code>didToDocAttributes</code> from <code>@meantjs/cli</code> compiles
   the <code>.did</code> and parses every <code>@name(…)</code> doc line, failing on a malformed one;
   it gives no name a meaning. <code>profileFromDocAttributes</code> from
   <code>@meantjs/profile</code> keeps the names that are profile tags, works out the address each one
@@ -283,7 +283,7 @@ warning  W_DOC_UNKNOWN_TAG  send   doc line 2: @amout: not a profile tag; did yo
 <h2>Identity</h2>
 
 <pre data-lang="js" data-check>import { readFileSync } from "node:fs";
-import { didToDocAttributes } from "@candid-core/cli";
+import { didToDocAttributes } from "@meantjs/cli";
 
 for (const file of ["tokens.plain.did", "tokens.did"]) {
   const r = await didToDocAttributes(readFileSync(file, "utf8"));

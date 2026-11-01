@@ -256,7 +256,7 @@ const r = await resolveService({ did, validateSchema, packs: STANDARD_PACKS.map(
 
 <h2>Resolve from a ContractEnvelope</h2>
 
-<pre data-lang="bash">npx candid-core-cli gen tokens.did -o gen
+<pre data-lang="bash">npx @meantjs/cli@0.5.0 gen tokens.did -o gen
 npx candid-profile resolve --envelope gen/tokens.envelope.json --profile tokens.profile.json > tokens.resolved.json</pre>
 <pre data-lang="text">contract:  candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
 interface: candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
@@ -270,13 +270,13 @@ candid-profile: gen/tokens.envelope.json  candid-core:interface:v1:sha256:f83586
 import { createSchemaValidator, resolveService } from "@meantjs/profile";
 
 const validateSchema = await createSchemaValidator();
-const envelope = JSON.parse(readFileSync("gen/tokens.envelope.json", "utf8")); // written by candid-core-cli gen
+const envelope = JSON.parse(readFileSync("gen/tokens.envelope.json", "utf8")); // written by meant gen
 const doc = JSON.parse(readFileSync("tokens.profile.json", "utf8"));
 
 const r = await resolveService({ envelope, didLabel: "gen/tokens.envelope.json", validateSchema, profiles: [{ doc }] });</pre>
 
 <p>
-  An app that generates its TypeScript with <code>candid-core-cli gen</code> already has the
+  An app that generates its TypeScript with <code>meant gen</code> already has the
   service's Contract, in the envelope written beside the module. Pass it as <code>envelope</code>
   (<code>--envelope</code> on the command line) and the service is not compiled again
   (decision D-039). The resolved form is the same as from the <code>.did</code>: the run above

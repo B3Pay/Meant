@@ -2,14 +2,19 @@
   This page is for code written against <code>@candid-core/schema</code> <code>0.3.0</code> and
   <code>@candid-core/cli</code> <code>0.2.0</code>, the stable pair published on 2026-10-06, and
   takes it to the next one, <code>@candid-core/schema</code> <code>0.4.0</code> and
-  <code>@candid-core/cli</code> <code>0.3.0</code>, published on 2026-10-10. The npm
-  <code>latest</code> dist-tag has moved on since, to <code>0.5.0</code> and <code>0.4.0</code>,
-  published on 2026-10-27, and <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> covers
-  that step. Every change is recorded under those two versions
+  <code>@candid-core/cli</code> <code>0.3.0</code>, published on 2026-10-10. The newest stable
+  pair has moved on since, to <code>0.5.0</code> and <code>0.4.0</code>, published on 2026-10-27,
+  and then to the same code under new names, <code>@meantjs/schema</code> <code>0.6.0</code> and
+  <code>@meantjs/cli</code> <code>0.5.0</code>, published on 2026-11-01 under the npm
+  <code>latest</code> dist-tag; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> and
+  <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> cover those steps. The blocks on this
+  page import the new names, as code does after those steps; on this page's pair they import
+  <code>@candid-core/schema</code>, with the same subpaths. Every change of this step is recorded
+  under <code>0.4.0</code> and <code>0.3.0</code>
   in the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md"><code>@candid-core/schema</code> changelog</a>
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md">schema package's changelog</a>
   and the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md"><code>@candid-core/cli</code> changelog</a>.
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
   Coming from <code>0.2.0</code> and <code>0.1.0</code>, read
   <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> first.
 </p>
@@ -89,7 +94,7 @@ void exact;
 <p>Compare the parts a call layer reads instead, and the mode, which is new:</p>
 
 <pre data-lang="ts" data-check>
-import type { ModeOf } from "@candid-core/schema";
+import type { ModeOf } from "@meantjs/schema";
 import type { Actor, Tokens } from "./ledger.ts";
 
 type Equal<A, B> =
@@ -139,17 +144,18 @@ export { $Tokens as Tokens };
   Move both packages in one step. The CLI peers its schema release exactly, and npm refuses a
   mismatched pair (<code>ERESOLVE could not resolve</code>): <code>@candid-core/cli</code>
   <code>0.2.0</code> peers <code>0.3.0</code>, and <code>0.3.0</code> peers <code>0.4.0</code>. The
-  plain lines select the newest stable pair from <code>latest</code>, <code>0.5.0</code> and
-  <code>0.4.0</code>, which takes the next step as well
-  (<a href="migrating-from-0-4.html">Migrating from 0.4.0</a>):
+  plain lines select the newest stable pair from <code>latest</code>, <code>@meantjs/schema</code>
+  <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, which takes the next two
+  steps as well (<a href="migrating-from-0-4.html">Migrating from 0.4.0</a> and
+  <a href="migrating-from-0-5.html">Migrating from 0.5.0</a>):
 </p>
 
 <pre data-lang="bash">
-npm install --save-exact @candid-core/schema
-npm install --save-dev --save-exact @candid-core/cli
+npm install --save-exact @meantjs/schema
+npm install --save-dev --save-exact @meantjs/cli
 </pre>
 
-<p>To stop at this page's pair, name its versions:</p>
+<p>To stop at this page's pair, name it under its old names, with its versions:</p>
 
 <pre data-lang="bash">
 npm install --save-exact @candid-core/schema@0.4.0
@@ -157,7 +163,8 @@ npm install --save-dev --save-exact @candid-core/cli@0.3.0
 </pre>
 
 <p>
-  Then run <code>candid-core-cli gen</code> over every committed module, and fix what the compiler
+  Then run <code>meant gen</code> (<code>candid-core-cli gen</code> on this page's pair) over every
+  committed module, and fix what the compiler
   reports, which for code that imports the generated names is nothing but an exact-equality test
   like the one above.
 </p>

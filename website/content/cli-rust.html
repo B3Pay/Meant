@@ -267,7 +267,7 @@ usage: meant compile <path> [--no-source-info | --envelope]
 
 <p>
   This mode prints a different document: the envelope itself, with no <code>ok</code> wrapper, so the
-  output can be saved whole and handed to <code>@candid-core/schema</code>'s
+  output can be saved whole and handed to <code>@meantjs/schema</code>'s
   <a href="schema-from-contract.html"><code>schemaFromContract</code></a>. An <em>envelope</em> is a
   Contract plus a map of namespaced extensions, and extensions live outside the canonical identities by
   design — attaching one never moves <code>contract_id</code> or <code>interface_id</code>.
@@ -565,6 +565,6 @@ echo "interface unchanged: $actual"
   <a href="reference-json.html">JSON document formats</a> documents every key in the documents above.
   <a href="reference-diagnostics.html">Diagnostics reference</a> lists the structured error shape the
   Rust crate and the TypeScript runtime share. If your project has no Rust toolchain, the WebAssembly
-  build of this same pipeline is described in <a href="cli-npm.html">@candid-core/cli</a> — read the
+  build of this same pipeline is described in <a href="cli-npm.html">@meantjs/cli</a> — read the
   status note at the top of that page first.
 </p>

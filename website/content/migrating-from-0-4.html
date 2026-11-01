@@ -2,12 +2,17 @@
   This page is for code written against <code>@candid-core/schema</code> <code>0.4.0</code> and
   <code>@candid-core/cli</code> <code>0.3.0</code>, the stable pair published on 2026-10-10, and
   takes it to the next one, <code>@candid-core/schema</code> <code>0.5.0</code> and
-  <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27 under the npm
-  <code>latest</code> dist-tag. Every change is recorded under those two versions
+  <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27. The npm
+  <code>latest</code> dist-tag has moved on since, to the same code under new names,
+  <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>,
+  published on 2026-11-01, and <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> covers
+  that step. The blocks on this page import the new names, as code does after that step; on this
+  page's pair they import <code>@candid-core/schema</code>, with the same subpaths. Every change of
+  this step is recorded under <code>0.5.0</code> and <code>0.4.0</code>
   in the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md"><code>@candid-core/schema</code> changelog</a>
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md">schema package's changelog</a>
   and the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md"><code>@candid-core/cli</code> changelog</a>.
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
   Coming from an earlier pair, read
   <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
   <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> first.
@@ -63,8 +68,8 @@
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2352@12">
-import { c } from "@candid-core/schema";
-import { decode } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { decode } from "@meantjs/schema/codec";
 
 const Account = c.record({ owner: c.principal, balance: c.nat });
 
@@ -82,8 +87,8 @@ if (decoded.ok) {
 <p>Drop the cast, and take the schema's own type, which the value already has:</p>
 
 <pre data-lang="ts" data-check>
-import { c, type Infer } from "@candid-core/schema";
-import { decode } from "@candid-core/schema/codec";
+import { c, type Infer } from "@meantjs/schema";
+import { decode } from "@meantjs/schema/codec";
 
 const Account = c.record({ owner: c.principal, balance: c.nat });
 type Account = Infer<typeof Account>;
@@ -103,8 +108,8 @@ if (decoded.ok) {
 </p>
 
 <pre data-lang="ts" data-check-fails="TS2322@6">
-import { c } from "@candid-core/schema";
-import { decodeArgs } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { decodeArgs } from "@meantjs/schema/codec";
 
 declare const reply: Uint8Array;
 let result = decodeArgs([c.nat], reply);
@@ -118,8 +123,8 @@ void result;
 </p>
 
 <pre data-lang="ts" data-check>
-import { c } from "@candid-core/schema";
-import { decodeArgs, type DecodeResult } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { decodeArgs, type DecodeResult } from "@meantjs/schema/codec";
 
 declare const reply: Uint8Array;
 const fee = decodeArgs([c.nat], reply);
@@ -236,16 +241,26 @@ void same;
   Move both packages in one step. The CLI peers its schema release exactly, and npm refuses a
   mismatched pair (<code>ERESOLVE could not resolve</code>): <code>@candid-core/cli</code>
   <code>0.3.0</code> peers <code>0.4.0</code>, and <code>0.4.0</code> peers <code>0.5.0</code>. The
-  plain lines select both from <code>latest</code>:
+  plain lines select the newest stable pair from <code>latest</code>, <code>@meantjs/schema</code>
+  <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, which takes the next step as
+  well (<a href="migrating-from-0-5.html">Migrating from 0.5.0</a>):
 </p>
 
 <pre data-lang="bash">
-npm install --save-exact @candid-core/schema
-npm install --save-dev --save-exact @candid-core/cli
+npm install --save-exact @meantjs/schema
+npm install --save-dev --save-exact @meantjs/cli
+</pre>
+
+<p>To stop at this page's pair, name it under its old names, with its versions:</p>
+
+<pre data-lang="bash">
+npm install --save-exact @candid-core/schema@0.5.0
+npm install --save-dev --save-exact @candid-core/cli@0.4.0
 </pre>
 
 <p>
-  Then run <code>candid-core-cli gen</code> over every committed module, and fix what the compiler
+  Then run <code>meant gen</code> (<code>candid-core-cli gen</code> on this page's pair) over every
+  committed module, and fix what the compiler
   reports, which for code that imports the generated names is nothing, and where code decodes is
   the casts above. Every module either CLI writes for the repository's <code>.did</code> files
   compiles against either schema release, so the order inside that one step does not matter to
