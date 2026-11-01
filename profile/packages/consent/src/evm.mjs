@@ -252,6 +252,7 @@ function readTyped(types, type, value, where, budget) {
   if (int) {
     let x;
     if (typeof value === "number" && Number.isSafeInteger(value)) x = BigInt(value);
+    else if (typeof value === "bigint") x = value; // as viem and x402's clients pass uint256 values
     else if (typeof value === "string" && /^-?(?:0|[1-9][0-9]*)$/.test(value) && value !== "-0") x = BigInt(value);
     else bad(`${type} needs a decimal string or a JSON integer below 2^53, got ${JSON.stringify(value)}`);
     const bits = BigInt(int[2]);

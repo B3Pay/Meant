@@ -1,6 +1,6 @@
 {
   "name": "@meantjs/consent",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "ICRC-21 consent messages and SNS proposal validator renderings generated from a Candid Profile resolved form: any method, both GenericDisplayMessage and FieldsDisplayMessage, values formatted and escaped, nothing rounded.",
   "license": "Apache-2.0",
   "repository": {
@@ -23,7 +23,8 @@
     "evm",
     "erc-7730",
     "erc-8176",
-    "clear-signing"
+    "clear-signing",
+    "x402"
   ],
   "type": "module",
   "sideEffects": false,
@@ -50,6 +51,10 @@
       "types": "./src/terms.d.mts",
       "default": "./src/terms.mjs"
     },
+    "./guard": {
+      "types": "./src/guard.d.mts",
+      "default": "./src/guard.mjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -68,8 +73,8 @@
   },
   "dependencies": {
     "@candid-core/schema": "0.5.0",
-    "@meantjs/format": "0.6.0",
-    "@meantjs/profile": "0.6.0"
+    "@meantjs/format": "0.7.0",
+    "@meantjs/profile": "0.7.0"
   },
   "devDependencies": {
     "@dfinity/didc": "0.0.4",
