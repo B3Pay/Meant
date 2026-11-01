@@ -349,11 +349,12 @@ parseEip712Types({ Short: [{ name: "x", type: "uint" }] }).errors;
 
 <p>
   JSON documents, not modules: <code>./schema.json</code> is the package's copy of
-  <code>spec/profile-v0.schema.json</code>, and <code>./packs/*</code> its copies of the nine standard files of
+  <code>spec/profile-v0.schema.json</code>, and <code>./packs/*</code> its copies of the eleven standard files of
   <code>profile/packs/</code>: the packs <code>icrc1.profile.json</code>, <code>icrc2.profile.json</code>,
   <code>erc20.profile.json</code> and <code>erc2612.profile.json</code>, and the EVM contract profiles
   <code>permit2.profile.json</code>, <code>dai-permit.profile.json</code>, <code>usdc.profile.json</code>,
-  <code>usdc-base-sepolia.profile.json</code> and <code>x402-exact-permit2.profile.json</code> (experimental, §15.9). A
+  <code>usdc-domain-usdc.profile.json</code>, <code>usdc-base-sepolia.profile.json</code>,
+  <code>x402-exact-permit2.profile.json</code> and <code>x402-upto-permit2.profile.json</code> (experimental, §15.9). A
   contract profile is never tried as a pack: pass it in <code>profiles</code>. Import them with an import attribute, and
   pass them as documents:
 </p>
