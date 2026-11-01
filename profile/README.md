@@ -21,7 +21,13 @@ npm). Meant is a B3Pay project.
 
 - The spec is **Draft 0.2**. Breaking changes are expected until the preregistered eval reports; its tasks stay
   private so that no model trains on them.
-- **0.6.0 is on npm** (2026-11-01), published from this repository with provenance (`docs/releasing.md`).
+- **0.7.0 is on npm** (2026-11-01), published from this repository with provenance (`docs/releasing.md`).
+- **Ready for ICP MCP** (spec §8.2, since 0.7.0): `candid-profile api-doc` writes the text of a canister's
+  `get_api_doc` query, which DFINITY's ICP MCP connector reads before it calls a canister, from the canister's profile
+  (D-060). [`examples/icp-mcp`](examples/icp-mcp) is a canister that serves its profile, that guide and ICRC-21 consent
+  messages from one profile (D-061).
+- **The guard in front of a signer** (since 0.7.0): `@meantjs/consent/guard` wraps an EVM signer, a viem account or
+  x402's client signer, so that it signs only a typed message whose grant fits the terms the user confirmed (D-062).
 - **Terms the user confirms** (spec §5.3, since 0.4.0): a profile says what a transfer or approve grants (who may take
   the tokens, how many, until when), and `@meantjs/consent/terms` checks a request against terms the user confirmed
   for one task, so a request that fits them needs no second yes and one that does not is refused with its reasons.
