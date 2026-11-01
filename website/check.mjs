@@ -136,13 +136,13 @@ for (const section of site.sections) {
  * for it, and is the form this page had while the earlier pattern only looked
  * for installs.
  */
-// The pair's new names, prepared and not yet published (issue #306): the
-// version-bump pull request that renamed the pair added them, and the
-// publish-day change empties this list again, as the first publish of
-// `@candid-core/cli` did. The owner's placeholder, `0.0.0-bootstrap` under the
-// `bootstrap` tag, is not a release, so a name stays here until its first
-// release is on `latest`. Until then the pages teach the published names.
-const UNPUBLISHED_NPM = ["@meantjs/schema", "@meantjs/cli"];
+// Emptied when the pair's new names, `@meantjs/schema` 0.6.0 and
+// `@meantjs/cli` 0.5.0, were published under `latest` on 2026-11-01
+// (issue #306), as it was by the first publish of `@candid-core/cli`. The rule
+// stays, so the next prepared name is one entry away. The owner's placeholder,
+// `0.0.0-bootstrap` under the `bootstrap` tag, is not a release, so a name
+// stays here until its first release is on `latest`.
+const UNPUBLISHED_NPM = [];
 
 /* The header line every generated module opens with, read from a golden the
  * generator's tests hold to its output. A block that opens with it is the
@@ -180,7 +180,7 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
 
 /* Versions and dist-tags of published names that the registry does not hold
  * yet: a release prepared on `main` before its dispatch. The name resolves, so
- * the rules above cannot see the problem, but `@candid-core/schema@beta`
+ * the rules above cannot see the problem, but `@meantjs/schema@beta`
  * resolves to nothing until a beta is published under that tag, and an exact
  * prepared version is a 404. The same two spellings are refused, in code
  * blocks only, so a page can still say in prose what the line will be. The
@@ -189,8 +189,8 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
 // published under `latest` on 2026-10-27, as it was for 0.4.0 / 0.3.0 before
 // them. The next version-bump pull request adds its prepared versions back
 // until their own publish. The renamed pair's, `@meantjs/schema@0.6.0` and
-// `@meantjs/cli@0.5.0`, need no entry: UNPUBLISHED_NPM refuses every line that
-// names either package until the publish-day change.
+// `@meantjs/cli@0.5.0`, needed no entry: UNPUBLISHED_NPM refused every line
+// that named either package until their publish on 2026-11-01.
 const UNPUBLISHED_NPM_SPECS = [];
 
 const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({

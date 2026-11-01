@@ -42,7 +42,7 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
   <thead><tr><th>Input</th><th>What it reads</th></tr></thead>
   <tbody>
     <tr><td><code>&lt;service.did&gt;</code></td><td>Candid source, compiled with the <code>@candid-core/cli</code> the package pins (0.4.0). One file: an <code>import</code> is not followed, and fails with <diag>E_CANDID</diag> (<code>did_source_not_found</code>).</td></tr>
-    <tr><td><code>--envelope &lt;file&gt;</code></td><td>The service's candid-core <code>ContractEnvelope</code>, as <code>candid-core-cli gen</code> writes it beside a generated module. The service is not compiled again, and the resolved form is the same as from the <code>.did</code> (decision D-039).</td></tr>
+    <tr><td><code>--envelope &lt;file&gt;</code></td><td>The service's candid-core <code>ContractEnvelope</code>, as <code>meant gen</code> writes it beside a generated module. The service is not compiled again, and the resolved form is the same as from the <code>.did</code> (decision D-039).</td></tr>
     <tr><td><code>--abi &lt;file&gt;</code></td><td>An EVM contract's ABI: a JSON array of human-readable fragments or JSON ABI entries. <a href="chain-evm.html">Experimental</a> (spec §15).</td></tr>
   </tbody>
 </table>
@@ -176,7 +176,7 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 
 <h3>From an envelope</h3>
 
-<pre data-lang="bash">npx candid-core-cli gen tokens.did -o gen
+<pre data-lang="bash">npx @meantjs/cli@0.5.0 gen tokens.did -o gen
 npx candid-profile resolve --envelope gen/tokens.envelope.json --profile tokens.profile.json > tokens.resolved.json</pre>
 <pre data-lang="text">contract:  candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
 interface: candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c

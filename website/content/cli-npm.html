@@ -1,20 +1,22 @@
 <callout type="note" title="Published on npm">
   <p>
-    <code>@candid-core/cli</code> <code>0.4.0</code> is on the npm registry under the
-    <code>latest</code> tag, published from this repository by its dispatch-only release workflow,
-    beside the earlier <code>0.1.0</code>, <code>0.2.0</code> and <code>0.3.0</code> and, under the <code>beta</code> tag,
-    <code>0.2.0-beta.1</code>.
-    The registry also holds <code>0.0.0-bootstrap</code> under the <code>bootstrap</code> tag, which
-    exists only so a trusted publisher could be attached to the name; do not install it. The
+    <code>@meantjs/cli</code> <code>0.5.0</code> is on the npm registry under the
+    <code>latest</code> tag, published from this repository by its dispatch-only release workflow.
+    The registry also holds two placeholders with no code, which you should not install:
+    <code>0.0.0-bootstrap</code> under the <code>bootstrap</code> tag, which exists only so a trusted
+    publisher could be attached to the name, and <code>0.0.0-stage</code>. The
+    releases before the rename keep the old name, <code>@candid-core/cli</code>: <code>0.1.0</code> to
+    <code>0.4.0</code> and, under the <code>beta</code> tag, <code>0.2.0-beta.1</code>. The
     <a href="cli-rust.html"><code>meant</code> binary</a> does the same compilation from Rust.
   </p>
 </callout>
 
 <callout type="note" title="Upgrading from an earlier release">
   <p>
-    This page describes the package the repository builds, published on 2026-10-27 as <code>0.4.0</code> under
-    the npm <code>latest</code> dist-tag, with <code>@candid-core/schema</code> <code>0.5.0</code>, which it peers exactly. The previous
-    stable release, <code>0.3.0</code>, lacks what this page marks as new in <code>0.4.0</code>: <code>didToDocAttributes</code> and each entry&rsquo;s identities in <code>gen --json</code>. It also names every use of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> after the first alias of that shape (<a href="generator.html">the code generator</a>), and writes envelopes whose producer is <code>candid-core</code> <code>0.1.0-beta.3</code>, where <code>0.4.0</code>'s is <code>meant</code> <code>0.1.0</code>, the compiler crate published as <code>candid-core</code> before its rename, so <code>0.4.0</code>'s <code>gen --check</code> reports every envelope <code>0.3.0</code> wrote as <code>drifted</code>. <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+    This page describes the package the repository builds, published on 2026-11-01 as <code>@meantjs/cli</code> <code>0.5.0</code> under
+    the npm <code>latest</code> dist-tag, with <code>@meantjs/schema</code> <code>0.6.0</code>, which it peers exactly. The previous
+    stable release, <code>@candid-core/cli</code> <code>0.4.0</code>, is this package&rsquo;s code under the old name: its command is <code>candid-core-cli</code> where this page writes <code>meant</code>, it peers <code>@candid-core/schema</code> <code>0.5.0</code>, and its modules open with the old header and import <code>@candid-core/schema</code>. Its library, its envelopes and its <code>--json</code> documents are the same. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    The stable release before that, <code>0.3.0</code>, lacks what this page marks as new in <code>0.4.0</code>: <code>didToDocAttributes</code> and each entry&rsquo;s identities in <code>gen --json</code>. It also names every use of a <code>blob</code>, <code>record {}</code> or <code>variant {}</code> after the first alias of that shape (<a href="generator.html">the code generator</a>), and writes envelopes whose producer is <code>candid-core</code> <code>0.1.0-beta.3</code>, where <code>0.4.0</code>'s is <code>meant</code> <code>0.1.0</code>, the compiler crate published as <code>candid-core</code> before its rename, so <code>0.4.0</code>'s <code>gen --check</code> reports every envelope <code>0.3.0</code> wrote as <code>drifted</code>. <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means.
     The stable release before that, <code>0.2.0</code>, also lacks what this page marks as new in <code>0.3.0</code>: the
     <a href="#projection-and-compatibility"><code>project</code> and <code>check</code> commands</a>, with
     <code>projectDid</code> and <code>checkCompatible</code>, and generated modules that declare each type under its Candid name and each
@@ -24,18 +26,18 @@
     emits modules in the old layout with an object-shaped principal type, exits 1 with
     <code>ts_generation_refused</code> for an interface with one declaration it cannot represent, and
     returns no <code>omitted</code> list. <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and after code,
-    and each is recorded in the package changelog under <code>0.2.0</code> and <code>0.2.0-beta.1</code>. The <code>beta</code> dist-tag still names <code>0.2.0-beta.1</code>, which lacks the changes recorded under <code>0.2.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/cli</code> <code>0.5.0</code>, with <code>@meantjs/schema</code> <code>0.6.0</code>, which it peers exactly, not yet published: this package&rsquo;s code under a new name, whose command is <code>meant</code> where this page writes <code>candid-core-cli</code>, and whose modules open with a new header and import <code>@meantjs/schema</code>. Its library, its envelopes and its <code>--json</code> documents are unchanged. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+    and each is recorded in the package changelog under <code>0.2.0</code> and <code>0.2.0-beta.1</code>. The old name&rsquo;s <code>beta</code> dist-tag still names <code>0.2.0-beta.1</code>, which lacks the changes recorded under <code>0.2.0</code> and every stable release since.
   </p>
 </callout>
 
 <pre data-lang="bash">
-# 0.4.0, the release this page describes (see the note above)
-npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
+# 0.5.0, the release this page describes (see the note above)
+npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
 </pre>
 
 <p>
   Here is what the package is and what it does. Everything <code>meant</code> does to a
-  <code>.did</code> file normally happens in Rust. <code>@candid-core/cli</code> is that same Rust code
+  <code>.did</code> file normally happens in Rust. <code>@meantjs/cli</code> is that same Rust code
   — the compiler's <span class="pill accent">compiler</span> feature surface plus the
   <a href="generator.html"><code>candid-core-ts</code></a> TypeScript generator — compiled once to
   WebAssembly and wrapped in a small Node CLI and an ES module. A JavaScript project can therefore go
@@ -63,11 +65,11 @@ npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
   <tbody>
     <tr>
       <td>Name and version</td>
-      <td><code>@candid-core/cli</code>, <code>0.4.0</code> — published on npm under <code>latest</code></td>
+      <td><code>@meantjs/cli</code>, <code>0.5.0</code> — published on npm under <code>latest</code></td>
     </tr>
     <tr>
       <td>Binary</td>
-      <td><code>candid-core-cli</code> → <code>./bin/cli.js</code></td>
+      <td><code>meant</code> → <code>./bin/cli.js</code></td>
     </tr>
     <tr>
       <td>Library entry point</td>
@@ -83,13 +85,16 @@ npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
     <tr>
       <td>Runtime dependencies</td>
       <td>
-        None. <code>@candid-core/schema</code> is declared as an <em>optional</em> peer at exactly
-        <code>0.5.0</code> (new in <code>0.4.0</code>) — every module the CLI
+        None. <code>@meantjs/schema</code> is declared as an <em>optional</em> peer at exactly
+        <code>0.6.0</code> — every module the CLI
         emits imports from it, but a consumer calling only <code>didToContract</code> never loads it.
-        The modules this page's generator emits compile against <code>0.4.0</code> and
-        <code>0.5.0</code> alike and need the <code>WithMode</code> export that 0.3.0 lacks; while the two
+        The modules this page's generator emits compile against <code>0.6.0</code>, and under the
+        old import against <code>@candid-core/schema</code> <code>0.4.0</code> and
+        <code>0.5.0</code> alike; they need the <code>WithMode</code> export that 0.3.0 lacks. While the two
         packages move in lockstep every schema release is paired with a CLI release that names it
-        exactly. The published <code>0.3.0</code> declares exactly <code>0.4.0</code>,
+        exactly. Under the old names, <code>@candid-core/cli</code> <code>0.4.0</code> declares exactly
+        <code>@candid-core/schema</code> <code>0.5.0</code>,
+        <code>0.3.0</code> exactly <code>0.4.0</code>,
         <code>0.2.0</code> exactly <code>0.3.0</code>,
         <code>0.2.0-beta.1</code> exactly <code>0.3.0-beta.1</code>,
         and <code>0.1.0</code> still declares <code>^0.2.0</code>. The one
@@ -117,7 +122,7 @@ npx @candid-core/cli@0.4.0 gen ./service.did -o ./generated
 <p><code>gen</code>, and these options, nothing else (the usage's first line; <code>project</code> and <code>check</code>, new in <code>0.3.0</code>, are under <a href="#projection-and-compatibility">Projection and compatibility</a>):</p>
 
 <pre data-lang="text" data-file="crates/candid-core-wasm/npm/bin/cli.js">
-usage: candid-core-cli gen <service.did>... [-o <dir>] [--json] [--check]
+usage: meant gen <service.did>... [-o <dir>] [--json] [--check]
 </pre>
 
 <callout type="note" title="Several entries, --json and --check are not in 0.1.0">
@@ -133,7 +138,7 @@ usage: candid-core-cli gen <service.did>... [-o <dir>] [--json] [--check]
 
 <ul>
   <li>
-    <code>&lt;stem&gt;.ts</code> — the generated <code>@candid-core/schema</code> module: one reviewed
+    <code>&lt;stem&gt;.ts</code> — the generated <code>@meantjs/schema</code> module: one reviewed
     type alias and one schema builder per declaration.
   </li>
   <li>
@@ -376,7 +381,7 @@ wrote generated/basic.envelope.json
   <div class="api-body">
     <pre data-lang="js" data-file="crates/candid-core-wasm/npm/lib/index.js">export async function didToModule(sources)</pre>
     <p>
-      Generates the <code>@candid-core/schema</code> TypeScript module for the same two source shapes.
+      Generates the <code>@meantjs/schema</code> TypeScript module for the same two source shapes.
       Returns <code>{ ok: true, module, omitted }</code>, where <code>module</code> is the generated
       text and <code>omitted</code> lists what it left out (empty when nothing; see
       <a href="#omissions">Omissions</a>), or <code>{ ok: false, diagnostics }</code>.
@@ -433,7 +438,7 @@ wrote generated/basic.envelope.json
 </p>
 
 <pre data-lang="js" data-check="api">
-import { didToContract, didToModule } from "@candid-core/cli";
+import { didToContract, didToModule } from "@meantjs/cli";
 
 const envelope = await didToContract("service : { ping : () -> () };");
 // → the ContractEnvelope document ("contract" in envelope), or
@@ -458,7 +463,7 @@ const generated = await didToModule({
 </p>
 
 <pre data-lang="js" data-check="api">
-import { schemaFromContract } from "@candid-core/schema/contract";
+import { schemaFromContract } from "@meantjs/schema/contract";
 
 const didText = "type Payload = record { owner : principal; amount : nat };";
 const built = schemaFromContract(await didToContract(didText));
@@ -522,7 +527,7 @@ service : {
 </pre>
 
 <pre data-lang="js" data-check>
-import { didToDocAttributes } from "@candid-core/cli";
+import { didToDocAttributes } from "@meantjs/cli";
 
 const didText = `service : {
   /// Send tokens to another principal.
@@ -586,8 +591,8 @@ if (result.ok) {
 </p>
 
 <pre data-lang="text">
-candid-core-cli project &lt;in.did&gt; --methods &lt;a,b,...&gt; -o &lt;out.did&gt; [--json]
-candid-core-cli check &lt;written.did&gt; --against &lt;live.did&gt; [--json]
+meant project &lt;in.did&gt; --methods &lt;a,b,...&gt; -o &lt;out.did&gt; [--json]
+meant check &lt;written.did&gt; --against &lt;live.did&gt; [--json]
 </pre>
 
 <p>
@@ -651,7 +656,7 @@ candid-core-cli check &lt;written.did&gt; --against &lt;live.did&gt; [--json]
 <p>
   The check is one Rust implementation, compiled into the same WebAssembly. Its tests compare it with
   the subtype check of the pinned <code>candid</code> crate on hand-written cases and a seeded random
-  campaign, and with the subtype relation <code>@candid-core/schema</code>'s decoder runs on a
+  campaign, and with the subtype relation <code>@meantjs/schema</code>'s decoder runs on a
   reference. The one recorded disagreement is a <code>candid</code> crate defect: its coinductive memo
   can keep a pair proven under an assumption it later retracted, and accept a pair that is not a
   subtype. This check and the decoder refuse it.
@@ -689,8 +694,8 @@ const built = schemaFromContract(envelope);
 
 <p>
   Note the shapes there: importing the wasm module directly gives you the raw wasm-bindgen exports,
-  which are string in, string out. The whole wasm ABI is five functions wide in <code>0.4.0</code>,
-  four in <code>0.3.0</code> and two in <code>0.2.0</code> (<code>didToDocAttributes</code> is new in
+  which are string in, string out. The whole wasm ABI is five functions wide in <code>0.5.0</code>, as in
+  <code>0.4.0</code>, four in <code>0.3.0</code> and two in <code>0.2.0</code> (<code>didToDocAttributes</code> is new in
   <code>0.4.0</code>, <code>projectDid</code> and <code>checkCompatible</code> in <code>0.3.0</code>) —
   <code>didToContract(request: string): string</code>,
   <code>didToModule(request: string): string</code>,

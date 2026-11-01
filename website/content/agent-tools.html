@@ -13,7 +13,7 @@
 <h2>Build the tools</h2>
 
 <pre data-lang="bash">
-npm install --save-exact @meantjs/tools@0.5.0 @meantjs/profile@0.5.0 @candid-core/schema@0.5.0
+npm install --save-exact @meantjs/tools@0.5.0 @meantjs/profile@0.5.0 @meantjs/schema@0.6.0
 npx candid-profile resolve ledger.did --packs > ledger.resolved.json
 </pre>
 
@@ -104,11 +104,11 @@ const { skipped } = buildToolPlans(resolved); // the methods that got no tool, e
 <h2>Run the tool layer</h2>
 
 <pre data-lang="js" data-check="tools">
-import { serviceMethods } from "@candid-core/schema";
-import { schemaFromContract } from "@candid-core/schema/contract";
-import { encodeArgs } from "@candid-core/schema/codec";
+import { serviceMethods } from "@meantjs/schema";
+import { schemaFromContract } from "@meantjs/schema/contract";
+import { encodeArgs } from "@meantjs/schema/codec";
 
-// candid-core's encoder for the ledger: npx @candid-core/cli@0.4.0 gen ledger.did -o generated
+// Meant's encoder for the ledger: npx @meantjs/cli@0.5.0 gen ledger.did -o generated
 const loaded = schemaFromContract(JSON.parse(readFileSync("generated/ledger.envelope.json", "utf8")));
 if (!loaded.ok || loaded.actor === undefined) throw new Error("the ledger envelope does not load");
 const methods = serviceMethods(loaded.actor);
