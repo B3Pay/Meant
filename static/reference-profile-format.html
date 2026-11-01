@@ -776,29 +776,23 @@ node</span> scripts/validate.mjs packs/icrc1.profile.json</code></pre></div>
 
 <p>
   Each entry of <code>profiles</code> that binds a domain lists its name and version as <code>eip712_domain</code>,
-  beside its <code>deployments</code>. From the Permit2 profile's fixture, whose domain has a name and no version:
+  beside its <code>deployments</code>. From the Permit2 profile's fixture, whose domain has a name and no version (the
+  first and the last of its 23 deployments):
 </p>
 
 <div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-file">profile/fixtures/permit2.resolved.json</span><button class="copy-button" type="button" aria-label="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="copy-label">copy</span></button></div><pre><code data-lang="json" data-highlighted="true"><span class="tok-type">"profiles"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
   <span class="tok-punct">{</span>
     <span class="tok-type">"name"</span><span class="tok-punct">:</span> <span class="tok-string">"permit2"</span><span class="tok-punct">,</span>
     <span class="tok-type">"origin"</span><span class="tok-punct">:</span> <span class="tok-string">"third_party"</span><span class="tok-punct">,</span>
-    <span class="tok-type">"profile_id"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188"</span><span class="tok-punct">,</span>
+    <span class="tok-type">"profile_id"</span><span class="tok-punct">:</span> <span class="tok-string">"candid-profile:v0:sha256:c00678ab9eda6a94d91b893af1a3c256a7fde497f0800f173ca9ef6579e86d0c"</span><span class="tok-punct">,</span>
     <span class="tok-type">"deployments"</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
       <span class="tok-punct">{</span>
         <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">1</span><span class="tok-punct">,</span>
         <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
       <span class="tok-punct">}</span><span class="tok-punct">,</span>
+      …
       <span class="tok-punct">{</span>
-        <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">8453</span><span class="tok-punct">,</span>
-        <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
-      <span class="tok-punct">}</span><span class="tok-punct">,</span>
-      <span class="tok-punct">{</span>
-        <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">42161</span><span class="tok-punct">,</span>
-        <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
-      <span class="tok-punct">}</span><span class="tok-punct">,</span>
-      <span class="tok-punct">{</span>
-        <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">84532</span><span class="tok-punct">,</span>
+        <span class="tok-type">"chain_id"</span><span class="tok-punct">:</span> <span class="tok-number">11142220</span><span class="tok-punct">,</span>
         <span class="tok-type">"address"</span><span class="tok-punct">:</span> <span class="tok-string">"0x000000000022D473030F116dDEE9F6B43aC78BA3"</span>
       <span class="tok-punct">}</span>
     <span class="tok-punct">]</span><span class="tok-punct">,</span>

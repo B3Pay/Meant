@@ -487,6 +487,11 @@
 
 <figure class="annotation"><figcaption class="annotation-head">Profile annotation</figcaption><dl class="annotation-body"><dt>at</dt><dd><span class="annotation-address">PermitWitnessTransferFrom(0).spender</span></dd><dt>tag</dt><dd><span class="annotation-tag"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="14" height="14"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="14" height="14">fixed</span></dd><dt>args</dt><dd><ul class="annotation-args"><li><span class="k">value</span>: <span class="v">&quot;0x402085c248EeA27D92E8b30b2C58ed07f9E20001&quot;</span></li></ul></dd></dl></figure>
 
+<p>
+  x402's <code>upto</code> payment pins its own proxy, <code>0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002</code>, the
+  same way (<a href="reference-packs.html#x402-upto-permit2"><code>x402-upto-permit2</code></a>, D-059).
+</p>
+
 <ul>
   <li>It sits on an <code>address</code> in the arguments of a function or a message, in a tuple or in every element of an array. In a result or at a <code>type:</code> address it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_TARGET</span></span>; on another type, or on a Candid service, whose positions hold no EVM address, it is <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_TAG_NOT_APPLICABLE</span></span>. Its <code>value</code> in mixed case must match its checksum (<span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ADDRESS_CHECKSUM</span></span>).</li>
   <li>A consumer refuses a call or a signing request whose value at a pinned position is another address, before it shows any text: <code>evmConsent</code> and <code>eip712Consent</code> throw <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_FIXED</span></span>. Addresses are compared by their 20 bytes, so their case does not matter.</li>
