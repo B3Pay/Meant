@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Writes test/golden/<case>.json and test/golden/REVIEW.md from test/golden/cases.mjs, and test/sns-golden/<case>.json
 // and test/sns-golden/REVIEW.md from test/sns-golden/cases.mjs, with the dapp's resolved forms the Rust tests read
-// (test/sns-golden/resolved/), and the differential corpus of the Rust port (test/differential/corpus.json).
+// (test/sns-golden/resolved/), the differential corpus of the Rust port (test/differential/corpus.json), and the
+// ICRC-21 envelope vectors of the Rust port (test/icrc21-envelope/vectors.json).
 //
 //   npm run golden -w packages/consent
 //
@@ -16,6 +17,7 @@ import { CASES } from "../test/golden/cases.mjs";
 import { RESOLVED_FOR_RUST, buildSnsGolden, renderSnsReview, resolvedJson } from "../test/sns-golden/build.mjs";
 import { CASES as SNS_CASES } from "../test/sns-golden/cases.mjs";
 import { buildCorpus, corpusJson } from "../test/differential/build.mjs";
+import { buildEnvelopeVectors, envelopeJson } from "../test/icrc21-envelope/build.mjs";
 
 async function write(dirName, cases, build, review) {
   const dir = new URL(`../test/${dirName}/`, import.meta.url);
@@ -37,3 +39,8 @@ console.log(`wrote ${Object.keys(RESOLVED_FOR_RUST).length} resolved forms in te
 const corpus = buildCorpus();
 await writeFile(new URL("../test/differential/corpus.json", import.meta.url), corpusJson(corpus));
 console.log(`wrote ${corpus.vectors.length} vectors in test/differential/corpus.json`);
+
+const envelope = buildEnvelopeVectors();
+await mkdir(new URL("../test/icrc21-envelope/", import.meta.url), { recursive: true });
+await writeFile(new URL("../test/icrc21-envelope/vectors.json", import.meta.url), envelopeJson(envelope));
+console.log(`wrote ${envelope.vectors.length} vectors in test/icrc21-envelope/vectors.json`);

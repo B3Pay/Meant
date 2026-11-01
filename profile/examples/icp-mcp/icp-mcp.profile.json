@@ -1,0 +1,34 @@
+{
+  "format": "candid-profile",
+  "format_version": 0,
+  "kind": "canister",
+  "name": "icp-mcp-example",
+  "origin": "author",
+  "language": "en",
+  "description": "Author profile of examples/icp-mcp: a token whose sends are exactly-once, ready for ICP MCP. The canister serves this file as `icp:public candid:profile`, and its get_api_doc and ICRC-21 replies are generated from it.",
+  "binds": {
+    "interface_id": "candid-core:interface:v1:sha256:88f4bbfeb015b87b623f049c09150328b82f800616110fa2ea739d9a44643d9b"
+  },
+  "annotations": [
+    { "at": "type:Tokens.e8s", "tag": "amount", "args": { "decimals": 8, "symbol": "TOK" } },
+    { "at": "type:Tokens.e8s", "tag": "describe", "args": { "label": "Amount" } },
+    { "at": "balance", "tag": "describe", "args": { "label": "Balance of a principal" } },
+    { "at": "balance(0)", "tag": "describe", "args": { "label": "Owner" } },
+    { "at": "send", "tag": "intent", "args": { "title": "Send TOK", "template": "Send {amount.e8s} to {to}[ with memo {memo}]" } },
+    { "at": "send", "tag": "effect", "args": { "kind": "transfer", "irreversible": true } },
+    { "at": "send", "tag": "idempotency", "args": { "mode": "replay_same_payload", "stamp": "created_at" } },
+    { "at": "send", "tag": "outcome", "args": { "classes": { "Ok": "success", "Err.Duplicate": "already_done", "Err.TooOld": "retry_new", "Err.CreatedInFuture": "retry_new", "Err.Insufficient": "fail" }, "default": "fail" } },
+    { "at": "send(0).to", "tag": "describe", "args": { "label": "Recipient" } },
+    { "at": "send(0).created_at", "tag": "timestamp", "args": { "unit": "ns", "epoch": "unix" } },
+    { "at": "send(0).created_at", "tag": "describe", "args": { "label": "Created at", "help": "The canister deduplicates a send that carries it for 24 hours." } },
+    { "at": "send(0).memo", "tag": "bytes", "args": { "encoding": "utf8", "max_len": 32 } },
+    { "at": "send(0).memo", "tag": "default", "args": { "value": "null", "mode": "suggest" } },
+    { "at": "send->(0).Ok", "tag": "describe", "args": { "label": "Block index" } },
+    { "at": "send->(0).Err.Duplicate.block", "tag": "describe", "args": { "label": "Existing block index", "help": "The same send was already executed in this block." } },
+    { "at": "send->(0).Err.CreatedInFuture.canister_time", "tag": "timestamp", "args": { "unit": "ns", "epoch": "unix" } },
+    { "at": "get_api_doc", "tag": "describe", "args": { "label": "This guide", "help": "Generated from this canister's profile." } },
+    { "at": "icrc21_canister_call_consent_message", "tag": "effect", "args": { "kind": "read", "irreversible": false, "replicated": true } },
+    { "at": "icrc21_canister_call_consent_message", "tag": "describe", "args": { "label": "ICRC-21 consent message for a call", "help": "Show it to the person before a send; it is generated from the same profile." } },
+    { "at": "icrc10_supported_standards", "tag": "describe", "args": { "label": "Standards this canister supports" } }
+  ]
+}

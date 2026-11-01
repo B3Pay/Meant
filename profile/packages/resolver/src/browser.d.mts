@@ -210,3 +210,24 @@ export function readServedProfile(
   opts: { canisterId: string | null; label?: string },
 ): { ok: boolean; doc: ProfileDocument | null; diagnostics: Diagnostic[] };
 
+/**
+ * The text of a canister's `get_api_doc` (or `getApiDoc`) query, the guide DFINITY's ICP MCP connector and other agents
+ * read before they call it (D-060): Markdown, from the canister's resolved form. Deterministic. Throws `ApiDocError` for
+ * a tag, tag argument or value it has no sentence for, and `TypeError` for anything but an Internet Computer resolved
+ * form without errors.
+ */
+export function renderApiDoc(
+  resolved: ResolvedForm,
+  opts?: {
+    /** Values of dynamic references by their `from` (`{ "query:icrc1_decimals": 8 }`); one without a value is written as what to ask for. */
+    refs?: Record<string, unknown>;
+    /** The guide's heading (default "API guide"). */
+    title?: string;
+  },
+): string;
+/** What `renderApiDoc` has no sentence for; `at` is the method or position. */
+export class ApiDocError extends Error {
+  readonly name: "ApiDocError";
+  readonly at: string;
+}
+

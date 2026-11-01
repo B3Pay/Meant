@@ -51,6 +51,13 @@ pub mod codes {
     pub const TAG_CONFLICT: &str = "E_TAG_CONFLICT";
     /// A position is not what the format library can read.
     pub const TYPE: &str = "E_TYPE";
+    /// The ICRC-21 request itself is malformed.
+    pub const REQUEST: &str = "E_REQUEST";
+    /// The requested language is not supported (only with `LanguagePolicy::Error`).
+    pub const LANGUAGE: &str = "E_LANGUAGE";
+    /// The requested display form is not available here: this crate writes `GenericDisplayMessage` only (Rust only;
+    /// JavaScript answers `FieldsDisplay` with the fields).
+    pub const FORM: &str = "E_FORM";
     /// Where the JavaScript version fails with an exception that is not a ConsentError.
     pub const INTERNAL: &str = "E_INTERNAL";
 }

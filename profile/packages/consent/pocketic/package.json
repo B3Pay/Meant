@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "W4: the example SNS validator canister registered with the real SNS governance canister on PocketIC.",
+  "description": "W4: the example SNS validator canister registered with the real SNS governance canister on PocketIC; W0: the ICP MCP example canister (examples/icp-mcp, D-061).",
   "engines": {
     "node": ">=22.12"
   },
   "scripts": {
     "fetch": "node scripts/fetch-artifacts.mjs",
-    "build": "cargo build --release --target wasm32-unknown-unknown --manifest-path ../rust/Cargo.toml --example sns_validator --example sns_target",
+    "build": "cargo build --release --target wasm32-unknown-unknown --manifest-path ../rust/Cargo.toml --example sns_validator --example sns_target && cargo build --release --target wasm32-unknown-unknown --manifest-path ../../../examples/icp-mcp/canister/Cargo.toml",
     "test": "npm run fetch && npm run build && node --test --test-concurrency=1 \"test/*.test.mjs\""
   },
   "dependencies": {

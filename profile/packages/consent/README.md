@@ -224,6 +224,7 @@ An SNS validator is a canister method, so the renderer also exists as a Rust cra
 | `handle_sns_validator_call(...)`, `encode_validator_result(...)` | The Candid-encoded reply a validator method returns. |
 | `render_sns_payload(..., limits)` | The same with the error as a value and the diagnostics. |
 | `generic_consent_message(resolved, method, arg, refs, utc_offset_minutes, raw_arguments, limits)` | The ICRC-21 `GenericDisplayMessage` text, as `generateConsent` with `form: "generic"`. |
+| `handle_consent_request(request, &ConsentContext)` | The whole `icrc21_canister_call_consent_message` call: Candid request bytes in, Candid response bytes out, as `handleConsentRequest` (D-061). `icrc21_consent_message` takes the decoded request; the ICRC-21 types are in `icrc21`. |
 | `parse_resolved(json)` | The resolved form from its JSON text (field order kept: it is the order of the Candid text). |
 
 It decodes with the `candid` crate against types built from the resolved form, as `src/decode.mjs` does with `@candid-core/schema`, and ports the format library's display side (`packages/format`) for the six value tags. Where JavaScript's strings show through (UTF-16 lengths for the 32 KiB budget, `trim`, the neighbours of an underscore), the crate counts and looks the way JavaScript does.
@@ -238,7 +239,12 @@ node check-canister.mjs                      # the dapp's SNS goldens through th
 - **Tests.** `tests/golden.rs` runs all 13 SNS goldens and the generic message of all 20 ICRC-21 goldens: `Ok` byte for byte (with the reply's Candid bytes), `Err` by code (the two decoders word their errors differently). `tests/differential.rs` runs the corpus of `test/differential/` (below): 203 payloads, every one answered alike, `Ok` text and `Err` code, in both forms. Deliberate mutations of the port (float formatting, `trim`, the underscore rule, UTF-16 counting, `ui.order`, the subaccount, base64 and duration rules, the limits) each make it fail.
 - **The example canister** (`examples/sns_validator.rs`): `validate_<method>` query methods for the hypothetical dapp of `test/fixtures/sns-dapp.did`, written against the six system API functions it needs, so the crate's own dependencies are all it has. Each call writes one `debug_print` line with the method, the payload size and the instructions spent. `check-canister.mjs` instantiates the wasm in Node with those functions stubbed and checks the dapp's 7 SNS golden cases; that is not a replica. Release wasm: 731,172 bytes, not stripped or optimised further. `examples/sns_target.rs` is a stand-in for the dapp itself, for the PocketIC test only: it records each call.
 - **Versions** (observed 2026-10-12): rustc and cargo 1.97.0, target `wasm32-unknown-unknown`; `rust-version` 1.85 (the highest of the dependencies). Dependencies pinned exactly in `Cargo.toml`, the full tree in `Cargo.lock`: `candid` 0.10.38 (no default features; `value`), `serde_json` 1.0.154 (`preserve_order`), `num-bigint` 0.4.6, `unicode-general-category` 1.1.0 (Unicode 16.0, as Node 22's ICU 77.1), `ryu-js` 1.0.3 (JavaScript's number formatting).
-- **Not ported:** the `FieldsDisplayMessage` form, the ICRC-21 request and response envelope, the reviewer's check (it runs off-chain, in JavaScript).
+- **The ICRC-21 envelope** (D-061): language fallback, the device spec, the offset bounds (a range check: `i16::MIN.abs()` would overflow) and the error mapping, rule
+  for rule as `src/icrc21.mjs`. `tests/icrc21_envelope.rs` runs the 67 requests of `test/icrc21-envelope/vectors.json`
+  (written by this package from every golden call, plus preference variants and malformed requests): every `Ok` equal
+  in full to what JavaScript answers, every `Err` the same variant and code. The fields form is refused with
+  `ConsentMessageUnavailable` and code `E_FORM` (JavaScript answers it), and diagnostics are not returned.
+- **Not ported:** the `FieldsDisplayMessage` form, the reviewer's check (it runs off-chain, in JavaScript).
 
 ### On SNS governance (`pocketic/`)
 

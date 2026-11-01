@@ -40,6 +40,8 @@ export {
   profileFromDocAttributes,
   profileId,
   readServedProfile,
+  renderApiDoc,
+  ApiDocError,
   resolveService,
   resolvedForm,
   SERVED_MAX_BYTES,

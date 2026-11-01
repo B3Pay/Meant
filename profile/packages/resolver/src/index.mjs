@@ -13,3 +13,4 @@ export { main as runCli, USAGE } from "./cli.mjs";
 export { resolvedForm, buildTree } from "./resolved.mjs";
 export { profileFromDocAttributes, DOC_ATTRIBUTES_VERSION } from "./doc-annotations.mjs";
 export { readServedProfile, SERVED_SECTION, SERVED_METADATA, SERVED_MAX_BYTES } from "./served.mjs";
+export { renderApiDoc, ApiDocError } from "./api-doc.mjs";

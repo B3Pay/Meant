@@ -1,0 +1,58 @@
+// An example canister ready for ICP MCP (D-061): a small token with exactly-once sends, its get_api_doc, ICRC-21
+// consent messages, and the ICRC-10 list of what it supports. Its profile is icp-mcp.profile.json; the canister also
+// serves it as the custom section `icp:public candid:profile`.
+
+type Tokens = record { e8s : nat64 };
+
+type SendArgs = record {
+  to : principal;
+  amount : Tokens;
+  memo : opt blob;
+  created_at : opt nat64;
+};
+
+type SendError = variant {
+  Insufficient : record { balance : Tokens };
+  Duplicate : record { block : nat };
+  TooOld;
+  CreatedInFuture : record { canister_time : nat64 };
+  Other : text;
+};
+
+type icrc21_consent_message_metadata = record { language : text; utc_offset_minutes : opt int16 };
+type icrc21_consent_message_spec = record {
+  metadata : icrc21_consent_message_metadata;
+  device_spec : opt variant { GenericDisplay; FieldsDisplay };
+};
+type icrc21_consent_message_request = record { method : text; arg : blob; user_preferences : icrc21_consent_message_spec };
+type TokenAmount = record { decimals : nat8; amount : nat64; symbol : text };
+type TimestampSeconds = record { amount : nat64 };
+type DurationSeconds = record { amount : nat64 };
+type TextValue = record { content : text };
+type Value = variant {
+  TokenAmount : TokenAmount;
+  TimestampSeconds : TimestampSeconds;
+  DurationSeconds : DurationSeconds;
+  Text : TextValue;
+};
+type icrc21_consent_message = variant {
+  GenericDisplayMessage : text;
+  FieldsDisplayMessage : record { intent : text; fields : vec record { text; Value } };
+};
+type icrc21_consent_info = record { consent_message : icrc21_consent_message; metadata : icrc21_consent_message_metadata };
+type icrc21_error_info = record { description : text };
+type icrc21_error = variant {
+  UnsupportedCanisterCall : icrc21_error_info;
+  ConsentMessageUnavailable : icrc21_error_info;
+  InsufficientPayment : icrc21_error_info;
+  GenericError : record { error_code : nat; description : text };
+};
+type icrc21_consent_message_response = variant { Ok : icrc21_consent_info; Err : icrc21_error };
+
+service : {
+  balance : (principal) -> (Tokens) query;
+  send : (SendArgs) -> (variant { Ok : nat; Err : SendError });
+  get_api_doc : () -> (text) query;
+  icrc21_canister_call_consent_message : (icrc21_consent_message_request) -> (icrc21_consent_message_response);
+  icrc10_supported_standards : () -> (vec record { name : text; url : text }) query;
+}

@@ -2,6 +2,15 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.7.0 (unreleased)
+
+- The text of a canister's `get_api_doc` query, from its profile (spec §8.2, D-060): `renderApiDoc(resolved, { refs,
+  title })` and `candid-profile api-doc <service.did> [--profile …] [--packs] [--ref from=value …] [--title t]` write
+  the Markdown guide that DFINITY's ICP MCP connector and other agents read before calling a canister: what needs a
+  person's yes, base units, the retry rules, and each method's effect, intent, positions and outcomes. Deterministic;
+  strict (`ApiDocError` for a tag or value it has no sentence for); refuses an EVM resolved form and one with errors.
+  Also in `@meantjs/profile/browser`.
+
 ## 0.6.0 — 2026-11-01
 
 - x402's usage-based payment, x402's other networks and USDC's permit (D-059, experimental). New standard contract

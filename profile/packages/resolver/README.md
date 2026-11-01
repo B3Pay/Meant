@@ -164,6 +164,36 @@ const r = await resolveService({ did: serviceText, profiles: served.ok ? [{ doc:
   serves, so a profile for another interface is `rebound` or `stale` as any other.
 - Tests: `test/served.test.mjs`; end to end on PocketIC in the kit's tests, which are not public yet.
 
+## A guide for agents: `get_api_doc` (spec section 8.2, D-060)
+
+DFINITY's ICP MCP connector, and agents that follow its service discoverability guide, read a canister's
+`get_api_doc : () -> (text) query` before they call it. This package writes that text from the canister's profile, so
+units, confirmations, retries and outcomes are stated once, in the profile, and the guide cannot drift from it:
+
+```sh
+candid-profile api-doc ledger.did --packs --ref query:icrc1_decimals=8 --ref query:icrc1_symbol=ICP --title "ICP ledger" > api-doc.md
+```
+
+```js
+import { renderApiDoc } from "@meantjs/profile";
+
+const text = renderApiDoc(resolved, { refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "ICP" } });
+```
+
+```rust
+#[ic_cdk::query]
+fn get_api_doc() -> String { include_str!("../api-doc.md").to_string() }
+```
+
+- **Deterministic:** a pure function of the resolved form and `refs`, with no clock, network or version in the text.
+  A dynamic value without a ref is written as what to ask the canister for.
+- **Strict:** a tag, tag argument or value without a sentence throws `ApiDocError` (the CLI exits 1 and writes
+  nothing); an EVM resolved form or one with errors is a `TypeError`.
+- **Safe to embed:** labels, help, intent titles and the title are escaped for Markdown and kept on one line.
+- The guide is a description, not a certificate: an agent that can read `candid:profile` should use the profile
+  itself. Example output: `test/fixtures/api-doc/ledger.md`. Tests: `test/api-doc.test.mjs`
+  (`UPDATE_GOLDENS=1` regenerates the goldens; review the diff).
+
 ## EVM contracts (experimental, spec section 15, D-054 and D-055)
 
 A third input, `abi`: an EVM contract's ABI as human-readable fragments or JSON ABI entries. The resolver reads it as
@@ -211,6 +241,7 @@ r.resolved.methods.transfer.tags.intent.args.template; // "Send {wad} to {dst}":
 ```sh
 node packages/resolver/bin/candid-profile.mjs resolve <service.did> [--profile p.json ...] [--packs] [--packs-dir dir] [--verbose] [--quiet] > resolved.json
 node packages/resolver/bin/candid-profile.mjs resolve --abi contract.abi.json [--profile p.json ...] [--packs]   # an EVM contract (section 15)
+node packages/resolver/bin/candid-profile.mjs api-doc <service.did> [--profile p.json ...] [--packs] [--ref from=value ...] [--title t] > api-doc.md   # section 8.2
 # after `npm ci` the bin is also linked: npx candid-profile resolve ...
 ```
 

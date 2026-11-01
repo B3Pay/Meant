@@ -10,6 +10,8 @@ import {
   profileFromDocAttributes,
   profileId,
   readServedProfile,
+  renderApiDoc,
+  ApiDocError,
   resolveService,
   runCli,
   SERVED_MAX_BYTES,
@@ -52,6 +54,17 @@ check(served.ok && served.doc?.kind === "canister", "readServedProfile reads an 
 const bound = readServedProfile(new TextEncoder().encode("{"), { canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai", label: "x" });
 check(!bound.ok && bound.doc === null && bound.diagnostics.map((d) => `${d.code} ${d.at}`).join() === "E_SERVED x", "readServedProfile refuses what is not JSON");
 
+const ledger = await resolveService({ did: LEDGER_DID, validateSchema, packs: (await loadPacks()).map(({ doc }) => ({ doc })) });
+const guide: string = ledger.resolved ? renderApiDoc(ledger.resolved, { refs: { "query:icrc1_decimals": 8 }, title: "Ledger" }) : "";
+check(guide.startsWith("# Ledger\n") && guide.includes("icrc1_transfer"), "renderApiDoc writes the guide");
+let strict = "";
+try {
+  renderApiDoc({ ...ledger.resolved!, methods: { m: { mode: "update", tags: { brand_new: { args: {} } }, args: [], results: [] } } } as never);
+} catch (e) {
+  if (e instanceof ApiDocError) strict = e.at;
+}
+check(strict === "m", "renderApiDoc throws ApiDocError for a tag it has no sentence for");
+
 let out = "";
 const code = await runCli(["--help"], { stdout: { write: (s: string) => (out += s) }, stderr: { write: (s: string) => (out += s) } });
 check(code === 0 && out.includes(USAGE.split("\n")[0]), "runCli");
@@ -63,4 +76,6 @@ export function refused(): void {
   void profileFromDocAttributes({}, { origin: "pack" });
   // @ts-expect-error the canister that served it, or null before install: never left out
   void readServedProfile(new Uint8Array(), {});
+  // @ts-expect-error a resolved form, not a profile
+  void renderApiDoc(icrc1);
 }
