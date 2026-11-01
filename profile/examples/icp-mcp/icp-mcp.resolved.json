@@ -1,0 +1,582 @@
+{
+  "format": "candid-profile-resolved",
+  "format_version": 0,
+  "interface_id": "candid-core:interface:v1:sha256:88f4bbfeb015b87b623f049c09150328b82f800616110fa2ea739d9a44643d9b",
+  "profiles": [
+    {
+      "name": "icp-mcp-example",
+      "origin": "author",
+      "profile_id": "candid-profile:v0:sha256:062d31e110dd7ffca136e2adf338118c40e5612e77802d2e0fc50cc95ea23198"
+    }
+  ],
+  "methods": {
+    "balance": {
+      "mode": "query",
+      "tags": {
+        "describe": {
+          "args": {
+            "label": "Balance of a principal"
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [
+        {
+          "candid": "principal",
+          "tags": {
+            "describe": {
+              "args": {
+                "label": "Owner"
+              },
+              "origin": "author",
+              "profile": "icp-mcp-example"
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "record",
+          "fields": {
+            "e8s": {
+              "candid": "nat64",
+              "tags": {
+                "amount": {
+                  "args": {
+                    "decimals": 8,
+                    "symbol": "TOK"
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Amount"
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "get_api_doc": {
+      "mode": "query",
+      "tags": {
+        "describe": {
+          "args": {
+            "label": "This guide",
+            "help": "Generated from this canister's profile."
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "candid": "text"
+        }
+      ]
+    },
+    "icrc10_supported_standards": {
+      "mode": "query",
+      "tags": {
+        "describe": {
+          "args": {
+            "label": "Standards this canister supports"
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false
+          },
+          "origin": "default"
+        }
+      },
+      "args": [],
+      "results": [
+        {
+          "candid": "vec",
+          "element": {
+            "candid": "record",
+            "fields": {
+              "url": {
+                "candid": "text"
+              },
+              "name": {
+                "candid": "text"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "icrc21_canister_call_consent_message": {
+      "mode": "update",
+      "tags": {
+        "effect": {
+          "args": {
+            "kind": "read",
+            "irreversible": false,
+            "replicated": true
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        },
+        "describe": {
+          "args": {
+            "label": "ICRC-21 consent message for a call",
+            "help": "Show it to the person before a send; it is generated from the same profile."
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "arg": {
+              "candid": "blob"
+            },
+            "method": {
+              "candid": "text"
+            },
+            "user_preferences": {
+              "candid": "record",
+              "fields": {
+                "metadata": {
+                  "candid": "record",
+                  "fields": {
+                    "utc_offset_minutes": {
+                      "candid": "int16",
+                      "optional": true
+                    },
+                    "language": {
+                      "candid": "text"
+                    }
+                  }
+                },
+                "device_spec": {
+                  "candid": "variant",
+                  "optional": true,
+                  "cases": {
+                    "GenericDisplay": {
+                      "candid": "null"
+                    },
+                    "FieldsDisplay": {
+                      "candid": "null"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "record",
+              "fields": {
+                "metadata": {
+                  "candid": "record",
+                  "fields": {
+                    "utc_offset_minutes": {
+                      "candid": "int16",
+                      "optional": true
+                    },
+                    "language": {
+                      "candid": "text"
+                    }
+                  }
+                },
+                "consent_message": {
+                  "candid": "variant",
+                  "cases": {
+                    "FieldsDisplayMessage": {
+                      "candid": "record",
+                      "fields": {
+                        "fields": {
+                          "candid": "vec",
+                          "element": {
+                            "candid": "record",
+                            "fields": {
+                              "#0": {
+                                "candid": "text"
+                              },
+                              "#1": {
+                                "candid": "variant",
+                                "cases": {
+                                  "Text": {
+                                    "candid": "record",
+                                    "fields": {
+                                      "content": {
+                                        "candid": "text",
+                                        "recursive": true
+                                      }
+                                    }
+                                  },
+                                  "TokenAmount": {
+                                    "candid": "record",
+                                    "fields": {
+                                      "decimals": {
+                                        "candid": "nat8",
+                                        "recursive": true
+                                      },
+                                      "amount": {
+                                        "candid": "nat64",
+                                        "recursive": true
+                                      },
+                                      "symbol": {
+                                        "candid": "text",
+                                        "recursive": true
+                                      }
+                                    }
+                                  },
+                                  "TimestampSeconds": {
+                                    "candid": "record",
+                                    "fields": {
+                                      "amount": {
+                                        "candid": "nat64",
+                                        "recursive": true
+                                      }
+                                    }
+                                  },
+                                  "DurationSeconds": {
+                                    "candid": "record",
+                                    "fields": {
+                                      "amount": {
+                                        "candid": "nat64",
+                                        "recursive": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "intent": {
+                          "candid": "text"
+                        }
+                      }
+                    },
+                    "GenericDisplayMessage": {
+                      "candid": "text"
+                    }
+                  }
+                }
+              }
+            },
+            "Err": {
+              "candid": "variant",
+              "cases": {
+                "GenericError": {
+                  "candid": "record",
+                  "fields": {
+                    "description": {
+                      "candid": "text"
+                    },
+                    "error_code": {
+                      "candid": "nat"
+                    }
+                  }
+                },
+                "InsufficientPayment": {
+                  "candid": "record",
+                  "fields": {
+                    "description": {
+                      "candid": "text"
+                    }
+                  }
+                },
+                "UnsupportedCanisterCall": {
+                  "candid": "record",
+                  "fields": {
+                    "description": {
+                      "candid": "text"
+                    }
+                  }
+                },
+                "ConsentMessageUnavailable": {
+                  "candid": "record",
+                  "fields": {
+                    "description": {
+                      "candid": "text"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "send": {
+      "mode": "update",
+      "tags": {
+        "intent": {
+          "args": {
+            "title": "Send TOK",
+            "template": "Send {amount.e8s} to {to}[ with memo {memo}]"
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        },
+        "effect": {
+          "args": {
+            "kind": "transfer",
+            "irreversible": true
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        },
+        "idempotency": {
+          "args": {
+            "mode": "replay_same_payload",
+            "stamp": "created_at"
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        },
+        "outcome": {
+          "args": {
+            "classes": {
+              "Ok": "success",
+              "Err.Duplicate": "already_done",
+              "Err.TooOld": "retry_new",
+              "Err.CreatedInFuture": "retry_new",
+              "Err.Insufficient": "fail"
+            },
+            "default": "fail"
+          },
+          "origin": "author",
+          "profile": "icp-mcp-example"
+        }
+      },
+      "args": [
+        {
+          "candid": "record",
+          "fields": {
+            "to": {
+              "candid": "principal",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Recipient"
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                }
+              }
+            },
+            "memo": {
+              "candid": "blob",
+              "optional": true,
+              "tags": {
+                "bytes": {
+                  "args": {
+                    "encoding": "utf8",
+                    "max_len": 32
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                },
+                "default": {
+                  "args": {
+                    "value": "null",
+                    "mode": "suggest"
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                }
+              }
+            },
+            "created_at": {
+              "candid": "nat64",
+              "optional": true,
+              "tags": {
+                "timestamp": {
+                  "args": {
+                    "unit": "ns",
+                    "epoch": "unix"
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                },
+                "describe": {
+                  "args": {
+                    "label": "Created at",
+                    "help": "The canister deduplicates a send that carries it for 24 hours."
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                }
+              }
+            },
+            "amount": {
+              "candid": "record",
+              "fields": {
+                "e8s": {
+                  "candid": "nat64",
+                  "tags": {
+                    "amount": {
+                      "args": {
+                        "decimals": 8,
+                        "symbol": "TOK"
+                      },
+                      "origin": "author",
+                      "profile": "icp-mcp-example"
+                    },
+                    "describe": {
+                      "args": {
+                        "label": "Amount"
+                      },
+                      "origin": "author",
+                      "profile": "icp-mcp-example"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "candid": "variant",
+          "cases": {
+            "Ok": {
+              "candid": "nat",
+              "tags": {
+                "describe": {
+                  "args": {
+                    "label": "Block index"
+                  },
+                  "origin": "author",
+                  "profile": "icp-mcp-example"
+                }
+              }
+            },
+            "Err": {
+              "candid": "variant",
+              "cases": {
+                "Duplicate": {
+                  "candid": "record",
+                  "fields": {
+                    "block": {
+                      "candid": "nat",
+                      "tags": {
+                        "describe": {
+                          "args": {
+                            "label": "Existing block index",
+                            "help": "The same send was already executed in this block."
+                          },
+                          "origin": "author",
+                          "profile": "icp-mcp-example"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Insufficient": {
+                  "candid": "record",
+                  "fields": {
+                    "balance": {
+                      "candid": "record",
+                      "fields": {
+                        "e8s": {
+                          "candid": "nat64",
+                          "tags": {
+                            "amount": {
+                              "args": {
+                                "decimals": 8,
+                                "symbol": "TOK"
+                              },
+                              "origin": "author",
+                              "profile": "icp-mcp-example"
+                            },
+                            "describe": {
+                              "args": {
+                                "label": "Amount"
+                              },
+                              "origin": "author",
+                              "profile": "icp-mcp-example"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "CreatedInFuture": {
+                  "candid": "record",
+                  "fields": {
+                    "canister_time": {
+                      "candid": "nat64",
+                      "tags": {
+                        "timestamp": {
+                          "args": {
+                            "unit": "ns",
+                            "epoch": "unix"
+                          },
+                          "origin": "author",
+                          "profile": "icp-mcp-example"
+                        }
+                      }
+                    }
+                  }
+                },
+                "TooOld": {
+                  "candid": "null"
+                },
+                "Other": {
+                  "candid": "text"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "diagnostics": [
+    {
+      "severity": "info",
+      "code": "W_OUTCOME_UNCLASSIFIED",
+      "at": "send",
+      "message": "result case \"Err.Other\" has no class (falls back to default)",
+      "profile": "icp-mcp-example"
+    },
+    {
+      "severity": "info",
+      "code": "I_UNTAGGED_NUMERIC",
+      "at": "icrc21_canister_call_consent_message(0).user_preferences.metadata.utc_offset_minutes",
+      "message": "int16 argument without amount/timestamp/duration/describe"
+    }
+  ]
+}

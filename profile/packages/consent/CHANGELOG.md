@@ -2,6 +2,11 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.7.0 (unreleased)
+
+- Docs: the Rust crate in the repository (`rust/`, not in this package) now answers the whole ICRC-21 call,
+  `handle_consent_request`, checked against 67 requests this package answers (D-061); the README says so.
+
 ## 0.6.0 — 2026-11-01
 
 - x402's `upto` payment and USDC's permit read with the new and changed contract profiles of `@meantjs/profile`

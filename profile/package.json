@@ -8,7 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "validate": "node scripts/validate.mjs && node scripts/validate.mjs examples/tokens.profile.json --did examples/tokens.did",
+    "validate": "node scripts/validate.mjs && node scripts/validate.mjs examples/tokens.profile.json --did examples/tokens.did && node scripts/validate.mjs examples/icp-mcp/icp-mcp.profile.json --did examples/icp-mcp/icp-mcp.did",
     "test": "node --test \"scripts/*.test.mjs\" \"packages/*/test/*.test.mjs\"",
     "pack:check": "node scripts/package-check/check.mjs",
     "types": "tsc -p scripts/package-check/types/tsconfig.json",

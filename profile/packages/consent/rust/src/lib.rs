@@ -5,7 +5,8 @@
 //! Candid-encoded arguments of a call, this crate writes the same text as the JavaScript package, byte for byte:
 //!   - [`sns_validator_rendering`]: the reply of an SNS generic nervous system function's validator method
 //!     (rules `candid-profile-sns/v0`), and [`handle_sns_validator_call`] with the reply Candid-encoded;
-//!   - [`generic_consent_message`]: the ICRC-21 `GenericDisplayMessage` text (spec section 12).
+//!   - [`generic_consent_message`]: the ICRC-21 `GenericDisplayMessage` text (spec section 12), and
+//!     [`handle_consent_request`]: the whole `icrc21_canister_call_consent_message` call, bytes in and bytes out.
 //!
 //! The tests run the JavaScript goldens (`../test/sns-golden/`, `../test/golden/`) through this crate.
 //!
@@ -15,6 +16,7 @@
 mod decode;
 pub mod error;
 mod format;
+pub mod icrc21;
 mod model;
 mod render;
 mod resolved;
@@ -25,6 +27,7 @@ use serde_json::{Map, Value};
 
 pub use decode::{Limits, DEFAULT_MAX_BYTES};
 pub use error::{codes, Error, Result};
+pub use icrc21::{handle_consent_request, icrc21_consent_message, ConsentContext, LanguagePolicy};
 pub use model::{Diagnostic, MAX_ELEMENTS, MAX_FIELDS};
 pub use render::MAX_MESSAGE_CHARS;
 pub use sns::{

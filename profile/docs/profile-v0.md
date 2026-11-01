@@ -398,6 +398,17 @@ A canister serves its own profile, so that a consumer who knows only the caniste
   state, is not certified (§11.2). A consumer MAY still apply it in the `author` layer when it trusts that channel, as
   for a profile the author ships with their code.
 
+### 8.2 A guide for agents (`get_api_doc`, informative, D-060)
+
+**Fact** ([service discoverability](https://docs.internetcomputer.org/guides/frontends/service-discoverability/), read
+2026-11-01): DFINITY's ICP MCP connector, and agents that follow the same guide, read a canister query
+`get_api_doc : () -> (text)` (or `getApiDoc`) before calling it, and expect Markdown that states units and encoding,
+irreversible actions and retry rules. A profile states exactly these, so the text SHOULD be generated from the
+profile rather than written again: `candid-profile api-doc` and `renderApiDoc` in `@meantjs/profile` write it from the
+resolved form (§10). The text is a description for a reader; it is not certified and binds nothing. A consumer that can
+read `candid:profile` (§8.1) SHOULD use the profile itself, and a consumer that sends a call still applies §5.3
+(confirmation, idempotency, outcome handling) whatever a guide says.
+
 ## 9. Doc annotations (authoring inside the `.did`)
 
 Authors can write tags as doc comments. A compiler turns candid-core `SourceInfo` docs into an `author` profile:

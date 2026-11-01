@@ -108,6 +108,7 @@ dependencies = [
  "candid",
  "num-bigint",
  "ryu-js",
+ "serde",
  "serde_json",
  "unicode-general-category",
 ]
