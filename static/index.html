@@ -35,7 +35,7 @@
   </div>
 </header>
 <main id="main" class="landing"><section class="hero">
-  <a class="hero-eyebrow" href="status.html">meant 0.1.0 · @meantjs 0.5.0 · pre-1.0</a>
+  <a class="hero-eyebrow" href="status.html">meant 0.1.0 · @meantjs/profile 0.5.0 · pre-1.0</a>
   <h1>What you meant is what runs</h1>
   <p class="hero-sub">
     Meant is the meaning layer for contract calls. It compiles a Candid interface into a canonical
@@ -184,13 +184,13 @@
       <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
       <span class="card-title">Interface graphs and identities</span>
       <p>The <code>meant</code> crate compiles a Candid interface through the official checker into
-      a canonical, validated graph with content-addressed identities. <code>@candid-core/schema</code>
+      a canonical, validated graph with content-addressed identities. <code>@meantjs/schema</code>
       gives TypeScript typed schemas, validation and a binary codec from the same graph.</p>
     </a>
     <a class="card" href="profiles.html">
       <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
       <span class="card-title">Profiles: what each value means</span>
-      <p>The Candid Profile spec, its standard packs, and the <code>@meantjs</code> packages that
+      <p>The Candid Profile spec, its standard packs, and the five profile packages that
       resolve profiles and generate tools, consent and formatting from them. <code>meant-format</code>
       does the <code>amount</code> tag in Rust.</p>
     </a>
@@ -252,14 +252,14 @@
       <p>The Rust compiler and model, and the <code>meant</code> binary.</p>
     </a>
     <a class="card" href="ts-overview.html">
-      <span class="card-kicker">npm · 0.5.0 / 0.4.0</span>
-      <span class="card-title">@candid-core/schema, @candid-core/cli</span>
+      <span class="card-kicker">npm · 0.6.0 / 0.5.0</span>
+      <span class="card-title">@meantjs/schema, @meantjs/cli</span>
       <p>The TypeScript schema runtime, and the compiler and generator as WebAssembly.</p>
     </a>
     <a class="card" href="reference-profile-api.html">
       <span class="card-kicker">npm · 0.5.0</span>
-      <span class="card-title">@meantjs/*</span>
-      <p><code>profile</code>, <code>format</code>, <code>consent</code>, <code>tools</code> and
+      <span class="card-title">The profile packages</span>
+      <p><code>@meantjs/profile</code>, <code>format</code>, <code>consent</code>, <code>tools</code> and
       <code>reconcile</code>: five packages released together.</p>
     </a>
     <a class="card" href="reference-meant-format.html">
@@ -311,7 +311,7 @@
     <a class="card" href="quickstart-typescript.html">
       <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-interfaces-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-interfaces-light.svg" alt="" width="12" height="12">Interfaces</span>
       <span class="card-title">Typed, validated canister values</span>
-      <p>Install <code>@candid-core/schema</code>, describe an interface, validate a value and
+      <p>Install <code>@meantjs/schema</code>, describe an interface, validate a value and
       encode it, with no Rust toolchain.</p>
     </a>
     <a class="card" href="quickstart-rust.html">
@@ -331,20 +331,21 @@
 <section class="section" id="status">
   <div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="callout-body"><span class="callout-title">Upgrading from an earlier release</span>
     <p>
-      The TypeScript on this site is <code>@candid-core/schema</code> <code>0.5.0</code> and
-      <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27 under the npm <code>latest</code> dist-tag. The previous
-      stable releases, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, generate the same modules, type a decoded value as <code>unknown</code>, and have no <code>didToDocAttributes</code>; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what the upgrade means.
+      The TypeScript on this site is <code>@meantjs/schema</code> <code>0.6.0</code> and
+      <code>@meantjs/cli</code> <code>0.5.0</code>, published on 2026-11-01 under the npm <code>latest</code> dist-tag. The previous
+      stable releases, <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, are the same code under the old names: the CLI&rsquo;s command is <code>candid-core-cli</code>, and the modules it generates differ only in their first two lines, the old header and an import of <code>@candid-core/schema</code>. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+      The stable releases before those, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, also type a decoded value as <code>unknown</code> and have no <code>didToDocAttributes</code>; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means.
       The stable releases before those, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, differ more: CLI <code>0.2.0</code> declares each type as a <code>$</code>-prefixed local (<code>type $Status = …</code>) and types no method with its mode. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
       The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface, and <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
-      after code. The <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since. The repository has moved on since: it is prepared as <code>@meantjs/schema</code> <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, not yet published, which are this pair&rsquo;s code under new names: the CLI&rsquo;s command becomes <code>meant</code>, and the modules it generates differ from <code>0.4.0</code>&rsquo;s only in their first two lines, a new header and an import of <code>@meantjs/schema</code>. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+      after code. The old names&rsquo; <code>beta</code> dist-tag still names <code>0.3.0-beta.1</code> and <code>0.2.0-beta.1</code>, which lack the changes recorded under <code>0.3.0</code> and <code>0.2.0</code> and every stable release since.
     </p>
   </div></div>
 
   <div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><div class="callout-body"><span class="callout-title">Pre-1.0, and it says so</span>
     <p>
       The crates are <code>meant</code> <code>0.1.0</code> and <code>meant-format</code>
-      <code>0.2.0</code>; the npm packages are <code>@candid-core/schema</code> <code>0.5.0</code>,
-      <code>@candid-core/cli</code> <code>0.4.0</code> and the five <code>@meantjs</code> packages at
+      <code>0.2.0</code>; the npm packages are <code>@meantjs/schema</code> <code>0.6.0</code>,
+      <code>@meantjs/cli</code> <code>0.5.0</code> and the five profile packages at
       <code>0.5.0</code>; the profile spec is Draft 0.2. Any release before 1.0 may change the public
       API, the serialized shapes, the canonical bytes and every identity computed over them, so pin
       exact versions: <code>meant = "=0.1.0"</code>, <code>npm install --save-exact</code>.
@@ -364,7 +365,6 @@
     <a href="https://github.com/B3Pay/Meant/issues">Issues</a>
     <a href="https://crates.io/crates/meant">crates.io</a>
     <a href="https://www.npmjs.com/org/meantjs">npm: @meantjs</a>
-    <a href="https://www.npmjs.com/package/@candid-core/schema">npm: @candid-core</a>
   </div>
 </footer>
 
