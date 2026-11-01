@@ -464,6 +464,11 @@ grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
 value: "0x402085c248EeA27D92E8b30b2C58ed07f9E20001"
 </annotation>
 
+<p>
+  x402's <code>upto</code> payment pins its own proxy, <code>0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002</code>, the
+  same way (<a href="reference-packs.html#x402-upto-permit2"><code>x402-upto-permit2</code></a>, D-059).
+</p>
+
 <ul>
   <li>It sits on an <code>address</code> in the arguments of a function or a message, in a tuple or in every element of an array. In a result or at a <code>type:</code> address it is <diag>E_TAG_TARGET</diag>; on another type, or on a Candid service, whose positions hold no EVM address, it is <diag>E_TAG_NOT_APPLICABLE</diag>. Its <code>value</code> in mixed case must match its checksum (<diag>E_ADDRESS_CHECKSUM</diag>).</li>
   <li>A consumer refuses a call or a signing request whose value at a pinned position is another address, before it shows any text: <code>evmConsent</code> and <code>eip712Consent</code> throw <diag>E_FIXED</diag>. Addresses are compared by their 20 bytes, so their case does not matter.</li>

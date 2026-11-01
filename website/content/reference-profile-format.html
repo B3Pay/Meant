@@ -767,7 +767,8 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
 
 <p>
   Each entry of <code>profiles</code> that binds a domain lists its name and version as <code>eip712_domain</code>,
-  beside its <code>deployments</code>. From the Permit2 profile's fixture, whose domain has a name and no version:
+  beside its <code>deployments</code>. From the Permit2 profile's fixture, whose domain has a name and no version (the
+  first and the last of its 23 deployments):
 </p>
 
 <pre data-lang="json" data-file="profile/fixtures/permit2.resolved.json">
@@ -775,22 +776,15 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
   {
     "name": "permit2",
     "origin": "third_party",
-    "profile_id": "candid-profile:v0:sha256:dbab46bbde82e85c0c67cac7a67b4e246ce4d5dabab66bee13777128d4801188",
+    "profile_id": "candid-profile:v0:sha256:c00678ab9eda6a94d91b893af1a3c256a7fde497f0800f173ca9ef6579e86d0c",
     "deployments": [
       {
         "chain_id": 1,
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       },
+      …
       {
-        "chain_id": 8453,
-        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
-      },
-      {
-        "chain_id": 42161,
-        "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
-      },
-      {
-        "chain_id": 84532,
+        "chain_id": 11142220,
         "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
       }
     ],

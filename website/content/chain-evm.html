@@ -8,7 +8,7 @@
     against terms the person confirmed (D-056). Agent tools, <code>outcome</code> classes over reverts,
     <code>idempotency</code> by nonce and ERC-7730 import are later phases, each its own decision; signing, checking
     signatures and Permit2's witness messages other than x402's are not in it. The preregistered eval uses none of it.
-    Decisions D-054, D-055 and D-058; the text is
+    Decisions D-054, D-055, D-058 and D-059; the text is
     <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>
     and its <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#159-typed-messages-eip-712-d-055">§15.9</a>.
   </p>
@@ -814,8 +814,8 @@ This is a signature, not a transaction: whoever holds it can submit it.
 <h3>Permit2</h3>
 
 <p>
-  The Permit2 profile is bound to its deployments on chains 1, 8453, 42161 and 84532, so its words appear only for a
-  request whose verifying contract is Permit2 on one of them. This is the package test's <code>PermitBatch</code>
+  The Permit2 profile is bound to its deployments on 23 chains, so its words appear only for a request whose verifying
+  contract is Permit2 on one of them. This is the package test's <code>PermitBatch</code>
   request on chain 1, with each token's decimals and symbol in <code>tokens</code>; nothing is signed or sent. The first
   allowance expires at 0, which Permit2 reads as "only in the block it is used", and the second at <code>uint48</code>
   max:
@@ -854,21 +854,27 @@ This is a signature, not a transaction: whoever holds it can submit it.
   The text shows each token's full address in brackets after its amount:
   <code>1.5 USDC (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48), Unlimited WETH (0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)</code>.
   The same request with a verifying contract of <code>0x5FbD…0aa3</code> is
-  <code>E_DEPLOYMENT: profile permit2 describes 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 1, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 8453, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 42161, 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 84532, not 0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 1</code>.
+  <code class="wrap">E_DEPLOYMENT: profile permit2 describes 0x000000000022D473030F116dDEE9F6B43aC78BA3 on chains 1, 14, 50, 51, 137, 143, 988, 1328, 1329, 2201, 4326, 8453, 10143, 31612, 42161, 42220, 43113, 43114, 80002, 84532, 421614, 5042002, 11142220, not 0x5FbDB2315678afecb367f032d93F642f64180aa3 on chain 1</code>:
+  each address once, with its chains.
   The API: <a href="reference-profile-api.html">JavaScript API</a>.
 </p>
 
 <h3 id="x402-payments">x402 payments</h3>
 
 <p>
-  <span class="pill warn">experimental</span> D-058. x402 pays for an HTTP request with a signature the client's wallet
-  makes, in one of two forms: USDC's EIP-3009 <code>TransferWithAuthorization</code>, the default, or, for a token
-  without EIP-3009, Permit2's <code>PermitWitnessTransferFrom</code> with x402's witness (<claim>fact</claim>
-  <code>coinbase/x402</code> at <code>0e6e8c5</code>, <code>specs/schemes/exact/scheme_exact_evm.md</code>). Three
-  standard contract profiles describe them: <a href="reference-packs.html#usdc"><code>usdc</code> and
-  <code>usdc-base-sepolia</code></a>, and
-  <a href="reference-packs.html#x402-exact-permit2"><code>x402-exact-permit2</code></a>. This is x402's own EIP-3009
-  example on Base Sepolia, from the package's test, in the fields form; nothing is signed or sent:
+  <span class="pill warn">experimental</span> D-058, D-059. x402 pays for an HTTP request with a signature the client's
+  wallet makes. Its <code>exact</code> scheme pays a set amount in one of two forms: USDC's EIP-3009
+  <code>TransferWithAuthorization</code>, the default, or, for a token without EIP-3009, Permit2's
+  <code>PermitWitnessTransferFrom</code> with x402's witness (<claim>fact</claim> <code>coinbase/x402</code> at
+  <code>0e6e8c5</code>, <code>specs/schemes/exact/scheme_exact_evm.md</code>). Its <code>upto</code> scheme pays for
+  what a request used, up to a maximum the payer signs, through Permit2 with a witness of its own
+  (<code>specs/schemes/upto/scheme_upto_evm.md</code>), and a payment through Permit2 may come with a USDC
+  <code>Permit</code> for Permit2 (<code>specs/extensions/eip2612_gas_sponsoring.md</code>). Five standard contract
+  profiles describe them: <a href="reference-packs.html#usdc"><code>usdc</code>, <code>usdc-domain-usdc</code> and
+  <code>usdc-base-sepolia</code></a>, <a href="reference-packs.html#x402-exact-permit2"><code>x402-exact-permit2</code></a>
+  and <a href="reference-packs.html#x402-upto-permit2"><code>x402-upto-permit2</code></a>, on the networks x402 names
+  where the contracts are (<a href="#standard-files">Standard files</a>). This is x402's own EIP-3009 example on Base
+  Sepolia, from the package's test, in the fields form; nothing is signed or sent:
 </p>
 
 <signing-sheet>
@@ -945,8 +951,90 @@ This is a signature, not a transaction: whoever holds it can submit it.
   grant, before the token table is read:
   <code class="wrap">E_FIXED: PermitWitnessTransferFrom(0).spender is 0x1111111111111111111111111111111111111111, but the profile describes PermitWitnessTransferFrom only with 0x402085c248EeA27D92E8b30b2C58ed07f9E20001 there, so this request gets no text</code>.
   Permit2's own profile has no witness messages, so it gives the payment none of its words
-  (<diag>E_TYPE_HASH</diag>), and x402's <code>upto</code> scheme, whose witness names a facilitator too, has another
-  type hash and matches nothing.
+  (<diag>E_TYPE_HASH</diag>), and x402's <code>upto</code> payment, whose witness names a facilitator too, has another
+  type hash, which only its own profile reads.
+</p>
+
+<p>
+  The <code>upto</code> form pays for what was used. The payer signs a maximum, and only the facilitator its witness
+  names can settle it, once, for the amount the facilitator chooses up to that maximum, through x402's
+  <code>upto</code> proxy, <code>0x4020…0002</code> (<claim>fact</claim> <code>coinbase/x402</code> at
+  <code>0e6e8c5</code>, <code>x402UptoPermit2Proxy.sol</code>). Its profile pins the spender to that proxy, names the
+  facilitator in the text and grants the maximum, which is what the payer risks. A real <code>upto</code> payment on
+  Base, as its <code>settleWithPermit</code> call carried it (transaction <code>0x0f3a20b0…e416</code>; its
+  facilitator settled 0.008164 USDC of the 0.04088 signed), with USDC's decimals and symbol in <code>tokens</code>:
+</p>
+
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "PermitWitnessTransferFrom",
+    "message": {
+      "intent": "Pay by x402 up to a maximum, through Permit2: Send at most 0.04088 USDC (0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913) to 0xA9dd7CC9CBF0e05551332209289f04bE36bc2315, once, through x402's usage-based payment contract. Only 0xa32cCda98ba7529705a059Bd2d213Da8de10d101 can settle it, and it chooses the amount. Usable from now. Signature expires: 2026-11-01T08:34:15Z.",
+      "fields": [
+        ["Maximum amount", "0.04088 USDC (0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)"],
+        ["To", "0xA9dd7CC9CBF0e05551332209289f04bE36bc2315"],
+        ["Settled by", "0xa32cCda98ba7529705a059Bd2d213Da8de10d101"],
+        ["Usable from", "now"],
+        ["Signature expires", "2026-11-01T08:34:15Z"],
+        ["Contract", "0x000000000022D473030F116dDEE9F6B43aC78BA3 on chain 8453"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0x6586b37030fe585642b7edec54b6e4618394d279d0df0a1ba90192ce7af07ede"]
+      ]
+    },
+    "model": {"title": "Pay by x402 up to a maximum, through Permit2", "effect": "transfer"},
+    "provenance": {"intent": {"origin": "third_party", "profile": "x402-upto-permit2"}}
+  },
+  "chain": {"family": "evm", "id": 8453, "name": "Base"},
+  "standard": "EIP-712",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner signs. The model never does."
+}
+</signing-sheet>
+
+<p>
+  It grants the payee at most 40880 base units of USDC, until the signature expires: <code>{ kind: "transfer", to:
+  "0xA9dd7CC9CBF0e05551332209289f04bE36bc2315", token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", amount: { units:
+  "40880", unlimited: false }, ends: { at: "1793522055" } }</code>. The same payment with any other spender, x402's
+  <code>exact</code> proxy among them, gets no text:
+  <code class="wrap">E_FIXED: PermitWitnessTransferFrom(0).spender is 0x402085c248EeA27D92E8b30b2C58ed07f9E20001, but the profile describes PermitWitnessTransferFrom only with 0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002 there, so this request gets no text</code>.
+</p>
+
+<p>
+  That payment came with a USDC permit, which the payer's wallet signed too, so that Permit2 can take the tokens. It
+  lets Permit2 spend the payment's maximum, and once submitted the allowance never ends:
+</p>
+
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "Permit",
+    "message": {
+      "intent": "Permit USDC spending: Allow 0x000000000022D473030F116dDEE9F6B43aC78BA3 to spend up to 0.04088 USDC from 0x245210f69216a7716Fa3AEcF126A610F7cF4760C. Signature expires: 2026-11-01T08:34:15Z.",
+      "fields": [
+        ["Spender", "0x000000000022D473030F116dDEE9F6B43aC78BA3"],
+        ["Amount", "0.04088 USDC"],
+        ["Owner", "0x245210f69216a7716Fa3AEcF126A610F7cF4760C"],
+        ["Signature expires", "2026-11-01T08:34:15Z"],
+        ["Contract", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 on chain 8453"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0x7f6350eb1c24f51070881b873857e8bd476c99ddf5c6845b809998eb802f2c8b"]
+      ]
+    },
+    "model": {"title": "Permit USDC spending", "effect": "approve"},
+    "provenance": {"intent": {"origin": "third_party", "profile": "usdc"}}
+  },
+  "chain": {"family": "evm", "id": 8453, "name": "Base"},
+  "standard": "EIP-2612",
+  "effects": ["approve"],
+  "who": "Only the owner signs. The model never does."
+}
+</signing-sheet>
+
+<p>
+  Its grant is an allowance to Permit2, not a payment to the payee: <code>{ kind: "approve", spender:
+  "0x000000000022D473030F116dDEE9F6B43aC78BA3", token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", amount: { units:
+  "40880", unlimited: false }, ends: { never: true } }</code>.
 </p>
 
 <p>
@@ -956,7 +1044,18 @@ This is a signature, not a transaction: whoever holds it can submit it.
   (<code>the request allows 0.03 USDC, the terms say at most 0.02 USDC</code>). Terms for USDC on Base that end on the
   same day pass an EIP-3009 payment valid for ten minutes and refuse the same payment valid for a year (<code>the
   permission lasts until 29 October 2027 at 23:53:20 (UTC), the terms say until the end of 30 October 2026
-  (UTC)</code>). These runs are in <code>profile/packages/consent/test/x402.test.mjs</code>.
+  (UTC)</code>).
+</p>
+
+<p>
+  For the <code>upto</code> payment, terms that say "Search API (<code>0xA9dd…2315</code>) may be sent at most 0.05
+  USDC, until the end of 2 November 2026 (UTC)" pass it, whatever the facilitator settles later, and refuse the same
+  payment with a maximum of 0.06 USDC (<code>the request allows 0.06 USDC, the terms say at most 0.05 USDC</code>).
+  They never pass its permit (<code>the request lets Permit2 (0x0000…8BA3) spend, the terms pay Search API
+  (0xA9dd…2315) directly</code>; <code>the permission never ends, the terms say until the end of 2 November 2026
+  (UTC)</code>), nor do terms for Permit2 that end. Only terms that name Permit2 and never end pass it: "Permit2
+  (<code>0x0000…8BA3</code>) may spend at most 0.05 USDC, and this permission never ends." These runs are in
+  <code>profile/packages/consent/test/x402.test.mjs</code>.
 </p>
 
 <h2>What a call or signature grants</h2>
@@ -1171,8 +1270,8 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
 <h2>Standard files</h2>
 
 <p>
-  Six files of EIP-712 messages ship beside the packs in <code>@meantjs/profile</code>. <code>loadPacks()</code> returns
-  the packs only, so the EIP-2612 pack joins every pack search, while the five contract profiles are read by path
+  Eight files of EIP-712 messages ship beside the packs in <code>@meantjs/profile</code>. <code>loadPacks()</code> returns
+  the packs only, so the EIP-2612 pack joins every pack search, while the seven contract profiles are read by path
   (<code>@meantjs/profile/packs/permit2.profile.json</code>). Every annotation: <a href="reference-packs.html">Standard packs</a>.
 </p>
 
@@ -1182,20 +1281,22 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
   </thead>
   <tbody>
     <tr><td><code>erc2612.profile.json</code></td><td>pack</td><td><code>Permit</code> (<effect>approve</effect>), and the <code>permit</code> function that submits one</td><td>any token with <code>permit</code>, <code>nonces</code>, <code>DOMAIN_SEPARATOR</code>, <code>decimals</code> and <code>symbol</code>; each token's own domain</td></tr>
-    <tr><td><code>permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td><code>PermitSingle</code>, <code>PermitBatch</code> (<effect>approve</effect>); <code>PermitTransferFrom</code>, <code>PermitBatchTransferFrom</code> (<effect>transfer</effect>)</td><td>domain <code>Permit2</code>; <code>0x0000…8BA3</code> on chains 1, 8453, 42161 and 84532</td></tr>
+    <tr><td><code>permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td><code>PermitSingle</code>, <code>PermitBatch</code> (<effect>approve</effect>); <code>PermitTransferFrom</code>, <code>PermitBatchTransferFrom</code> (<effect>transfer</effect>)</td><td>domain <code>Permit2</code>; <code>0x0000…8BA3</code> on 23 chains</td></tr>
     <tr><td><code>dai-permit.profile.json</code></td><td>contract</td><td>DAI's older <code>Permit</code> (<effect>approve</effect>)</td><td>domain <code>Dai Stablecoin</code> version <code>1</code>; <code>0x6B17…1d0F</code> on chain 1</td></tr>
-    <tr><td><code>usdc.profile.json</code></td><td>contract, <code>third_party</code></td><td>USDC's <code>TransferWithAuthorization</code>, <code>ReceiveWithAuthorization</code> (<effect>transfer</effect>); <code>CancelAuthorization</code> (<effect>write</effect>)</td><td>domain <code>USD Coin</code> version <code>2</code>; USDC on chains 1, 8453 and 42161</td></tr>
-    <tr><td><code>usdc-base-sepolia.profile.json</code></td><td>contract, <code>third_party</code></td><td>the same three messages</td><td>domain <code>USDC</code> version <code>2</code>; <code>0x036C…CF7e</code> on chain 84532</td></tr>
-    <tr><td><code>x402-exact-permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td>x402's <code>PermitWitnessTransferFrom</code> (<effect>transfer</effect>), its spender pinned to x402's proxy</td><td>Permit2's domain and deployments</td></tr>
+    <tr><td><code>usdc.profile.json</code></td><td>contract, <code>third_party</code></td><td>USDC's <code>TransferWithAuthorization</code>, <code>ReceiveWithAuthorization</code> (<effect>transfer</effect>); <code>CancelAuthorization</code> (<effect>write</effect>); <code>Permit</code> (<effect>approve</effect>)</td><td>domain <code>USD Coin</code> version <code>2</code>; USDC on chains 1, 137, 8453, 42161, 43113, 43114 and 421614</td></tr>
+    <tr><td><code>usdc-domain-usdc.profile.json</code></td><td>contract, <code>third_party</code></td><td>the same four messages</td><td>domain <code>USDC</code> version <code>2</code>; USDC on chains 50, 51, 143, 1328, 1329, 10143, 42220, 80002, 84532, 5042002 and 11142220</td></tr>
+    <tr><td><code>usdc-base-sepolia.profile.json</code></td><td>contract, <code>third_party</code></td><td>the first three, as 0.5.0 published them</td><td>domain <code>USDC</code> version <code>2</code>; <code>0x036C…CF7e</code> on chain 84532</td></tr>
+    <tr><td><code>x402-exact-permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td>x402's <code>exact</code> <code>PermitWitnessTransferFrom</code> (<effect>transfer</effect>), its spender pinned to x402's <code>exact</code> proxy</td><td>Permit2's domain; its deployments on 20 networks</td></tr>
+    <tr><td><code>x402-upto-permit2.profile.json</code></td><td>contract, <code>third_party</code></td><td>x402's <code>upto</code> <code>PermitWitnessTransferFrom</code> (<effect>transfer</effect>), its spender pinned to x402's <code>upto</code> proxy</td><td>Permit2's domain; its deployments on 18 networks</td></tr>
   </tbody>
 </table>
 
 <ul>
   <li><strong>EIP-2612.</strong> Amounts read the token's <code>decimals()</code> and <code>symbol()</code>, and a deadline of <code>uint256</code> max reads "Never". <claim>fact</claim> "The <code>deadline</code> argument can be set to <code>uint(-1)</code> to create <code>Permit</code>s that effectively never expire" (<a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612</a>).</li>
-  <li><strong>Permit2.</strong> Amounts are in the token each message names. <claim>fact</claim> Chains 1 and 42161 are the deployments of ERC-7730's own Permit2 example; 8453 and 84532 were added from Permit2's code and <code>DOMAIN_SEPARATOR()</code>, read on each chain on 2026-10-30, and Uniswap's deployments page (O10). <claim>fact</claim> Uniswap's <code>permit2</code> (<code>Allowance.sol</code>, <code>AllowanceTransfer.sol</code>): "If the inputted expiration is 0, the allowance only lasts the duration of the block", so it reads "Only in the block it is used"; an allowance of <code>type(uint160).max</code> is never decremented, so it reads "Unlimited".</li>
+  <li><strong>Permit2.</strong> Amounts are in the token each message names. <claim>fact</claim> Chains 1 and 42161 are the deployments of ERC-7730's own Permit2 example; 8453 and 84532 were added from Permit2's code and <code>DOMAIN_SEPARATOR()</code>, read on each chain on 2026-10-30, and Uniswap's deployments page; the other networks x402 names from the same code with its two immutables blanked and its <code>DOMAIN_SEPARATOR()</code>, read on each chain on 2026-11-01 (O10). <claim>fact</claim> Uniswap's <code>permit2</code> (<code>Allowance.sol</code>, <code>AllowanceTransfer.sol</code>): "If the inputted expiration is 0, the allowance only lasts the duration of the block", so it reads "Only in the block it is used"; an allowance of <code>type(uint160).max</code> is never decremented, so it reads "Unlimited".</li>
   <li><strong>DAI.</strong> <claim>fact</claim> The address is <code>MCD_DAI</code> in the Sky chainlog, read 2026-10-28. <claim>fact</claim> MakerDAO <code>dss/src/dai.sol</code>: <code>expiry == 0</code> never expires, so 0 reads "Never"; <code>allowed</code> sets the allowance to <code>uint(-1)</code> or 0, and the text says so through its template (O12).</li>
-  <li><strong>USDC.</strong> Amounts are in 6 decimals, <code>USDC</code>. <claim>fact</claim> Each contract's <code>DOMAIN_SEPARATOR()</code>, <code>decimals()</code> and three type hashes, read on chain on 2026-10-30; Base Sepolia's USDC signs under the name <code>USDC</code>, so it has a profile of its own. <claim>fact</claim> EIP-3009 and Circle's <code>EIP3009.sol</code>: a signature is valid only after <code>validAfter</code> and before <code>validBefore</code>, both strictly, and only the payee may submit a <code>ReceiveWithAuthorization</code>.</li>
-  <li><strong>x402.</strong> <claim>fact</claim> x402's proxy, <code>0x4020…0001</code>, sends exactly <code>permitted.amount</code> to <code>witness.to</code>, not before <code>validAfter</code>, and has the same code on the four chains (<code>coinbase/x402</code> at <code>0e6e8c5</code>; read on chain on 2026-10-30). Permit2 lets the spender choose where the tokens go, so the profile pins the spender to the proxy (<a href="reference-packs.html#x402-exact-permit2">Standard packs</a>).</li>
+  <li><strong>USDC.</strong> Amounts are in 6 decimals, <code>USDC</code>. <claim>fact</claim> Each contract's <code>DOMAIN_SEPARATOR()</code>, <code>decimals()</code> and four type hashes, read on chain (chains 1, 8453, 42161 and 84532 on 2026-10-30, the others on 2026-11-01). USDC signs as <code>USD Coin</code> on some chains and as <code>USDC</code> on others, and a profile binds one domain name, so each name has a profile; its <code>Permit</code> is EIP-2612's, an allowance that never ends. <claim>fact</claim> EIP-3009 and Circle's <code>EIP3009.sol</code>: a signature is valid only after <code>validAfter</code> and before <code>validBefore</code>, both strictly, and only the payee may submit a <code>ReceiveWithAuthorization</code>.</li>
+  <li><strong>x402.</strong> <claim>fact</claim> x402's <code>exact</code> proxy, <code>0x4020…0001</code>, sends exactly <code>permitted.amount</code> to <code>witness.to</code>, not before <code>validAfter</code>; its <code>upto</code> proxy, <code>0x4020…0002</code>, sends what the witness's facilitator gives, at most <code>permitted.amount</code>, once. Each has the same code on every network its profile lists (<code>coinbase/x402</code> at <code>0e6e8c5</code>; read on chain on 2026-10-30 and 2026-11-01). Permit2 lets the spender choose where the tokens go, so each profile pins the spender to its proxy (<a href="reference-packs.html#x402-exact-permit2">Standard packs</a>).</li>
 </ul>
 
 <table>
@@ -1203,7 +1304,7 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
     <tr><th>Message</th><th><code>type_hash</code></th></tr>
   </thead>
   <tbody>
-    <tr><td>EIP-2612 <code>Permit</code></td><td><code class="wrap">0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9</code></td></tr>
+    <tr><td>EIP-2612 <code>Permit</code>, USDC's too</td><td><code class="wrap">0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9</code></td></tr>
     <tr><td>DAI <code>Permit</code></td><td><code class="wrap">0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb</code></td></tr>
     <tr><td>Permit2 <code>PermitSingle</code></td><td><code class="wrap">0xf3841cd1ff0085026a6327b620b67997ce40f282c88a8e905a7a5626e310f3d0</code></td></tr>
     <tr><td>Permit2 <code>PermitBatch</code></td><td><code class="wrap">0xaf1b0d30d2cab0380e68f0689007e3254993c596f2fdd0aaa7f4d04f79440863</code></td></tr>
@@ -1212,17 +1313,20 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
     <tr><td>USDC <code>TransferWithAuthorization</code></td><td><code class="wrap">0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267</code></td></tr>
     <tr><td>USDC <code>ReceiveWithAuthorization</code></td><td><code class="wrap">0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8</code></td></tr>
     <tr><td>USDC <code>CancelAuthorization</code></td><td><code class="wrap">0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429</code></td></tr>
-    <tr><td>x402 <code>PermitWitnessTransferFrom</code></td><td><code class="wrap">0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7</code></td></tr>
+    <tr><td>x402 <code>exact</code> <code>PermitWitnessTransferFrom</code></td><td><code class="wrap">0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7</code></td></tr>
+    <tr><td>x402 <code>upto</code> <code>PermitWitnessTransferFrom</code></td><td><code class="wrap">0x51dff6974ad4388c499e7fcfe838d2bd767162553a144098ce20ea661d70c2ee</code></td></tr>
   </tbody>
 </table>
 
 <p>
-  <claim>fact</claim> These ten type hashes, EIP-712's <code>Mail</code> type hash and digest, the consent tests'
+  <claim>fact</claim> These eleven type hashes, EIP-712's <code>Mail</code> type hash and digest, the consent tests'
   digests and the exported files' <code>descriptorHash</code>es were recomputed by an independent Python EIP-712 and
-  Keccak-256, the phase 1 cross-check tool (spec §15.9). USDC's three type hashes and the type hash of x402's
-  <code>Witness</code> equal the contracts' own constants, read on chain; x402's example EIP-3009 signature and two
-  real x402 Permit2 payments on Base Sepolia recover to their signers over the digests the consent package computes
-  (<claim>fact</claim>, the <code>ecrecover</code> precompile through <code>eth_call</code>, 2026-10-30).
+  Keccak-256: the phase 1 cross-check tool, and for D-059 one written again from FIPS 202 and the EIP's text (spec
+  §15.9). USDC's four type hashes and the type hashes of x402's two <code>Witness</code> types equal the contracts' own
+  constants, read on chain. x402's example EIP-3009 signature, two real x402 <code>exact</code> payments on Base
+  Sepolia, eleven real <code>upto</code> payments on Base and Base Sepolia and the eight USDC permits that came with
+  some of them recover to their signers over the digests the consent package computes (<claim>fact</claim>, the
+  <code>ecrecover</code> precompile through <code>eth_call</code>, 2026-10-30 and 2026-11-01).
 </p>
 
 <h2>Local tests</h2>
@@ -1237,7 +1341,7 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
   <li>Every exported ERC-7730 file in the consent tests is checked against the ERC-7730 2.1.0 JSON Schema (vendored, with its sha256), and the hashes and digests the tests pin were computed by an independent implementation.</li>
   <li>EIP-712: <code>encodeType</code> and the type hash of EIP-712's Mail example, the types that are refused, the standard messages' type hashes, token paths and timestamp words (<code>profile/packages/resolver/test/eip712.test.mjs</code>); the consent text of Permit2, EIP-2612 and DAI requests and every refusal above (<code>profile/packages/consent/test/eip712.test.mjs</code>). No chain, no network, nothing signed.</li>
   <li>Grants: the packs' grants and each way one is refused (<code>profile/packages/resolver/test/grant.test.mjs</code>); the grants of the Permit2, EIP-2612, DAI and ERC-20 requests, with real typed data and calldata, Permit2's expiration of 0, and the ways a grant is left out (<code>profile/packages/consent/test/grant.test.mjs</code>); those grants against confirmed terms (<code>profile/packages/consent/test/terms.test.mjs</code>).</li>
-  <li>Pins and x402: every way a pin is refused, and what its profile keeps (<code>profile/packages/resolver/test/fixed.test.mjs</code>); x402's EIP-3009 example, two real x402 Permit2 payments settled on Base Sepolia and made-up mainnet requests, each refusal, the ERC-7730 file and the terms checks (<code>profile/packages/consent/test/x402.test.mjs</code>, <code>erc7730.test.mjs</code>). The digests they pin were computed by an independent Python EIP-712.</li>
+  <li>Pins and x402: every way a pin is refused, and what its profile keeps (<code>profile/packages/resolver/test/fixed.test.mjs</code>); x402's EIP-3009 example, two real x402 <code>exact</code> payments settled on Base Sepolia, four real <code>upto</code> payments settled on Base and Base Sepolia and the USDC permits that came with two of them, made-up requests on the other chains, each refusal, the ERC-7730 files and the terms checks (<code>profile/packages/consent/test/x402.test.mjs</code>, <code>erc7730.test.mjs</code>). The digests they pin were computed by an independent Python EIP-712.</li>
 </ul>
 
 <p>
@@ -1258,8 +1362,8 @@ console.log(JSON.stringify({ context: descriptor.context, formats: descriptor.di
     <tr><td>O5, O6</td><td>settled</td><td><code>abi</code> beside <code>candid</code> with a top-level <code>chain</code>; an export that refuses what it cannot express.</td></tr>
     <tr><td>O7</td><td><claim>open</claim></td><td><claim>fact</claim> (ERC-7730): a wallet that finds no ticker "SHOULD display the raw value instead with an 'Unknown token' warning", where spec §12 rule 10 produces no message. An exported file cannot make a wallet refuse.</td></tr>
     <tr><td>O8</td><td><claim>assumption</claim></td><td>A wallet reads <code>metadata.token</code> as the token at <code>@.to</code>. ERC-7730 calls it the token "exported by this format"; the export writes it only when the caller says the contract is that token.</td></tr>
-    <tr><td>O9</td><td><claim>open</claim></td><td>Permit2 witness messages (<code>PermitWitnessTransferFrom</code> with a protocol's own witness type). Each needs its own profile, which pins the protocol's settlement contract as the spender (<code>fixed</code>, §15.4) when the witness names where the tokens go. x402's <code>exact</code> payment has one (D-058); a request with any other witness matches nothing and gets no text.</td></tr>
-    <tr><td>O10</td><td><claim>open</claim></td><td>Permit2's deployments beyond chains 1, 8453, 42161 and 84532: its address is the same on many chains, and each is added after checking Uniswap's list and the chain itself, never assumed.</td></tr>
+    <tr><td>O9</td><td><claim>open</claim></td><td>Permit2 witness messages (<code>PermitWitnessTransferFrom</code> with a protocol's own witness type). Each needs its own profile, which pins the protocol's settlement contract as the spender (<code>fixed</code>, §15.4) when the witness names where the tokens go. x402's <code>exact</code> and <code>upto</code> payments have one each (D-058, D-059); a request with any other witness matches nothing and gets no text.</td></tr>
+    <tr><td>O10</td><td><claim>open</claim></td><td>Permit2's deployments beyond the networks x402 names: its address is the same on many more chains, and each is added after checking Uniswap's list and the chain itself, never assumed.</td></tr>
     <tr><td>O11</td><td><claim>open</claim></td><td>Domains with a <code>salt</code>, and contracts whose domain name or version changes after deployment: refused for now.</td></tr>
     <tr><td>O12</td><td><claim>open</claim></td><td>DAI's <code>allowed</code> bool reads through its template ("to all of it if allowed is true, to none if false"); a case-like reading of <code>true</code> and <code>false</code> would need D-053 for <code>bool</code>.</td></tr>
     <tr><td>O13</td><td><claim>open</claim></td><td>The signer against an <code>owner</code> or <code>holder</code> member: whether the text should say so, or refuse, when they differ. The consent function does not take the signer yet.</td></tr>
