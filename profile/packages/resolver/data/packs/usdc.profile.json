@@ -5,7 +5,7 @@
   "name": "usdc",
   "origin": "third_party",
   "language": "en",
-  "description": "USDC's EIP-3009 messages on Ethereum, Base and Arbitrum (spec section 15.9, experimental). TransferWithAuthorization and ReceiveWithAuthorization pay `to` once, by a signature that someone else submits (only the payee, for ReceiveWithAuthorization), and CancelAuthorization cancels one that is unused (EIP-3009; Circle stablecoin-evm, FiatTokenV2.sol). x402's `exact` scheme pays by TransferWithAuthorization by default (coinbase/x402, specs/schemes/exact/scheme_exact_evm.md). Only the messages are described: USDC's ABI names transferWithAuthorization, receiveWithAuthorization, cancelAuthorization and permit twice each, which the resolver refuses (O1). Bound to USDC's domain (`USD Coin`, version `2`) and to its contracts, each read on chain on 2026-10-30 (DOMAIN_SEPARATOR, decimals 6, the three type hashes), so a look-alike token gets none of these words.",
+  "description": "USDC's EIP-3009 messages and its EIP-2612 permit where USDC signs as `USD Coin`: Ethereum, Polygon, Base, Arbitrum and Avalanche, and the test networks Avalanche Fuji and Arbitrum Sepolia (spec section 15.9, experimental). TransferWithAuthorization and ReceiveWithAuthorization pay `to` once, by a signature that someone else submits (only the payee, for ReceiveWithAuthorization), and CancelAuthorization cancels one that is unused (EIP-3009; Circle stablecoin-evm, FiatTokenV2.sol). Permit sets an allowance (EIP-2612), which never ends once it is submitted; x402's payments through Permit2 may come with one for Permit2 (coinbase/x402, specs/extensions/eip2612_gas_sponsoring.md). x402's `exact` scheme pays by TransferWithAuthorization by default (coinbase/x402, specs/schemes/exact/scheme_exact_evm.md). Only the messages are described: USDC's ABI names transferWithAuthorization, receiveWithAuthorization, cancelAuthorization and permit twice each, which the resolver refuses (O1). Bound to USDC's domain (`USD Coin`, version `2`) and to its contracts, each read on chain (DOMAIN_SEPARATOR, decimals 6, the four type hashes; chains 1, 8453 and 42161 on 2026-10-30, the others on 2026-11-01), so a look-alike token gets none of these words. Where USDC signs as `USDC`, the usdc-domain-usdc profile has the same words.",
   "binds": {
     "eip712": {
       "domain": {
@@ -21,6 +21,28 @@
           {
             "name": "nonce",
             "type": "bytes32"
+          }
+        ],
+        "Permit": [
+          {
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256"
           }
         ],
         "ReceiveWithAuthorization": [
@@ -83,12 +105,28 @@
         "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
       },
       {
+        "chain_id": 137,
+        "address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+      },
+      {
         "chain_id": 8453,
         "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
       },
       {
         "chain_id": 42161,
         "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+      },
+      {
+        "chain_id": 43113,
+        "address": "0x5425890298aed601595a70AB815c96711a31Bc65"
+      },
+      {
+        "chain_id": 43114,
+        "address": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E"
+      },
+      {
+        "chain_id": 421614,
+        "address": "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d"
       }
     ]
   },
@@ -303,6 +341,80 @@
       "tag": "describe",
       "args": {
         "label": "Nonce"
+      }
+    },
+    {
+      "at": "Permit",
+      "tag": "intent",
+      "args": {
+        "title": "Permit USDC spending",
+        "template": "Allow {spender} to spend up to {value} from {owner}. Signature expires: {deadline}."
+      }
+    },
+    {
+      "at": "Permit",
+      "tag": "effect",
+      "args": {
+        "kind": "approve",
+        "irreversible": false,
+        "grant": {
+          "spender": "spender",
+          "amount": "value"
+        }
+      }
+    },
+    {
+      "at": "Permit(0).owner",
+      "tag": "describe",
+      "args": {
+        "label": "Owner"
+      }
+    },
+    {
+      "at": "Permit(0).spender",
+      "tag": "describe",
+      "args": {
+        "label": "Spender"
+      }
+    },
+    {
+      "at": "Permit(0).value",
+      "tag": "amount",
+      "args": {
+        "decimals": 6,
+        "symbol": "USDC",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+      }
+    },
+    {
+      "at": "Permit(0).value",
+      "tag": "describe",
+      "args": {
+        "label": "Amount"
+      }
+    },
+    {
+      "at": "Permit(0).nonce",
+      "tag": "describe",
+      "args": {
+        "label": "Nonce"
+      }
+    },
+    {
+      "at": "Permit(0).deadline",
+      "tag": "timestamp",
+      "args": {
+        "unit": "s",
+        "epoch": "unix",
+        "threshold": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "message": "Never"
+      }
+    },
+    {
+      "at": "Permit(0).deadline",
+      "tag": "describe",
+      "args": {
+        "label": "Signature expires"
       }
     }
   ]

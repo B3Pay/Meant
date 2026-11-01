@@ -182,7 +182,7 @@ the call's case for that tag. The other method tags (`idempotency`, `outcome`, `
   several (Permit2's `PermitBatch`) has none in v0. It names:
   - `spender` or `to`, exactly one: who may take the tokens. `spender` is for an allowance, or for a signature whose
     submitter chooses where the tokens go; `to` is for a transfer whose recipient is fixed, by a call or by a signature
-    (EIP-3009's signatures and x402's Permit2 payment, §15.9). An `approve`'s grant names a `spender`. The position is
+    (EIP-3009's signatures and x402's Permit2 payments, §15.9). An `approve`'s grant names a `spender`. The position is
     an `address` (§15) or carries an `account` tag.
   - `amount`: a position with an `amount` tag, of an unsigned type, where a value at or above the tag's `threshold`
     means unlimited; or a `bool`, where `true` is unlimited and `false` grants nothing (DAI's permit, §15.9).
@@ -516,9 +516,10 @@ node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.r
     asked for; the check itself held every time. A grant is the profile's claim (item 1), and terms cover what a
     grant says: a request outside its grant's words (another call, another chain) is checked by the rest of the
     consumer, as without terms.
-11. **A pin protects only the consumers that read it** (`fixed`, §15.4, D-058). x402's Permit2 payment pays
-    `witness.to` only when its spender is x402's proxy; a consumer that skips `fixed` shows the words, and reads the
-    grant, for any spender, and terms for one payee would then pass a payment that another spender can send anywhere.
+11. **A pin protects only the consumers that read it** (`fixed`, §15.4, D-058). x402's Permit2 payments pay
+    `witness.to` only when their spender is x402's proxy for their scheme; a consumer that skips `fixed` shows the
+    words, and reads the grant, for any spender, and terms for one payee would then pass a payment that another spender
+    can send anywhere.
     A resolved form that holds a pin MUST NOT be given to a consumer that does not read `fixed`. The reference consent
     package reads it from 0.5.0, and the five reference packages pin each other exactly; an older consent package
     skips the tag. **Open** (OQ-17): the resolved form does not say which tags a consumer must understand, so an older
@@ -700,9 +701,9 @@ An ABI value is never absent, so an EVM template MUST NOT use `[ ]` segments (`E
 unchanged. `effect` defaults as in §5.3. The native value a `payable` function receives has no position yet (O2).
 
 **A pin (`fixed`, D-058).** `fixed` says that the profile describes the call or the message only with one address at a
-position, its `value`. x402's Permit2 payment needs it (§15.9): Permit2 lets the spender choose where the tokens go,
-and only the code of x402's proxy sends them to the payee the message names, so its words hold only when the spender
-is that proxy.
+position, its `value`. x402's Permit2 payments need it (§15.9): Permit2 lets the spender choose where the tokens go,
+and only the code of x402's proxies sends them to the payee the message names, so their words hold only when the
+spender is the proxy of that payment's scheme.
 
 - It sits on an `address` in the arguments of a function or a message, in a tuple or in every element of an array. In
   a result or at a `type:` address it is `E_TAG_TARGET`; on another type, or on a Candid service, whose positions hold
@@ -921,54 +922,76 @@ must match; for a message, `@.to` is the verifying contract.
   Permit2's `PermitSingle` and `PermitBatch` (an allowance, `approve`) and `PermitTransferFrom` and
   `PermitBatchTransferFrom` (one transfer, `transfer`), amounts in the token each message names. Bound to domain
   `Permit2` and to `0x000000000022D473030F116dDEE9F6B43aC78BA3` on chains 1 and 42161 (**Fact**: ERC-7730's own
-  Permit2 example) and on Base and Base Sepolia, 8453 and 84532 (**Fact**: its code and `DOMAIN_SEPARATOR()`, read on
-  chain on 2026-10-30, and Uniswap's deployments page; D-058, O10). **Fact** (Uniswap `permit2`, `Allowance.sol` and
-  `AllowanceTransfer.sol`): "If the inputted expiration is 0, the allowance only lasts the duration of the block", so
-  it reads "Only in the block it is used"; an allowance of `type(uint160).max` is never decremented, so it reads
-  "Unlimited".
+  Permit2 example), on Base and Base Sepolia, 8453 and 84532 (**Fact**: its code and `DOMAIN_SEPARATOR()`, read on
+  chain on 2026-10-30, and Uniswap's deployments page; D-058), and on the other networks x402 names, 14, 50, 51, 137,
+  143, 988, 1328, 1329, 2201, 4326, 10143, 31612, 42220, 43113, 43114, 80002, 421614, 5042002 and 11142220 (**Fact**:
+  the same code with its two immutables blanked, and its `DOMAIN_SEPARATOR()`, read on chain on 2026-11-01; D-059,
+  O10). **Fact** (Uniswap `permit2`, `Allowance.sol` and `AllowanceTransfer.sol`): "If the inputted expiration is 0,
+  the allowance only lasts the duration of the block", so it reads "Only in the block it is used"; an allowance of
+  `type(uint160).max` is never decremented, so it reads "Unlimited".
 - [`packs/dai-permit.profile.json`](../packs/dai-permit.profile.json), a contract profile: DAI's older `Permit`, bound
   to domain `Dai Stablecoin` version `1` and to `0x6B175474E89094C44Da98b954EedeAC495271d0F` on chain 1 (**Fact**:
   `MCD_DAI` in the Sky chainlog, read 2026-10-28). **Fact** (MakerDAO `dss/src/dai.sol`): `expiry == 0` never expires,
   `allowed` sets the allowance to `uint(-1)` or 0, and `PERMIT_TYPEHASH` is
   `0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb`, which the resolver's hash matches.
 - [`packs/usdc.profile.json`](../packs/usdc.profile.json) and
-  [`packs/usdc-base-sepolia.profile.json`](../packs/usdc-base-sepolia.profile.json), contract profiles (D-058): USDC's
-  EIP-3009 messages. `TransferWithAuthorization` and `ReceiveWithAuthorization` pay `to` once (`transfer`, with a
-  grant to `to` that ends at `validBefore`), and `CancelAuthorization` cancels an unused one (`write`, no grant).
-  `usdc` is bound to domain `USD Coin` version `2` and to USDC on chains 1, 8453 and 42161; `usdc-base-sepolia` to
-  domain `USDC` version `2` on Base Sepolia (84532), whose USDC signs under that name. Amounts are in 6 decimals,
-  `USDC`. **Fact** (read on chain on 2026-10-30): each contract's `DOMAIN_SEPARATOR()`, `decimals()` and three type
-  hashes. **Fact** (EIP-3009; Circle's `EIP3009.sol` at `fc85788`): a signature is valid only after `validAfter` and
-  before `validBefore`, both strictly, so the text reads "Valid after" and "Expires", and only the payee may submit a
-  `ReceiveWithAuthorization`. USDC's ABI names each of its four signature functions twice, so the profiles describe
-  the messages only (O1). x402's `exact` scheme pays by `TransferWithAuthorization` by default (**Fact**:
-  `coinbase/x402` at `0e6e8c5`, `specs/schemes/exact/scheme_exact_evm.md`).
+  [`packs/usdc-domain-usdc.profile.json`](../packs/usdc-domain-usdc.profile.json), contract profiles (D-058, D-059):
+  USDC's EIP-3009 messages and its EIP-2612 permit. `TransferWithAuthorization` and `ReceiveWithAuthorization` pay
+  `to` once (`transfer`, with a grant to `to` that ends at `validBefore`), `CancelAuthorization` cancels an unused one
+  (`write`, no grant), and `Permit` sets an allowance (`approve`, with a grant to `spender` that never ends, as
+  EIP-2612's pack reads it). A profile binds one domain name, and USDC signs under two: `usdc` is bound to domain `USD
+  Coin` version `2` and to USDC on chains 1, 137, 8453, 42161, 43113, 43114 and 421614; `usdc-domain-usdc` to domain
+  `USDC` version `2` on chains 50, 51, 143, 1328, 1329, 10143, 42220, 80002, 84532, 5042002 and 11142220. Amounts are
+  in 6 decimals, `USDC`. **Fact** (read on chain, chains 1, 8453, 42161 and 84532 on 2026-10-30, the others on
+  2026-11-01): each contract's `DOMAIN_SEPARATOR()`, `decimals()` and four type hashes. **Fact** (EIP-3009; Circle's
+  `EIP3009.sol` at `fc85788`): a signature is valid only after `validAfter` and before `validBefore`, both strictly,
+  so the text reads "Valid after" and "Expires", and only the payee may submit a `ReceiveWithAuthorization`. USDC's
+  ABI names each of its four signature functions twice, so the profiles describe the messages only (O1). x402's
+  `exact` scheme pays by `TransferWithAuthorization` by default (**Fact**: `coinbase/x402` at `0e6e8c5`,
+  `specs/schemes/exact/scheme_exact_evm.md`), and its payments through Permit2 may come with a `Permit` for Permit2
+  (`specs/extensions/eip2612_gas_sponsoring.md`).
+- [`packs/usdc-base-sepolia.profile.json`](../packs/usdc-base-sepolia.profile.json) (D-058): the EIP-3009 messages of
+  `usdc-domain-usdc` on Base Sepolia alone, without the permit, kept as @meantjs 0.5.0 published it. New code uses
+  `usdc-domain-usdc`, which reads the same messages there with the same words.
 - [`packs/x402-exact-permit2.profile.json`](../packs/x402-exact-permit2.profile.json), a contract profile (D-058):
   x402's `exact` payment through Permit2, the `PermitWitnessTransferFrom` with x402's witness `Witness(address
   to,uint256 validAfter)` (type hash `0xebc156cd23678a74c94df13d772ef5478420637f0c94bd10d509e1dc98f521c7`), bound to
-  Permit2's domain and deployments. Its spender is pinned (`fixed`, §15.4) to x402's proxy,
-  `0x402085c248EeA27D92E8b30b2C58ed07f9E20001`, and its grant pays `witness.to`. **Fact** (`coinbase/x402` at
-  `0e6e8c5`, `contracts/evm/src/x402BasePermit2Proxy.sol` and `x402ExactPermit2Proxy.sol`): the proxy's `settle`
-  sends exactly `permitted.amount` to `witness.to` and reverts while the block's time is before `validAfter`, so the
-  text reads "Usable from". **Fact** (read on chain on 2026-10-30): the proxy has the same code on the four chains,
-  and its `PERMIT2()` is Permit2. x402's `upto` scheme signs another witness, so another type hash, and matches
-  nothing.
+  Permit2's domain and to its deployments on the 20 networks of `permit2` where the proxy is (all but 14, 988 and
+  2201). Its spender is pinned (`fixed`, §15.4) to x402's proxy, `0x402085c248EeA27D92E8b30b2C58ed07f9E20001`, and its
+  grant pays `witness.to`. **Fact** (`coinbase/x402` at `0e6e8c5`, `contracts/evm/src/x402BasePermit2Proxy.sol` and
+  `x402ExactPermit2Proxy.sol`): the proxy's `settle` sends exactly `permitted.amount` to `witness.to` and reverts
+  while the block's time is before `validAfter`, so the text reads "Usable from". **Fact** (read on chain, the first
+  four chains on 2026-10-30, the others on 2026-11-01): the proxy has the same code on each, and its `PERMIT2()` is
+  Permit2.
+- [`packs/x402-upto-permit2.profile.json`](../packs/x402-upto-permit2.profile.json), a contract profile (D-059):
+  x402's usage-based `upto` payment through Permit2, the `PermitWitnessTransferFrom` with the witness `Witness(address
+  to,address facilitator,uint256 validAfter)` (type hash
+  `0x51dff6974ad4388c499e7fcfe838d2bd767162553a144098ce20ea661d70c2ee`), bound to Permit2's domain and to its
+  deployments on the 18 networks where x402's `upto` proxy is (those of `x402-exact-permit2` but 42220 and
+  11142220). Its spender is pinned to that proxy, `0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002`, and its grant pays
+  `witness.to` at most `permitted.amount`. **Fact** (`coinbase/x402` at `0e6e8c5`, `x402UptoPermit2Proxy.sol` and
+  `x402BasePermit2Proxy.sol`): only `witness.facilitator` may call its `settle`, which sends the amount the
+  facilitator gives, more than 0 and at most `permitted.amount`, to `witness.to`, once, not before `validAfter`; so
+  the text reads "Send at most", names the facilitator and says it chooses the amount, and the grant is the maximum,
+  which the payer risks. **Fact** (read on chain on 2026-11-01): the proxy has the same code on each of the 18, its
+  `PERMIT2()` is Permit2, and in 27.8 hours on Base it settled 4,191 payments, while the `exact` proxy settled none.
 
-The type hashes of the ten standard messages, EIP-712's `Mail` type hash and digest, the consent goldens' digests and
-the exported files' `descriptorHash`es were recomputed by an independent Python EIP-712 and Keccak-256 (the phase 1
-cross-check tool). USDC's three type hashes and the type hash of x402's `Witness` equal the contracts' own constants,
-read on chain; x402's example EIP-3009 signature and two real x402 Permit2 payments on Base Sepolia recover to their
-signers over the digests the consent package computes (**Fact**, the `ecrecover` precompile through `eth_call`,
-2026-10-30).
+The type hashes of the eleven standard messages, EIP-712's `Mail` type hash and digest, the consent goldens' digests
+and the exported files' `descriptorHash`es were recomputed by an independent Python EIP-712 and Keccak-256 (the phase 1
+cross-check tool, and for D-059 one written again from FIPS 202 and the EIP's text). USDC's four type hashes and the
+type hashes of x402's two `Witness` types equal the contracts' own constants, read on chain; x402's example EIP-3009
+signature, two real x402 `exact` payments on Base Sepolia, eleven real `upto` payments on Base and Base Sepolia and the
+eight USDC permits that came with some of them recover to their signers over the digests the consent package computes
+(**Fact**, the `ecrecover` precompile through `eth_call`, 2026-10-30 and 2026-11-01).
 
 #### Open items
 
 - **O9.** Permit2 witness messages (`PermitWitnessTransferFrom` with a protocol's own witness type). Each needs its
   own profile, which pins the protocol's settlement contract as the spender (`fixed`, §15.4) when the witness names
-  where the tokens go. x402's `exact` payment has one (D-058); a request with any other witness matches nothing and
-  gets no text.
-- **O10.** Permit2's deployments beyond chains 1, 8453, 42161 and 84532: its address is the same on many chains, and
-  each is added after checking Uniswap's list and the chain itself, never assumed.
+  where the tokens go. x402's `exact` and `upto` payments have one each (D-058, D-059); a request with any other
+  witness matches nothing and gets no text.
+- **O10.** Permit2's deployments beyond the networks x402 names: its address is the same on many more chains, and each
+  is added after checking Uniswap's list and the chain itself, never assumed.
 - **O11.** Domains with a `salt`, and contracts whose domain name or version changes after deployment: refused for
   now.
 - **O12.** DAI's `allowed` bool reads through its template ("to all of it if allowed is true, to none if false");

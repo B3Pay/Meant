@@ -2,6 +2,19 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.6.0 — 2026-11-01
+
+- x402's `upto` payment and USDC's permit read with the new and changed contract profiles of `@meantjs/profile`
+  (`x402-upto-permit2`, `usdc`, `usdc-domain-usdc`; D-059). An `upto` payment's grant is its maximum, paid to the
+  payee directly (`to`), so terms check the most it can cost. A USDC permit's grant lets its `spender` spend with no
+  end, so terms for a payee never pass the permit that comes with an x402 payment; terms that name Permit2 and never
+  end do.
+- `E_DEPLOYMENT`'s message names each address once with its chains ("0x0000…8BA3 on chains 1, 14, 50, …"), not every
+  chain and address pair; the code and when it is raised are unchanged.
+- The ERC-7730 files of the `permit2`, `usdc` and `x402-exact-permit2` profiles list their new deployments, and
+  `usdc`'s has the permit's format, so their `descriptorHash`es changed. `x402-upto-permit2`'s file holds its proxy as
+  a `mustMatch` field and shows the facilitator.
+
 ## 0.5.0 — 2026-10-30
 
 - Pins (spec §15.4, D-058): `evmConsent` and `eip712Consent` refuse a call or a signing request whose value at a

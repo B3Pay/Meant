@@ -186,12 +186,15 @@ r.resolved.methods.transfer.tags.intent.args.template; // "Send {wad} to {dst}":
   (`PermitSingle(0).details.amount`) and listed under the resolved form's `messages` with its `encode_type` and
   `type_hash`. `amount.token` names an amount's token by an `address` field (`E_TOKEN_PATH` otherwise). Bad types, a
   message named like a function and two meanings for one type name are `E_EIP712`. Standard files: the `erc2612`
-  pack, and the contract profiles `permit2`, `dai-permit`, `usdc`, `usdc-base-sepolia` and `x402-exact-permit2`
-  shipped beside the packs (`@meantjs/profile/packs/permit2.profile.json`); `loadPacks()` returns the packs only.
+  pack, and the contract profiles `permit2`, `dai-permit`, `usdc` and `usdc-domain-usdc` (USDC's EIP-3009 messages
+  and permit, under its two domain names), `usdc-base-sepolia` (as 0.5.0 published it), `x402-exact-permit2` and
+  `x402-upto-permit2`, shipped beside the packs (`@meantjs/profile/packs/permit2.profile.json`); `loadPacks()`
+  returns the packs only.
 - **Pins** (`fixed`, spec §15.4, D-058): an `address` in the arguments of a function or a message that the profile
-  describes only with one value, as x402's Permit2 payment holds x402's proxy as its spender. A pin that does not hold
-  (another place or type, a bad checksum, an address that does not resolve, another value pinned by any profile) is
-  an error, and its profile then supplies only its effects, without grants, and its pins that hold.
+  describes only with one value, as each of x402's Permit2 payments holds its scheme's proxy as its spender. A pin
+  that does not hold (another place or type, a bad checksum, an address that does not resolve, another value pinned
+  by any profile) is an error, and its profile then supplies only its effects, without grants, and its pins that
+  hold.
 - **Refused for now:** overloaded function names and unreadable fragments (`E_ABI`); `idempotency`, `outcome`, `list`,
   `names` and `named` on a contract (`E_TAG_TARGET`); `account` and `subaccount` (`E_TAG_NOT_APPLICABLE`); `[ ]`
   template segments (`E_TEMPLATE`).

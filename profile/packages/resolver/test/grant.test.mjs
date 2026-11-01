@@ -28,22 +28,36 @@ test("the packs' grants: the eight requests of the proposal, as the fixtures car
   for (const name of ["PermitBatch", "PermitBatchTransferFrom"]) assert.equal(permit2.messages[name].tags.effect.args.grant, undefined, name);
 });
 
-test("x402's payments grant one transfer to the payee the message names, until it can no longer be submitted (D-058)", async () => {
+test("x402's payments grant one transfer to the payee the message names, until it can no longer be submitted (D-058, D-059)", async () => {
   const usdcGrant = { to: "to", amount: "value", ends: ["validBefore"] };
   for (const [pack, name, grant] of [
     ["usdc", "TransferWithAuthorization", usdcGrant],
     ["usdc", "ReceiveWithAuthorization", usdcGrant],
+    ["usdc-domain-usdc", "TransferWithAuthorization", usdcGrant],
+    ["usdc-domain-usdc", "ReceiveWithAuthorization", usdcGrant],
     ["usdc-base-sepolia", "TransferWithAuthorization", usdcGrant],
     ["usdc-base-sepolia", "ReceiveWithAuthorization", usdcGrant],
     ["x402-exact-permit2", "PermitWitnessTransferFrom", { to: "witness.to", amount: "permitted.amount", ends: ["deadline"] }],
+    // `upto`: the most the facilitator may settle, which is what the payer risks
+    ["x402-upto-permit2", "PermitWitnessTransferFrom", { to: "witness.to", amount: "permitted.amount", ends: ["deadline"] }],
   ]) {
     const fixture = await readJson(`fixtures/${pack}.resolved.json`);
     assert.deepEqual(fixture.messages[name].tags.effect.args, { kind: "transfer", irreversible: true, grant }, `${pack} ${name}`);
   }
   // cancelling a payment signature grants nothing, so no terms cover it
-  for (const pack of ["usdc", "usdc-base-sepolia"]) {
+  for (const pack of ["usdc", "usdc-domain-usdc", "usdc-base-sepolia"]) {
     const fixture = await readJson(`fixtures/${pack}.resolved.json`);
     assert.deepEqual(fixture.messages.CancelAuthorization.tags.effect.args, { kind: "write", irreversible: true }, pack);
+  }
+  // USDC's permit sets an allowance, as EIP-2612's pack reads one: no end, so it never ends once submitted
+  for (const pack of ["usdc", "usdc-domain-usdc"]) {
+    const fixture = await readJson(`fixtures/${pack}.resolved.json`);
+    assert.deepEqual(fixture.messages.Permit.tags.effect.args, { kind: "approve", irreversible: false, grant: { spender: "spender", amount: "value" } }, pack);
+  }
+  // both x402 profiles pin their spender, each to its own proxy
+  for (const [pack, proxy] of [["x402-exact-permit2", "0x402085c248EeA27D92E8b30b2C58ed07f9E20001"], ["x402-upto-permit2", "0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002"]]) {
+    const fixture = await readJson(`fixtures/${pack}.resolved.json`);
+    assert.deepEqual(fixture.messages.PermitWitnessTransferFrom.args[0].fields.spender.tags.fixed, { args: { value: proxy }, origin: "third_party", profile: pack }, pack);
   }
 });
 
