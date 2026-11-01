@@ -12,16 +12,21 @@
 //!
 //! It talks to the system API directly (no canister SDK), as `packages/consent/rust/examples/sns_validator.rs` does,
 //! so it needs nothing beyond the consent crate's own pinned dependencies. State is kept in memory only: an example,
-//! not a ledger (an upgrade starts it again).
+//! not a ledger (an upgrade starts it again). The token itself is `token.rs`, which `cargo test` runs on the host.
+
+// On the host only the unit tests use the token; the canister that does is wasm32 only.
+#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+mod token;
 
 #[cfg(target_arch = "wasm32")]
 mod canister {
     use std::cell::{OnceCell, RefCell};
-    use std::collections::BTreeMap;
 
-    use candid::{CandidType, Deserialize, Nat, Principal};
+    use candid::{CandidType, Deserialize, Principal};
     use candid_profile_consent::{handle_consent_request, ConsentContext};
     use serde_json::{Map, Value};
+
+    use crate::token::{SendArgs, State, Tokens, INITIAL_E8S};
 
     // ---------------------------------------------------------------------------------------- what it serves
 
@@ -36,49 +41,10 @@ mod canister {
     const API_DOC: &str = include_str!("../../api-doc.md");
     const RESOLVED: &str = include_str!("../../icp-mcp.resolved.json");
 
-    // -------------------------------------------------------------------------------------------- the token
-
-    /// What the installer starts with: 1,000 TOK (8 decimals).
-    const INITIAL_E8S: u64 = 1_000 * 100_000_000;
-    /// How long a send that carries `created_at` is deduplicated, and how far ahead of the canister's clock it may be.
-    const WINDOW_NS: u64 = 24 * 60 * 60 * 1_000_000_000;
-    const DRIFT_NS: u64 = 2 * 60 * 1_000_000_000;
-    const MAX_MEMO: usize = 32;
-
-    #[derive(CandidType, Deserialize, Clone, Copy)]
-    struct Tokens {
-        e8s: u64,
-    }
-
-    #[derive(CandidType, Deserialize)]
-    struct SendArgs {
-        to: Principal,
-        amount: Tokens,
-        memo: Option<Vec<u8>>,
-        created_at: Option<u64>,
-    }
-
-    #[derive(CandidType)]
-    enum SendError {
-        Insufficient { balance: Tokens },
-        Duplicate { block: Nat },
-        TooOld,
-        CreatedInFuture { canister_time: u64 },
-        Other(String),
-    }
-
     #[derive(CandidType)]
     struct Standard {
         name: &'static str,
         url: &'static str,
-    }
-
-    #[derive(Default)]
-    struct State {
-        balances: BTreeMap<Principal, u64>,
-        blocks: u64,
-        /// (caller, the exact argument bytes) of every send that carried `created_at`, with its block and stamp.
-        seen: BTreeMap<(Principal, Vec<u8>), (u64, u64)>,
     }
 
     thread_local! {
@@ -146,55 +112,24 @@ mod canister {
     #[export_name = "canister_init"]
     extern "C" fn init() {
         let installer = caller();
-        STATE.with(|s| s.borrow_mut().balances.insert(installer, INITIAL_E8S));
+        STATE.with(|s| s.borrow_mut().mint(installer, INITIAL_E8S));
     }
 
     #[export_name = "canister_query balance"]
     extern "C" fn balance() {
         let owner: Principal = decode(&arg());
-        let e8s = STATE.with(|s| s.borrow().balances.get(&owner).copied().unwrap_or(0));
+        let e8s = STATE.with(|s| s.borrow().balance(&owner));
         reply(&encode(&Tokens { e8s }));
     }
 
     #[export_name = "canister_update send"]
     extern "C" fn send() {
-        let bytes = arg();
-        let args: SendArgs = decode(&bytes);
+        let args: SendArgs = decode(&arg());
         let from = caller();
         // SAFETY: `time` has no preconditions.
         let now = unsafe { time() };
-        let result = STATE.with(|s| execute(&mut s.borrow_mut(), from, &bytes, &args, now));
+        let result = STATE.with(|s| s.borrow_mut().send(from, &args, now));
         reply(&encode(&result));
-    }
-
-    fn execute(state: &mut State, from: Principal, bytes: &[u8], args: &SendArgs, now: u64) -> Result<Nat, SendError> {
-        if let Some(stamp) = args.created_at {
-            if stamp.saturating_add(WINDOW_NS) < now {
-                return Err(SendError::TooOld);
-            }
-            if stamp > now.saturating_add(DRIFT_NS) {
-                return Err(SendError::CreatedInFuture { canister_time: now });
-            }
-            if let Some(&(block, _)) = state.seen.get(&(from, bytes.to_vec())) {
-                return Err(SendError::Duplicate { block: Nat::from(block) });
-            }
-        }
-        if args.memo.as_ref().is_some_and(|m| m.len() > MAX_MEMO) {
-            return Err(SendError::Other(format!("the memo is over {MAX_MEMO} bytes")));
-        }
-        let balance = state.balances.get(&from).copied().unwrap_or(0);
-        if balance < args.amount.e8s {
-            return Err(SendError::Insufficient { balance: Tokens { e8s: balance } });
-        }
-        state.balances.insert(from, balance - args.amount.e8s);
-        *state.balances.entry(args.to).or_insert(0) += args.amount.e8s;
-        let block = state.blocks;
-        state.blocks += 1;
-        if let Some(stamp) = args.created_at {
-            state.seen.retain(|_, &mut (_, t)| t.saturating_add(WINDOW_NS) >= now);
-            state.seen.insert((from, bytes.to_vec()), (block, stamp));
-        }
-        Ok(Nat::from(block))
     }
 
     #[export_name = "canister_query get_api_doc"]

@@ -142,5 +142,8 @@ test("sends behave as the profile's outcome classes say: exactly once, and refus
   assert.ok("CreatedInFuture" in (future.Err ?? {}), `retry_new: ${show(future)}`);
   const poor = decode(SendResult, await update("send", sendArg({ to: USER, amount: { e8s: 150_000_001n }, memo: [], created_at: [] }), BOB));
   assert.deepEqual(poor, { Err: { Insufficient: { balance: { e8s: 150_000_000n } } } }, "fail");
+  // a send of nothing is refused, so it cannot fill the deduplication state for free (review on B3Pay/Meant#321)
+  const nothing = decode(SendResult, await update("send", sendArg({ to: BOB, amount: { e8s: 0n }, memo: [], created_at: [await nowNs()] })));
+  assert.deepEqual(nothing, { Err: { Other: "the amount is zero" } }, "fail");
   assert.equal(await balance(USER), start - 150_000_000n, "no refused send moved anything");
 });

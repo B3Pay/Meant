@@ -7,10 +7,60 @@
 //
 // Serve it as a static file with `Content-Type: application/json`, not rewritten to index.html.
 
-const PRINCIPAL = /^[a-z2-7]{5}(-[a-z2-7]{5})*(-[a-z2-7]{1,5})?$/;
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz234567";
+
+function crc32(bytes) {
+  let c = ~0;
+  for (const b of bytes) {
+    c ^= b;
+    for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
+  }
+  return ~c >>> 0;
+}
+
+/**
+ * The textual form of a principal (IC interface specification, "Textual representation of principals"): base32 of
+ * the CRC-32 of the bytes followed by the bytes, lowercase, in groups of five. Valid when it decodes to 4 + at most 29
+ * bytes whose checksum holds and encodes back to exactly the same text, so a typo that keeps the shape is refused.
+ */
+export function isPrincipalText(text) {
+  if (typeof text !== "string" || text.length === 0 || text.length > 63) return false;
+  const digits = text.replaceAll("-", "");
+  let bits = 0;
+  let value = 0;
+  const bytes = [];
+  for (const ch of digits) {
+    const d = ALPHABET.indexOf(ch);
+    if (d < 0) return false;
+    value = (value << 5) | d;
+    bits += 5;
+    if (bits >= 8) {
+      bits -= 8;
+      bytes.push((value >>> bits) & 0xff);
+    }
+  }
+  if (bytes.length < 4 || bytes.length > 4 + 29) return false;
+  const body = bytes.slice(4);
+  const sum = crc32(body);
+  if (bytes[0] !== sum >>> 24 || bytes[1] !== ((sum >>> 16) & 0xff) || bytes[2] !== ((sum >>> 8) & 0xff) || bytes[3] !== (sum & 0xff)) return false;
+  // encode back: base32 without padding, groups of five
+  let out = "";
+  bits = 0;
+  value = 0;
+  for (const b of bytes) {
+    value = (value << 8) | b;
+    bits += 8;
+    while (bits >= 5) {
+      bits -= 5;
+      out += ALPHABET[(value >>> bits) & 31];
+    }
+  }
+  if (bits > 0) out += ALPHABET[(value << (5 - bits)) & 31];
+  return out.match(/.{1,5}/g).join("-") === text;
+}
 
 export function manifest(canisterId) {
-  if (typeof canisterId !== "string" || !PRINCIPAL.test(canisterId)) throw new TypeError(`manifest: ${JSON.stringify(canisterId)} is not a canister id`);
+  if (!isPrincipalText(canisterId)) throw new TypeError(`manifest: ${JSON.stringify(canisterId)} is not a principal in its textual form (checksum included)`);
   return {
     version: "1.0.0",
     canisters: [

@@ -70,10 +70,13 @@ const NoSentence = ApiDocError;
 // Text
 // ---------------------------------------------------------------------------
 
-/** Author text in Markdown: one line, with the characters that could make a link, an emphasis or a table escaped. */
+/**
+ * Author text in Markdown: one line, with the characters that could make a link, an emphasis, a strikethrough, an
+ * entity, a heading or a table cell escaped (the set of the consent package's `escapeMarkdown`, plus `_` always).
+ */
 function md(text) {
   if (typeof text !== "string") throw new TypeError("api-doc: text expected");
-  return text.replace(/[\r\n\u2028\u2029]+/g, " ").replace(/[\\`*_[\]<>|#]/g, (c) => `\\${c}`);
+  return text.replace(/[\r\n\u2028\u2029]+/g, " ").replace(/[\\`*_[\]<>&~|#]/g, (c) => `\\${c}`);
 }
 /** A literal in a code span; a backtick inside makes the span longer, as CommonMark allows. */
 function code(text) {
@@ -225,7 +228,15 @@ function grantWords(where, method, grant) {
   const who = grant.spender !== undefined ? `the spender at ${code(grant.spender)}` : grant.to !== undefined ? `the recipient at ${code(grant.to)}` : null;
   if (who === null || grant.amount === undefined) throw new NoSentence(where, "a grant without spender, to or amount");
   for (const k of Object.keys(grant)) if (!["spender", "to", "amount", "ends"].includes(k)) throw new NoSentence(where, `the grant field \`${k}\``);
-  const ends = grant.ends?.length ? `, until the latest of ${grant.ends.map(code).join(", ")}` : method.tags?.effect?.args?.kind === "approve" ? ", with no end" : "";
+  // spec 5.3: with no `ends`, an approve never ends and a transfer ends when it is made
+  const kind = method.tags?.effect?.args?.kind;
+  const ends = grant.ends?.length
+    ? `, until the latest of ${grant.ends.map(code).join(", ")}`
+    : kind === "approve"
+      ? ", with no end"
+      : kind === "transfer"
+        ? ", once: the grant ends when the transfer is made"
+        : "";
   return `Grants ${who} up to the amount at ${code(grant.amount)}${ends}. Tell the person who may take how much, and until when.`;
 }
 

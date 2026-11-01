@@ -111,7 +111,7 @@ Balance of an account.
 
 - Effect: `transfer`, irreversible; **ask the person to confirm before you call it**.
 - What it does: Send tokens. Template: `Send {amount} to {to}[ from subaccount {from_subaccount}][ with memo {memo}][ paying fee {fee}]`, where each `{path}` is the argument at that path, in human units.
-- Grants the recipient at `to` up to the amount at `amount`. Tell the person who may take how much, and until when.
+- Grants the recipient at `to` up to the amount at `amount`, once: the grant ends when the transfer is made. Tell the person who may take how much, and until when.
 - Arguments:
   - `icrc1_transfer(0).to`: Recipient; an ICRC-1 account.
   - `icrc1_transfer(0).fee` (opt): Fee; an amount of ICP in base units (8 decimals); send `null` here unless the person asks for something else. Leave empty to pay the ledger's current default fee. A wrong explicit fee fails with BadFee.

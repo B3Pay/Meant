@@ -150,7 +150,14 @@ test("only an Internet Computer resolved form without errors is rendered", async
   assert.throws(() => renderApiDoc(form({}), { refs: [] }), TypeError);
 });
 
-test("author text cannot add a link, emphasis or a line; literals keep their backticks", () => {
+test("a grant says when it ends: its ends, never for an approve, when it is made for a transfer", () => {
+  const grantForm = (kind, grant) => form({ tags: { effect: tag({ kind, irreversible: true, grant }) } });
+  assert.match(renderApiDoc(grantForm("transfer", { to: "to", amount: "amount" })), /Grants the recipient at `to` up to the amount at `amount`, once: the grant ends when the transfer is made\./);
+  assert.match(renderApiDoc(grantForm("approve", { spender: "spender", amount: "amount" })), /up to the amount at `amount`, with no end\./);
+  assert.match(renderApiDoc(grantForm("approve", { spender: "spender", amount: "amount", ends: ["expires_at"] })), /until the latest of `expires_at`\./);
+});
+
+test("author text cannot add a link, emphasis, a strikethrough, an entity or a line; literals keep their backticks", () => {
   const text = renderApiDoc(
     form({ tags: { describe: tag({ label: "Pay [here](https://evil.example) *now*", help: "line one\n# not a heading" }), intent: tag({ title: "T", template: "Send `{amount}`" }) } }),
     { title: "A | B" },
@@ -159,6 +166,9 @@ test("author text cannot add a link, emphasis or a line; literals keep their bac
   assert.match(text, /Pay \\\[here\\\]\(https:\/\/evil\.example\) \\\*now\\\*\. line one \\# not a heading/);
   assert.doesNotMatch(text, /^# not a heading/m);
   assert.match(text, /Template: `` Send `\{amount\}` ``/);
+  // review on B3Pay/Meant#321: `~` and `&`, as the consent package escapes them
+  const more = renderApiDoc(form({ tags: { describe: tag({ label: "~~private~~ &copy; &#169;" }) } }));
+  assert.match(more, /\\~\\~private\\~\\~ \\&copy; \\&\\#169;\./);
 });
 
 async function cli(...args) {
