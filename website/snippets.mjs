@@ -306,7 +306,7 @@ export async function checkSnippets({ pages, root, skipCompile = false }) {
     return { tally, problems, compiled: false };
   }
 
-  const scratch = await mkdtemp(join(tmpdir(), "candid-core-snippets-"));
+  const scratch = await mkdtemp(join(tmpdir(), "meant-snippets-"));
   try {
     const cli = join(root, "crates", "candid-core-wasm", "npm", "lib", "index.d.ts");
     await writeFile(join(scratch, "tsconfig.json"), JSON.stringify(tsconfig(root, cli), null, 2));

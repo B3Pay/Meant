@@ -22,7 +22,7 @@
 //! - [`did_to_contract`] success: the `ContractEnvelope` document itself —
 //!   `{"contract": …, "extensions": {"org.candid-core.field-names/v1":
 //!   [[container, id, name], …]}}` — byte-identical to what the native
-//!   `candid-core compile <path> --envelope` binary prints for the same
+//!   `meant compile <path> --envelope` binary prints for the same
 //!   sources, pinned by test against the committed envelope fixture. The
 //!   `contract` key is the same discriminator `schemaFromContract` detects.
 //! - [`did_to_module`] success: `{"ok": true, "module": "<TypeScript>",
@@ -40,7 +40,7 @@
 //!   it would be without the omitted declarations.
 //! - [`did_to_doc_attributes`] success: `{"ok": true, "contract": …,
 //!   "source_info": …, "doc_attributes": …}` — the document the native
-//!   `candid-core compile <path>` prints, plus the `DocAttributes` that
+//!   `meant compile <path>` prints, plus the `DocAttributes` that
 //!   `docs/doc-attributes.md` specifies: every documented item's prose and
 //!   `@name(…)` attributes, keyed by the SourceInfo path of the item. A
 //!   malformed attribute fails the call with `doc_attribute_malformed` or
@@ -610,7 +610,7 @@ fn scheme_qualified(name: &str) -> String {
     }
 }
 
-/// The envelope document, built exactly as `candid-core compile --envelope`
+/// The envelope document, built exactly as `meant compile --envelope`
 /// builds it: the same triples derivation as the generator's `*.names.json`
 /// goldens (named labels only, sorted, deduplicated), inserted through the
 /// real `ContractEnvelope` so the extension passes envelope validation.

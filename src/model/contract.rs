@@ -56,7 +56,7 @@ pub struct ProducerInfo {
 }
 
 impl ProducerInfo {
-    /// The producer metadata describing this build of `candid-core` itself:
+    /// The producer metadata describing this build of `meant` itself:
     /// the crate name and version plus the exact pinned `candid` and
     /// `candid_parser` dependency versions. This is the producer a
     /// [`ContractDraft`] builds with when none is supplied explicitly.
@@ -66,7 +66,7 @@ impl ProducerInfo {
     /// enabled by the `compiler` feature, but the versions reported here are
     /// read out of this package's own manifest text at compile time, not from
     /// a linked crate, so a `default-features = false` build of a given
-    /// `candid-core` version reports exactly the same producer bytes as a full
+    /// `meant` version reports exactly the same producer bytes as a full
     /// one. That is deliberate: producer metadata is untrusted provenance
     /// about *this package*, and making it vary by feature would fork the
     /// serialized shape of otherwise identical Contracts.

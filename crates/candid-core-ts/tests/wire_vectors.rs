@@ -21,9 +21,9 @@
 //! `ts/tests/coercion.test.ts` holds `decodeArgs` to every verdict.
 //!
 //! The type environment comes from `candid_parser` over the fixture `.did`
-//! source directly — deliberately not through candid-core's compiler, so the
+//! source directly — deliberately not through Meant's compiler, so the
 //! reference path shares no code with the model under test. (The coercion
-//! golden's Contract is compiled by candid-core, because it is the input the
+//! golden's Contract is compiled by Meant, because it is the input the
 //! TypeScript loader consumes, not part of the reference verdict.) Regenerate
 //! with `UPDATE_GOLDENS=1 cargo test -p candid-core-ts --features compiler`.
 #![cfg(feature = "compiler")]

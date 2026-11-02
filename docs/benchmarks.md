@@ -1,11 +1,11 @@
 # Performance benchmarks
 
-The benchmark suite quantifies the cost of projecting checked Candid into a canonical Contract. It is not a contest between independent parsers: `candid-core` delegates parsing and type checking to the exact official `candid_parser` version pinned in `Cargo.toml`.
+The benchmark suite quantifies the cost of projecting checked Candid into a canonical Contract. It is not a contest between independent parsers: `meant` delegates parsing and type checking to the exact official `candid_parser` version pinned in `Cargo.toml`.
 
 The direct comparison is therefore:
 
 1. official `IDLProg` parsing plus `check_prog` or `check_file`;
-2. the same semantic work plus `candid-core` lowering, structural validation, graph canonicalization, identity hashing, and optional source provenance.
+2. the same semantic work plus `meant` lowering, structural validation, graph canonicalization, identity hashing, and optional source provenance.
 
 Official checker and core outputs provide different guarantees. Ratios only describe the additional Contract projection work for this corpus and build.
 

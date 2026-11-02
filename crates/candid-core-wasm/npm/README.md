@@ -45,10 +45,10 @@ out — no eval, no network, and nothing generated is ever executed.
 > in the tarball: since 0.4.0 under `0.5.0`, since 0.3.0 under `0.5.0` and
 > `0.4.0`, since 0.2.0 under those and `0.3.0`, and since 0.1.0 under those,
 > `0.2.0` and `0.2.0-beta.1`. The migration notes
-> [from 0.4.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-5.html),
-> [from 0.3.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-4.html),
-> [from 0.2.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-3.html)
-> and [from 0.1.0](https://ic-reactor.b3pay.net/candid-core/migrating-from-0-2.html)
+> [from 0.4.0](https://b3pay.net/docs/meant/migrating-from-0-5.html),
+> [from 0.3.0](https://b3pay.net/docs/meant/migrating-from-0-4.html),
+> [from 0.2.0](https://b3pay.net/docs/meant/migrating-from-0-3.html)
+> and [from 0.1.0](https://b3pay.net/docs/meant/migrating-from-0-2.html)
 > show what each break means for your code, with before and after code where
 > the compiler shows it.
 

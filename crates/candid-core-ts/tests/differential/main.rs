@@ -20,13 +20,13 @@
 //!
 //! Each random environment is a `.did` source (see `types.rs`); the reference
 //! types come from `candid_parser` over that source, and the Contract the
-//! TypeScript side loads comes from candid-core's compiler over the same text.
+//! TypeScript side loads comes from Meant's compiler over the same text.
 //! Deep environments (`types::deep_env`: recursive shapes and declaration
 //! chains) add decode and validate cases whose values nest close to the
 //! generation bound (`wire::GEN_LEVELS`), half the runtime's depth bound. A
 //! drafted environment either side refuses, or one holding an `opt`-only
 //! cycle (`wire::opt_cycle`), is redrawn, and the corpus header counts
-//! redraws by reason. Since #234 candid-core's compiler refuses an `opt`-only
+//! redraws by reason. Since #234 Meant's compiler refuses an `opt`-only
 //! cycle itself, so such a draft is counted as a compiler refusal
 //! (`reference=ok compiler=error`); the `opt_cycle` check stays as a
 //! backstop, and a count under it would mean the compiler accepted one. A
@@ -178,7 +178,7 @@ fn runtime_budgets() -> Value {
 const MAX_DRAFTS: usize = 256;
 
 /// Redraws by reason: environments one side or both refused (keyed
-/// `reference=<outcome> compiler=<outcome>`; candid-core's compiler refuses an
+/// `reference=<outcome> compiler=<outcome>`; Meant's compiler refuses an
 /// `opt`-only cycle since #234) or that compile although they hold an
 /// `opt`-only cycle (`opt_cycle`), and cases drafted outside the generation
 /// bounds (keyed
@@ -202,7 +202,7 @@ struct Built {
     types: TypeEnv,
     envelope: Value,
     contract: meant::Contract,
-    /// candid-core's compiler refusal of the source, for a regression vector
+    /// Meant's compiler refusal of the source, for a regression vector
     /// that supplies its Contract instead (`build_with_contract`); `None`
     /// when the envelope was compiled.
     compile_refused: Option<CompileRefused>,
@@ -290,7 +290,7 @@ fn build_from_source(env: types::Env) -> Result<Built, String> {
 }
 
 /// A regression environment whose source the reference accepts and
-/// candid-core's compiler refuses (an `opt`-only cycle since #234), run on
+/// Meant's compiler refuses (an `opt`-only cycle since #234), run on
 /// the Contract the vector supplies (`types`, `declarations` and an optional
 /// `actor`, as a Contract document writes them): the Contract loaders still
 /// accept such a graph, so the runtime still meets it. The Contract is built

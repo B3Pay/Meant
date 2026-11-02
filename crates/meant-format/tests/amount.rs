@@ -1,4 +1,4 @@
-//! The `amount` rules of Candid Profile v0 §5.3, ported from the JavaScript
+//! The `amount` rules of Meant Profile v0 §5.3, ported from the JavaScript
 //! package's `test/amount.test.mjs`, plus the cases where Rust and JavaScript
 //! could part ways (whitespace sets, UTF-16 length, `u128` and `i128`).
 

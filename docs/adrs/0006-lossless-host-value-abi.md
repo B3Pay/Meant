@@ -10,7 +10,7 @@ The next runtime slice will bridge host values and Candid binary messages. Ordin
 
 ## Decision
 
-A closed, lossless semantic `HostValue` algebra (implemented in `candid-core` behind the `host-value` feature, which is enabled by default):
+A closed, lossless semantic `HostValue` algebra (implemented in `meant` behind the `host-value` feature, which is enabled by default):
 
 ```text
 null · bool

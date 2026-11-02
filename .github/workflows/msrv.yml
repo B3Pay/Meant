@@ -2,8 +2,8 @@ name: Verify
 
 on:
   # A pull request that changes only the profile copy (profile/, synced from
-  # candid-profile, see CLAUDE.md) and its two workflows builds nothing this
-  # workflow checks, so it does not start one. A push to main is not filtered:
+  # the profile's private working repository, see CLAUDE.md) and its two
+  # workflows builds nothing this workflow checks, so it does not start one. A push to main is not filtered:
   # every commit there gets its run, which a release needs on its commit
   # (docs/releasing.md, step 2).
   pull_request:

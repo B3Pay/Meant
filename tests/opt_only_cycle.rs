@@ -4,7 +4,7 @@
 //! Decoding a value that is not an `opt` at such a type unwraps `opt` without
 //! end (Candid's coercion has no finite derivation there), so the reference
 //! `candid` crate stops only at its stack guard and a runtime only at its
-//! depth budget. `candid_parser` accepts these types; candid-core refuses
+//! depth budget. `candid_parser` accepts these types; Meant refuses
 //! them at compile time, on every entry point, with `did_type_check_error`
 //! naming the type. Any other constructor on the cycle makes it productive,
 //! and those types compile exactly as before. The Contract loaders do not
@@ -95,8 +95,8 @@ fn every_opt_only_cycle_is_refused_naming_the_type() {
 }
 
 #[test]
-fn the_upstream_checker_accepts_what_candid_core_refuses() {
-    // The refusal is candid-core's own: `candid_parser` type-checks every
+fn the_upstream_checker_accepts_what_meant_refuses() {
+    // The refusal is Meant's own: `candid_parser` type-checks every
     // refused source, so no upstream diagnostic could have taken its place.
     for (source, _) in REFUSED {
         let program: candid_parser::syntax::IDLProg = source.parse().unwrap();

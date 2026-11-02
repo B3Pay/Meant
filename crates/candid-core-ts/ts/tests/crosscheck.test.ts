@@ -641,7 +641,7 @@ for (const fixture of FIXTURES) {
 // path — same verdicts, same issue codes, same paths, same messages, on
 // every golden cross-check sample. The envelope goldens carry the same
 // contract and the same triples as the two files, wrapped the way
-// `candid-core compile --envelope` wraps them, so any divergence here is a
+// `meant compile --envelope` wraps them, so any divergence here is a
 // divergence in the envelope-reading path itself.
 for (const fixture of FIXTURES) {
   test(`the envelope path matches the two-file path on ${fixture.name}`, () => {

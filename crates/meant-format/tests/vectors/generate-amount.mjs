@@ -1,13 +1,13 @@
 // Generates amount.json: the answers of the JavaScript reference implementation
-// (@meantjs/format, packages/format in the candid-profile repository) for a
+// (@meantjs/format, profile/packages/format in this repository) for a
 // fixed, seeded set of inputs. tests/parity.rs requires the meant-format crate to give the
 // same answer for every case: the same value, or the same error code and
 // message.
 //
-//   node crates/meant-format/tests/vectors/generate-amount.mjs <path to a candid-profile checkout>
+//   node crates/meant-format/tests/vectors/generate-amount.mjs
 //
 // Run it from the repository root. It writes crates/meant-format/tests/vectors/amount.json
-// and records the candid-profile commit, the package version, and the Node and
+// and records this repository's commit, the package version, and the Node and
 // Unicode versions it ran on. The cases are a pure function of SEED, so the
 // output changes only when the reference's answers (or this script) change.
 // Sections that draw from the generator are only ever appended after the
@@ -19,23 +19,23 @@
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const SEED = 20261027;
-const OUT = "crates/meant-format/tests/vectors/amount.json";
+const ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
+const OUT = join(ROOT, "crates/meant-format/tests/vectors/amount.json");
 
-const profileRoot = process.argv[2];
-if (!profileRoot) {
-  console.error("usage: node crates/meant-format/tests/vectors/generate-amount.mjs <candid-profile checkout>");
+if (process.argv.length > 2) {
+  console.error("usage: node crates/meant-format/tests/vectors/generate-amount.mjs (no arguments)");
   process.exit(64);
 }
-const formatDir = resolve(profileRoot, "packages/format");
+const formatDir = join(ROOT, "profile/packages/format");
 const { parseAmount, displayAmount } = await import(
   pathToFileURL(join(formatDir, "src/index.mjs")).href
 );
 const pkg = JSON.parse(readFileSync(join(formatDir, "package.json"), "utf8"));
-const commit = execFileSync("git", ["-C", profileRoot, "rev-parse", "HEAD"], {
+const commit = execFileSync("git", ["-C", ROOT, "rev-parse", "HEAD"], {
   encoding: "utf8",
 }).trim();
 
@@ -249,7 +249,7 @@ for (const message of [
 
 const lines = (cases) => cases.map((c) => "    " + JSON.stringify(c)).join(",\n");
 const source = {
-  repository: "https://github.com/b3hr4d/candid-profile",
+  repository: "https://github.com/B3Pay/Meant",
   commit,
   package: `${pkg.name}@${pkg.version}`,
   node: process.version,

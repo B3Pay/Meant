@@ -1,4 +1,4 @@
-# Candid Core — architecture (slice 1)
+# Meant — architecture (slice 1)
 
 The implemented [foundation ADRs](adrs/README.md) define the identity, versioning, validation, source-resolution, resource-limit, and HostValue boundaries.
 
@@ -65,7 +65,7 @@ Three consequences are load-bearing:
 
 `tests/fixtures/packaging/verify_feature_graph.py` checks these claims against `cargo metadata` for each feature set and for `wasm32-unknown-unknown`, following only normal and build edges (dev-dependencies never reach a downstream consumer).
 
-Two limits of the mechanism are worth stating plainly. Cargo **unifies** features across a build graph: if any other crate in a build depends on `candid-core` with defaults, the full surface is compiled once for everyone in that build, so feature selection bounds what a dependency graph *must* contain rather than what a mixed graph produces. And feature selection does not change the published `.crate` archive — every source file ships regardless — which is separate release-hardening work.
+Two limits of the mechanism are worth stating plainly. Cargo **unifies** features across a build graph: if any other crate in a build depends on `meant` with defaults, the full surface is compiled once for everyone in that build, so feature selection bounds what a dependency graph *must* contain rather than what a mixed graph produces. And feature selection does not change the published `.crate` archive — every source file ships regardless — which is separate release-hardening work.
 
 ## Contract v1
 

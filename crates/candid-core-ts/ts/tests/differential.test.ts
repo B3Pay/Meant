@@ -260,7 +260,7 @@ test("every minimized regression vector is listed or agrees as its entry says", 
   }
 });
 
-// A source candid-core's compiler refuses while the reference accepts it is
+// A source Meant's compiler refuses while the reference accepts it is
 // a deliberate refusal, not a divergence of the runtime: such an environment
 // is a regression vector run on the Contract it supplies, and it is listed
 // by its own id with the issue that decided the refusal, never by a rule.

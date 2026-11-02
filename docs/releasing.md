@@ -1,4 +1,4 @@
-# Releasing candid-core
+# Releasing Meant
 
 This is the exact procedure for turning a commit into a published version. It
 holds no stored crates.io credential anywhere: the publish step exchanges a
@@ -557,7 +557,7 @@ but this package no longer does (`./actor`, `./transport-icp`, `./forms`,
 
 The package versions independently of the crate (pre-1.0). Bump
 `ts/package.json` in an ordinary reviewed PR; state in that PR's body which
-`candid-core` generator version the release pairs with, and record the pair
+`meant` generator version the release pairs with, and record the pair
 in the npm release notes, `.github/release-notes/npm/schema/<version>.md`
 (the convention, and why npm notes never sit at that directory's top level,
 is in [its README](../.github/release-notes/README.md)).
@@ -611,9 +611,9 @@ Two differences, both because the artifact embeds a wasm build:
    ordinary CI — and `wasm-opt` is deliberately off, so the published bytes
    are a pure function of those two pins.
 2. The version pairing is a **revision** pairing: the package embeds
-   `candid-core` and the unpublishable `candid-core-ts` generator from the
+   `meant` and the unpublishable `candid-core-ts` generator from the
    dispatched commit itself. `npm/CHANGELOG.md` names the embedded
-   `candid-core` version per release, and the release record names the exact
+   `meant` version per release, and the release record names the exact
    SHA; the `wasm CLI` workflow's parity gates are what make that pairing a
    verified property rather than a claim.
 
@@ -665,7 +665,7 @@ a plain `meant gen <.did>... -o <dir>` (the regenerated set would be
 a guess), when its `stack.json` has no `meant` pins (an ic-reactor that still
 installs the `@candid-core` pair), or when the install would load other
 bytes than the tarballs'. It
-fails on candid-core's side when a toolchain or the wasm does not build, when
+fails on Meant's side when a toolchain or the wasm does not build, when
 the two packages cannot be built, packed or installed, when the packed CLI
 writes another header than the one the script looks for (exit 2), or when the
 script itself crashes (exit 3). It allows one registry link and reports it:
@@ -715,7 +715,7 @@ accepted, and the run's name ends with "accepting a downstream failure", which
 the runs list keeps. Say why in the release note's **Release record**.
 
 Only a failure on ic-reactor's side can be accepted. The `verify` job's gates
-and every failure on candid-core's side (above) still stop the publish.
+and every failure on Meant's side (above) still stop the publish.
 
 ### Outside a release
 
@@ -798,14 +798,14 @@ published version, such as the last beta, npm refuses the install with
    stable version: every **BREAKING** item kept, no per-PR "release ordering"
    notes left contradicting each other, and every measured figure re-measured
    (the rename re-arms `verify_npm_package.py`'s check of the `schema.d.ts`
-   line count). The schema entry carries ``Pairs with `candid-core` X.``; the
-   CLI entry carries ``Embeds `candid-core` X …``, where X is the root
+   line count). The schema entry carries ``Pairs with `meant` X.``; the
+   CLI entry carries ``Embeds `meant` X …``, where X is the root
    `Cargo.toml` version (the CLI gate compares the two).
-3. When the tree's `candid-core` source has moved past the archive crates.io
+3. When the tree's `meant` source has moved past the archive crates.io
    holds for X, but the change neither moves a Contract nor an identity of an
    input X accepts, no crate release is required first: the schema entry still
    pairs with X, because the documents it loads are X's, and the README's
-   `cargo install candid-core --version X` (which the schema gate holds to the
+   `cargo install meant --version X` (which the schema gate holds to the
    pairing) still installs a compiler whose output it loads. The CLI entry
    names X and says, in the same paragraph, what the embedded source has that
    X's archive does not; the release record names the SHA. A change that does

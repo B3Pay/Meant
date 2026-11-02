@@ -181,7 +181,7 @@ fn actor_service(contract: &Contract) -> Result<Option<TypeRef>, TsGenError> {
 
 /// Run the analysis. Refuses — the whole Contract, as before issue #189 —
 /// only for an invalid graph: a dangling reference, or a declaration naming
-/// a class node (candid-core's `class_not_actor_root`, issue #129).
+/// a class node (Meant's `class_not_actor_root`, issue #129).
 pub(crate) fn analyze(
     contract: &Contract,
     names: &TsNames,

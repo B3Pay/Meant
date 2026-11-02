@@ -15,7 +15,7 @@
 //! | *(base)* `default-features = false` | `Contract`, `ContractDraft`, `RawContract`, validation, canonicalization, the semantic Contract identities, detached [`artifact_id_with_limits`], `Limits`/`RuntimeContext`, `Diagnostic`, `ContractEnvelope` | `serde`, `serde_json`, `sha2`, `hex` |
 //! | `host-value` | `HostValue` and graph-directed value validation | `ic_principal` |
 //! | `compiler` | `compile_did`, `compile_with_resolver`, `Compilation`, `SourceId`/`SourceResolver`/`MemoryResolver`, `SourceInfo` provenance, `DocAttributes` | `candid`, `candid_parser` |
-//! | `filesystem-compiler` (implies `compiler`) | `WorkspaceResolver`, `compile_did_file`, source materialization, the `candid-core` binary | `cap-std` |
+//! | `filesystem-compiler` (implies `compiler`) | `WorkspaceResolver`, `compile_did_file`, source materialization, the `meant` binary | `cap-std` |
 //!
 //! Items outside the enabled set are absent at compile time rather than
 //! present as failing stubs, so a build error names the feature to turn on.
@@ -38,7 +38,7 @@
 //! that.
 //!
 //! Cargo unifies features across a dependency graph: if anything in a build
-//! also depends on `candid-core` with defaults, the whole surface is compiled
+//! also depends on `meant` with defaults, the whole surface is compiled
 //! once for every consumer in that build. Feature selection bounds what a
 //! given dependency graph *must* contain, not what a mixed graph produces.
 

@@ -14,7 +14,7 @@
 //! # Identities are restamped
 //!
 //! `schemaFromContract` deliberately does not verify the `identities` hashes
-//! (that needs canonicalization, candid-core's job; see `ts/contract.ts`),
+//! (that needs canonicalization, Meant's job; see `ts/contract.ts`),
 //! while `Contract::from_json` refuses any document whose identities are not
 //! its own. Comparing the two on edited documents would therefore only ever
 //! report that difference. So unless an operation edits `identities` itself,

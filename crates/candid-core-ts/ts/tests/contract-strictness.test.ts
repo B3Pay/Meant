@@ -52,7 +52,7 @@ function loads(result: SchemaFromContractResult): void {
   );
 }
 
-/** `type T0 = nat;` as candid-core compiles it: the issue's repro base. */
+/** `type T0 = nat;` as Meant compiles it: the issue's repro base. */
 const t0 = (): Json => document([primitive("nat")], [{ name: "T0", type: 0 }]);
 
 /**
@@ -282,7 +282,7 @@ test("a non-empty arena with no root is refused (issue #228 case 8)", () => {
   const repro = t0();
   repro.declarations = [];
   assert.deepStrictEqual(refusal(schemaFromContract(repro)), [["rootless_type_arena", "$.types"]]);
-  // Reported once, not once per node, exactly as candid-core reports it.
+  // Reported once, not once per node, exactly as Meant reports it.
   assert.deepStrictEqual(
     refusal(schemaFromContract(document([primitive("nat"), { kind: "opt", inner: 0 }], []))),
     [["rootless_type_arena", "$.types"]],
@@ -293,7 +293,7 @@ test("a non-empty arena with no root is refused (issue #228 case 8)", () => {
   ]);
 });
 
-test("an empty arena needs no root and still loads, as candid-core loads it", () => {
+test("an empty arena needs no root and still loads, as Meant loads it", () => {
   const result = schemaFromContract(document([], []));
   loads(result);
   if (result.ok) {

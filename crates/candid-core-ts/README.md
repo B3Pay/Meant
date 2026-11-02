@@ -1,10 +1,10 @@
 # candid-core-ts
 
-TypeScript code generation over the [`candid-core`](../../README.md) Contract
+TypeScript code generation over the [`meant`](../../README.md) Contract
 graph. This is the separate-crate half of the
 [issue #38](https://github.com/B3Pay/Meant/issues/38) decision: code
 generation consumes the published Contract model and never influences it —
-`candid-core`'s public API, packaged archive, canonical bytes, and identities
+`meant`'s public API, packaged archive, canonical bytes, and identities
 are unaffected by anything in this directory.
 
 **Unpublishable by construction, for now.** `publish = false` stands until the
@@ -12,7 +12,7 @@ registry name is decided deliberately; crate names on crates.io are as
 permanent as versions, and `candid-core-ts` is a working name, not that
 decision.
 
-**Base surface only.** The dependency on `candid-core` declares
+**Base surface only.** The dependency on `meant` declares
 `default-features = false`: a generator needs no Candid parser, no filesystem
 capability, and no host-value ABI. If a change here ever needs a feature, that
 is a design boundary being crossed and belongs in review, not in a lockfile
@@ -107,7 +107,7 @@ TS-native Candid codec are later slices over these same objects.
 **The schemas do something at runtime (issue #102).** `ts/validate.ts`
 validates JavaScript values against any schema — every combinator, bounded
 depth and traversal budgets, fail closed, no exceptions for control flow —
-with path-addressed issues in candid-core's own diagnostic shape
+with path-addressed issues in Meant's own diagnostic shape
 (`{code, path, message, resource_limit?}`, stable snake_case codes,
 `$`-rooted paths). `ts/contract.ts` builds the same schemas dynamically from
 a canonical Contract JSON document, applying every generator mapping decision
@@ -223,7 +223,7 @@ seeded-PRNG property harness round-trips generated values over every fixture
 schema, and adversarial suites pin truncation, overlong LEB128, hostile type
 tables, zero-width element bombs, and depth exhaustion. A seeded differential
 fuzz (issue #196, `tests/differential/`) holds `decodeArgs`, `validate` and
-`schemaFromContract` to the `candid` crate, candid-core's HostValue validator
+`schemaFromContract` to the `candid` crate, Meant's HostValue validator
 and `Contract::from_json` over a committed corpus, against a reviewed list of
 the divergences that remain, each by case id with its issue and exact
 symptom. Not demonstrated:
