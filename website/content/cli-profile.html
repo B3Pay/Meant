@@ -16,14 +16,19 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 <pre data-lang="text">usage: candid-profile resolve <service.did> [options] > resolved.json
        candid-profile resolve --envelope <file> [options] > resolved.json
        candid-profile resolve --abi <file> [options] > resolved.json
+       candid-profile api-doc <service.did> [options] [--ref from=value ...] [--title text] > api-doc.md
+       candid-profile api-doc --envelope <file> [options] [--ref ...] [--title text] > api-doc.md
 
-  --envelope <file>   the service's candid-core ContractEnvelope (as `candid-core-cli gen` writes it), instead of
+  --envelope <file>   the service's ContractEnvelope (as `meant gen` writes it), instead of
                       compiling a .did here
   --abi <file>        an EVM contract's ABI, a JSON array of human-readable fragments or JSON ABI entries
                       (experimental, spec section 15)
   --profile <file>    a profile to apply (repeatable). A pack given this way must match the service.
   --packs             try every pack in the packs directory; apply those that match
   --packs-dir <dir>   packs directory (default: the standard packs this package ships)
+  --ref <from>=<val>  api-doc only: the value of a dynamic reference, as JSON or else as text
+                      (--ref query:icrc1_decimals=8 --ref query:icrc1_symbol=ICP); repeatable
+  --title <text>      api-doc only: the guide's heading (default "API guide")
   --verbose           also list info diagnostics on stderr
   --quiet             no summary on stderr
   -h, --help          this text</pre>
@@ -41,7 +46,7 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json</pre>
 <table>
   <thead><tr><th>Input</th><th>What it reads</th></tr></thead>
   <tbody>
-    <tr><td><code>&lt;service.did&gt;</code></td><td>Candid source, compiled with the <code>@candid-core/cli</code> the package pins (0.4.0). One file: an <code>import</code> is not followed, and fails with <diag>E_CANDID</diag> (<code>did_source_not_found</code>).</td></tr>
+    <tr><td><code>&lt;service.did&gt;</code></td><td>Candid source, compiled with the <code>@meantjs/cli</code> the package pins (0.5.0). One file: an <code>import</code> is not followed, and fails with <diag>E_CANDID</diag> (<code>did_source_not_found</code>).</td></tr>
     <tr><td><code>--envelope &lt;file&gt;</code></td><td>The service's candid-core <code>ContractEnvelope</code>, as <code>meant gen</code> writes it beside a generated module. The service is not compiled again, and the resolved form is the same as from the <code>.did</code> (decision D-039).</td></tr>
     <tr><td><code>--abi &lt;file&gt;</code></td><td>An EVM contract's ABI: a JSON array of human-readable fragments or JSON ABI entries. <a href="chain-evm.html">Experimental</a> (spec §15).</td></tr>
   </tbody>
