@@ -149,7 +149,7 @@ export interface ProfileStatus {
 export interface ResolveOptions {
   /** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */
   did?: string;
-  /** The service's candid-core ContractEnvelope. */
+  /** The service's Meant ContractEnvelope. */
   envelope?: unknown;
   /** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */
   abi?: readonly (string | Record<string, unknown>)[];
@@ -581,7 +581,7 @@ const response = icrc21ConsentMessage(
     user_preferences: { metadata: { language: "en", utc_offset_minutes: 120 }, device_spec: { GenericDisplay: null } },
   },
   {
-    resolved, // fixtures/*.resolved.json shape, or the output of `candid-profile resolve`
+    resolved, // fixtures/*.resolved.json shape, or the output of `meant-profile resolve`
     refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" }, // dynamic refs, resolved by the caller
   },
 );

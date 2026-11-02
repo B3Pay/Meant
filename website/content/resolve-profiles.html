@@ -40,7 +40,7 @@ info     I_UNTAGGED_NUMERIC   - icrc21_canister_call_consent_message(0).user_pre
 <pre data-lang="ts" data-file="profile/packages/resolver/src/browser.d.mts">export interface ResolveOptions {
   /** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */
   did?: string;
-  /** The service's candid-core ContractEnvelope. */
+  /** The service's Meant ContractEnvelope. */
   envelope?: unknown;
   /** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */
   abi?: readonly (string | Record<string, unknown>)[];
