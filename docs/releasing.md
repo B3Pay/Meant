@@ -236,7 +236,8 @@ that, because every fixture under `tests/` is deliberately outside the archive.
   `--write` and commit the regenerated snapshot alongside the change that caused
   it — that commit is the review.
 
-- The README's installation examples name the version being released. A
+- The installation examples in the README and in
+  [the interface layer](interface-layer.md) name the version being released. A
   prerelease is not selected by a caret requirement: `"0.1"` will not resolve to
   a prerelease, so the examples pin it exactly, `=<version>`.
 
@@ -959,7 +960,7 @@ to 7, with these differences:
   stable line: those keep working after the publish, so no check flags them,
   but they install the betas, which lack what the stable entries added. Find
   them with
-  `git grep -n -E '(npm install|npx) [^<]*@(beta|[0-9.]+-beta\.[0-9]+)' -- README.md website/content`
+  `git grep -n -E '(npm install|npx) [^<]*@(beta|[0-9.]+-beta\.[0-9]+)' -- README.md docs/interface-layer.md website/content`
   (the pages that carry them: `quickstart-typescript.html`, `packages.html`,
   `ts-overview.html`, `schema-from-contract.html`, `cli-npm.html`,
   `generator.html`, `interface-layer.html`, `migrating-from-0-2.html`,
@@ -1012,7 +1013,7 @@ above, and these:
   one is the release that differs, and rewrites every marker of the
   prepared pair: "not yet published", "prepared" and "does not hold yet",
   some of which wrap across a line break, so
-  `git grep -n -E 'not yet|prepared|does not hold yet' -- README.md website/README.md website/content`
+  `git grep -n -E 'not yet|prepared|does not hold yet' -- README.md docs/interface-layer.md website/README.md website/content`
   is the search, not the phrase alone. It also lists a few lines that are
   not markers and stay (the pre-publish history on `decisions.html`, the
   bootstrap paragraph on `status.html`, the description of the two lists in
@@ -1029,9 +1030,9 @@ above, and these:
   pinned `npx @candid-core/cli@<version>` lines, which
   `git grep -n '@candid-core/cli@' -- website/content` finds. Two more searches are read through, the second with the
   previous pair's versions (here 0.3.0 and 0.2.0):
-  `git grep -n -E 'latest|previous stable' -- README.md website/README.md website/content`
+  `git grep -n -E 'latest|previous stable' -- README.md docs/interface-layer.md website/README.md website/content`
   and
-  `git grep -n -E '<code>0\.(2|3)\.0</code>|published <code>@(candid-core|meantjs)' -- README.md website/content`.
+  `git grep -n -E '<code>0\.(2|3)\.0</code>|published <code>@(candid-core|meantjs)' -- README.md docs/interface-layer.md website/content`.
   Every hit the second one finds that says what the registry holds now, as
   a table row or a sentence like "the published `@candid-core/schema` is
   0.2.0", names the new pair. The pull request then turns the migration
