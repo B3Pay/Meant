@@ -21,7 +21,7 @@
 set -o pipefail
 
 root="$(git rev-parse --show-toplevel)" || exit 0
-prettier="${root}/crates/candid-core-ts/ts/node_modules/.bin/prettier"
+prettier="${root}/crates/meant-ts/ts/node_modules/.bin/prettier"
 
 # A clone that has not run `npm ci` can still commit; CI is the backstop.
 [ -x "${prettier}" ] || exit 0
@@ -87,7 +87,7 @@ if [ ${#partial[@]} -gt 0 ]; then
     printf 'pre-commit: these files are staged only in part and are not formatted:\n' >&2
     printf '  %s\n' "${unformatted[@]}" >&2
     printf 'Formatting them here would stage your unstaged edits too. Run:\n' >&2
-    printf '  npm --prefix crates/candid-core-ts/ts run format\n' >&2
+    printf '  npm --prefix crates/meant-ts/ts run format\n' >&2
     printf 'then stage what you want and commit again.\n' >&2
     status=1
   fi

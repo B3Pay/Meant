@@ -46,14 +46,14 @@
     <span class="pill accent">./codec</span>
   </div>
   <div class="api-body">
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts">
 export function encodeArgs(
   schemas: readonly AnyFieldSchema[],
   values: readonly unknown[],
   options: CodecOptions = {},
 ): EncodeResult
 </pre>
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts">
 export type EncodeResult =
   | { readonly ok: true; readonly bytes: Uint8Array }
   | { readonly ok: false; readonly issues: readonly CodecIssue[] };
@@ -71,14 +71,14 @@ export type EncodeResult =
     <span class="pill accent">./codec</span>
   </div>
   <div class="api-body">
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts">
 export function decodeArgs<const S extends readonly AnyFieldSchema[]>(
   schemas: S,
   bytes: Uint8Array,
   options: CodecOptions = {},
 ): DecodeResult<DecodedValues<S>>
 </pre>
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts">
 export type DecodeResult<V extends readonly unknown[] = readonly unknown[]> =
   | { readonly ok: true; readonly values: V }
   | { readonly ok: false; readonly issues: readonly CodecIssue[] };
@@ -100,7 +100,7 @@ export type DecodeResult<V extends readonly unknown[] = readonly unknown[]> =
     <span class="pill accent">./codec</span>
   </div>
   <div class="api-body">
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts" data-partial>
 export function encode<T>(
   schema: Schema<T>,
   value: unknown,
@@ -136,7 +136,7 @@ export function decode<T>(
 
 <p>Here is the whole surface in one round trip:</p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/README.md" data-check>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/README.md" data-check>
 import { c, principal, type Infer } from "@meantjs/schema";
 import { validate } from "@meantjs/schema/validate";
 import { encode, decode } from "@meantjs/schema/codec";
@@ -353,7 +353,7 @@ decode(c.opt(c.variant({ ok: c.null })), later);  // { ok: true, value: null }
   <code>TypeError</code> too, carrying the original exception as its <code>cause</code>.
 </p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts" data-partial>
 export interface CodecOptions {
   /** Input size ceiling for decode, in bytes. */
   readonly maxBytes?: number;
@@ -434,7 +434,7 @@ export interface CodecOptions {
   <code>resource_limit_exceeded</code> and a <code>resource_limit</code> field:
 </p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts" data-partial>
 export interface CodecResourceLimitInfo {
   readonly resource:
     "bytes" | "type_table_entries" | "value_depth" | "value_elements" | "numeric_bytes" | "stack";
@@ -675,10 +675,10 @@ encode(c.principal, { toText: () => "aaaaa-aa" }); // invalid_type (not a string
   <a href="guarantees.html">Guarantees and verification</a> sets out what each gate actually
   establishes and what is deliberately not claimed. A gate existing is not the same as a property
   being proven, and the codec is pre-1.0 like everything else here. The module is
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/codec.ts"><code>crates/candid-core-ts/ts/codec.ts</code></a>;
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-ts/ts/codec.ts"><code>crates/meant-ts/ts/codec.ts</code></a>;
   its header records each strictness decision and the issue it was decided on, and the vectors
   live in
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/tests/wire_vectors.rs"><code>tests/wire_vectors.rs</code></a>.
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-ts/tests/wire_vectors.rs"><code>tests/wire_vectors.rs</code></a>.
 </p>
 
 <h2>Next</h2>

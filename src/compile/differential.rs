@@ -493,7 +493,7 @@ fn no_diagnostic_from_either_backend_leaks_a_materialized_identity() {
                 .err()
                 .unwrap_or_else(|| panic!("{label}/{backend} must fail"));
             let rendered = serde_json::to_string(&error.diagnostics).unwrap();
-            for leak in ["0.did", "1.did", "candid-core-"] {
+            for leak in ["0.did", "1.did", "meant-materialized-"] {
                 assert!(
                     !rendered.contains(leak),
                     "{label}/{backend} leaked {leak:?}: {rendered}"

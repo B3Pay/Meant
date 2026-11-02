@@ -615,7 +615,7 @@ mod workspace_tests {
         fn new() -> Self {
             let sequence = NEXT_FIXTURE.fetch_add(1, Ordering::Relaxed);
             let base = std::env::temp_dir().join(format!(
-                "candid-core-workspace-resolver-{}-{sequence}",
+                "meant-workspace-resolver-{}-{sequence}",
                 std::process::id()
             ));
             let workspace = base.join("workspace");

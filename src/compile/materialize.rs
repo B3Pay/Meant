@@ -26,7 +26,8 @@ impl MaterializedBundle {
         })?;
         static NEXT_ID: AtomicU64 = AtomicU64::new(0);
         let id = NEXT_ID.fetch_add(1, AtomicOrdering::Relaxed);
-        let root = std::env::temp_dir().join(format!("candid-core-{}-{id}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("meant-materialized-{}-{id}", std::process::id()));
         let indexes = units
             .iter()
             .enumerate()
@@ -198,7 +199,7 @@ mod name_mapping_tests {
     fn bundle_with_names(names: &[&str]) -> MaterializedBundle {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "candid-core-map-test-{}-{}",
+            "meant-map-test-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));

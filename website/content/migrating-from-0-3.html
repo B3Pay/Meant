@@ -12,9 +12,9 @@
   <code>@candid-core/schema</code>, with the same subpaths. Every change of this step is recorded
   under <code>0.4.0</code> and <code>0.3.0</code>
   in the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md">schema package's changelog</a>
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-ts/ts/CHANGELOG.md">schema package's changelog</a>
   and the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
   Coming from <code>0.2.0</code> and <code>0.1.0</code>, read
   <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> first.
 </p>
@@ -58,7 +58,7 @@
   a plain async function still implements a method.
 </p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/tests/goldens/ledger.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/tests/goldens/ledger.ts">
 export type Actor = {
   fee: (() => Promise<Tokens>) & $.WithMode<"query">;
   // …
@@ -122,7 +122,7 @@ void [args, result, read, write, fee];
   <code>default</code>, <code>keyof</code>, …).
 </p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/tests/goldens/ledger.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/tests/goldens/ledger.ts">
 export type Tokens = { e8s: bigint };
 const $Tokens: $.Schema<Tokens> = $.c.rec(() => $.c.record({ e8s: $.c.nat64 }));
 export { $Tokens as Tokens };

@@ -1,6 +1,6 @@
 # Meant — how this repository works
 
-Read `.codex/skills/candid-core-issue-pipeline/SKILL.md` before acting; it
+Read `.codex/skills/meant-issue-pipeline/SKILL.md` before acting; it
 defines the modes (triage, implement, publish, review, merge, close) and
 overrides this file where they conflict. This file is the repository mechanics
 that make those modes concrete.
@@ -8,7 +8,7 @@ that make those modes concrete.
 ## What this is
 
 A Rust workspace. The root package `meant` (published on crates.io; formerly `candid-core`) projects Candid `.did` interfaces into a canonical, validated,
-identity-addressed Contract graph. `crates/candid-core-ts` (unpublishable by
+identity-addressed Contract graph. `crates/meant-ts` (unpublishable by
 design) generates a Zod-style TypeScript schema runtime from that graph — the
 program tracked by umbrella issue #38 and its slice issues, each of which is
 self-contained. `crates/meant-format` (publishable, versioned on its own, no
@@ -52,7 +52,7 @@ under `profile/` must carry its own empty `[workspace]` table: the root's
   estimated.** Every *dependency* is exact-pinned in the manifests and
   lockfiles; *release and evidence tooling* is exact-pinned in
   `tests/fixtures/packaging/release-tools.env`, and Node/TypeScript in
-  `crates/candid-core-ts/ts/package-lock.json` plus the workflow. The
+  `crates/meant-ts/ts/package-lock.json` plus the workflow. The
   `stable`/`nightly` toolchain channels in ordinary CI jobs are deliberately
   rolling — that is how new-toolchain breakage gets caught — so do not "fix"
   them to exact versions, and do not cite them as pinned. Numbers in docs and
@@ -84,14 +84,14 @@ until named in `Cargo.toml`'s `include`. `.github/`, `benches/`, `tests/`,
 
 Generator crate (both feature configurations are load-bearing):
 
-    cargo check -p candid-core-ts --locked            # featureless = the boundary claim
-    cargo clippy -p candid-core-ts --all-targets --locked -- -D warnings
-    cargo clippy -p candid-core-ts --all-targets --features compiler --locked -- -D warnings
-    cargo test  -p candid-core-ts --locked
-    cargo test  -p candid-core-ts --features compiler --locked
-    (cd crates/candid-core-ts/ts && npm ci && npx tsc --noEmit)   # the equality gate
-    (cd crates/candid-core-ts/ts && npm test)                     # the runtime cross-check
-    (cd crates/candid-core-ts/ts && npm run format:check)         # the formatting gate
+    cargo check -p meant-ts --locked            # featureless = the boundary claim
+    cargo clippy -p meant-ts --all-targets --locked -- -D warnings
+    cargo clippy -p meant-ts --all-targets --features compiler --locked -- -D warnings
+    cargo test  -p meant-ts --locked
+    cargo test  -p meant-ts --features compiler --locked
+    (cd crates/meant-ts/ts && npm ci && npx tsc --noEmit)   # the equality gate
+    (cd crates/meant-ts/ts && npm test)                     # the runtime cross-check
+    (cd crates/meant-ts/ts && npm run format:check)         # the formatting gate
 
 The tsc run is a proof, not a lint: `Schema<in out T>` is invariant, so every
 generated `export const X: Schema<X> = c.rec(() => …)` compiles only if the
@@ -101,7 +101,7 @@ dependencies) runs the schema runtime suites, including the cross-check that
 the schemas `schemaFromContract` builds from the golden `*.contract.json`
 documents validate exactly the values the generated builders describe.
 Regenerate goldens deliberately with `UPDATE_GOLDENS=1 cargo test -p
-candid-core-ts --features compiler`, then review the diff — goldens are where
+meant-ts --features compiler`, then review the diff — goldens are where
 the owner-reviewed mapping decisions live (modern domain shapes: `T | null`
 opts, with `opt opt`/`opt null`/`opt reserved` — an opt whose inner type admits
 `null` — boxed as `{ some: T } | null`, `{ tag, value }` variants,

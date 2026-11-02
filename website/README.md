@@ -304,7 +304,7 @@ A `js` block is written to a `.js` file and compiled with `allowJs` and
 `checkJs`, so TypeScript-only syntax in it is refused as the syntax error a
 reader copying it would get.
 
-Compilation uses the TypeScript pinned in `crates/candid-core-ts/ts`
+Compilation uses the TypeScript pinned in `crates/meant-ts/ts`
 (`npm ci` there installs it; the site itself still takes no dependency) with
 `strict`, resolving `@meantjs/schema` and its three subpaths to the source in
 that directory and `@meantjs/cli` to its hand-written declarations

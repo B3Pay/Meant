@@ -159,7 +159,7 @@ jobs:
             || { echo "${COMMIT} is not reachable from origin/main" >&2; exit 1; }
 
       - name: The requested version must match the manifest exactly
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -176,11 +176,11 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Install the pinned toolchain
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npm ci
 
       - name: Type-check and test
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npx tsc --noEmit && npm test
 
       - name: Verify the packaged artifact
@@ -221,18 +221,18 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Install the pinned toolchain
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npm ci
 
       - name: Build
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npm run build
 
       # The dist-tag the verify job checked against the version. Always
       # explicit: npm would otherwise apply `latest` to a stable version and
       # refuse a prerelease only after this job's approval.
       - name: Publish with provenance
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         env:
           DIST_TAG: ${{ inputs.dist-tag }}
         run: npm publish --provenance --access public --tag "${DIST_TAG}"

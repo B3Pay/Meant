@@ -1,0 +1,49 @@
+{
+  "name": "@meantjs/cli",
+  "version": "0.5.0",
+  "description": "Candid .did to canonical Contract envelopes and @meantjs/schema modules, compiled to WebAssembly: a JavaScript-only on-ramp with no Rust toolchain, for Node CLIs and browsers alike.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/B3Pay/Meant.git",
+    "directory": "crates/meant-wasm/npm"
+  },
+  "homepage": "https://github.com/B3Pay/Meant/tree/main/crates/meant-wasm/npm#readme",
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "meant": "./bin/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "wasm/candid_core_wasm.js",
+    "wasm/candid_core_wasm_bg.wasm",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "cd .. && wasm-pack build --target web --out-dir npm/wasm --no-pack --release",
+    "test": "node --test test/*.test.js",
+    "test:browser": "node --test test/browser/*.test.js"
+  },
+  "devDependencies": {
+    "playwright-core": "1.62.1"
+  },
+  "peerDependencies": {
+    "@meantjs/schema": "0.6.0"
+  },
+  "peerDependenciesMeta": {
+    "@meantjs/schema": {
+      "optional": true
+    }
+  }
+}

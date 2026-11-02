@@ -5,7 +5,7 @@
 # @meantjs/schema and @meantjs/cli, regenerates every module
 # B3Pay/ic-reactor checks in and reports the difference, then installs the
 # tarballs through pnpm overrides and runs ic-reactor's build, type checks and
-# tests. A failed step fails the check; drift does not, because a candid-core
+# tests. A failed step fails the check; drift does not, because a Meant
 # change often means to change the generated modules. The report is the job
 # summary and the `downstream-report` artifact (summary, JSON, drift.diff,
 # one log per step).
@@ -19,10 +19,10 @@
 #   rather than at it;
 # - on a pull request that changes the check itself, so its first execution
 #   is never a release dispatch;
-# - by dispatch, for any candid-core commit (a pull request's head) and any
+# - by dispatch, for any Meant commit (a pull request's head) and any
 #   ic-reactor ref.
 #
-# Two trees of candid-core are checked out. `candid-core/` is the commit under
+# Two trees of this repository are checked out. `meant/` is the commit under
 # test, which is packed. `checker/` is the ref this workflow runs from, which
 # holds the script: a release from a commit older than the check still gets
 # it, and the check that judges a release is the reviewed one on `main`.
@@ -45,7 +45,7 @@ on:
   workflow_call:
     inputs:
       commit:
-        description: Full 40-character SHA of candid-core to pack
+        description: Full 40-character SHA of Meant to pack
         type: string
         required: true
       accept-failure:
@@ -59,7 +59,7 @@ on:
   workflow_dispatch:
     inputs:
       commit:
-        description: Full 40-character SHA of candid-core to pack; empty for the dispatched ref
+        description: Full 40-character SHA of Meant to pack; empty for the dispatched ref
         required: false
         default: ""
       downstream-ref:
@@ -107,7 +107,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ inputs.commit }}
-          path: candid-core
+          path: meant
           persist-credentials: false
 
       - name: Check out ic-reactor
@@ -121,7 +121,7 @@ jobs:
           persist-credentials: false
 
       - name: Read the pinned toolchain
-        run: grep -E '^[A-Z_]+=' candid-core/tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
+        run: grep -E '^[A-Z_]+=' meant/tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
       - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           toolchain: ${{ env.RELEASE_TOOLCHAIN }}
@@ -134,11 +134,11 @@ jobs:
           node-version: "24.18.0"
 
       - name: Build the wasm artifact
-        working-directory: candid-core/crates/candid-core-wasm
+        working-directory: meant/crates/meant-wasm
         run: wasm-pack build --target web --out-dir npm/wasm --no-pack --release -- --locked
 
       - name: Install the schema package's pinned compiler
-        working-directory: candid-core/crates/candid-core-ts/ts
+        working-directory: meant/crates/meant-ts/ts
         run: npm ci
 
       # ic-reactor's own CI does the same with corepack; the version is the one
@@ -157,7 +157,7 @@ jobs:
           pnpm --version
 
       # The exit status goes to an output: 1 is a failure on ic-reactor's side,
-      # anything else but 0 is candid-core's (docs/releasing.md).
+      # anything else but 0 is Meant's (docs/releasing.md).
       - name: Build, type-check and test ic-reactor against the tarballs
         id: check
         if: steps.pnpm.outcome == 'success'
@@ -167,7 +167,7 @@ jobs:
         run: |
           set +e
           python3 checker/tests/fixtures/packaging/verify_downstream.py \
-            --candid-core candid-core --downstream ic-reactor --report downstream-report
+            --meant meant --downstream ic-reactor --report downstream-report
           code=$?
           echo "exit=${code}" >> "$GITHUB_OUTPUT"
           exit "${code}"
@@ -211,7 +211,7 @@ jobs:
           elif [ "${CODE}" = 1 ]; then
             side=ic-reactor; why="ic-reactor failed against the tarballs; the job summary and the downstream-report artifact say where"
           else
-            side=candid-core; why="The check could not run on candid-core's side (exit ${CODE:-none}); the step's log says why"
+            side=meant; why="The check could not run on Meant's side (exit ${CODE:-none}); the step's log says why"
           fi
           if [ "${side}" = ic-reactor ] && [ "${ACCEPT}" = true ]; then
             note="The run set accept-failure, which a release sets with accept-downstream-failure"

@@ -37,7 +37,7 @@
     <span class="pill accent">./contract</span>
   </div>
   <div class="api-body">
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/contract.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/ts/contract.ts">
 export function schemaFromContract(
   contract: unknown,
   options: ContractSchemaOptions = {},
@@ -50,7 +50,7 @@ export function schemaFromContract(
   </div>
 </div>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/contract.ts" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/contract.ts" data-partial>
 export type FieldNameEntry = readonly [container: number, id: number, name: string];
 
 export interface ContractSchemaOptions {
@@ -113,7 +113,7 @@ export type SchemaFromContractResult =
   and the objects folded onto single lines:
 </p>
 
-<pre data-lang="json" data-file="crates/candid-core-ts/tests/goldens/collections.contract.json">
+<pre data-lang="json" data-file="crates/meant-ts/tests/goldens/collections.contract.json">
 {
   "canonicalization_profile": "candid-core-canon-1",
   "declarations": [
@@ -166,7 +166,7 @@ export type SchemaFromContractResult =
   travel beside the document, as <code>[container, id, name]</code> triples:
 </p>
 
-<pre data-lang="json" data-file="crates/candid-core-ts/tests/goldens/collections.names.json">
+<pre data-lang="json" data-file="crates/meant-ts/tests/goldens/collections.names.json">
 [
   [3, 23515, "id"],
   [3, 1873743348, "label"],
@@ -471,7 +471,7 @@ validate(Item, { id: 7, label: "seven", payload: [7] });
   and three collapse into one read and the <code>names</code> option goes away entirely:
 </p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/README.md" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/README.md" data-partial>
 const built = schemaFromContract(JSON.parse(readFileSync("./service.json", "utf8")));
 
 built.schemas.Account; // one Schema per declaration, in declaration order
@@ -586,7 +586,7 @@ built.actor; // the service schema, when the document has one
   share one source of truth.
 </p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/tests/crosscheck.test.ts" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/tests/crosscheck.test.ts" data-partial>
 const built = schemaFromContract(contract, { names });
 
 for (const [declaration, samples] of Object.entries(fixture.samples)) {
@@ -617,7 +617,7 @@ for (const [declaration, samples] of Object.entries(fixture.samples)) {
   <a href="guarantees.html">Guarantees and verification</a>. The Contract format is not a stable
   v1: any pre-1.0 release may change the serialized shapes, and therefore every identity computed
   over them. The loader is
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/contract.ts"><code>crates/candid-core-ts/ts/contract.ts</code></a>,
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-ts/ts/contract.ts"><code>crates/meant-ts/ts/contract.ts</code></a>,
   and its header records each mapping decision against the issue that settled it.
 </p>
 

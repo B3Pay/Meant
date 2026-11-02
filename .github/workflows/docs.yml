@@ -41,7 +41,7 @@
 #   builds and checks, and says why it did not publish.
 #
 # The snippet check compiles the site's TypeScript with the compiler already
-# pinned in crates/candid-core-ts/ts, so that directory is installed here and
+# pinned in crates/meant-ts/ts, so that directory is installed here and
 # its sources, the goldens and the CLI's declarations are trigger paths: a
 # change to any of them can make a snippet false without touching website/**.
 # The same holds for the profile packages, whose hand-written declarations
@@ -67,13 +67,13 @@ on:
     branches: [main]
     paths:
       - "website/**"
-      - "crates/candid-core-ts/ts/**"
-      - "crates/candid-core-ts/tests/**"
-      - "crates/candid-core-ts/src/lib.rs"
-      - "crates/candid-core-wasm/npm/lib/**"
-      - "crates/candid-core-wasm/npm/bin/**"
-      - "crates/candid-core-wasm/npm/test/**"
-      - "crates/candid-core-wasm/npm/package.json"
+      - "crates/meant-ts/ts/**"
+      - "crates/meant-ts/tests/**"
+      - "crates/meant-ts/src/lib.rs"
+      - "crates/meant-wasm/npm/lib/**"
+      - "crates/meant-wasm/npm/bin/**"
+      - "crates/meant-wasm/npm/test/**"
+      - "crates/meant-wasm/npm/package.json"
       - "Cargo.toml"
       - "crates/meant-format/Cargo.toml"
       - "crates/meant-format/src/**"
@@ -84,13 +84,13 @@ on:
   pull_request:
     paths:
       - "website/**"
-      - "crates/candid-core-ts/ts/**"
-      - "crates/candid-core-ts/tests/**"
-      - "crates/candid-core-ts/src/lib.rs"
-      - "crates/candid-core-wasm/npm/lib/**"
-      - "crates/candid-core-wasm/npm/bin/**"
-      - "crates/candid-core-wasm/npm/test/**"
-      - "crates/candid-core-wasm/npm/package.json"
+      - "crates/meant-ts/ts/**"
+      - "crates/meant-ts/tests/**"
+      - "crates/meant-ts/src/lib.rs"
+      - "crates/meant-wasm/npm/lib/**"
+      - "crates/meant-wasm/npm/bin/**"
+      - "crates/meant-wasm/npm/test/**"
+      - "crates/meant-wasm/npm/package.json"
       - "Cargo.toml"
       - "crates/meant-format/Cargo.toml"
       - "crates/meant-format/src/**"
@@ -134,7 +134,7 @@ jobs:
       # The pinned compiler the snippet check compiles with. `npm ci` here is
       # the runtime package's own lockfile, not a dependency of the site.
       - name: Install the pinned TypeScript
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npm ci
 
       - name: Check
@@ -183,7 +183,7 @@ jobs:
         run: node website/build.mjs
 
       - name: Install the pinned TypeScript
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npm ci
 
       - name: Check

@@ -159,7 +159,7 @@ fn native_file_compilation_refuses_too() {
     use std::sync::atomic::{AtomicU64, Ordering};
     static NEXT: AtomicU64 = AtomicU64::new(0);
     let directory = std::env::temp_dir().join(format!(
-        "candid-core-opt-cycle-{}-{}",
+        "meant-opt-cycle-{}-{}",
         std::process::id(),
         NEXT.fetch_add(1, Ordering::Relaxed)
     ));

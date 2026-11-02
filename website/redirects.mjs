@@ -76,11 +76,21 @@ const names = (await readdir(DIST)).filter((name) => name.endsWith(".html")).sor
 await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
 
+// A former slug (build.mjs writes a moved page for each) goes straight to
+// the page it became, not through that moved page.
+const formerly = new Map(
+  site.sections.flatMap((section) =>
+    section.pages.flatMap((page) => (page.formerly || []).map((old) => [`${old}.html`, page])),
+  ),
+);
+
 for (const name of names) {
-  const html = await readFile(join(DIST, name), "utf8");
-  const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
+  const target = formerly.get(name);
+  const html = target ? null : await readFile(join(DIST, name), "utf8");
+  const title = target ? escapeHtml(target.title) : (html.match(/<title>([^<]*)<\/title>/) || [])[1];
   if (!title) throw new Error(`${name} has no <title>`);
-  const href = name === "index.html" ? url.href : new URL(name, url).href;
+  const page = target ? `${target.slug}.html` : name;
+  const href = page === "index.html" ? url.href : new URL(page, url).href;
   const script = `location.replace(${JSON.stringify(href)} + location.search + location.hash);`;
   await writeFile(join(OUT, name), redirect({ title, href, script }), "utf8");
 }

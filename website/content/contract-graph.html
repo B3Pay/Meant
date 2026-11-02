@@ -130,11 +130,11 @@ pub enum TypeNode {
   compiles the first and compares the result to the second byte for byte.
 </p>
 
-<pre data-lang="candid" data-file="crates/candid-core-ts/tests/fixtures/quoting.did">
+<pre data-lang="candid" data-file="crates/meant-ts/tests/fixtures/quoting.did">
 type Weird = record { "has space" : nat; "naïve" : text; "quote\"mark" : bool };
 </pre>
 
-<pre data-lang="json" data-file="crates/candid-core-ts/tests/goldens/quoting.contract.json">
+<pre data-lang="json" data-file="crates/meant-ts/tests/goldens/quoting.contract.json">
 {
   "canonicalization_profile": "candid-core-canon-1",
   "declarations": [
@@ -273,7 +273,7 @@ pub struct Field {
   </li>
 </ul>
 
-<pre data-lang="json" data-file="crates/candid-core-ts/tests/goldens/quoting.names.json">
+<pre data-lang="json" data-file="crates/meant-ts/tests/goldens/quoting.names.json">
 [
   [
     0,
@@ -470,14 +470,14 @@ pub enum MethodMode {
   <code>ping</code>; the Contract states the mode:
 </p>
 
-<pre data-lang="candid" data-file="crates/candid-core-ts/tests/fixtures/deferred.did">
+<pre data-lang="candid" data-file="crates/meant-ts/tests/fixtures/deferred.did">
 type Callback = func (nat) -> (text) query;
 type Registry = service { register : (text) -> (nat) };
 type Kept = record { value : nat };
 service : { ping : () -> () }
 </pre>
 
-<pre data-lang="json" data-file="crates/candid-core-ts/tests/goldens/deferred.contract.json">
+<pre data-lang="json" data-file="crates/meant-ts/tests/goldens/deferred.contract.json">
 {
   "actor": {
     "kind": "service",
@@ -587,7 +587,7 @@ service : { ping : () -> () }
   one a plain alias:
 </p>
 
-<pre data-lang="candid" data-file="crates/candid-core-ts/tests/fixtures/recursion.did">
+<pre data-lang="candid" data-file="crates/meant-ts/tests/fixtures/recursion.did">
 type List = opt record { head : nat; tail : List };
 type Even = record { next : opt Odd };
 type Odd = record { next : opt Even };
@@ -599,7 +599,7 @@ type ListAlias = List;
   <code>declarations</code> and <code>types</code> arrays are complete and verbatim:
 </p>
 
-<pre data-lang="json" data-file="crates/candid-core-ts/tests/goldens/recursion.contract.json">
+<pre data-lang="json" data-file="crates/meant-ts/tests/goldens/recursion.contract.json">
   "declarations": [
     {
       "name": "Even",

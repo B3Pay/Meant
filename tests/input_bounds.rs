@@ -32,7 +32,7 @@ impl Fixture {
     fn new() -> Self {
         let sequence = NEXT_FIXTURE.fetch_add(1, Ordering::Relaxed);
         let path = std::env::temp_dir().join(format!(
-            "candid-core-input-bounds-{}-{sequence}",
+            "meant-input-bounds-{}-{sequence}",
             std::process::id()
         ));
         fs::create_dir(&path).unwrap();

@@ -192,16 +192,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "candid-core-ts"
-version = "0.0.0"
-dependencies = [
- "candid",
- "candid_parser",
- "meant",
- "serde_json",
-]
-
-[[package]]
 name = "candid_derive"
 version = "0.10.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -864,6 +854,16 @@ dependencies = [
 name = "meant-format"
 version = "0.2.0"
 dependencies = [
+ "serde_json",
+]
+
+[[package]]
+name = "meant-ts"
+version = "0.0.0"
+dependencies = [
+ "candid",
+ "candid_parser",
+ "meant",
  "serde_json",
 ]
 
