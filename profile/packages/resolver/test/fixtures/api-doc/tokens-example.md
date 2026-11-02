@@ -1,6 +1,6 @@
 # API guide
 
-This guide is generated from the canister's Candid Profile. It says what the positions of the interface in `candid:service` mean; it does not change them. Every path below is an address of the profile spec: `method(0).field` is a field of the first argument, `method->(0).Err.Case` a case of the first result.
+This guide is generated from the canister's Meant profile. It says what the positions of the interface in `candid:service` mean; it does not change them. Every path below is an address of the profile spec: `method(0).field` is a field of the first argument, `method->(0).Err.Case` a case of the first result.
 
 - Interface: `candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c`
 - Profile: `tokens-example` (author), `candid-profile:v0:sha256:70abc8cbce701650b6adafeabbf636a10b9c80e620bfcb6cc2d8793ee027745c`

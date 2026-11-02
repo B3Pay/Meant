@@ -1,4 +1,4 @@
-// resolveService({ envelope }): the interface comes from a candid-core ContractEnvelope another tool wrote (here
+// resolveService({ envelope }): the interface comes from a Meant ContractEnvelope another tool wrote (here
 // `candid-core-cli gen` 0.3.0), not from compiling the .did again. Same resolved form; a bad envelope is a diagnostic.
 import { test } from "node:test";
 import assert from "node:assert/strict";

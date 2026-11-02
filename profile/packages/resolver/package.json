@@ -1,7 +1,7 @@
 {
   "name": "@meantjs/profile",
   "version": "0.8.0",
-  "description": "Candid Profile resolver: validates profiles, matches packs by Candid subtyping, merges layers (spec section 8) and emits the resolved form (spec section 10).",
+  "description": "Meant profile resolver: validates profiles, matches packs by Candid subtyping, merges layers (spec section 8) and emits the resolved form (spec section 10).",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -51,6 +51,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
+    "meant-profile": "./bin/meant-profile.mjs",
     "candid-profile": "./bin/candid-profile.mjs"
   },
   "files": [

@@ -4,7 +4,7 @@ import { U32_MAX, idlHash } from "./idl.mjs";
 
 /**
  * Compile Candid source text to an Iface with @meantjs/cli (wasm).
- * @returns { iface } or { failure: [candid-core diagnostics] }
+ * @returns { iface } or { failure: [Meant diagnostics] }
  */
 export async function compileInterface(source, label = "interface") {
   const env = await didToContract(source);
@@ -13,7 +13,7 @@ export async function compileInterface(source, label = "interface") {
 }
 
 /**
- * An Iface from a candid-core ContractEnvelope another tool already wrote (the one `meant gen` writes next
+ * An Iface from a Meant ContractEnvelope another tool already wrote (the one `meant gen` writes next
  * to a generated module), without compiling the .did again. The envelope is checked for the shape the resolver reads;
  * its identities are taken as written (nothing here can recompute them).
  * @returns { iface } or { failure: [{ code, message }] }
@@ -22,7 +22,7 @@ export function interfaceFromEnvelope(envelope, label = "interface") {
   const fail = (message) => ({ failure: [{ code: "invalid_envelope", message }] });
   if (envelope === null || typeof envelope !== "object" || Array.isArray(envelope)) return fail("not a JSON object");
   const c = envelope.contract;
-  if (c === null || typeof c !== "object" || Array.isArray(c)) return fail("no `contract` object (is this a candid-core ContractEnvelope?)");
+  if (c === null || typeof c !== "object" || Array.isArray(c)) return fail("no `contract` object (is this a Meant ContractEnvelope?)");
   if (c.format !== "candid-core") return fail(`contract.format is ${JSON.stringify(c.format)}, expected "candid-core"`);
   if (c.format_version !== 1) return fail(`contract.format_version is ${JSON.stringify(c.format_version)}, this resolver reads version 1`);
   const id = c.identities?.interface;
@@ -166,7 +166,7 @@ function badGraph(c, names) {
   }
   const twin = duplicateNodes(c.types);
   if (twin) return `types[${twin[0]}] and types[${twin[1]}] are the same type: the graph is not interned as candid-core-canon-1 requires`;
-  // A field with no entry keeps its numeric label (`#n`, spec §3.2 rule 1): candid-core writes none for `1 : nat` or a tuple
+  // A field with no entry keeps its numeric label (`#n`, spec §3.2 rule 1): Meant writes none for `1 : nat` or a tuple
   // field, so a missing entry cannot be told from a numeric label and is not checked.
   return null;
 }

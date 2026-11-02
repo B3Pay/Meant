@@ -178,7 +178,7 @@ export function generateConsent(input: GenerateConsentInput): {
 export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits }): Model;
 /** Argument bytes to one value tree per argument. Throws E_DECODE, E_TOO_LARGE, E_UNSUPPORTED_TYPE or E_RESOLVED_FORM. */
 export function decodeArguments(method: { args: unknown[] }, arg: Bytes, limits?: DecodeLimits): unknown[];
-/** The candid-core codec schema of one resolved-form position. */
+/** The Meant codec schema of one resolved-form position. */
 export function schemaFor(node: unknown, where?: string, depth?: number): unknown;
 
 export type TemplateLiteralPart = { t: "lit"; text: string } | { t: "ph"; path: string };

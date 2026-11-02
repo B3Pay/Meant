@@ -1,4 +1,4 @@
-//! Consent and SNS validator texts from a Candid Profile resolved form: the Rust version of `packages/consent`, for
+//! Consent and SNS validator texts from a Meant profile resolved form: the Rust version of `packages/consent`, for
 //! canisters.
 //!
 //! Given a resolved form (docs/profile-v0.md section 10, the JSON the resolver writes), a method name and the

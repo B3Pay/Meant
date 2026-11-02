@@ -1,4 +1,4 @@
-# Candid Profile v0
+# Meant Profile v0
 
 **Status:** Draft 0.2 (2026-10-08). Breaking changes are expected until the preregistered eval reports.
 **Normative keywords:** MUST, SHOULD and MAY as in RFC 2119.
@@ -19,11 +19,11 @@ A **profile** attaches *meaning* to positions in a Candid interface: what a numb
 
 **Non-goals for v0:** page layout or views (MCP Apps and host renderers own presentation), cross-canister references, multi-language templates. EVM contracts are in, as an experimental binding (§15: profiles of an ABI and of EIP-712 messages, consent text, the ERC-7730 export); what is still out for them is ERC-7730 import, agent tools, `outcome` classes over reverts and `idempotency` by nonce, later phases of §15 that each need their own decision.
 
-## 2. Relationship to candid-core
+## 2. Relationship to Meant's Contract
 
-- **Input:** a candid-core Contract v1, compiled from a `.did` file, plus the optional `SourceInfo` sidecar (needed only for doc annotations, §9).
+- **Input:** a Meant Contract v1, compiled from a `.did` file, plus the optional `SourceInfo` sidecar (needed only for doc annotations, §9).
 - **Identity is untouched.** A profile never changes `interface_id` or `contract_id`. It is a separate document bound to them (§7), the same way SourceInfo is a sidecar.
-- **Why addresses target positions, not type nodes.** candid-core interns structurally equal types into one node. Compiling the ICRC-1 fragment shows the consequence: one `opt blob` node serves `from_subaccount`, `memo` and `Account.subaccount`, and one `nat` node serves `amount`, `fee`, `Ok`, `duplicate_of` and `expected_fee`. Tagging the node would tag every one of them. So profiles address the **edge** that leads to a value: a method argument or result, then a path through fields (§3).
+- **Why addresses target positions, not type nodes.** Meant's compiler interns structurally equal types into one node. Compiling the ICRC-1 fragment shows the consequence: one `opt blob` node serves `from_subaccount`, `memo` and `Account.subaccount`, and one `nat` node serves `amount`, `fee`, `Ok`, `duplicate_of` and `expected_fee`. Tagging the node would tag every one of them. So profiles address the **edge** that leads to a value: a method argument or result, then a path through fields (§3).
 
 ## 3. Addresses
 
@@ -392,7 +392,7 @@ A canister serves its own profile, so that a consumer who knows only the caniste
   different values for one tag at one position are `E_CONFLICT` (§8).
 - **Adding it** needs no code change: the section can be added to a built module, for example with
   `ic-wasm canister.wasm -o canister.wasm metadata candid:profile -f my.profile.json -v public` (the project's kit,
-  not public yet, does the same as `candid-profile-kit embed`), and is served from the next install or upgrade.
+  not public yet, does the same as the kit's `embed` command), and is served from the next install or upgrade.
   A profile served this way changes with the module only: editing it changes the module hash and needs an upgrade.
 - **Other channels.** A profile read through a query method, or fetched from any host but the canister's certified
   state, is not certified (§11.2). A consumer MAY still apply it in the `author` layer when it trusts that channel, as
@@ -404,14 +404,14 @@ A canister serves its own profile, so that a consumer who knows only the caniste
 2026-11-01): DFINITY's ICP MCP connector, and agents that follow the same guide, read a canister query
 `get_api_doc : () -> (text)` (or `getApiDoc`) before calling it, and expect Markdown that states units and encoding,
 irreversible actions and retry rules. A profile states exactly these, so the text SHOULD be generated from the
-profile rather than written again: `candid-profile api-doc` and `renderApiDoc` in `@meantjs/profile` write it from the
+profile rather than written again: `meant-profile api-doc` and `renderApiDoc` in `@meantjs/profile` write it from the
 resolved form (§10). The text is a description for a reader; it is not certified and binds nothing. A consumer that can
 read `candid:profile` (§8.1) SHOULD use the profile itself, and a consumer that sends a call still applies §5.3
 (confirmation, idempotency, outcome handling) whatever a guide says.
 
 ## 9. Doc annotations (authoring inside the `.did`)
 
-Authors can write tags as doc comments. A compiler turns candid-core `SourceInfo` docs into an `author` profile:
+Authors can write tags as doc comments. A compiler turns Meant `SourceInfo` docs into an `author` profile:
 
 ```candid
 type Tokens = record {
@@ -446,7 +446,7 @@ service : {
 
 ## 10. Resolved form (consumer interchange)
 
-Consumers do not implement address resolution. They read the **resolved form**: one tree per method with tags attached to each position. The interface is either compiled from Candid source or taken from a candid-core `ContractEnvelope` that a generator already wrote; the resolved form is the same either way, and its `interface_id` is the envelope's `contract.identities.interface` (D-039). Generate it with:
+Consumers do not implement address resolution. They read the **resolved form**: one tree per method with tags attached to each position. The interface is either compiled from Candid source or taken from a Meant `ContractEnvelope` that a generator already wrote; the resolved form is the same either way, and its `interface_id` is the envelope's `contract.identities.interface` (D-039). Generate it with:
 
 ```sh
 node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.resolved.json
@@ -488,7 +488,7 @@ node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.r
 - A case node's `tags` MAY hold `intent` and `effect` (§5.2, D-053). A consumer that does not read them uses the
   method's, which §5.3 bounds.
 
-**Reference implementation:** `@meantjs/profile` (`packages/resolver`). `candid-profile resolve <service.did> [--profile p.json ...] [--packs]` merges any number of profiles (§8), matches packs by subtyping (§7) and prints the resolved form. `profiles` lists every applied profile, highest layer first. `scripts/validate.mjs` remains the single-profile validator and generates the fixtures. Diagnostics from a multi-profile resolve carry an optional `profile` field naming the profile they are about.
+**Reference implementation:** `@meantjs/profile` (`packages/resolver`). `meant-profile resolve <service.did> [--profile p.json ...] [--packs]` merges any number of profiles (§8), matches packs by subtyping (§7) and prints the resolved form. `profiles` lists every applied profile, highest layer first. `scripts/validate.mjs` remains the single-profile validator and generates the fixtures. Diagnostics from a multi-profile resolve carry an optional `profile` field naming the profile they are about.
 
 ## 11. Security considerations
 
@@ -504,7 +504,7 @@ node scripts/validate.mjs packs/icrc1.profile.json --resolved > fixtures/icrc1.r
 5. **ICRC-21 field limits.**
    - `TokenAmount.amount` is `nat64`, so 18-decimal tokens above about 18.4 whole units do not fit. Consumers MUST fall back to a `Text` field for them.
    - `TimestampSeconds` is in seconds, while ICRC-1 timestamps are in nanoseconds. Convert using the `timestamp` tag; never pass the raw value.
-6. **Bounded work.** Resolution of untrusted profiles and interfaces SHOULD reuse candid-core's `Limits` budget.
+6. **Bounded work.** Resolution of untrusted profiles and interfaces SHOULD reuse Meant's `Limits` budget.
 7. **Names are untrusted display text** (`names`, §5.3). Whoever may name an account or join with a label chooses the
    text: it can look like an address, mimic another entry, or press the reader ("approved by the CEO"). The rules of
    §5.3 keep a name from ever replacing a value: a value always wins, ambiguous names fail, and the value is shown
@@ -571,7 +571,7 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 |---|---|---|
 | `E_SCHEMA` | error | Fails the JSON Schema |
 | `E_CANDID` | error | The interface (`requires` or `--did`) does not compile |
-| `E_ENVELOPE` | error | The interface was given as a candid-core `ContractEnvelope` (`--envelope`) that the resolver cannot read. Among the reasons: not an object, no `contract`, a `contract.format` other than `candid-core`, a `format_version` other than 1, no `contract.identities.interface`, or a type reference outside `contract.types`. The list is not exhaustive: any envelope that fails candid-core's own structural or canonical checks (profiles, declarations, node kinds, actors, function modes) is also `E_ENVELOPE`. No resolved form is produced. |
+| `E_ENVELOPE` | error | The interface was given as a Meant `ContractEnvelope` (`--envelope`) that the resolver cannot read. Among the reasons: not an object, no `contract`, a `contract.format` other than `candid-core`, a `format_version` other than 1, no `contract.identities.interface`, or a type reference outside `contract.types`. The list is not exhaustive: any envelope that fails candid-core's own structural or canonical checks (profiles, declarations, node kinds, actors, function modes) is also `E_ENVELOPE`. No resolved form is produced. |
 | `E_SERVED` | error | A profile a canister serves (§8.1) that cannot be used: its bytes are not UTF-8 JSON (or start with a byte order mark), it is over 1 MiB, it is not one JSON object of `kind: "canister"` and `origin: "author"`, or its `binds.canister_id` names another canister. The profile is not applied; the rest of the service resolves without it. |
 | `E_ADDR_SYNTAX` / `E_ADDR_UNRESOLVED` | error | Address does not parse / resolve |
 | `E_PACK_TYPE_REF` | error | `type:` address in a pack |
@@ -613,7 +613,7 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 ## 14. Facts, assumptions and open questions
 
 **Facts (verified 2026-10-08):**
-- The candid-core Contract v1 shape, interning, and the `org.candid-core.field-names/v1` extension (observed from `@candid-core/cli` 0.2.0 output).
+- The Meant Contract v1 shape, interning, and the `org.candid-core.field-names/v1` extension (observed from `@candid-core/cli` 0.2.0 output).
 - ICRC-1/ICRC-2 types and deduplication rules.
 - The ICRC-1 textual account encoding.
 - ICRC-21 types, including `FieldsDisplayMessage`, `TokenAmount.amount : nat64` and `TimestampSeconds`.
@@ -678,7 +678,7 @@ Template placeholders read `{to}` and `{value}`, as ERC-7730's do.
   (§15.9) beside `abi` or instead of it. `deployments` is optional; it says
   which contracts the profile describes, as ERC-7730's `context.contract.deployments` does. An address in mixed case
   that does not match its EIP-55 checksum is `E_ADDRESS_CHECKSUM`; a deployment listed twice is `W_DUPLICATE`.
-- A contract profile is checked against its own `binds.abi`. Resolved against another ABI (`candid-profile resolve
+- A contract profile is checked against its own `binds.abi`. Resolved against another ABI (`meant-profile resolve
   --abi`), it is rebound or stale by the rules of §7 for a canister profile, with the identity of §15.1: `W_REBOUND`
   and `E_STALE` are reported at `binds.abi` and name the identity of its ABI, since a contract profile has no
   `binds.interface_id`.

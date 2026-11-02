@@ -14,6 +14,7 @@
       "LICENSE",
       "README.md",
       "bin/candid-profile.mjs",
+      "bin/meant-profile.mjs",
       "data/packs/dai-permit.profile.json",
       "data/packs/erc20.profile.json",
       "data/packs/erc2612.profile.json",

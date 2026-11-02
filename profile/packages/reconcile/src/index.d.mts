@@ -15,7 +15,7 @@ export interface AccountKey {
   owner: string;
   subaccount: string;
 }
-/** An ICRC-1 account in candid-core's domain shape. */
+/** An ICRC-1 account in Meant's domain shape. */
 export interface Account {
   owner: string;
   subaccount?: Uint8Array | null;
@@ -41,7 +41,7 @@ export interface ExpectedTransaction {
 }
 
 /**
- * The ICRC-3 transaction a call leaves. `arg` is the call's argument record as candid-core values (`amount` and
+ * The ICRC-3 transaction a call leaves. `arg` is the call's argument record as Meant values (`amount` and
  * `created_at_time` bigint, accounts `{ owner: <principal text>, subaccount: Uint8Array | null }`, `memo` Uint8Array
  * or null). Undefined for a method this module does not map, a call without a stamp, or an unreadable caller.
  *

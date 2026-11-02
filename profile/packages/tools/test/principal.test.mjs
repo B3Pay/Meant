@@ -1,5 +1,5 @@
 // A `principal` position with no value tag (profile spec 5.3 has no tag for it) is an input in its textual form, read
-// exactly: checksum checked, canonical text out, the value candid-core's encoder takes. Before, every method with
+// exactly: checksum checked, canonical text out, the value Meant's encoder takes. Before, every method with
 // such a position was skipped ("no rule for a principal position without a value tag").
 import { test } from "node:test";
 import assert from "node:assert/strict";

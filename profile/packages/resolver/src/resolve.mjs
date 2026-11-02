@@ -8,7 +8,7 @@
  *
  * New diagnostic codes introduced here (additive; proposed in docs/proposals/w1-resolved-form-additions.md):
  *   I_PACK_MATCHED, I_PACK_NOT_MATCHED, E_PACK_NOT_MATCHED, I_PACK_ANNOTATION_SKIPPED; and an optional `profile`
- *   field on diagnostics that come from a profile. E_ENVELOPE (an `envelope` input that is not a readable candid-core
+ *   field on diagnostics that come from a profile. E_ENVELOPE (an `envelope` input that is not a readable Meant
  *   ContractEnvelope) is proposed in docs/proposals/w1-envelope-input.md.
  */
 import { profileId } from "./util.mjs";
@@ -29,7 +29,7 @@ const describeReasons = (reasons) => {
 
 /**
  * @param opts.did           Candid source of the service, compiled here; or
- * @param opts.envelope      the service's candid-core ContractEnvelope, already compiled; or
+ * @param opts.envelope      the service's Meant ContractEnvelope, already compiled; or
  * @param opts.abi           an EVM contract's ABI: fragments or JSON ABI entries (spec section 15; exactly one of the three)
  * @param opts.didLabel      how E_CANDID (or E_ENVELOPE, E_ABI) names the input
  * @param opts.profiles      [{ doc, label? }] explicit profiles, applied or rejected

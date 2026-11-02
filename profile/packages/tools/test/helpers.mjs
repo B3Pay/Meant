@@ -1,4 +1,4 @@
-// Shared test fixtures: the two pack resolved forms, three ledgers, and candid-core's encoder for the ledger .did
+// Shared test fixtures: the two pack resolved forms, three ledgers, and Meant's encoder for the ledger .did
 // (built from the envelope W1's tests generated with @candid-core/cli 0.3.0).
 import { readFileSync } from "node:fs";
 import { schemaFromContract } from "@meantjs/schema/contract";
@@ -21,7 +21,7 @@ const loaded = schemaFromContract(json("../../resolver/test/fixtures/envelopes/l
 if (!loaded.ok) throw new Error("the ledger envelope does not load");
 export const METHODS = serviceMethods(loaded.actor);
 
-/** candid-core's encodeArgs for a ledger method's single argument: the bytes ic-reactor sends. */
+/** Meant's encodeArgs for a ledger method's single argument: the bytes ic-reactor sends. */
 export function encodeArgsFor(method, value) {
   const r = encodeArgs(METHODS.get(method).args, value === undefined ? [] : [value]);
   if (!r.ok) throw new Error(`${method}: ${JSON.stringify(r.issues)}`);

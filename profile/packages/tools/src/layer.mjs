@@ -148,7 +148,7 @@ export function nameEntries(resolved, set, reply) {
  * @param {{ id: string, label?: string, refs?: Record<string, unknown> }[]} config.canisters  the canisters the tools
  *   may call, each with its resolved dynamic tag values (`{ "query:icrc1_decimals": 8, ... }`)
  * @param {(method: string, value: unknown, args: unknown[]) => Uint8Array | Promise<Uint8Array>} config.encode  the
- *   method's arguments (candid-core domain shapes) to the bytes that will be sent: candid-core's `encodeArgs` of
+ *   method's arguments (Meant domain shapes) to the bytes that will be sent: Meant's `encodeArgs` of
  *   `args`, the whole argument tuple. `value` is the single argument (the tuple again for a method with more than
  *   one), for hosts written before methods with more than one argument had tools
  * @param {(req: { canister: string, method: string, mode: string, arg: Uint8Array, value: unknown, args: unknown[] }) => Promise<

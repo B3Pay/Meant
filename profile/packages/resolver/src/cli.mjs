@@ -1,6 +1,6 @@
 /**
- * candid-profile resolve (<service.did> | --envelope <file> | --abi <file>) [--profile p.json ...] [--packs] [--packs-dir dir]
- * candid-profile api-doc (<service.did> | --envelope <file>) [--profile p.json ...] [--packs] [--ref from=value ...] [--title t]
+ * meant-profile resolve (<service.did> | --envelope <file> | --abi <file>) [--profile p.json ...] [--packs] [--packs-dir dir]
+ * meant-profile api-doc (<service.did> | --envelope <file>) [--profile p.json ...] [--packs] [--ref from=value ...] [--title t]
  *
  * `resolve` prints the resolved form (docs/profile-v0.md section 10) on stdout and a summary on stderr; `api-doc` prints
  * the text of the canister's `get_api_doc` query, rendered from that resolved form (D-060).
@@ -14,11 +14,11 @@ import { DEFAULT_PACKS_DIR, loadPacks } from "./packs.mjs";
 import { resolveService } from "./resolve.mjs";
 import { ApiDocError, renderApiDoc } from "./api-doc.mjs";
 
-export const USAGE = `usage: candid-profile resolve <service.did> [options] > resolved.json
-       candid-profile resolve --envelope <file> [options] > resolved.json
-       candid-profile resolve --abi <file> [options] > resolved.json
-       candid-profile api-doc <service.did> [options] [--ref from=value ...] [--title text] > api-doc.md
-       candid-profile api-doc --envelope <file> [options] [--ref ...] [--title text] > api-doc.md
+export const USAGE = `usage: meant-profile resolve <service.did> [options] > resolved.json
+       meant-profile resolve --envelope <file> [options] > resolved.json
+       meant-profile resolve --abi <file> [options] > resolved.json
+       meant-profile api-doc <service.did> [options] [--ref from=value ...] [--title text] > api-doc.md
+       meant-profile api-doc --envelope <file> [options] [--ref ...] [--title text] > api-doc.md
 
   --envelope <file>   the service's ContractEnvelope (as \`meant gen\` writes it), instead of
                       compiling a .did here
@@ -123,13 +123,13 @@ export async function main(argv, io) {
     const r = await resolveService({ ...input, didLabel: opts.did ?? opts.envelope ?? opts.abi, validateSchema, profiles, packs });
     if (command === "api-doc") {
       if (!opts.quiet) summary(r, opts, err);
-      if (!r.ok || !r.resolved) { err("candid-profile: no api-doc: the profiles have errors"); return 1; }
+      if (!r.ok || !r.resolved) { err("meant-profile: no api-doc: the profiles have errors"); return 1; }
       let text;
       try {
         text = renderApiDoc(r.resolved, { refs: opts.refs, title: opts.title });
       } catch (e) {
         if (!(e instanceof ApiDocError)) throw e;
-        err(`candid-profile: ${e.message}`);
+        err(`meant-profile: ${e.message}`);
         return 1;
       }
       io.stdout.write(text);
@@ -139,14 +139,14 @@ export async function main(argv, io) {
     if (!opts.quiet) summary(r, opts, err);
     return r.ok ? 0 : 1;
   } catch (e) {
-    if (e instanceof UsageError) { err(`candid-profile: ${e.message}`); err(USAGE.trimEnd()); return 2; }
+    if (e instanceof UsageError) { err(`meant-profile: ${e.message}`); err(USAGE.trimEnd()); return 2; }
     throw e;
   }
 }
 
 function summary(r, opts, err) {
   const count = (s) => r.diagnostics.filter((d) => d.severity === s).length;
-  if (r.resolved) err(`candid-profile: ${opts.did ?? opts.envelope ?? opts.abi}  ${r.resolved.interface_id}  [${Object.keys(r.resolved.methods).length} methods]`);
+  if (r.resolved) err(`meant-profile: ${opts.did ?? opts.envelope ?? opts.abi}  ${r.resolved.interface_id}  [${Object.keys(r.resolved.methods).length} methods]`);
   for (const p of r.profiles) err(`  ${p.status.padEnd(11)} ${String(p.name).padEnd(16)} ${String(p.origin ?? "?").padEnd(12)} ${p.profile_id ?? ""}`);
   err(`  ${count("error")} error, ${count("warning")} warning, ${count("info")} info`);
   for (const d of r.diagnostics) {

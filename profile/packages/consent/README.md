@@ -1,6 +1,6 @@
 # @meantjs/consent
 
-ICRC-21 consent messages, and the text an SNS proposal's validator returns, from a Candid Profile resolved form (`docs/profile-v0.md` sections 6, 11 and 12). Give it the resolved form of a canister, a method name and the Candid-encoded argument bytes; it returns the `icrc21_consent_message_response` for **any** method, as `GenericDisplayMessage` (Markdown) or `FieldsDisplayMessage` (typed rows). No network code; tested against the standard's `.did`. A Rust version for canisters lives in the repository (`packages/consent/rust/`, not in the npm package; section below).
+ICRC-21 consent messages, and the text an SNS proposal's validator returns, from a Meant profile resolved form (`docs/profile-v0.md` sections 6, 11 and 12). Give it the resolved form of a canister, a method name and the Candid-encoded argument bytes; it returns the `icrc21_consent_message_response` for **any** method, as `GenericDisplayMessage` (Markdown) or `FieldsDisplayMessage` (typed rows). No network code; tested against the standard's `.did`. A Rust version for canisters lives in the repository (`packages/consent/rust/`, not in the npm package; section below).
 
 ```sh
 npm install @meantjs/consent
@@ -9,8 +9,8 @@ npm install @meantjs/consent
 - **Runs on:** Node 22 or later and browsers for the main entry, the EVM subpaths, `./terms` and `./guard` (no Node built-in, no
   `Buffer`; checked with esbuild). `@meantjs/consent/sns` hashes with `node:crypto` and is Node only.
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
-- **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
-- **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
+- **Spec:** [Meant Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
+- **Versions:** the five Meant profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
   `/reconcile`) release together under one version and pin each other exactly; in 0.x a minor is breaking,
   and so is any change to generated text ([releasing](https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md)).
 
@@ -24,7 +24,7 @@ const response = icrc21ConsentMessage(
     user_preferences: { metadata: { language: "en", utc_offset_minutes: 120 }, device_spec: { GenericDisplay: null } },
   },
   {
-    resolved, // fixtures/*.resolved.json shape, or the output of `candid-profile resolve`
+    resolved, // fixtures/*.resolved.json shape, or the output of `meant-profile resolve`
     refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" }, // dynamic refs, resolved by the caller
   },
 );
@@ -260,7 +260,7 @@ A language other than English is **not** an error: ICRC-21 says a message "shoul
 
 ## Rust version for canisters (`rust/`)
 
-An SNS validator is a canister method, so the renderer also exists as a Rust crate, `candid-profile-consent` (not published). It reads the same resolved form (JSON) and writes the same text, byte for byte:
+An SNS validator is a canister method, so the renderer also exists as a Rust crate, `meant-profile-consent` (not published). It reads the same resolved form (JSON) and writes the same text, byte for byte:
 
 | Function | Does |
 |---|---|

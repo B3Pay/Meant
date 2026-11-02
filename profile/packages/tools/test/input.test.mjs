@@ -8,7 +8,7 @@ const refs = LEDGERS[0].refs;
 const OWNER = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const NOW = 1791547200123456789n;
 
-test("readToolInput: human units to candid-core's value, never rounded", () => {
+test("readToolInput: human units to Meant's value, never rounded", () => {
   const r = readToolInput(plans.get("prepare_icrc1_transfer"), { to: OWNER, amount: "1.5 TKA", memo: "hi", from_subaccount: "#7" }, { refs });
   assert.deepEqual(r.value, {
     to: { owner: OWNER, subaccount: null },
@@ -18,7 +18,7 @@ test("readToolInput: human units to candid-core's value, never rounded", () => {
     created_at_time: null,
     amount: 150000000n,
   });
-  // the value encodes with candid-core once the stamp is set
+  // the value encodes with Meant once the stamp is set
   assert.ok(encodeArgsFor("icrc1_transfer", { ...r.value, created_at_time: NOW }).length > 0);
 });
 

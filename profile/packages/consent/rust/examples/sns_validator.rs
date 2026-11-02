@@ -18,7 +18,7 @@
 mod canister {
     use std::cell::OnceCell;
 
-    use candid_profile_consent::handle_sns_validator_call;
+    use meant_profile_consent::handle_sns_validator_call;
     use serde_json::{Map, Value};
 
     #[link(wasm_import_module = "ic0")]

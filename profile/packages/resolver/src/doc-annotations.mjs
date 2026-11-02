@@ -1,9 +1,9 @@
 /**
  * Doc annotations (spec section 9): the profile tags an author writes as doc comments in the `.did`, read by
- * candid-core (doc attributes v1, `docs/doc-attributes.md` in the candid-core repository) and turned here into an
+ * Meant (doc attributes v1, `docs/doc-attributes.md` in the Meant repository) and turned here into an
  * `author` canister profile bound to the interface's `interface_id`.
  *
- * candid-core parses every `@name(key = value, ...)` doc line, refuses a malformed one and hands each out with the
+ * Meant parses every `@name(key = value, ...)` doc line, refuses a malformed one and hands each out with the
  * SourceInfo path of the item it documents; it gives no name a meaning. This module decides which names are profile
  * tags and where each lands:
  *
@@ -23,7 +23,7 @@
  * `timestamp`, `duration`, `named`) or an explicit `@describe`; otherwise it is reported (I_DOC_PROSE).
  *
  * New diagnostic codes, proposed in docs/proposals/w1-doc-attributes.md: E_DOC_INPUT, E_DOC_SYNTAX, E_DOC_TARGET,
- * E_DOC_VALUE, W_DOC_UNKNOWN_TAG, I_DOC_IGNORED, I_DOC_PROSE; candid-core's compile failures pass through as E_CANDID.
+ * E_DOC_VALUE, W_DOC_UNKNOWN_TAG, I_DOC_IGNORED, I_DOC_PROSE; Meant's compile failures pass through as E_CANDID.
  */
 import { parsePath } from "./address.mjs";
 import { METHOD_TAGS, NUMERIC } from "./checks.mjs";
