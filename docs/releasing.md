@@ -1123,6 +1123,12 @@ command `candid-core-cli` becoming `meant` (issue #306), in this order:
    `@candid-core` scope stays registered, so nobody else can publish under
    it.
 
+   Done on 2026-11-02. It waited for the five profile packages as well as
+   ic-reactor 4.1.0: `@meantjs/profile` and `@meantjs/consent` 0.7.0 still
+   depended on the old pair, and 0.8.0, published the same day, moved them
+   to the new one. `npm view` then showed the message on all eight versions
+   of `@candid-core/schema` and all six of `@candid-core/cli`.
+
 ## Moving the repository
 
 This repository was `candid-core` under the `b3hr4d` account until
