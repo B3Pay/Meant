@@ -6,15 +6,16 @@ The procedure of record for publishing `@meantjs/profile`, `@meantjs/format`,
 version can never be replaced, and an unpublished name or version cannot be reused. So the irreversible step needs the
 owner's approval in GitHub, and everything before it is checked.
 
-**Status (2026-11-01): 0.7.0 is published.** `@meantjs/profile`, `@meantjs/format`, `@meantjs/consent`,
-`@meantjs/tools` and `@meantjs/reconcile` 0.7.0 are on npm under `latest`, each with signed provenance. They were
+**Status (2026-11-02): 0.8.0 is published.** `@meantjs/profile`, `@meantjs/format`, `@meantjs/consent`,
+`@meantjs/tools` and `@meantjs/reconcile` 0.8.0 are on npm under `latest`, each with signed provenance. They were
 published from the public repository `B3Pay/Meant`, where the spec and the packages sit under `profile/` as a reviewed
 copy of this one that `scripts/public-copy/` builds (D-051, D-052), never from this private repository: its merge
-commit 815879e (the 0.7.0 sync, B3Pay/Meant#322), `npm release (profile)` run 41347380055, approved by the owner. An
-empty project that installs the five 0.7.0 packages from the registry passes `scripts/package-check/smoke.mjs`, and
-`npm audit signatures` verifies their signatures and attestations (fact: run 2026-11-01, 12 packages with verified
-signatures, 8 with verified attestations). 0.6.0 was published the same way from bc988ec (B3Pay/Meant#316) by run
-41312453735, 0.5.0 from 6ab0469 (B3Pay/Meant#309) by run 41101467507, 0.4.0 from fc7217d (B3Pay/Meant#304) by run 41030770267, 0.3.0 from af04812 (B3Pay/Meant#299) by run
+commit 5ab8c45 (the 0.8.0 sync, B3Pay/Meant#325), `npm release (profile)` run 41423563047, approved by the owner. An
+empty project that installs the five 0.8.0 packages from the registry gets 12 packages, none from `@candid-core`
+(D-063), and passes `scripts/package-check/smoke.mjs`; the registry lists a SLSA provenance attestation for each of the
+five, naming `npm-release-profile.yml` at 5ab8c45 (fact: read 2026-11-02; `npm audit signatures` could not run there,
+the sigstore TUF host being unreachable from that network). 0.7.0 was published the same way from 815879e
+(B3Pay/Meant#322) by run 41347380055, 0.6.0 from bc988ec (B3Pay/Meant#316) by run 41312453735, 0.5.0 from 6ab0469 (B3Pay/Meant#309) by run 41101467507, 0.4.0 from fc7217d (B3Pay/Meant#304) by run 41030770267, 0.3.0 from af04812 (B3Pay/Meant#299) by run
 40831472572, 0.2.0 from 4e016b8 (B3Pay/Meant#295) by run 40757959363, and 0.1.0, the first release, from 57afdae
 (B3Pay/Meant#292) by run 40692299884. The one-time prerequisites below are done: the `npm-publish` environment, the
 bootstrap of the five names, their trusted publishers and, after the first publish, the hardening (two-factor

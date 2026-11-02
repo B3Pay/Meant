@@ -21,7 +21,9 @@ npm). Meant is a B3Pay project.
 
 - The spec is **Draft 0.2**. Breaking changes are expected until the preregistered eval reports; its tasks stay
   private so that no model trains on them.
-- **0.7.0 is on npm** (2026-11-01), published from this repository with provenance (`docs/releasing.md`).
+- **0.8.0 is on npm** (2026-11-02), published from this repository with provenance (`docs/releasing.md`). Since
+  0.8.0 the packages depend on the compiler under its new names, `@meantjs/cli` and `@meantjs/schema`, and install
+  nothing from `@candid-core` (D-063).
 - **Ready for ICP MCP** (spec §8.2, since 0.7.0): `meant-profile api-doc` writes the text of a canister's
   `get_api_doc` query, which DFINITY's ICP MCP connector reads before it calls a canister, from the canister's profile
   (D-060). [`examples/icp-mcp`](examples/icp-mcp) is a canister that serves its profile, that guide and ICRC-21 consent
