@@ -183,7 +183,7 @@
 <span class="tok-keyword">export</span> <span class="tok-keyword">interface</span> <span class="tok-type">ResolveOptions</span> <span class="tok-punct">{</span>
   <span class="tok-comment">/** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */</span>
   did<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">string</span><span class="tok-punct">;</span>
-  <span class="tok-comment">/** The service's candid-core ContractEnvelope. */</span>
+  <span class="tok-comment">/** The service's Meant ContractEnvelope. */</span>
   envelope<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-type">unknown</span><span class="tok-punct">;</span>
   <span class="tok-comment">/** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */</span>
   abi<span class="tok-punct">?</span><span class="tok-punct">:</span> <span class="tok-keyword">readonly</span> <span class="tok-punct">(</span><span class="tok-type">string</span> <span class="tok-punct">|</span> <span class="tok-type">Record</span><span class="tok-punct">&lt;</span><span class="tok-type">string</span><span class="tok-punct">,</span> <span class="tok-type">unknown</span><span class="tok-punct">&gt;</span><span class="tok-punct">)</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
@@ -588,7 +588,7 @@ f<span class="tok-punct">?</span><span class="tok-punct">.</span><span class="to
     user_preferences<span class="tok-punct">:</span> <span class="tok-punct">{</span> metadata<span class="tok-punct">:</span> <span class="tok-punct">{</span> language<span class="tok-punct">:</span> <span class="tok-string">"en"</span><span class="tok-punct">,</span> utc_offset_minutes<span class="tok-punct">:</span> <span class="tok-number">120</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> device_spec<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-type">GenericDisplay</span><span class="tok-punct">:</span> <span class="tok-type">null</span> <span class="tok-punct">}</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
   <span class="tok-punct">}</span><span class="tok-punct">,</span>
   <span class="tok-punct">{</span>
-    resolved<span class="tok-punct">,</span> <span class="tok-comment">// fixtures/*.resolved.json shape, or the output of `candid-profile resolve`</span>
+    resolved<span class="tok-punct">,</span> <span class="tok-comment">// fixtures/*.resolved.json shape, or the output of `meant-profile resolve`</span>
     refs<span class="tok-punct">:</span> <span class="tok-punct">{</span> <span class="tok-string">"query:icrc1_decimals"</span><span class="tok-punct">:</span> <span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-string">"query:icrc1_symbol"</span><span class="tok-punct">:</span> <span class="tok-string">"TKA"</span> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-comment">// dynamic refs, resolved by the caller</span>
   <span class="tok-punct">}</span><span class="tok-punct">,</span>
 <span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
