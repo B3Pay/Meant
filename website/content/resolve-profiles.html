@@ -53,7 +53,7 @@ info     I_UNTAGGED_NUMERIC   - icrc21_canister_call_consent_message(0).user_pre
 }</pre>
 <p>
   The interface comes in one of three ways: <code>did</code>, Candid source compiled here with the
-  pinned <code>@candid-core/cli</code>; <code>envelope</code>, a Contract another tool already wrote;
+  pinned <code>@meantjs/cli</code>; <code>envelope</code>, a Contract another tool already wrote;
   or <code>abi</code>, an EVM contract's ABI (<a href="chain-evm.html">experimental</a>). Passing none
   or more than one throws a <code>TypeError</code>; everything else is reported as a diagnostic.
   <code>didLabel</code> is how diagnostics about the input name it.
@@ -295,7 +295,7 @@ const r = await resolveService({ envelope, didLabel: "gen/tokens.envelope.json",
   error   E_ENVELOPE                 gen/broken.envelope.json  invalid_envelope: contract.format_version is 2, this resolver reads version 1</pre>
 
 <p>
-  Packs still compile their own <code>binds.requires</code>, so <code>@candid-core/cli</code> stays a
+  Packs still compile their own <code>binds.requires</code>, so <code>@meantjs/cli</code> stays a
   dependency either way.
 </p>
 
