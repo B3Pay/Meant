@@ -86,6 +86,23 @@ and therefore the identities computed over them. Pin an exact version.
   turned quadratic without allocating more, such as a nested scan, would pass
   it. Nothing in the published crate changed.
 
+### Documentation
+
+- **The README is a short front page.** It says what Meant does, how its
+  interface and profile layers fit, how to start with each package, and
+  where the rest of the documentation is. The crate reference it held moves
+  to `docs/interface-layer.md`: the rename and pre-1.0 notes, what each
+  identity claims, the command-line interface, the runnable examples, the
+  foundation decisions, the MSRV, Cargo features, browsers and bare WASM, the
+  platform APIs with their migration notes, and bounded parsing. The text is
+  unchanged except for two stale facts: the feature-graph verifier resolves
+  with `cargo tree --edges no-dev`, not `cargo metadata`, and its graphs are
+  now 22 packages (base), 126 (default) and 107 (`compiler` only, browser
+  WASM), not 23, 126 and 106; and the command-line section names
+  `@meantjs/schema`, the schema package's name since 0.6.0, where it said
+  `@candid-core/schema`. The new page ships with the rest of `docs/`, so the
+  archive holds 60 paths instead of 59.
+
 ## 0.1.0 — published 2026-10-12
 
 The first version without a prerelease suffix. It is still pre-1.0: any later
