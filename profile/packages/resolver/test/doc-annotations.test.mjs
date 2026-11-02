@@ -1,4 +1,4 @@
-// Doc annotations (spec section 9): tags written as doc comments in the .did, read by candid-core (doc attributes v1)
+// Doc annotations (spec section 9): tags written as doc comments in the .did, read by Meant (doc attributes v1)
 // and placed by src/doc-annotations.mjs. The inputs are real didToDocAttributes responses (fixtures/doc-attributes,
 // provenance in its SOURCE.json); the profiles are then resolved by the pinned compiler like any other.
 import { test } from "node:test";
@@ -166,7 +166,7 @@ test("a tag no v0 address reaches, or one in the wrong place, is an error with i
 test("docs above a quoted method name are not recorded upstream; were they, the name would still be refused (OQ-3)", async () => {
   const r = await response("unplaceable");
   const quoted = r.source_info.methods.find((m) => m.name === "quoted-name");
-  // Fact (candid_parser 0.4.0, as pinned by candid-core): a doc comment above a quoted name is dropped
+  // Fact (candid_parser 0.4.0, as pinned by Meant): a doc comment above a quoted name is dropped
   assert.equal(quoted.docs, undefined);
   r.doc_attributes.items = [{
     kind: "method", origin: quoted.origin, path: quoted.path, name: quoted.name, prose: [],
@@ -177,7 +177,7 @@ test("docs above a quoted method name are not recorded upstream; were they, the 
   assert.match(out.diagnostics[0].message, /OQ-3/);
 });
 
-test("candid-core's own failures pass through: a malformed attribute, a .did that does not compile", async () => {
+test("Meant's own failures pass through: a malformed attribute, a .did that does not compile", async () => {
   const malformed = await compile("malformed");
   assert.equal(malformed.ok, false);
   assert.deepEqual(malformed.diagnostics, [{

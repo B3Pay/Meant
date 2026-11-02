@@ -349,7 +349,7 @@ function checkResolved(resolved) {
 /**
  * Render the `get_api_doc` text for a canister.
  *
- * @param resolved    the canister's resolved form (`resolveService(...).resolved`, or `candid-profile resolve`)
+ * @param resolved    the canister's resolved form (`resolveService(...).resolved`, or `meant-profile resolve`)
  * @param opts.refs   values of dynamic references, by their `from` (`{ "query:icrc1_decimals": 8 }`); one without a
  *                    value is written as what to ask the canister for
  * @param opts.title  the guide's heading (default "API guide")
@@ -372,7 +372,7 @@ export function renderApiDoc(resolved, opts = {}) {
 
   const out = [`# ${md(title)}`, ""];
   out.push(
-    "This guide is generated from the canister's Candid Profile. It says what the positions of the interface in `candid:service` mean; it does not change them. Every path below is an address of the profile spec: `method(0).field` is a field of the first argument, `method->(0).Err.Case` a case of the first result.",
+    "This guide is generated from the canister's Meant profile. It says what the positions of the interface in `candid:service` mean; it does not change them. Every path below is an address of the profile spec: `method(0).field` is a field of the first argument, `method->(0).Err.Case` a case of the first result.",
     "",
     `- Interface: ${code(resolved.interface_id)}`,
   );

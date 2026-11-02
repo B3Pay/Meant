@@ -179,13 +179,13 @@ export interface ToolLayerConfig {
   resolved: ResolvedForm | ResolvedForm[];
   canisters: Canister[];
   /**
-   * The method's arguments, in candid-core domain shapes, to the bytes sent: candid-core's `encodeArgs` of `args`, the
+   * The method's arguments, in Meant domain shapes, to the bytes sent: Meant's `encodeArgs` of `args`, the
    * whole argument tuple. `value` is the single argument (for a method with more than one, the tuple again).
    */
   encode(method: string, value: unknown, args: unknown[]): Uint8Array | Promise<Uint8Array>;
   /**
    * Sends `arg` exactly, as a query or an update call (`mode`; a read-only update is `"update"`); `reply` is the
-   * decoded first result value in candid-core's domain shape (a variant is `{ tag, value }`).
+   * decoded first result value in Meant's domain shape (a variant is `{ tag, value }`).
    */
   call(req: { canister: string; method: string; mode: string; arg: Uint8Array; value: unknown; args: unknown[] }): Promise<CallResult>;
   /** The clock of the canister named, ns since the Unix epoch (canisters on different subnets keep different times). */

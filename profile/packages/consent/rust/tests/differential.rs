@@ -5,7 +5,7 @@
 use std::fs;
 use std::path::Path;
 
-use candid_profile_consent::{generic_consent_message, parse_resolved, sns_validator_rendering, Limits};
+use meant_profile_consent::{generic_consent_message, parse_resolved, sns_validator_rendering, Limits};
 use serde_json::{Map, Value};
 
 fn from_hex(s: &str) -> Vec<u8> {

@@ -1,7 +1,7 @@
 {
   "name": "@meantjs/tools",
   "version": "0.8.0",
-  "description": "Agent tools from any Candid Profile resolved form: tool definitions, exact input reading, and a tool layer with a confirmation hook, an injected encoder, call and clock. Browser-safe.",
+  "description": "Agent tools from any Meant profile resolved form: tool definitions, exact input reading, and a tool layer with a confirmation hook, an injected encoder, call and clock. Browser-safe.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

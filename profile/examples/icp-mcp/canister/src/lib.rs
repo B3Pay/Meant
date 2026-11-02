@@ -1,9 +1,9 @@
 //! An example canister ready for ICP MCP (D-061): a small token, TOK, whose sends are exactly-once, with every answer
-//! an agent reads generated from one Candid Profile (`../icp-mcp.profile.json`):
+//! an agent reads generated from one Meant profile (`../icp-mcp.profile.json`):
 //!
-//!   - `get_api_doc`: the guide ICP MCP reads before a call, `../api-doc.md` (written by `candid-profile api-doc`);
+//!   - `get_api_doc`: the guide ICP MCP reads before a call, `../api-doc.md` (written by `meant-profile api-doc`);
 //!   - `icrc21_canister_call_consent_message`: the ICRC-21 consent message for any call, from the resolved form
-//!     (`../icp-mcp.resolved.json`) through `candid-profile-consent`;
+//!     (`../icp-mcp.resolved.json`) through `meant-profile-consent`;
 //!   - the custom sections `icp:public candid:service` and `icp:public candid:profile`: the interface and the profile
 //!     itself, which a consumer reads in one certified `read_state` (spec section 8.1).
 //!
@@ -23,7 +23,7 @@ mod canister {
     use std::cell::{OnceCell, RefCell};
 
     use candid::{CandidType, Deserialize, Principal};
-    use candid_profile_consent::{handle_consent_request, ConsentContext};
+    use meant_profile_consent::{handle_consent_request, ConsentContext};
     use serde_json::{Map, Value};
 
     use crate::token::{SendArgs, State, Tokens, INITIAL_E8S};

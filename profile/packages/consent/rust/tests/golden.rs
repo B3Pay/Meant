@@ -5,7 +5,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use candid_profile_consent::{
+use meant_profile_consent::{
     encode_validator_result, generic_consent_message, handle_sns_validator_call, parse_resolved, sns_validator_rendering, Limits,
 };
 use serde_json::{Map, Value};

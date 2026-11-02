@@ -134,7 +134,7 @@ function governanceInit({ root, ledger, swap }) {
       url = opt "https://example.org";
       logo = null;
       name = opt "Local test DAO";
-      description = opt "A test SNS on PocketIC, for the Candid Profile validator test";
+      description = opt "A test SNS on PocketIC, for the Meant profile validator test";
     };
     neurons = vec { record { "${NEURON_HEX}"; record {
       id = opt record { id = ${blobText(NEURON)} };

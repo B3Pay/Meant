@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 rust-version = "1.85"
 publish = false
-description = "An example canister ready for ICP MCP: get_api_doc, ICRC-21 and candid:profile from one Candid Profile (D-061)."
+description = "An example canister ready for ICP MCP: get_api_doc, ICRC-21 and candid:profile from one Meant profile (D-061)."
 license = "Apache-2.0"
 
 [lib]
@@ -14,7 +14,7 @@ crate-type = ["cdylib"]
 # The same exact pins as packages/consent/rust, the crate that renders the consent messages; nothing new.
 [dependencies]
 candid = { version = "=0.10.38", default-features = false, features = ["value"] }
-candid-profile-consent = { path = "../../../packages/consent/rust" }
+meant-profile-consent = { path = "../../../packages/consent/rust" }
 serde = { version = "=1.0.229", features = ["derive"] }
 serde_json = { version = "=1.0.154", features = ["preserve_order"] }
 

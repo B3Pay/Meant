@@ -57,10 +57,10 @@ assert.deepEqual(viaBrowser, r);
 step("@meantjs/profile/browser gives the same resolved form");
 
 // 3. The CLI, through the bin npm linked.
-const cli = spawnSync(path.resolve("node_modules/.bin/candid-profile"), ["resolve", "ledger.did", "--packs", "--quiet"], { encoding: "utf8" });
+const cli = spawnSync(path.resolve("node_modules/.bin/meant-profile"), ["resolve", "ledger.did", "--packs", "--quiet"], { encoding: "utf8" });
 assert.equal(cli.status, 0, cli.stderr);
 assert.deepEqual(JSON.parse(cli.stdout), JSON.parse(JSON.stringify(r.resolved)));
-step("candid-profile resolve --packs prints the same resolved form");
+step("meant-profile resolve --packs prints the same resolved form");
 
 // 4. Format: exact conversion both ways.
 const format = await import("@meantjs/format");

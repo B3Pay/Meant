@@ -271,11 +271,11 @@ test("profiles and packs of the other chain: an error when given, skipped in a p
   assert.deepEqual(r.diagnostics.map((d) => [d.code, d.at]), [["E_ABI", "abi[0]"]]);
 });
 
-test("candid-profile resolve --abi", async () => {
+test("meant-profile resolve --abi", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cp-evm-"));
   const file = path.join(dir, "weth.json");
   await writeFile(file, JSON.stringify(WETH));
-  const { stdout, stderr } = await promisify(execFile)("node", [path.join(HERE, "../bin/candid-profile.mjs"), "resolve", "--abi", file, "--packs"]);
+  const { stdout, stderr } = await promisify(execFile)("node", [path.join(HERE, "../bin/meant-profile.mjs"), "resolve", "--abi", file, "--packs"]);
   const resolved = JSON.parse(stdout);
   assert.equal(resolved.chain, "evm");
   assert.equal(resolved.methods.approve.tags.intent.args.template, "Set {guy}'s allowance to {wad}, replacing any existing allowance");

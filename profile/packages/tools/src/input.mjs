@@ -1,9 +1,9 @@
 // Reading a tool call's inputs into the Candid argument (#16, item 2), and showing values back.
 //
 // Every input is text in human units, read by the format library (profile spec 5.3), so nothing is rounded. The
-// argument comes back in candid-core's domain shapes, the value `encodeArgs` (and so ic-reactor) takes: `T | null`
+// argument comes back in Meant's domain shapes, the value `encodeArgs` (and so ic-reactor) takes: `T | null`
 // for an opt, `bigint` for nat, int, nat64 and int64, `number` for the narrower integers, `Uint8Array` for a blob,
-// a principal as its canonical text (candid-core's `Principal` is a branded string), `string` for text, `boolean`
+// a principal as its canonical text (Meant's `Principal` is a branded string), `string` for text, `boolean`
 // for bool, an object for a record and `{ tag, value }` for a variant. A method with more than one argument gets the
 // argument tuple, an array.
 //
@@ -42,7 +42,7 @@ const safely = (parse) => (input) => {
  * CRC-32 checksum, so it needs no profile meaning to be read exactly (profile spec 5.3 has no tag for it, and an
  * agent tool falls back to raw Candid where a stale profile's value tags are dropped, section 7; a principal on its
  * own renders as its text, section 12 rule 4).
- * The value is the canonical text, candid-core's `Principal`. Same shape as a format-library Formatter.
+ * The value is the canonical text, Meant's `Principal`. Same shape as a format-library Formatter.
  */
 const PRINCIPAL_READER = Object.freeze({
   tag: "principal",
@@ -271,7 +271,7 @@ export function inputReader(node, refs = {}) {
   }
 }
 
-/** A format-library value as candid-core's value for the position. */
+/** A format-library value as Meant's value for the position. */
 export function toCandid(node, value) {
   if (node.candid === "principal" || node.candid === "text" || node.candid === "bool") return value; // canonical text, the text, a boolean
   if (typeof value === "string") return NARROW.has(node.candid) ? Number(value) : BigInt(value);
@@ -438,7 +438,7 @@ function readInput(node, input, path, param, ctx) {
       const arm = cases[input.tag];
       const r = readInput(arm, Object.hasOwn(input, "value") ? input.value : undefined, `${path}.${input.tag}`, param, ctx);
       if (r === undefined) return undefined;
-      // candid-core's domain shape: a null-payload arm is a bare { tag }
+      // Meant's domain shape: a null-payload arm is a bare { tag }
       const bare = arm.candid === "null" && !arm.optional;
       return { value: bare ? { tag: input.tag } : { tag: input.tag, value: r.value }, identity: [input.tag, r.identity] };
     }
@@ -516,7 +516,7 @@ export function readToolInput(plan, input, { refs = {}, now, names = {} } = {}) 
       ? null
       : Object.fromEntries(plan.fields.map((field) => [field.name, field.role === "param" ? values.get(field.name) : null]));
   if (plan.case === undefined) return { value, identity };
-  // a tool per case (D-053): the payload goes into its case, a null payload as candid-core's bare { tag }; the case is
+  // a tool per case (D-053): the payload goes into its case, a null payload as Meant's bare { tag }; the case is
   // part of the intent, so two cases with the same inputs are two intents
   const bare = plan.caseNode.candid === "null" && plan.caseNode.optional !== true;
   return { value: bare ? { tag: plan.case } : { tag: plan.case, value }, identity: [[plan.case, identity]] };
@@ -555,14 +555,14 @@ export const argTuple = (plan, value) => (plan.argNodes?.length > 1 ? value : pl
 // Display
 // ---------------------------------------------------------------------------
 
-/** A candid-core value as the format library takes it. */
+/** A Meant value as the format library takes it. */
 function forFormat(f, value) {
   if (f.tag === "amount" || f.tag === "timestamp" || f.tag === "duration") return typeof value === "number" ? BigInt(value) : value;
   return value;
 }
 
 /**
- * A candid-core value as JSON-safe data for a model and a person: a value-tagged position becomes `{ text, raw }`
+ * A Meant value as JSON-safe data for a model and a person: a value-tagged position becomes `{ text, raw }`
  * (`text` from the format library, `raw` the base units, ns or hex), bigints become decimal strings, blobs hex.
  * A value the profile cannot display (a missing ref, a value out of range) keeps its raw form and says why.
  */

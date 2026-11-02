@@ -9,7 +9,7 @@ import { matchService } from "./subtype.mjs";
 /**
  * @param canister an Iface (label "canister")
  * @param pack     a parsed, schema-valid pack document
- * @returns { matched, reasons, relaxed } or { error: [candid-core diagnostics] } when `requires` does not compile
+ * @returns { matched, reasons, relaxed } or { error: [Meant diagnostics] } when `requires` does not compile
  */
 export async function matchPack(canister, pack, opts = {}) {
   const compiled = await compileInterface(pack.binds.requires, "pack fragment");

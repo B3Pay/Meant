@@ -2,15 +2,15 @@
 
 DFINITY's ICP MCP connector lets an assistant (Claude, ChatGPT and others) call a canister as the signed-in person.
 Before it calls, it reads what the canister says about itself. This canister answers every one of those reads from
-one Candid Profile, so what the assistant is told cannot drift from what the canister means (D-061, step 2 of
+one Meant profile, so what the assistant is told cannot drift from what the canister means (D-061, step 2 of
 `docs/proposals/w0-icp-mcp.md`).
 
 | What an agent reads | Where it comes from |
 |---|---|
 | `candid:service` (custom section `icp:public candid:service`) | `icp-mcp.did`, embedded as it is |
 | `candid:profile` (custom section `icp:public candid:profile`) | `icp-mcp.profile.json`, embedded as it is (spec §8.1) |
-| `get_api_doc` | `api-doc.md`, written by `candid-profile api-doc` from the profile (spec §8.2) |
-| `icrc21_canister_call_consent_message` | rendered at call time from `icp-mcp.resolved.json` by `candid-profile-consent` (the Rust port, byte for byte the JavaScript text) |
+| `get_api_doc` | `api-doc.md`, written by `meant-profile api-doc` from the profile (spec §8.2) |
+| `icrc21_canister_call_consent_message` | rendered at call time from `icp-mcp.resolved.json` by `meant-profile-consent` (the Rust port, byte for byte the JavaScript text) |
 | `icrc10_supported_standards` | ICRC-10 and ICRC-21 |
 | `/.well-known/ic-architecture` at the app's origin | `node manifest.mjs <canister id>` at deploy time |
 

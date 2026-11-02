@@ -52,7 +52,7 @@ const BROWSER = [
 ];
 
 const npm = (args, cwd) => execFileSync("npm", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] });
-const scratch = mkdtempSync(path.join(tmpdir(), "candid-profile-pack-"));
+const scratch = mkdtempSync(path.join(tmpdir(), "meant-profile-pack-"));
 const tarballs = path.join(scratch, "tarballs");
 const consumer = path.join(scratch, "consumer");
 mkdirSync(tarballs);

@@ -8,7 +8,7 @@
 //   { kind: "fixedbytes", size }     bytes1 to bytes32 (`byte` is bytes1)
 //   { kind: "array", element, length }   length null for T[], else k >= 1 for T[k]
 //   { kind: "tuple", components: [{ name, type }] }   name null when unnamed
-// Refused: `function`, `fixed` and `ufixed` types, overloaded names (O1), names Candid Profile addresses cannot spell.
+// Refused: `function`, `fixed` and `ufixed` types, overloaded names (O1), names Meant profile addresses cannot spell.
 //
 // Values, as the codec reads and writes them (the consent package's Candid values have the same shape rules):
 //   uintN, intN    decimal string when decoded; a decimal string or a bigint when encoded (never a number, D-006)

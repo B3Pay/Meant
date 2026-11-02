@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:candid-profile:v0:schema",
-  "title": "Candid Profile v0",
+  "title": "Meant Profile v0",
   "description": "Meaning for positions in a Candid interface (units, formats, intent, risk, idempotency, outcome classes). Normative prose: docs/profile-v0.md. Structural checks only; address resolution and tag applicability are checked by scripts/validate.mjs.",
   "type": "object",
   "required": [

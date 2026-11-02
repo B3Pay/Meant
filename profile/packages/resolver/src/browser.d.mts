@@ -1,7 +1,7 @@
 // Types for @meantjs/profile/browser. Hand-written; the source is plain ES modules (src/*.mjs). The internal
 // graph classes (Iface, TagIndex, LayeredTags, SubtypeChecker) are declared opaquely.
 
-/** A Candid Profile document (docs/profile-v0.md): a canister profile, a pack, or an EVM contract profile (section 15). */
+/** A Meant profile document (docs/profile-v0.md): a canister profile, a pack, or an EVM contract profile (section 15). */
 export interface ProfileDocument {
   format: "candid-profile";
   format_version: 0;
@@ -58,7 +58,7 @@ export interface SchemaValidator {
 export interface ResolveOptions {
   /** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */
   did?: string;
-  /** The service's candid-core ContractEnvelope. */
+  /** The service's Meant ContractEnvelope. */
   envelope?: unknown;
   /** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */
   abi?: readonly (string | Record<string, unknown>)[];
@@ -91,7 +91,7 @@ export interface ValidateResult {
 import type { Address, PathSegment } from "./address.mjs";
 export type { Address, PathSegment } from "./address.mjs";
 
-/** A node of the candid-core Contract graph (`kind` is primitive, opt, vec, record, variant, func, service, ...). */
+/** A node of the Meant Contract graph (`kind` is primitive, opt, vec, record, variant, func, service, ...). */
 export interface ContractNode {
   kind: string;
   primitive?: string;
@@ -173,13 +173,13 @@ export function analyzeProfiles(iface: Iface, items: unknown[], opts?: { attribu
 export function resolvedForm(iface: Iface, profiles: unknown[], tags: LayeredTags, diagnostics: Diagnostic[]): ResolvedForm;
 export function buildTree(iface: Iface, methodName: string, side: "args" | "results", tags: LayeredTags): unknown;
 
-/** The doc attributes version `profileFromDocAttributes` reads (candid-core `docs/doc-attributes.md`). */
+/** The doc attributes version `profileFromDocAttributes` reads (Meant's `docs/doc-attributes.md`). */
 export const DOC_ATTRIBUTES_VERSION: 1;
 /** A diagnostic about a doc comment: `at` is the item's address once it has one, else its SourceInfo path. */
 export interface DocDiagnostic extends Diagnostic {
   /** The documented item's SourceInfo occurrence path (`actor.methods[2]`, `type:Tokens.fields[0]`). */
   path?: string;
-  /** The source file the comment is in, as candid-core names it (`memory:/service.did`). */
+  /** The source file the comment is in, as Meant names it (`memory:/service.did`). */
   source?: string;
 }
 /**

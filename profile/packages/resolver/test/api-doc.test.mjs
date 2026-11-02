@@ -11,7 +11,7 @@ import { ApiDocError, renderApiDoc, resolveService, createSchemaValidator, loadP
 import { HERE, readJson } from "./helpers.mjs";
 
 const run = promisify(execFile);
-const BIN = path.join(HERE, "../bin/candid-profile.mjs");
+const BIN = path.join(HERE, "../bin/meant-profile.mjs");
 const LEDGER = path.join(HERE, "fixtures/ledger.did");
 const GOLDEN = path.join(HERE, "fixtures/api-doc");
 const LEDGER_REFS = { "query:icrc1_decimals": 8, "query:icrc1_symbol": "ICP" };

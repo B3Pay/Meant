@@ -1,6 +1,6 @@
 name: Profile
 
-# The checks of profile/, the Candid Profile spec and the @meantjs packages: validate and test on every Node line
+# The checks of profile/, the Meant Profile spec and the @meantjs packages: validate and test on every Node line
 # the packages support (engines: >=22), and the packaged-consumer check of the five library packages
 # (profile/scripts/package-check/check.mjs). It runs only when profile/ or its workflows change. This file and
 # profile/ arrive together from the project's working repository (profile/README.md).

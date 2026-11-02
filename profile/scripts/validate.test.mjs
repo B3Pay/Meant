@@ -22,7 +22,7 @@ async function validateJson(...args) {
   }
 }
 
-test("idlHash matches Candid field ids emitted by candid-core", () => {
+test("idlHash matches Candid field ids emitted by Meant", () => {
   assert.equal(idlHash("amount"), 3573748184);
   assert.equal(idlHash("owner"), 947296307);
   assert.equal(idlHash("to"), 25979);

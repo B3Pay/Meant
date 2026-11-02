@@ -11,7 +11,7 @@ import { promisify } from "node:util";
 import { HERE, ROOT, icrc1, icrc2, interfaceIdOf, canisterProfile, node, readJson } from "./helpers.mjs";
 
 const run = promisify(execFile);
-const BIN = path.join(HERE, "../bin/candid-profile.mjs");
+const BIN = path.join(HERE, "../bin/meant-profile.mjs");
 const LEDGER = path.join(HERE, "fixtures/ledger.did");
 
 async function cli(...args) {
@@ -134,7 +134,21 @@ test("exit codes: 1 for an error diagnostic (the form is still printed), 2 for u
   }
   r = await cli("--help");
   assert.equal(r.code, 0);
-  assert.match(r.stderr, /usage: candid-profile resolve/);
+  assert.match(r.stderr, /usage: meant-profile resolve/);
+});
+
+test("candid-profile, the old name, runs the same command and says it is now meant-profile", async () => {
+  const OLD = path.join(HERE, "../bin/candid-profile.mjs");
+  const now = await run("node", [BIN, "resolve", LEDGER, "--packs", "--quiet"]);
+  const old = await run("node", [OLD, "resolve", LEDGER, "--packs", "--quiet"]);
+  assert.equal(old.stdout, now.stdout);
+  assert.equal(now.stderr, "");
+  assert.equal(old.stderr, "candid-profile: this command is now meant-profile; the old name is removed in a later release\n");
+  const pkg = await readJson(path.join(HERE, "../package.json"));
+  assert.deepEqual(pkg.bin, { "meant-profile": "./bin/meant-profile.mjs", "candid-profile": "./bin/candid-profile.mjs" });
+  // npm ci links only what the lockfile lists, so it must name both commands too.
+  const lock = await readJson("package-lock.json");
+  assert.deepEqual(lock.packages["packages/resolver"].bin, { "candid-profile": "bin/candid-profile.mjs", "meant-profile": "bin/meant-profile.mjs" });
 });
 
 test("--packs-dir selects another directory, and a schema-invalid profile is reported", async () => {

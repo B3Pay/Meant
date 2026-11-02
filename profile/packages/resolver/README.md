@@ -1,6 +1,6 @@
 # @meantjs/profile
 
-Validates Candid Profiles, matches packs to a service, merges layers and emits the resolved form that consumers read
+Validates Meant profiles, matches packs to a service, merges layers and emits the resolved form that consumers read
 (`docs/profile-v0.md` sections 7, 8 and 10). Dependencies, pinned exactly: `@meantjs/cli` 0.5.0 (wasm: `.did`
 to Contract) and `ajv` 8.18.0.
 
@@ -8,13 +8,13 @@ to Contract) and `ajv` 8.18.0.
 npm install @meantjs/profile
 ```
 
-- **Runs on:** Node 22 or later for the main entry and the `candid-profile` CLI. `@meantjs/profile/browser` is for
+- **Runs on:** Node 22 or later for the main entry and the `meant-profile` CLI. `@meantjs/profile/browser` is for
   browser bundles (checked with esbuild, and in Chromium under a CSP without `'unsafe-eval'`; the cli's wasm needs
   `'wasm-unsafe-eval'`, below). `@meantjs/profile/address` and `@meantjs/profile/evm` have no dependency and run
   anywhere.
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
-- **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
-- **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
+- **Spec:** [Meant Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
+- **Versions:** the five Meant profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
   `/reconcile`) release together under one version and pin each other exactly; in 0.x a minor is breaking,
   and so is any change to generated text ([releasing](https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md)).
 
@@ -41,7 +41,7 @@ id that no longer describes it). Its graph is checked before anything walks it: 
 node kind needs, methods that name funcs, an actor, no opt that contains only itself, and the field-names table (it
 must be there, and each name must hash to its field's id). One that fails is an `E_ENVELOPE` error with
 `resolved: null`, and anything the checks still miss is reported the same way rather than thrown. Packs still compile their `binds.requires`, so the cli stays a
-dependency. CLI: `candid-profile resolve --envelope app.envelope.json --packs`.
+dependency. CLI: `meant-profile resolve --envelope app.envelope.json --packs`.
 
 The defaults are the data the package ships (`data/`), so they work wherever it is installed. The same data is
 exported for passing as documents:
@@ -93,7 +93,7 @@ which reads a directory), `schema-core.mjs` (and `schema.mjs`, which reads a pat
 
 ## Doc annotations (spec section 9)
 
-An author can write the tags in the `.did` itself, as doc comments. candid-core reads them (doc attributes v1: one
+An author can write the tags in the `.did` itself, as doc comments. Meant reads them (doc attributes v1: one
 `@name(key = value, ...)` syntax, malformed lines refused, each attribute handed out with the SourceInfo path of the
 item it documents), and `profileFromDocAttributes` turns them into an `author` canister profile bound to the
 interface's `interface_id`:
@@ -135,12 +135,12 @@ const r = await resolveService({ did, validateSchema, profiles: doc ? [{ doc }] 
   is left alone, with a warning when it is one or two letters from a tag (`@amout`).
 - Errors (the profile is still returned with what could be placed): `E_DOC_TARGET` (a tag no v0 address reaches, such
   as inside a func value or a callback service, or one in the wrong place), `E_DOC_VALUE` (a fraction, an unknown
-  call), `E_DOC_SYNTAX` (candid-core refused the comment), `E_DOC_INPUT` (not a doc attributes v1 response). Each
+  call), `E_DOC_SYNTAX` (Meant refused the comment), `E_DOC_INPUT` (not a doc attributes v1 response). Each
   names the item's address, its SourceInfo `path` and `source`, and the doc line.
 
 `didToDocAttributes` is in every `@meantjs/cli` (it came with `@candid-core/cli` 0.4.0); the tests read real responses the pinned one wrote
 (`test/fixtures/doc-attributes/`, provenance in its `SOURCE.json`, regenerated with
-`node scripts/doc-attributes-fixtures.mjs`, or with `--cli <path>` for a local build of candid-core's npm package). The proposal is `docs/proposals/w1-doc-attributes.md`.
+`node scripts/doc-attributes-fixtures.mjs`, or with `--cli <path>` for a local build of Meant's npm package). The proposal is `docs/proposals/w1-doc-attributes.md`.
 
 ## Served profiles (spec section 8.1, D-048)
 
@@ -171,7 +171,7 @@ DFINITY's ICP MCP connector, and agents that follow its service discoverability 
 units, confirmations, retries and outcomes are stated once, in the profile, and the guide cannot drift from it:
 
 ```sh
-candid-profile api-doc ledger.did --packs --ref query:icrc1_decimals=8 --ref query:icrc1_symbol=ICP --title "ICP ledger" > api-doc.md
+meant-profile api-doc ledger.did --packs --ref query:icrc1_decimals=8 --ref query:icrc1_symbol=ICP --title "ICP ledger" > api-doc.md
 ```
 
 ```js
@@ -239,12 +239,14 @@ r.resolved.methods.transfer.tags.intent.args.template; // "Send {wad} to {dst}":
 ## CLI
 
 ```sh
-node packages/resolver/bin/candid-profile.mjs resolve <service.did> [--profile p.json ...] [--packs] [--packs-dir dir] [--verbose] [--quiet] > resolved.json
-node packages/resolver/bin/candid-profile.mjs resolve --abi contract.abi.json [--profile p.json ...] [--packs]   # an EVM contract (section 15)
-node packages/resolver/bin/candid-profile.mjs api-doc <service.did> [--profile p.json ...] [--packs] [--ref from=value ...] [--title t] > api-doc.md   # section 8.2
-# after `npm ci` the bin is also linked: npx candid-profile resolve ...
+node packages/resolver/bin/meant-profile.mjs resolve <service.did> [--profile p.json ...] [--packs] [--packs-dir dir] [--verbose] [--quiet] > resolved.json
+node packages/resolver/bin/meant-profile.mjs resolve --abi contract.abi.json [--profile p.json ...] [--packs]   # an EVM contract (section 15)
+node packages/resolver/bin/meant-profile.mjs api-doc <service.did> [--profile p.json ...] [--packs] [--ref from=value ...] [--title t] > api-doc.md   # section 8.2
+# after `npm ci` the bin is also linked: npx meant-profile resolve ...
 ```
 
+- The command was called `candid-profile` until 0.8.0. That name still runs it, with a warning on stderr, and goes in a
+  later release (D-064).
 - `--profile` may repeat; a pack given this way must match (`E_PACK_NOT_MATCHED` otherwise).
 - `--packs` tries every standard pack this package ships (or every pack in `--packs-dir`) and applies those that match; the others get `I_PACK_NOT_MATCHED` (info).
 - stdout: the resolved form (also when diagnostics contain errors, as long as the `.did` compiles). stderr: applied profiles, counts, warnings and errors (`--verbose`: infos too).
@@ -252,7 +254,7 @@ node packages/resolver/bin/candid-profile.mjs api-doc <service.did> [--profile p
 - A `.did` with `import` is not followed yet; give the CLI a single file.
 
 Real input: `test/fixtures/ledger.did`, the ICRC ledger `.did` of release `ledger-suite-icrc-2026-03-09`, the file the eval harness pins
-(sha256 and URL in `test/fixtures/SOURCES.json`). `candid-profile resolve test/fixtures/ledger.did --packs` applies `icrc1` and `icrc2`,
+(sha256 and URL in `test/fixtures/SOURCES.json`). `meant-profile resolve test/fixtures/ledger.did --packs` applies `icrc1` and `icrc2`,
 with 0 errors, 0 warnings and 3 infos (two matches, and the `int16` `utc_offset_minutes` of ICRC-21 that no profile tags).
 
 ## Merge (spec section 8)
@@ -277,11 +279,11 @@ A pack applies when the service is a **subtype** of the Candid fragment in `bind
 |---|---|
 | `@dfinity/didc` 0.0.4 (wasm of the Rust candid crates) | Exports `start`, `getServiceMethods`, `encode`, `decode` only. The subtype code is linked in (it backs `decode`) but there is no entry point that compares two services. |
 | `@candid-core/cli` 0.2.0 (surveyed 2026-10-09; 0.3.0 since D-037 adds `projectDid` and `checkCompatible`, not surveyed) | Exports `init`, `didToContract`, `didToModule`. No compatibility check. |
-| candid-core compatibility (b3hr4d/candid-core#247) | An open issue ("Interface projection and a live-compatibility check over written .did files"), not code. Its acceptance criteria ask for the same relation as here plus differential tests against upstream `candid`. |
+| Meant's compatibility check (B3Pay/Meant#247) | An open issue ("Interface projection and a live-compatibility check over written .did files"), not code. Its acceptance criteria ask for the same relation as here plus differential tests against upstream `candid`. |
 | `@candid-core/schema` 0.3.0 (surveyed 2026-10-09) `wireSubtypeOfSchema` | An internal method of the binary decoder (not an export): it relates a wire type table to a runtime schema, not two Contracts. Read as a second opinion on the rules. |
 | Rust `didc` 0.5.4 (binary from the local cargo bin; its linked candid revision was not determined) and the source of candid 0.10.37 (newest in the local cargo registry) | `didc check` is the oracle for the differential tests (below); the 0.10.37 `src/types/subtype.rs` was read for the rules. Neither is a runtime dependency. |
 
-So `src/subtype.mjs` implements the relation over two candid-core Contract graphs (`Iface`), one per side, since a canister and a pack fragment are compiled separately.
+So `src/subtype.mjs` implements the relation over two Meant Contract graphs (`Iface`), one per side, since a canister and a pack fragment are compiled separately.
 
 ### Rules implemented
 
@@ -311,7 +313,7 @@ type resets to strict. Argument positions are always strict. The matcher reports
 ### Verification
 
 - **Facts (run 2026-10-09):** `test/subtype.test.mjs` holds 41 service pairs, each with the answer of the Rust `didc check` 0.5.4 and of the spec rules. With `lossyOpt: true` the checker answers like Rust on all 41; with it off it differs on exactly the 3 rows that need the unusual opt rules. A seeded differential test (250 random pairs, in the repository) runs when `didc` is installed and checks: never more permissive than `didc`, and identical to `didc` whenever `didc` does not report its special opt rule. Scratch runs during development (about 7,400 further random pairs; the "never more permissive" check on 2,800 of them) found no violation. In those runs `didc` used its special opt rule on about 13% of the pairs; where it accepted through that rule, this checker with `lossyOpt: true` also accepted in about 87% of the cases (the rest need the Rust catch-all, which is not a spec rule).
-- **Label: assumption.** Rust `didc` and the spec could both be wrong in a way that this checker repeats. The candid-core decoder (`wireSubtypeOfSchema`) was read for the same rules but not run against this checker.
+- **Label: assumption.** Rust `didc` and the spec could both be wrong in a way that this checker repeats. Meant's decoder (`wireSubtypeOfSchema`) was read for the same rules but not run against this checker.
 - **Open:** a Candid corner we did not exercise is `service <: principal` and quoted method names (OQ-3).
 
 ### What happens after a match
