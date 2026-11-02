@@ -205,7 +205,7 @@ jobs:
           MOVED: ${{ steps.compare.outputs.moved }}
         run: |
           set -euo pipefail
-          marker='<!-- candid-core-benchmark-comparison -->'
+          marker='<!-- meant-benchmark-comparison -->'
           {
             echo "${marker}"
             cat "${OUT}/comment.md"

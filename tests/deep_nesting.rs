@@ -254,7 +254,7 @@ fn imported_alias_chain_is_rejected_before_upstream_type_checking() {
 /// not repeated here, so the two cannot drift apart.
 #[test]
 fn small_stack_rejects_hostile_host_value_json_without_aborting() {
-    if std::env::var_os("CANDID_CORE_DEEP_NESTING_JSON_CHILD").is_some() {
+    if std::env::var_os("MEANT_DEEP_NESTING_JSON_CHILD").is_some() {
         let error = std::thread::Builder::new()
             .stack_size(SMALL_STACK_BYTES)
             .spawn(|| HostValue::from_json_with_limits(&nested_opt_json(3_000), &Limits::default()))
@@ -282,7 +282,7 @@ fn small_stack_rejects_hostile_host_value_json_without_aborting() {
         .arg("--exact")
         .arg("small_stack_rejects_hostile_host_value_json_without_aborting")
         .arg("--nocapture")
-        .env("CANDID_CORE_DEEP_NESTING_JSON_CHILD", "1")
+        .env("MEANT_DEEP_NESTING_JSON_CHILD", "1")
         .status()
         .unwrap();
     assert!(status.success(), "small-stack subprocess failed: {status}");
@@ -290,7 +290,7 @@ fn small_stack_rejects_hostile_host_value_json_without_aborting() {
 
 #[test]
 fn small_stack_rejects_hostile_nesting_without_aborting() {
-    if std::env::var_os("CANDID_CORE_DEEP_NESTING_CHILD").is_some() {
+    if std::env::var_os("MEANT_DEEP_NESTING_CHILD").is_some() {
         let handle = std::thread::Builder::new()
             .stack_size(SMALL_STACK_BYTES)
             .spawn(|| compile_with_limits(&nested_opts(3_000), Limits::default()))
@@ -315,7 +315,7 @@ fn small_stack_rejects_hostile_nesting_without_aborting() {
         .arg("--exact")
         .arg("small_stack_rejects_hostile_nesting_without_aborting")
         .arg("--nocapture")
-        .env("CANDID_CORE_DEEP_NESTING_CHILD", "1")
+        .env("MEANT_DEEP_NESTING_CHILD", "1")
         .status()
         .unwrap();
     assert!(status.success(), "small-stack subprocess failed: {status}");
@@ -380,10 +380,8 @@ struct DidFile(std::path::PathBuf);
 #[cfg(feature = "filesystem-compiler")]
 impl DidFile {
     fn new(label: &str, source: &str) -> Self {
-        let directory = std::env::temp_dir().join(format!(
-            "candid-core-comment-run-{label}-{}",
-            std::process::id()
-        ));
+        let directory =
+            std::env::temp_dir().join(format!("meant-comment-run-{label}-{}", std::process::id()));
         std::fs::create_dir_all(&directory).unwrap();
         let path = directory.join("entry.did");
         std::fs::write(&path, source).unwrap();
@@ -453,7 +451,7 @@ fn every_entry_point(source: &str, limits: &Limits, label: &str) -> Vec<EntryOut
 /// build. With the pre-scan removed this child aborts (SIGABRT, exit 134).
 #[test]
 fn small_stack_refuses_a_maximal_comment_run_on_every_entry_point() {
-    const MARKER: &str = "CANDID_CORE_COMMENT_RUN_CHILD";
+    const MARKER: &str = "MEANT_COMMENT_RUN_CHILD";
     if std::env::var_os(MARKER).is_some() {
         let source = comment_run(MAX_COMMENT_LINES, "");
         assert_eq!(source.len(), 1_048_575);
@@ -489,7 +487,7 @@ fn small_stack_refuses_a_maximal_comment_run_on_every_entry_point() {
 /// so its `source_bundle_id` matches and rederivation is actually reached.
 #[test]
 fn small_stack_sidecar_rederivation_refuses_an_over_long_comment_run() {
-    const MARKER: &str = "CANDID_CORE_COMMENT_RUN_SIDECAR_CHILD";
+    const MARKER: &str = "MEANT_COMMENT_RUN_SIDECAR_CHILD";
     if std::env::var_os(MARKER).is_some() {
         let source = comment_run(257, "service : { f: () -> () };\n");
         let compilation = std::thread::Builder::new()
@@ -545,7 +543,7 @@ fn small_stack_sidecar_rederivation_refuses_an_over_long_comment_run() {
 /// `observed == limit + 1`.
 #[test]
 fn comment_run_accepts_the_default_limit_and_refuses_one_over() {
-    const MARKER: &str = "CANDID_CORE_COMMENT_RUN_BOUNDARY_CHILD";
+    const MARKER: &str = "MEANT_COMMENT_RUN_BOUNDARY_CHILD";
     if std::env::var_os(MARKER).is_some() {
         let limit = Limits::default().max_source_nesting();
         assert_eq!(limit, 256);
@@ -720,7 +718,7 @@ const COST_PROBE_STACK_BYTES: usize = 4 * 1024 * 1024;
 /// needs it at half the documented cost overflows it.
 #[test]
 fn comment_run_stack_cost_matches_the_documented_figure() {
-    const MARKER: &str = "CANDID_CORE_COMMENT_COST_CHILD";
+    const MARKER: &str = "MEANT_COMMENT_COST_CHILD";
     if let Some(lines) = std::env::var_os(MARKER) {
         let lines: usize = lines.to_str().unwrap().parse().unwrap();
         std::thread::Builder::new()

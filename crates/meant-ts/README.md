@@ -1,0 +1,238 @@
+# meant-ts
+
+TypeScript code generation over the [`meant`](../../README.md) Contract
+graph. This is the separate-crate half of the
+[issue #38](https://github.com/B3Pay/Meant/issues/38) decision: code
+generation consumes the published Contract model and never influences it —
+`meant`'s public API, packaged archive, canonical bytes, and identities
+are unaffected by anything in this directory.
+
+**Unpublishable by construction, for now.** `publish = false` stands until the
+registry name is decided deliberately; crate names on crates.io are as
+permanent as versions, and `meant-ts` is a working name, not that
+decision.
+
+**Base surface only.** The dependency on `meant` declares
+`default-features = false`: a generator needs no Candid parser, no filesystem
+capability, and no host-value ABI. If a change here ever needs a feature, that
+is a design boundary being crossed and belongs in review, not in a lockfile
+diff.
+
+**Covered by its own CI job.** The root is a non-virtual workspace, so
+`cargo test`/`cargo clippy` at the repository root select the root package
+only; the `Generator crate` job in `Verify` checks the featureless library,
+lints and tests both feature configurations, and type-checks the goldens.
+
+**The first generator slice is in.** `generate_module` covers all eighteen
+primitives, `opt`, `vec`, `record` (tuple-shaped records become TypeScript
+tuples), `variant`, and named declaration references, recursion included.
+Since issue #104 the reference types generate too: a `func` value is the
+inert `{ principal, method }` reference, a `service` value is the principal
+of a running service, and a contract with an actor exports the service schema
+(`actor`) plus the call interface (the type `Actor`) — one
+async method per service method, typed for whatever call layer a consumer
+builds on the codec, each carrying its mode as `$.WithMode<mode>` since
+issue #244; the package itself stops at the bytes. A `class` denotes its
+running service; init args are install-time metadata, noted per declaration
+and not exposed. Field names are
+caller-supplied through `TsNames` — the semantic Contract stores only label
+IDs — with a `compiler`-feature bridge from a compilation's provenance sidecar.
+
+**The output is a clean domain model, by owner decision on issue #38.**
+`opt T` renders `T | null`; variants render as discriminated
+`{ tag, value }` unions with `value` omitted for `null` payloads; every
+`vec nat8` (`blob`) renders `Uint8Array`; principals type as `Principal`, the
+canonical principal text as a branded string — what the runtime actually
+decodes and the only principal value it encodes — referenced from
+`@meantjs/schema` by default (`TsOptions::principal_import`; issue #150
+replaced the SDK-class import, and issue #187 the `{ toText }` carrier with
+canonical text). This deliberately diverges from the
+shapes the agent-js runtime produces (`[] | [T]` opts, single-key variant
+objects — what `@icp-sdk/bindgen` emits, verified against its 0.4.0 output):
+compatibility is a non-goal for now, and consuming these types against a live
+agent needs a boundary conversion, recorded on the issue as future work. One
+consequence is handled rather than papered over: an `opt` whose inner type
+can itself be `null` in TypeScript — `opt opt`, `opt null`, `opt reserved` —
+boxes its present value as `{ some: T } | null`, because `T | null` cannot
+distinguish `None` from `Some(None)` there. Only those opts box (`opt opt nat`
+is `{ some: bigint | null } | null`; `opt nat` stays `bigint | null`), the
+test is on the inner node so aliases and recursion box alike, and the
+runtime's `OptDomain` type and its walkers apply the same rule. A Contract
+whose opt node is its own inner (the graph of `type L = opt L`) boxes too;
+since issue #234 the compiler refuses that source, so only a loaded or
+model-built Contract holds it.
+
+**A declared primitive names only itself (issue #191).** The arena shares one
+node per structure, so every `nat64` in an interface is one node whichever
+declaration spelled it. Composite nodes render by their first declaration's
+name; a primitive never does — every use renders structurally (`bigint`,
+`$.c.nat64`), and a declaration of it is still emitted and exported as
+itself. Before, `type Byte = nat8` turned every `blob` into `Array<Byte>`
+(`number[]` for `Uint8Array`), and `type Tokens = nat; type BlockIndex = nat`
+rendered a `Tokens` field as `BlockIndex`. A `blob` — any `vec` of a `nat8`,
+however named — is always `Uint8Array`, in the generated module and in
+`schemaFromContract` alike. The cost is the source spelling: `amount :
+Tokens` reads `amount: bigint`.
+
+**So does a declared `blob`, `record {}` or `variant {}` (issue #268).**
+These three nodes also have one fixed rendering (`Uint8Array` / `$.c.blob()`,
+`Record<string, never>` / `$.c.unit()`, `never` / `$.c.variant({})`), and
+every use renders it. Before, the alias whose name sorted first named every
+use: beside `type Hash = blob`, the ICRC ledger's `memo : opt blob` and
+`subaccount : opt Subaccount` both read `Hash | null`. `type Subaccount =
+blob` is now emitted as `export type Subaccount = Uint8Array` and names
+nothing else, so `subaccount : opt Subaccount` reads `Uint8Array | null`.
+
+**`.did` docs are JSDoc (issue #191).** `TsNames::from_source_info` also
+carries the sidecar's doc comments and argument names. A `///` run (or plain
+`//` lines) above a declaration, field, variant arm, method or the service
+becomes `/** … */` on the generated type and const, the property or arm, and
+the `Actor` method, with `@param name` for each argument the `.did` named —
+the method's parameters take those names, and an unnamed, reserved-word,
+non-identifier or colliding name stays `arg{n}`. `*/`, `@` and code fences in
+the text are escaped so a comment can neither end early nor forge or swallow
+a tag; block comments are not docs. Which occurrence documents a
+de-duplicated node is one rule: the declaration (or actor) whose structure is
+being emitted. See the crate docs.
+
+**The generated artifact is a runtime schema, not just types.** Each
+declaration emits an invariantly-annotated builder alongside its alias —
+`const $X: $.Schema<X> = $.c.rec(() => …)` — targeting the schema core in
+`ts/schema.ts` (imported as `@meantjs/schema`, the published npm package's name). Because `Schema<in out T>` is invariant,
+the annotation makes `tsc` itself prove on every golden that the builder infers
+exactly the reviewed alias. The builders carry the structure the Zod-style
+runtime recorded on issue #38 will walk: validation, form metadata, and the
+TS-native Candid codec are later slices over these same objects.
+
+**The schemas do something at runtime (issue #102).** `ts/validate.ts`
+validates JavaScript values against any schema — every combinator, bounded
+depth and traversal budgets, fail closed, no exceptions for control flow —
+with path-addressed issues in Meant's own diagnostic shape
+(`{code, path, message, resource_limit?}`, stable snake_case codes,
+`$`-rooted paths). `ts/contract.ts` builds the same schemas dynamically from
+a canonical Contract JSON document, applying every generator mapping decision
+(every `vec nat8` → blob, tuple-shaped records, boxed collapsing
+`opt`s, reference types and the actor included) with label text from the same
+caller-supplied name-table shape `TsNames` takes. The golden cross-check test
+proves the two paths agree: for every fixture, the dynamically built schema
+must return the identical `validate` result the generated builder returns,
+sample by sample, and both leave out the same declarations and actor methods
+for the same reasons. The suites run on Node's built-in test runner with native
+type stripping — no test framework, no `@types/node`, no npm dependency
+beyond the pinned TypeScript.
+
+**Every value is a `$`-prefixed local (issue #188); every type is its
+Candid name (issue #245).** A generated module imports the schema core as the
+namespace `$` (`import * as $ from "@meantjs/schema"`), binds each
+declaration `X`'s builder as the local `$X`, declares its alias under the
+Candid name itself (`export type X = …`), and adds the value to that export
+name with `export { $X as X }`, so a consumer's compiler errors name the type
+it imported (`Account`, `Actor`), not a local. A Candid name cannot contain
+`$`, so no value can shadow the import or another declaration. A type keeps
+the `$` local too (`type $X = …`) where the name cannot be a type in the
+module: a global type the lowerings reference (`Array`, `Record`,
+`Uint8Array`, `Promise`), or a word TypeScript refuses as a type's name
+(`delete`, `string`, `keyof`; the list is measured and pinned in
+`src/lib.rs`). So `type c`, `type Array`, `type delete` and `type string` all
+generate, and a consumer imports them by name (`import { delete as del } from
+"./service"`); a declaration named `default` becomes the default export. The only names still
+reserved are the module's own export names `actor` and `Actor`,
+unconditionally: a declaration by either name is omitted (below). Consumers
+import the export names, which did not change; the module's local names are
+not a supported surface.
+
+**What cannot be represented is omitted, not refused (issue #189).**
+`generate_module` returns a `GeneratedModule { module, omitted }`. A
+declaration the module cannot represent — a field or arm name shaped like the
+`_N_` id rendering (`reserved_field_name`), a variant arm whose payload is a
+declared `opt` of an uninhabited type (`ambiguous_variant_arm`), a declaration
+named `actor` or `Actor` (`reserved_export_name`), or, from a Contract
+document only, a name that is not identifier-shaped
+(`invalid_declaration_name`) — is left out together with every declaration
+that references it, through any type edge up to the containing declaration:
+a record holding a `service { f : (Bad) -> () }` is omitted whole, because
+dropping `f` would change the wire type a peer sees
+(`references_omitted`, with `via` naming the omitted declaration). Only the
+actor drops individual methods, from both `actor` and `Actor` — calling a
+method never encodes the actor's own service type. Each omission is an
+`Omission { kind, name, reason, via }`, listed declarations first, then
+methods, each by name, and the module's header carries one
+`// Omitted: type Holder (references_omitted via Bad)` line per entry; a
+module that omits nothing is byte-identical to what the generator emitted
+before. The `omissions` fixture pins the closure, and a test proves that
+everything the module keeps is byte-identical to a module generated with the
+omitted declarations deleted from the source. Only a Contract graph the
+emitter cannot walk refuses the whole module (`TsGenError`): a class outside
+the actor root or a dangling reference, which no validated `Contract`, and so
+no `.did` source, can reach, and a cycle through no declaration, below, which
+a validated `Contract` no `.did` source produced can. `schemaFromContract` omits exactly the same entries for the
+same Contract and reports them as its result's `omitted`.
+
+**Generation uses constant call-stack depth in the Contract's nesting, and
+every cycle the module renders must pass through a declaration** (issue
+#218). The renderer keeps
+its pending work on an explicit stack, so a Contract of any depth generates
+on a small thread (the tests use 64 KiB, 512 KiB on Windows, in the dev and
+release profiles), whether it is a 256-level type the compiler accepts or a
+far deeper chain read with `Contract::from_json`. A declared node renders as
+its name, which is what ends a recursive type; a cycle through no declaration
+has no TypeScript spelling, and a Contract holding one is refused whole with
+`TsGenError::UndeclaredCycle`, naming a node on the cycle. No `.did` source
+produces one, since a recursive Candid type needs a name, but Contract
+validation accepts every cycle, so a Contract document can. The rule covers
+only what the module renders: a cycle in a class actor's init args, or one
+reachable only from an omitted declaration or method, does not refuse, so
+every Contract that generated before still generates, byte-identically.
+`schemaFromContract` accepts that graph — it needs no names — and this is the
+one refusal the two do not share.
+
+**Golden tests carry the mapping decisions.** Each fixture under
+`tests/fixtures/` must generate byte-identical output to its checked-in golden
+in `tests/goldens/`; regenerate deliberately with `UPDATE_GOLDENS=1` and review
+the diff. The goldens are additionally compiled by the exact TypeScript pinned
+in `ts/package-lock.json` under `strict` (`npm ci && npx tsc --noEmit` in
+`ts/`). Generated modules import only `@meantjs/schema` — the principal
+type included, as `$.Principal` since issue #187 — so the check needs no peer and no stub; the
+`@icp-sdk/core` in `ts/`'s devDependencies exists only for the suite proving
+real SDK `Principal` values convert through `principal()` to the same bytes, not
+for the goldens.
+
+**The codec speaks the wire format (issue #103).** `ts/codec.ts` encodes
+domain values to Candid binary and decodes Candid binary to domain values,
+schema-directed, with the spec's coercion relation on decode (an expected
+`opt` absorbs content mismatches to `null`; unknown variant tags and missing
+non-optional record fields are hard errors; extra wire fields and trailing
+arguments are skipped under the same budgets as decoded values). Bounded and
+fail-closed throughout: input size, type-table entries, depth, elements, and
+single-numeric byte length are all capped, non-minimal LEB128 is rejected —
+the spec defines deserialisation as the inverse of serialisation, whose image
+contains only minimal encodings; we adopt that strict-inverse reading as an
+interpretation — and nothing throws on any input. Wire field ids derive from
+schema keys (`_N_` parse-back, else the Candid label hash), which is why
+`schemaFromContract` hash-enforces its name table. Principal text↔bytes is
+self-contained (base32 + CRC-32); `float32` encoding is exact-or-refuse.
+
+**Exactly what the conformance suite demonstrates — and no more.** The
+checked-in vectors under `tests/goldens/wire/` are generated by the upstream
+`candid` crate (exact-pinned, dev-only) from textual values over the golden
+fixtures; the TypeScript decoder must interpret every vector to the pinned
+domain value, and the TypeScript encoder's own bytes are checked in and
+decoded back through the `candid` crate by `tests/wire_vectors.rs` — the
+reference implementation checks our encoding, not only the reverse. A
+seeded-PRNG property harness round-trips generated values over every fixture
+schema, and adversarial suites pin truncation, overlong LEB128, hostile type
+tables, zero-width element bombs, and depth exhaustion. A seeded differential
+fuzz (issue #196, `tests/differential/`) holds `decodeArgs`, `validate` and
+`schemaFromContract` to the `candid` crate, Meant's HostValue validator
+and `Contract::from_json` over a committed corpus, against a reviewed list of
+the divergences that remain, each by case id with its issue and exact
+symptom. Not demonstrated:
+opaque reference values (form tag `0`) and external reference sequences are
+refused, `func`/`service` values have no schema counterpart and only skip,
+and no claim is made about agent envelope formats or any bytes beyond the
+`DIDL` message itself. No performance claims (issue #39's rule).
+
+Scope and non-goals are recorded on issue #38 and restated in `src/lib.rs`:
+`@icp-sdk/bindgen` is a differential oracle rather than the specification, and
+no performance claims are made before the generator exists and issue #39's
+baseline machinery measures it.

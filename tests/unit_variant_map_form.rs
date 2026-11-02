@@ -869,10 +869,8 @@ fn loader_entry_points() {
 #[cfg(feature = "filesystem-compiler")]
 #[test]
 fn validate_command_refuses_the_repro() {
-    let directory = std::env::temp_dir().join(format!(
-        "candid-core-unit-variant-map-{}",
-        std::process::id()
-    ));
+    let directory =
+        std::env::temp_dir().join(format!("meant-unit-variant-map-{}", std::process::id()));
     std::fs::create_dir_all(&directory).unwrap();
     let path = directory.join("repro.contract.json");
     std::fs::write(&path, issue_repro(json!({"nat": null}))).unwrap();

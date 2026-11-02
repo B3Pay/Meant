@@ -219,7 +219,7 @@ fn imported_type_check_failures_name_logical_sources_only() {
         "numeric name leaked: {rendered}"
     );
     assert!(
-        !rendered.contains("candid-core-"),
+        !rendered.contains("meant-materialized-"),
         "materialized temp directory leaked: {rendered}"
     );
     let temp_dir = std::env::temp_dir().display().to_string();

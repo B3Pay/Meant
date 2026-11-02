@@ -1,0 +1,514 @@
+# @meantjs/cli
+
+Candid `.did` interfaces to [`@meantjs/schema`] runtimes, with no Rust
+toolchain: the [Meant] compiler and its TypeScript generator compiled
+to WebAssembly, usable as a Node CLI and as a browser library. Data in, data
+out — no eval, no network, and nothing generated is ever executed.
+
+> **0.5.0, the `latest` release, and the first under the name
+> `@meantjs/cli`.** Through 0.4.0 this package was published as
+> `@candid-core/cli`, with the command `candid-core-cli`. 0.5.0 is 0.4.0's
+> code under new names: the command is `meant`, and the modules it writes
+> import `@meantjs/schema`, the new name of `@candid-core/schema`. To upgrade
+> from 0.4.0, install the new pair in place of the old one, each with
+> `--save-exact`: `npm install --save-exact @meantjs/schema` and
+> `npm install --save-dev --save-exact @meantjs/cli`. Replace
+> `candid-core-cli` with `meant` in your scripts, and run `meant gen` again:
+> each module's header line and import change and nothing else in it does,
+> and the envelopes are byte-identical to 0.4.0's. Until then, `gen --check`
+> reports each module 0.4.0 wrote as drifted. Run the command as
+> `npx @meantjs/cli`, or as `meant` from a script in your `package.json`;
+> never as a bare `npx meant`, which, where this package is not installed,
+> would offer to download another author's package of that name. In a shell,
+> a bare `meant` is whichever comes first on the `PATH`, which can be the Rust
+> compiler's binary, with `compile` and `validate` only. The strings
+> inside Contract documents keep their names, such as the
+> `candid-core:interface:v1:sha256:…` identities the command prints.
+> Upgrading from 0.3.0 also adds [`didToDocAttributes`](#doc-attributes),
+> which reads `@name(…)` attributes in a `.did`'s doc comments, and an
+> `identities` object on each entry of `gen --json`; it changes every
+> envelope, whose `producer` names `meant` 0.1.0, and the module text where a
+> declared `blob`, `record {}` or `variant {}` is used, which renders as
+> itself. No Contract and no identity moves. Upgrading from 0.2.0 also
+> changes the text of every module with a declaration or an actor (each type
+> is declared under its Candid name, and each method of `Actor` carries its
+> mode) and adds the `project` and `check` commands
+> ([Projection and compatibility](#projection-and-compatibility)).
+> Upgrading from 0.1.0 is a larger break: 0.1.0 emits modules in an older
+> layout with an object-shaped principal type, refuses a whole interface
+> with `ts_generation_refused` for one declaration it cannot represent, and
+> returns no `omitted` list.
+>
+> `@candid-core/schema` 0.3 breaks the 0.2 API (principal values are canonical text, collapsing opts are boxed, every `vec nat8` is a `Uint8Array`, generated modules use a new binding layout and may omit declarations, and the `./actor`, `./transport-icp`, `./forms` and `./labels` subpaths are gone); there is no compatibility layer.
+>
+> Every change is recorded in the [changelog](./CHANGELOG.md), which ships
+> in the tarball: since 0.4.0 under `0.5.0`, since 0.3.0 under `0.5.0` and
+> `0.4.0`, since 0.2.0 under those and `0.3.0`, and since 0.1.0 under those,
+> `0.2.0` and `0.2.0-beta.1`. The migration notes
+> [from 0.4.0](https://b3pay.net/docs/meant/migrating-from-0-5.html),
+> [from 0.3.0](https://b3pay.net/docs/meant/migrating-from-0-4.html),
+> [from 0.2.0](https://b3pay.net/docs/meant/migrating-from-0-3.html)
+> and [from 0.1.0](https://b3pay.net/docs/meant/migrating-from-0-2.html)
+> show what each break means for your code, with before and after code where
+> the compiler shows it.
+
+```sh
+npx @meantjs/cli gen ./service.did -o ./generated
+```
+
+`gen` takes one or more entries (`gen <a.did> [<b.did> …]`), and two flags:
+`--json` prints one machine-readable document instead of the human report,
+and `--check` compares instead of writing. See [The command](#the-command).
+
+That emits three things:
+
+- **`service.ts`** — the generated `@meantjs/schema` module: one reviewed
+  type alias and one invariantly-annotated schema builder per declaration,
+  both exported under its Candid name (the alias declared as that name, so
+  compiler errors read it; the builder bound as a `$`-prefixed local), with
+  the `.did`'s doc comments as JSDoc, and, for a service with an actor, the
+  `actor` schema and the `Actor` call interface, each method of which carries
+  its mode (`$.WithMode<"query">`); byte-identical to what the Rust-native
+  generator emits;
+- **`service.envelope.json`** — the one-document `ContractEnvelope`: the
+  canonical Contract plus its field-name table under the
+  `org.candid-core.field-names/v1` extension, byte-identical to
+  `meant compile ./service.did --envelope`, ready to hand whole to
+  `schemaFromContract`;
+- the printed **content-addressed identities** (`contract`, and `interface`
+  when the service has an actor) — the same
+  `candid-core:contract:v1:sha256:…` addresses the Rust toolchain computes,
+  usable to pin an interface and detect drift. `--json` carries them as
+  each entry's `identities`.
+
+A declaration the generator cannot represent does not cost the whole
+module: it is left out, together with every declaration and actor method that
+references it, and the run still succeeds (exit 0). The CLI prints one
+`warning: omitted …` line per entry on stderr, and the module's header lists
+the same entries as `// Omitted:` lines — for example
+`// Omitted: type Holder (references_omitted via Bad)`. See
+[Omissions](#omissions).
+
+Imports are resolved from the entry file's directory: every `.did` beneath
+it is handed to the compiler as an in-memory bundle, so relative imports
+work without any filesystem access from the wasm side. Every generation runs
+twice and the tool refuses to write on any byte mismatch — determinism is
+enforced, not assumed.
+
+## The command
+
+```text
+meant gen <service.did>... [-o <dir>] [--json] [--check]
+```
+
+**Several entries.** Each entry generates its own module and envelope, named
+from its file: `a/service.did` writes `<dir>/service.ts` and
+`<dir>/service.envelope.json`, into the one `-o` directory (default: the
+current directory). The output of an entry is byte-for-byte what a run of that
+entry alone produces. Two decisions here are recommendations the maintainer
+can overturn, each implemented in one place in `bin/cli.js`:
+
+- *Bundle roots.* An entry's bundle is the `.did` files beneath the entry's
+  own directory, and the bundle limits (256 files, 1 MiB per file, 8 MiB in
+  all) apply to each entry's bundle separately. Entries in the same directory
+  share one read of it, so they are not counted twice against each other.
+  Inside a file, a run of more than 256 consecutive comments between two
+  tokens is refused with `resource_limit_exceeded` (resource
+  `source_nesting`), since 0.2.0; write a long header as one `/* */` block,
+  which counts as one comment.
+- *Duplicate stems.* Two entries with the same stem (`a/service.did` and
+  `b/service.did`, or the same file twice) would write the same output, so the
+  run is refused as a usage error (exit 64) before any work. Stems compare
+  case-insensitively, so the output also checks out cleanly on a
+  case-folding filesystem. Give the entries distinct file names, or run them
+  into separate `-o` directories.
+
+**Files are written only when they change.** An output that already holds
+exactly the generated bytes is left alone (its modification time included),
+and the human report prints `unchanged <path>` instead of `wrote <path>`.
+
+**Exit codes.** `0` when every entry generated (a module that omits
+declarations still counts, and lists them), and no `--check` drift was found;
+`1` when any entry failed or any checked file drifted; `64` for a usage error,
+with the usage on stderr and nothing on stdout. A failing entry does not stop
+the others: every entry is attempted, and the exit code is `1` if any failed.
+Without `--json`, a failed entry prints its `{ ok: false, diagnostics }`
+document on stdout, exactly as a single-entry run always has (several failed
+entries print several documents; use `--json` for one machine-readable
+result).
+
+**Nothing is read from stdin, and nothing is written outside `-o`.** The CLI
+never prompts and never waits on input, so it is safe to run as a child process
+with any stdin.
+
+### `--check`
+
+Generate in memory and compare byte-for-byte with the files on disk. Nothing
+is written (not even the output directory), and the run exits `1` if any
+output file is missing or differs, listing each on stderr (`missing <path>` or
+`drifted <path>`):
+
+```sh
+npx @meantjs/cli gen ./service.did -o ./generated --check
+```
+
+Use it in CI to fail when committed output is stale. A compile error is a
+failed entry, not drift. Stale files for entries you no longer list are not
+looked for.
+
+### `--json`
+
+Prints exactly one JSON document on stdout and nothing else; stderr stays
+empty. Each compiled entry carries the identities the human report prints.
+Combine it with `--check`. A usage error (exit 64) prints no document.
+
+```json
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "check": false,
+  "entries": [
+    {
+      "entry": "a/service.did",
+      "status": "written",
+      "module": "generated/service.ts",
+      "envelope": "generated/service.envelope.json",
+      "identities": {
+        "contract_id": "candid-core:contract:v1:sha256:…",
+        "interface_id": "candid-core:interface:v1:sha256:…"
+      },
+      "omitted": [],
+      "diagnostics": []
+    }
+  ],
+  "drift": []
+}
+```
+
+- `schemaVersion` is `1`. It changes only when an existing field's meaning or
+  shape changes; adding a field does not change it. Refuse a version you do
+  not know.
+- `ok` is true exactly when no entry is `failed` or `drifted`, and the exit
+  code is `0` exactly when `ok` is true.
+- `check` records whether `--check` was given.
+- `entries` has one object per entry, in command-line order, with `entry` (as
+  given on the command line), `module` and `envelope` (the paths it writes or
+  compares: `-o` joined with `<stem>.ts` and `<stem>.envelope.json`, present
+  for a failed entry too), and:
+  - `status`: `written` (a file was created or changed), `unchanged` (both
+    files already held these bytes), `drifted` (`--check` only: a file is
+    missing or differs; nothing was written) or `failed`;
+  - `identities` (new in 0.4.0): `{ contract_id, interface_id }`, equal to the envelope's
+    `contract.identities` and to what the human report prints, with the key
+    names `project --json` and `check --json` use. `interface_id` is absent
+    when the `.did` has no actor. Present on every entry that compiled,
+    `--check` included; absent on a failed entry;
+  - `omitted`: what the module leaves out, exactly as `didToModule` returns it
+    (see [Omissions](#omissions)), `[]` for a failed entry. Omissions never make
+    an entry fail;
+  - `diagnostics`: for a failed entry, the compiler's diagnostics unchanged in
+    shape (see [Failures](#failures)); `[]` otherwise. A failure found by the
+    CLI itself uses the same item shape with one of the codes
+    `did_file_read_error` (the entry's directory cannot be read),
+    `did_source_not_found` (the entry is not a `.did` file there),
+    `resource_limit_exceeded` (the bundle bounds), `nondeterministic_output`
+    (two generations disagreed) or `internal_error` (anything unexpected, such as
+    an output that cannot be written; it carries no `phase`).
+- `drift` lists every path `--check` found missing or different, in entry
+  order, module before envelope; always `[]` without `--check`.
+
+The same types ship as `CliReport`, `CliEntryReport` and `CliIdentities` in
+the package's declarations. A run is deterministic: the same inputs give the same files and
+the same document, byte for byte, from any working directory. There are no
+timestamps, and every path in the document and in the human report (including
+the messages of failures such as an unreadable or missing entry) is spelled as
+you passed it, or `-o` joined with a file name, never resolved to an absolute
+host path: an absolute path appears only if you passed one.
+
+## The library
+
+```js
+import { didToContract, didToModule } from "@meantjs/cli";
+
+const envelope = await didToContract("service : { ping : () -> () };");
+// → the ContractEnvelope document ("contract" in envelope), or
+//   { ok: false, diagnostics } with the compiler's diagnostics verbatim.
+
+const generated = await didToModule({
+  entry: "main.did",
+  files: {
+    "main.did": 'import "types.did";\nservice : { get : () -> (Item) query };',
+    "types.did": "type Item = record { id : nat };",
+  },
+});
+// → { ok: true, module, omitted } with the generated TypeScript text and
+//   what it left out (empty here), or { ok: false, diagnostics }.
+```
+
+Both functions accept either a string of Candid text or
+`{ entry, files: { name: text } }` for a multi-file bundle. In a browser the
+wasm is fetched relative to the module automatically; call
+`init(bytesOrUrl)` first to supply it yourself. Feed `didToContract`'s
+result straight to `schemaFromContract` from [`@meantjs/schema`] — the
+envelope carries the field names, so one document is the whole hand-off:
+
+```js
+import { didToContract } from "@meantjs/cli";
+import { schemaFromContract } from "@meantjs/schema/contract";
+
+const built = schemaFromContract(await didToContract(didText));
+```
+
+## Projection and compatibility
+
+> **New in 0.3.0.** `project`, `check`, `projectDid` and `checkCompatible`
+> are not in 0.2.0, which exits 64 with its usage for either command; the
+> [changelog](./CHANGELOG.md) records them under `0.3.0`.
+
+Two commands for an interface you do not own, such as a canister's published
+`.did`. Both work on files already on disk: the tool never fetches anything,
+so getting the live interface is your build step's job.
+
+```text
+meant project <in.did> --methods <a,b,...> -o <out.did> [--json]
+meant check <written.did> --against <live.did> [--json]
+```
+
+**`project`** writes a `.did` holding only the methods you name and every
+declaration they reach, as one self-contained file (imports are inlined), and
+prints the interface identities of the input and of the projection. Feed the
+result to `gen` like any `.did`: the generated `Actor` lists only those
+methods, each with its mode. The output is deterministic: the same input and
+the same set of names give the same bytes, whatever order you name them in.
+Declaration names, doc comments and argument names are kept; a service
+class's init arguments are not, since a client never sends them. Methods are
+written in name order, a service import's among the entry's. An unknown
+method name, or an empty list (`--methods ""`), fails with exit 1 and writes
+nothing: each distinct unknown name gets one `unknown_method` diagnostic
+naming it, and the first diagnostic lists the service's methods in its
+`notes`, once; an empty list gets `empty_method_list`. The unknown-method
+diagnostics are bounded at 4 MiB in all, each counted as the JSON writes it
+(the list of methods aside): the name at which they would pass it, and every
+one after it, are counted in one `resource_limit_exceeded` diagnostic
+(`projection_diagnostic_bytes`) instead of reported. A projection must
+compile again, so it is at most 1 MiB, the compiler's bound on one source: one
+that would be larger fails with exit 1 and `resource_limit_exceeded`
+(`projection_bytes`, whose `observed` is where writing stopped) and writes
+nothing. Each name, requested or reached, is
+looked up by binary search among names sorted once, so no lookup scans the
+service or the declarations. `-o` is required, and may not be,
+or become, a source of the input: `project` reads the input as `gen` does (the
+file and every `.did` beneath its directory), so an `-o` that names one of
+those files by any path, symlink or hard link, or a new `.did` anywhere beneath
+that directory, fails with exit 1 and `output_is_input` (`path` is the `-o`
+given, `notes` the existing sources it names, empty for a new file) and writes
+nothing. Write the projection outside the input's directory. An
+output that cannot be read or written (a directory, a read-only parent, a full
+disk) fails with exit 1 and `output_write_failed`, whose `notes` hold the
+system error code, such as `EISDIR` or `EACCES`; without `--json` it is one
+`cannot write …` line on stderr, as a source that cannot be read is
+`cannot read …`. The file is written only when it changes, and an existing
+file of another size is replaced without being read; `--json` prints
+`{ ok, output, status, methods, input, projection }` instead of the report,
+and `{ ok: false, diagnostics }` for any failure.
+
+```sh
+npx @meantjs/cli project ./live/ledger.did --methods icrc1_balance_of,icrc1_transfer -o ./src/ledger.did
+```
+
+**`check`** exits `0` when the live interface is still a Candid subtype of the
+written one, and `1` otherwise. Every method of the written `.did` must exist
+in the live one with the same mode, its arguments contravariant and its
+results covariant; methods only the live service has are ignored, and so is
+a class's init. So an added method or an added `opt` result field passes,
+and a removed method, a changed mode, or a result that gained a variant arm
+fails. A projection is not the only valid written side: a hand-written
+subset `.did` checks the same way. The report prints both interface
+identities on stdout, one line per finding on stderr, and a verdict line:
+
+```text
+written: candid-core:interface:v1:sha256:…
+live:    candid-core:interface:v1:sha256:…
+error: icrc1_transfer: method_incompatible at $results[0].Err.TooOld: the other variant has no such arm
+incompatible: 1 error(s), 0 warning(s)
+```
+
+Each finding names its method and a stable code: `method_missing`,
+`mode_changed` and `method_incompatible` are errors; `special_opt_rule` is a
+warning, for a change Candid accepts only by reading the value under an `opt`
+as `null` (such as `opt nat` becoming `opt text`), so it passes but loses the
+data at that path, and it is reported at every such path along which no pair
+of types repeats (a changed alias under each field that uses it; a recursive
+type up to where a path comes back round); `resource_limit_exceeded` fails a
+method whose check reached a bound, its depth (384 pairs on one path) or its
+work (1,000,000 steps, a step being one unit of work done: a pair of types
+visited, a field, arm, method or value examined or passed over,
+or one path segment a warning or a failure copies, or a warning
+re-examines). A step reads no name: service methods are paired by ranks
+computed once per check, and a field's name is read by its position. So a
+step's cost does not grow with the length of the names: it does a bounded
+amount of work, and its lookups in the maps of type pairs the walk keeps take
+time logarithmic in their size. Past 1,000
+warnings a method reports the first 1,000 and one `resource_limit_exceeded`
+warning (`check_warnings`) saying the rest were dropped; its verdict stands.
+The check as a whole is bounded too, so a service with many methods cannot
+multiply those per-method bounds: 10,000,000 steps in all, one more per
+method decided (`check_total_steps`), 10,000 `special_opt_rule` warnings in all
+(`check_total_warnings`), and 4 MiB of reported diagnostics, each counted as
+the JSON response writes it, keys and indentation included
+(`check_output_bytes`), measured only up to the first string that passes that
+bound. Methods are checked in name order. When the step or warning bound is
+reached, the method at which it was reached and every method after it fail
+closed: each gets one `resource_limit_exceeded` error naming the bound, with
+its limit and the observed value, and nothing else. Those count against the
+4 MiB like any other diagnostic: once a method's diagnostics would pass it,
+that method and every method after it are counted in one last
+`resource_limit_exceeded` error naming `check_output_bytes`, which names no
+method and holds the count in `unreported_methods` (without `--json`, the one
+line with no method name). Either way the check exits `1`, and the response is
+at most 4 MiB and 1,016 bytes, however many methods the written side has.
+Below these bounds a method's findings do not depend on the other methods;
+once one is reached, they do. So the walk's time grows with its steps (times that
+logarithm) and the reported text's with its bytes; compiling both sides,
+within the compiler's own limits, and ranking the method names are done once
+per check, before the walk.
+`method_incompatible` and `special_opt_rule` carry the path
+into the method's type where the check failed: `$args[i]` or `$results[i]`,
+then `.name` per record field or variant arm (`["name"]` when it is not an
+identifier, `[id]` for a numeric label), `[*]` per `vec` element, `?` per
+`opt` content, and `::args[i]`, `::results[i]` or `::name` into a `func` or
+`service` type. `--json` prints the `checkCompatible` document below.
+
+The live interface identity tells an unchanged interface from one that
+changed compatibly: `project` prints the input's, so record it when you write
+the projection, and compare it with what `check` prints later.
+
+```js
+import { checkCompatible, projectDid } from "@meantjs/cli";
+
+const projected = await projectDid(liveDid, ["icrc1_balance_of", "icrc1_transfer"]);
+// → { ok: true, did, methods, input, projection } — the text, the methods it
+//   holds, and { contract_id, interface_id } of the input and the projection;
+//   or { ok: false, diagnostics }.
+
+const report = await checkCompatible(writtenDid, liveDid);
+// → { ok: true, compatible, written, live, diagnostics }, each diagnostic
+//   { code, severity, method, path?, message } (the one past the 4 MiB
+//   bound has no method, and counts the methods left in
+//   unreported_methods); or { ok: false, input, diagnostics } when one side
+//   does not compile (`input` names it).
+```
+
+Both take Candid text or `{ entry, files }`, as `didToModule` does. The check
+is one Rust implementation compiled into this package's WebAssembly, tested
+against the subtype check of the `candid` crate it pins and against the one
+`@meantjs/schema`'s decoder runs on a `func` or `service` reference. Where the `candid` crate accepts a pair that is not a
+subtype (its coinductive memo can keep a pair proven under an assumption it
+later retracted), this check refuses it, as the decoder does.
+
+## Doc attributes
+
+> **New in 0.4.0.** `didToDocAttributes` and the types it returns are not in
+> 0.3.0; the [changelog](./CHANGELOG.md) records them under `0.4.0`.
+
+`didToDocAttributes(sources)` compiles the sources and reads the
+`@name(key = value, …)` lines in their doc comments, as specified in
+[`docs/doc-attributes.md`](https://github.com/B3Pay/Meant/blob/main/docs/doc-attributes.md):
+
+```candid
+service : {
+  /// Send tokens to another principal.
+  /// @intent(title = "Send", template = "Send {amount} to {to}")
+  /// @amount(at = "amount", decimals = query(decimals))
+  send : (record { to : principal; amount : nat }) -> ();
+}
+```
+
+```js
+import { didToDocAttributes } from "@meantjs/cli";
+
+const result = await didToDocAttributes(didText);
+if (result.ok) {
+  for (const item of result.doc_attributes.items) {
+    // item.path is "actor.methods[0]"; item.prose is ["Send tokens to another principal."]
+    for (const attribute of item.attributes) console.log(attribute.name, attribute.args);
+  }
+}
+```
+
+Success is `{ ok: true, contract, source_info, doc_attributes }`: the
+Contract and SourceInfo that `meant compile <path>` prints, and every
+documented item (the actor, a declaration, a field, a method) with its prose
+lines and its attributes in order. An attribute is `{ name, doc_line, args }`,
+and each argument value is tagged: `text`, `number` (the digits as written,
+never a float), `bool`, `ident`, `call` (`query(decimals)`), `list` or
+`record`. The compiler gives no name a meaning: the tool that reads them
+decides which it knows.
+
+A line counts as an attribute only when it starts with `@`, a lowercase
+name, then `(` or nothing: `@param amount the value` and `@amount (…)` stay
+prose. Once a line is an attribute it must parse to its end, so a malformed
+one fails the call with `doc_attribute_malformed`, and a repeated key with
+`doc_attribute_duplicate_key`; each names its item's `path`. Comments never
+change `contract_id` or `interface_id`.
+
+## Omissions
+
+`didToModule`'s success carries `omitted`, an array of
+`{ kind, name, reason, via? }` — declarations first, then methods, each
+sorted by name, and empty when nothing is left out:
+
+- `kind` is `"declaration"` or `"method"` (a method of the actor's service,
+  dropped from both the `actor` schema and the `Actor` type);
+- `reason` is one of a closed set: `reserved_field_name` (a record field or
+  variant arm named like the `_N_` numeric-id rendering, which as a schema
+  key would read back as the wrong wire id), `ambiguous_variant_arm` (an arm
+  whose payload is a declared `opt` of an uninhabited type, whose generated
+  type could not tell it from a bare tag), `reserved_export_name` (a
+  declaration named `actor` or `Actor`, the module's own export names), or
+  `references_omitted` (the entry references another omitted declaration);
+  `invalid_declaration_name` completes the set for Contract documents, which
+  Candid source never produces;
+- `via`, present only for `references_omitted`, names the omitted declaration
+  referenced.
+
+Omission follows every reference, nested `func` and `service` types
+included, up to the containing declaration: a record holding a
+`service { f : (Bad) -> () }` is omitted whole rather than losing `f`,
+because a service value's wire type is its full method table. Everything the
+module still emits is exactly what it would be had the omitted declarations
+never existed. `schemaFromContract` leaves out the same entries for the same
+contract and lists them the same way.
+
+## Failures
+
+Nothing throws for data errors and nothing half-succeeds: a compile failure
+is `{ ok: false, diagnostics }` with [Meant]'s structured diagnostics
+passed through verbatim (stable codes such as `did_parse_error`,
+`did_file_read_error` analogues, resource bounds included), a malformed
+request is `invalid_request`, and `ts_generation_refused` is reserved for a
+generator refusal of an invalid contract graph — which a contract compiled
+from Candid source never is, so an unrepresentable declaration is an
+omission, not a failure. The CLI exits 1 when any entry failed, printing each
+failing document on stdout (or all of them in the `--json` document);
+usage errors exit 64 with usage on stderr, in the native binary's
+convention.
+
+## Version pairing
+
+This package embeds exact revisions, recorded per release in
+[CHANGELOG.md](./CHANGELOG.md): the compiler crate (`meant`, published as
+`candid-core` before its rename) and the
+`meant-ts` generator (unpublishable on crates.io by design; embedding
+it in this wasm artifact is an owner decision recorded on the repository's
+issue tracker) are built from one repository commit, and the parity gates
+prove the emitted module and contract are byte-identical to that commit's
+Rust-native outputs over the golden fixtures.
+
+The `@meantjs/schema` peer is an exact version, not a range, while the two
+packages move in lockstep: each schema release is paired with a new release
+of this package that names it, so a generated module always meets the runtime
+it was generated for.
+
+[Meant]: https://github.com/B3Pay/Meant
+[`@meantjs/schema`]: https://www.npmjs.com/package/@meantjs/schema

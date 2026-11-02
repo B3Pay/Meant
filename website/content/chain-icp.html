@@ -14,7 +14,7 @@ npx candid-profile resolve ledger.did --packs > ledger.resolved.json
 
 <ol class="steps">
   <li><span class="step-title">Candid source</span><p>The canister's <code>.did</code> file, or the <code>candid:service</code> metadata it serves.</p></li>
-  <li><span class="step-title">The meant compiler</span><p>Parses and type-checks it through the official Candid parser and projects it into a validated Contract graph (<a href="what-is-candid-core.html">The interface layer</a>, <a href="contract-graph.html">The Contract graph</a>).</p></li>
+  <li><span class="step-title">The meant compiler</span><p>Parses and type-checks it through the official Candid parser and projects it into a validated Contract graph (<a href="interface-layer.html">The interface layer</a>, <a href="contract-graph.html">The Contract graph</a>).</p></li>
   <li><span class="step-title">interface_id</span><p>A SHA-256 identity over the callable interface, <code>candid-core:interface:v1:sha256:…</code>. Renaming types or reordering fields does not move it; changing a method does (<a href="identities.html">Content-addressed identities</a>).</p></li>
   <li><span class="step-title">Profile</span><p>A canister profile binds to that <code>interface_id</code>; a pack binds to any service whose type is a subtype of its fragment (<a href="profiles.html">Profiles, layers and binding</a>).</p></li>
 </ol>

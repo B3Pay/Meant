@@ -1,5 +1,5 @@
 # The @meantjs/cli gates (issue #153): the wasm artifact over
-# candid-core's compiler surface plus the candid-core-ts generator, asserted
+# meant's compiler surface plus the meant-ts generator, asserted
 # — not assumed — to be the same code compiled twice.
 #
 # Unlike the ordinary CI jobs, whose `stable` toolchain is deliberately
@@ -58,13 +58,13 @@ jobs:
           toolchain: ${{ env.RELEASE_TOOLCHAIN }}
           components: clippy, rustfmt
       - name: Format
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: cargo fmt --check
       - name: Lint with warnings denied
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: cargo clippy --all-targets --locked -- -D warnings
       - name: Parity and determinism tests
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: cargo test --locked
 
   artifact:
@@ -81,10 +81,10 @@ jobs:
       - name: Install the pinned wasm-pack
         run: cargo install wasm-pack --version 0.14.0 --locked
       - name: Build the artifact
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: wasm-pack build --target web --out-dir npm/wasm --no-pack --release -- --locked
       - name: Artifact determinism — a second clean build produces identical bytes
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: |
           set -euxo pipefail
           sha256sum npm/wasm/candid_core_wasm_bg.wasm npm/wasm/candid_core_wasm.js > first.sha256
@@ -93,7 +93,7 @@ jobs:
           wasm-pack build --target web --out-dir npm/wasm --no-pack --release -- --locked
           sha256sum --check first.sha256
       - name: Parity through the wasm under Node
-        working-directory: crates/candid-core-wasm/npm
+        working-directory: crates/meant-wasm/npm
         run: |
           set -euxo pipefail
           npm ci
@@ -107,7 +107,7 @@ jobs:
       - name: The packaged consumer
         run: |
           set -euxo pipefail
-          (cd crates/candid-core-ts/ts && npm ci)
+          (cd crates/meant-ts/ts && npm ci)
           python3 tests/fixtures/packaging/verify_npm_cli_package.py
 
   browser:
@@ -130,16 +130,16 @@ jobs:
           chrome-version: '150.0.7871.124'
           install-dependencies: true
       - name: Build the artifact
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: wasm-pack build --target web --out-dir npm/wasm --no-pack --release -- --locked
       - name: Build the schema runtime the page imports
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: |
           set -euxo pipefail
           npm ci
           npm run build
       - name: didToContract feeds schemaFromContract in a headless page
-        working-directory: crates/candid-core-wasm/npm
+        working-directory: crates/meant-wasm/npm
         env:
           CHROMIUM_PATH: ${{ steps.chrome.outputs.chrome-path }}
         run: |

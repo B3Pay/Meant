@@ -39,7 +39,7 @@ npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
   Here is what the package is and what it does. Everything <code>meant</code> does to a
   <code>.did</code> file normally happens in Rust. <code>@meantjs/cli</code> is that same Rust code
   — the compiler's <span class="pill accent">compiler</span> feature surface plus the
-  <a href="generator.html"><code>candid-core-ts</code></a> TypeScript generator — compiled once to
+  <a href="generator.html"><code>meant-ts</code></a> TypeScript generator — compiled once to
   WebAssembly and wrapped in a small Node CLI and an ES module. A JavaScript project can therefore go
   from a Candid interface to typed, validated schemas with npm as its only toolchain.
 </p>
@@ -48,7 +48,7 @@ npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
   It is not a reimplementation, and that is the point of its test suites: the same crates are compiled
   into one wasm artifact, and CI compares the artifact's output byte-for-byte against the reviewed
   goldens and against a document the native binary actually produced. The
-  <a href="https://github.com/B3Pay/Meant/tree/main/crates/candid-core-wasm">crate that produces
+  <a href="https://github.com/B3Pay/Meant/tree/main/crates/meant-wasm">crate that produces
   it</a> sets <code>publish = false</code> and is its own workspace root, so it never appears in the
   published Rust crate's dependency graph; the npm package is the deliverable.
 </p>
@@ -121,7 +121,7 @@ npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
 
 <p><code>gen</code>, and these options, nothing else (the usage's first line; <code>project</code> and <code>check</code>, new in <code>0.3.0</code>, are under <a href="#projection-and-compatibility">Projection and compatibility</a>):</p>
 
-<pre data-lang="text" data-file="crates/candid-core-wasm/npm/bin/cli.js">
+<pre data-lang="text" data-file="crates/meant-wasm/npm/bin/cli.js">
 usage: meant gen <service.did>... [-o <dir>] [--json] [--check]
 </pre>
 
@@ -362,7 +362,7 @@ wrote generated/basic.envelope.json
     <span class="api-name">didToContract</span>
   </div>
   <div class="api-body">
-    <pre data-lang="js" data-file="crates/candid-core-wasm/npm/lib/index.js">export async function didToContract(sources)</pre>
+    <pre data-lang="js" data-file="crates/meant-wasm/npm/lib/index.js">export async function didToContract(sources)</pre>
     <p>
       Compiles Candid sources into a one-document <code>ContractEnvelope</code> carrying the
       <code>org.candid-core.field-names/v1</code> extension — the same document the native
@@ -379,7 +379,7 @@ wrote generated/basic.envelope.json
     <span class="api-name">didToModule</span>
   </div>
   <div class="api-body">
-    <pre data-lang="js" data-file="crates/candid-core-wasm/npm/lib/index.js">export async function didToModule(sources)</pre>
+    <pre data-lang="js" data-file="crates/meant-wasm/npm/lib/index.js">export async function didToModule(sources)</pre>
     <p>
       Generates the <code>@meantjs/schema</code> TypeScript module for the same two source shapes.
       Returns <code>{ ok: true, module, omitted }</code>, where <code>module</code> is the generated
@@ -394,7 +394,7 @@ wrote generated/basic.envelope.json
     <span class="api-name">didToDocAttributes</span>
   </div>
   <div class="api-body">
-    <pre data-lang="js" data-file="crates/candid-core-wasm/npm/lib/index.js">export async function didToDocAttributes(sources)</pre>
+    <pre data-lang="js" data-file="crates/meant-wasm/npm/lib/index.js">export async function didToDocAttributes(sources)</pre>
     <p>
       New in <code>0.4.0</code>. Compiles the same two source shapes and reads the
       <code>@name(key = value, …)</code> attributes in their doc comments. Returns
@@ -411,7 +411,7 @@ wrote generated/basic.envelope.json
     <span class="api-name">init</span>
   </div>
   <div class="api-body">
-    <pre data-lang="js" data-file="crates/candid-core-wasm/npm/lib/index.js">export function init(input)</pre>
+    <pre data-lang="js" data-file="crates/meant-wasm/npm/lib/index.js">export function init(input)</pre>
     <p>
       Initializes the embedded wasm module, memoized, so calling it again is a no-op. Under Node with no
       argument it reads the <code>.wasm</code> bytes from inside the package; in a browser with no
@@ -434,7 +434,7 @@ wrote generated/basic.envelope.json
 
 <p>
   The examples below import from the published package; from a clone, import
-  <code>crates/candid-core-wasm/npm/lib/index.js</code> directly.
+  <code>crates/meant-wasm/npm/lib/index.js</code> directly.
 </p>
 
 <pre data-lang="js" data-check="api">
@@ -517,7 +517,7 @@ warning: omitted method bad (references_omitted via Bad)
   (doc attributes v1):
 </p>
 
-<pre data-lang="candid" data-file="crates/candid-core-wasm/npm/README.md">
+<pre data-lang="candid" data-file="crates/meant-wasm/npm/README.md">
 service : {
   /// Send tokens to another principal.
   /// @intent(title = "Send", template = "Send {amount} to {to}")
@@ -678,10 +678,12 @@ meant check &lt;written.did&gt; --against &lt;live.did&gt; [--json]
 <p>
   A headless-Chrome test in the repository serves the wasm and the schema runtime over HTTP and runs
   this, asserting that the envelope-carried names really do become the schema's keys — a value keyed
-  <code>owner</code>/<code>amount</code> validates:
+  <code>owner</code>/<code>amount</code> validates. The wasm files keep the names
+  <code>candid_core_wasm.js</code> and <code>candid_core_wasm_bg.wasm</code>, from before the
+  rename, because bundlers copy them by name:
 </p>
 
-<pre data-lang="js" data-file="crates/candid-core-wasm/npm/test/browser/smoke.test.js" data-unchecked="adapted from the page template in smoke.test.js, with the source inlined as didText; the headless-Chrome test is what runs it">
+<pre data-lang="js" data-file="crates/meant-wasm/npm/test/browser/smoke.test.js" data-unchecked="adapted from the page template in smoke.test.js, with the source inlined as didText; the headless-Chrome test is what runs it">
 import init, { didToContract } from "/wasm/candid_core_wasm.js";
 import { schemaFromContract } from "/schema/contract.js";
 import { validate } from "/schema/validate.js";
@@ -731,7 +733,7 @@ const built = schemaFromContract(envelope);
   The package's own <code>build</code> script is the exact command:
 </p>
 
-<pre data-lang="json" data-file="crates/candid-core-wasm/npm/package.json">
+<pre data-lang="json" data-file="crates/meant-wasm/npm/package.json">
 "scripts": {
   "build": "cd .. && wasm-pack build --target web --out-dir npm/wasm --no-pack --release",
   "test": "node --test test/*.test.js",
@@ -750,7 +752,7 @@ rustup target add wasm32-unknown-unknown
   <li>
     <h3>Build the artifact</h3>
     <pre data-lang="bash">
-cd crates/candid-core-wasm/npm
+cd crates/meant-wasm/npm
 npm run build
 </pre>
   </li>

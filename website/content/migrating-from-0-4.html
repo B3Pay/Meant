@@ -10,9 +10,9 @@
   page's pair they import <code>@candid-core/schema</code>, with the same subpaths. Every change of
   this step is recorded under <code>0.5.0</code> and <code>0.4.0</code>
   in the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-ts/ts/CHANGELOG.md">schema package's changelog</a>
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-ts/ts/CHANGELOG.md">schema package's changelog</a>
   and the
-  <a href="https://github.com/B3Pay/Meant/blob/main/crates/candid-core-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
+  <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-wasm/npm/CHANGELOG.md">CLI's changelog</a>.
   Coming from an earlier pair, read
   <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> and
   <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> first.
@@ -195,7 +195,7 @@ cargo install meant --version 0.1.0 --locked
   <code>(default, Bytes, Unit)</code> read <code>[number, Bytes, Unit]</code>. It now reads:
 </p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/tests/goldens/shadowing.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/tests/goldens/shadowing.ts">
 export type Bytes = Uint8Array;
 // …
 export type Actor = {

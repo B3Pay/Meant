@@ -812,7 +812,7 @@ fn compiler_owns_source_limit_enforcement_for_every_resolver_path() {
         digest: None,
     };
     let directory = std::env::temp_dir().join(format!(
-        "candid-core-source-limits-{}-{}",
+        "meant-source-limits-{}-{}",
         std::process::id(),
         NEXT_DIRECTORY.fetch_add(1, Ordering::Relaxed)
     ));

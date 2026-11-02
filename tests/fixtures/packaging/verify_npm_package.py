@@ -59,7 +59,7 @@ import sys
 import tempfile
 
 REPO = pathlib.Path(__file__).resolve().parents[3]
-PACKAGE = REPO / "crates" / "candid-core-ts" / "ts"
+PACKAGE = REPO / "crates" / "meant-ts" / "ts"
 
 # The npm name the artifact publishes under. It was `@candid-core/schema`
 # through 0.5.0; the packed manifest must carry exactly this one, so a name

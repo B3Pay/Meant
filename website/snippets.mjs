@@ -2,7 +2,7 @@
  *
  * Zero dependencies of its own: it writes the page snippets to a scratch
  * directory and runs the compiler this repository already pins, from
- * crates/candid-core-ts/ts (`npm ci` there installs it; the site itself takes
+ * crates/meant-ts/ts (`npm ci` there installs it; the site itself takes
  * no dependency). The compiler is asked to resolve `@meantjs/schema` and its
  * three subpaths to the SOURCE in that directory, and `@meantjs/cli` to its
  * hand-written declarations, so a snippet is checked against what the
@@ -61,7 +61,7 @@ const LANGS = new Set(["ts", "tsx", "js", "javascript", "typescript"]);
 
 /* Stand-in modules a snippet may import, each a checked-in golden. The key is
  * the path a snippet writes, relative to the snippet; the value is the golden
- * under crates/candid-core-ts/tests/goldens. */
+ * under crates/meant-ts/tests/goldens. */
 const MODULES = {
   "generated/interface.ts": "variants.ts",
   "ledger.ts": "ledger.ts",
@@ -181,7 +181,7 @@ const PAIR_NAMES = [
 ];
 
 function pairExports(root, cli) {
-  const ts = join(root, "crates", "candid-core-ts", "ts");
+  const ts = join(root, "crates", "meant-ts", "ts");
   const paths = {};
   for (const names of PAIR_NAMES) {
     paths[names.schema] = [join(ts, "schema.ts")];
@@ -296,11 +296,11 @@ export async function checkSnippets({ pages, root, skipCompile = false }) {
     return { tally, problems, compiled: false };
   }
 
-  const tsc = join(root, "crates", "candid-core-ts", "ts", "node_modules", ".bin", "tsc");
+  const tsc = join(root, "crates", "meant-ts", "ts", "node_modules", ".bin", "tsc");
   if (!existsSync(tsc)) {
     report(
       "snippets",
-      `the pinned TypeScript compiler is not installed (${relative(root, tsc)}); run \`npm ci\` in crates/candid-core-ts/ts, ` +
+      `the pinned TypeScript compiler is not installed (${relative(root, tsc)}); run \`npm ci\` in crates/meant-ts/ts, ` +
         "or pass --skip-snippets to check everything else while drafting (CI never does)",
     );
     return { tally, problems, compiled: false };
@@ -308,12 +308,12 @@ export async function checkSnippets({ pages, root, skipCompile = false }) {
 
   const scratch = await mkdtemp(join(tmpdir(), "meant-snippets-"));
   try {
-    const cli = join(root, "crates", "candid-core-wasm", "npm", "lib", "index.d.ts");
+    const cli = join(root, "crates", "meant-wasm", "npm", "lib", "index.d.ts");
     await writeFile(join(scratch, "tsconfig.json"), JSON.stringify(tsconfig(root, cli), null, 2));
     await writeFile(join(scratch, "ambient.d.ts"), AMBIENT);
     for (const [name, golden] of Object.entries(MODULES)) {
       await mkdir(dirname(join(scratch, name)), { recursive: true });
-      await writeFile(join(scratch, name), await readFile(join(root, "crates", "candid-core-ts", "tests", "goldens", golden), "utf8"));
+      await writeFile(join(scratch, name), await readFile(join(root, "crates", "meant-ts", "tests", "goldens", golden), "utf8"));
     }
     for (const file of files) {
       // A block that is a fragment of a script (`return` at top level, a bare

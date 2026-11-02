@@ -180,7 +180,7 @@ validate(Account, { owner, balance: 5 });
     <p>The codec is schema-directed and self-contained — it builds the wire type
     table from the schema you pass and constructs no SDK classes. Both
     directions return a result object rather than throwing.</p>
-    <pre data-lang="ts" data-file="crates/candid-core-ts/ts/codec.ts" data-partial>export function encode<T>(
+    <pre data-lang="ts" data-file="crates/meant-ts/ts/codec.ts" data-partial>export function encode<T>(
   schema: Schema<T>,
   value: unknown,
   options: CodecOptions = {},
@@ -240,7 +240,7 @@ the Rust compiler crate today; what you do with it afterwards does not.</p>
 
 <h3>Generate a TypeScript module ahead of time</h3>
 
-<p>The <code>candid-core-ts</code> crate turns a Contract graph into a
+<p>The <code>meant-ts</code> crate turns a Contract graph into a
 TypeScript module of <code>const $X: $.Schema&lt;X&gt; = $.c.rec(() =&gt; …)</code>
 declarations plus the matching type aliases, each exported under its Candid name — which is why the invariance trick
 in step 2 matters: <code>tsc</code> compiling the generated file <em>is</em> the
@@ -271,7 +271,7 @@ A semantic Contract stores field label <em>ids</em>, not text, so names have to
 travel beside it — and envelope extensions sit outside the canonical identities
 by design, so carrying them never moves a <code>contract_id</code>.</p>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/README.md" data-check>import { readFileSync } from "node:fs";
+<pre data-lang="ts" data-file="crates/meant-ts/ts/README.md" data-check>import { readFileSync } from "node:fs";
 import { schemaFromContract } from "@meantjs/schema/contract";
 
 const built = schemaFromContract(JSON.parse(readFileSync("./service.json", "utf8")));

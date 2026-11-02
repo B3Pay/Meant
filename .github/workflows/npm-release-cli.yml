@@ -37,7 +37,7 @@ on:
         description: Full 40-character SHA to publish from, reachable from main
         required: true
       version:
-        description: Must equal the version in crates/candid-core-wasm/npm/package.json at that commit
+        description: Must equal the version in crates/meant-wasm/npm/package.json at that commit
         required: true
       dist-tag:
         description: npm dist-tag to publish under. `latest` for a stable version; a prerelease needs another, e.g. beta
@@ -150,7 +150,7 @@ jobs:
             || { echo "${COMMIT} is not reachable from origin/main" >&2; exit 1; }
 
       - name: The requested version must match the manifest exactly
-        working-directory: crates/candid-core-wasm/npm
+        working-directory: crates/meant-wasm/npm
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -176,15 +176,15 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Build the wasm artifact
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: wasm-pack build --target web --out-dir npm/wasm --no-pack --release -- --locked
 
       - name: Host parity battery
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: cargo test --locked
 
       - name: Parity through the wasm under Node
-        working-directory: crates/candid-core-wasm/npm
+        working-directory: crates/meant-wasm/npm
         run: |
           set -euo pipefail
           npm ci
@@ -197,7 +197,7 @@ jobs:
       - name: The packaged consumer
         run: |
           set -euo pipefail
-          (cd crates/candid-core-ts/ts && npm ci)
+          (cd crates/meant-ts/ts && npm ci)
           python3 tests/fixtures/packaging/verify_npm_cli_package.py
 
   # ic-reactor built against the tarballs of this commit (downstream.yml). It
@@ -242,14 +242,14 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Build the wasm artifact
-        working-directory: crates/candid-core-wasm
+        working-directory: crates/meant-wasm
         run: wasm-pack build --target web --out-dir npm/wasm --no-pack --release -- --locked
 
       # The dist-tag the verify job checked against the version. Always
       # explicit: npm would otherwise apply `latest` to a stable version and
       # refuse a prerelease only after this job's approval.
       - name: Publish with provenance
-        working-directory: crates/candid-core-wasm/npm
+        working-directory: crates/meant-wasm/npm
         env:
           DIST_TAG: ${{ inputs.dist-tag }}
         run: npm publish --provenance --access public --tag "${DIST_TAG}"

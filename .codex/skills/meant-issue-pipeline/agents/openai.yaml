@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meant Issue Pipeline"
+  short_description: "Prioritize and deliver Meant issues"
+  default_prompt: "Use $meant-issue-pipeline to prioritize the backlog or safely handle a Meant issue through the authorized workflow."

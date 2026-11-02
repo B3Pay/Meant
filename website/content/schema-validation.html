@@ -33,7 +33,7 @@ import { validate } from "@meantjs/schema/validate";</pre>
 
 <h2>The signature and the result</h2>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/validate.ts" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/validate.ts" data-partial>
 export function validate<T>(
   schema: Schema<T>,
   value: unknown,
@@ -41,7 +41,7 @@ export function validate<T>(
 ): ValidateResult;
 </pre>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/validate.ts">
+<pre data-lang="ts" data-file="crates/meant-ts/ts/validate.ts">
 export type ValidateResult =
   { readonly ok: true } | { readonly ok: false; readonly issues: readonly ValidationIssue[] };
 </pre>
@@ -90,7 +90,7 @@ export type ValidateResult =
 
 <h2>The issue shape</h2>
 
-<pre data-lang="ts" data-file="crates/candid-core-ts/ts/validate.ts" data-partial>
+<pre data-lang="ts" data-file="crates/meant-ts/ts/validate.ts" data-partial>
 export interface ResourceLimitInfo {
   readonly resource: "value_depth" | "value_elements" | "stack";
   readonly limit: number;
@@ -355,7 +355,7 @@ validate(schema, value as never);
     <span class="pill">./validate</span>
   </div>
   <div class="api-body">
-    <pre data-lang="ts" data-file="crates/candid-core-ts/ts/validate.ts">export function isResultSchema(schema: AnyFieldSchema): boolean</pre>
+    <pre data-lang="ts" data-file="crates/meant-ts/ts/validate.ts">export function isResultSchema(schema: AnyFieldSchema): boolean</pre>
     <p>
       True when the schema resolves — through the <code>rec</code> indirections every generated
       declaration arrives wrapped in — to a variant whose arms are <strong>exactly</strong> an ok arm
@@ -373,7 +373,7 @@ validate(schema, value as never);
     <span class="pill">./validate</span>
   </div>
   <div class="api-body">
-    <pre data-lang="ts" data-file="crates/candid-core-ts/ts/validate.ts">export function unwrapResult<S extends AnyFieldSchema>(
+    <pre data-lang="ts" data-file="crates/meant-ts/ts/validate.ts">export function unwrapResult<S extends AnyFieldSchema>(
   schema: S,
   value: unknown,
   options: ValidateOptions = {},
