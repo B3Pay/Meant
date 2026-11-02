@@ -13,7 +13,7 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -95,7 +95,7 @@
   <tbody>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SCHEMA</span></span></td><td>error</td><td>Fails the JSON Schema. <code>at</code> is a JSON pointer.</td></tr>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CANDID</span></span></td><td>error</td><td>The interface (<code>requires</code> or <code>--did</code>) does not compile.</td></tr>
-    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ENVELOPE</span></span></td><td>error</td><td>The interface was given as a candid-core <code>ContractEnvelope</code> (<code>--envelope</code>) that the resolver cannot read: not an object, no <code>contract</code>, a <code>contract.format</code> other than <code>candid-core</code>, a <code>format_version</code> other than 1, no <code>contract.identities.interface</code>, a type reference outside <code>contract.types</code>, or any other failure of candid-core's own structural or canonical checks. No resolved form is produced.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ENVELOPE</span></span></td><td>error</td><td>The interface was given as a Meant <code>ContractEnvelope</code> (<code>--envelope</code>) that the resolver cannot read: not an object, no <code>contract</code>, a <code>contract.format</code> other than <code>candid-core</code>, a <code>format_version</code> other than 1, no <code>contract.identities.interface</code>, a type reference outside <code>contract.types</code>, or any other failure of Meant's own structural or canonical checks. No resolved form is produced.</td></tr>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_SERVED</span></span></td><td>error</td><td>A profile a canister serves (§8.1) that cannot be used: its bytes are not UTF-8 JSON (or start with a byte order mark), it is over 1 MiB, it is not one JSON object of <code>kind: "canister"</code> and <code>origin: "author"</code>, or its <code>binds.canister_id</code> names another canister. The profile is not applied; the rest of the service resolves without it.</td></tr>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_ABI</span></span></td><td>error</td><td>An EVM ABI (<code>binds.abi</code>, or the contract's given as the interface) that cannot be read: a fragment that does not parse, a type that does not exist, an overloaded function name (O1), two components with one field id, or no function at all (§15.1).</td></tr>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CHAIN</span></span></td><td>error</td><td>A profile or pack for an EVM contract given for a Candid service, or the other way round (§15.3).</td></tr>
@@ -219,7 +219,7 @@
   </thead>
   <tbody>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_INPUT</span></span></td><td>error</td><td>Not a doc attributes v1 response.</td></tr>
-    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_SYNTAX</span></span></td><td>error</td><td>candid-core refused the comment. candid-core's compile failures pass through as <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CANDID</span></span>.</td></tr>
+    <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_SYNTAX</span></span></td><td>error</td><td>Meant refused the comment. Meant's compile failures pass through as <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CANDID</span></span>.</td></tr>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_TARGET</span></span></td><td>error</td><td>A tag no v0 address reaches, such as inside a func value or a callback service, or one in the wrong place.</td></tr>
     <tr><td><span class="diag error" title="error"><span class="sev">E</span><span class="code">E_DOC_VALUE</span></span></td><td>error</td><td>A value that cannot be read: a fraction, an unknown call.</td></tr>
     <tr><td><span class="diag warning" title="warning"><span class="sev">W</span><span class="code">W_DOC_UNKNOWN_TAG</span></span></td><td>warning</td><td>A bare name one or two letters from a tag (<code>@amout</code>): not a profile tag.</td></tr>

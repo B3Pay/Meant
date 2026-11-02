@@ -13,7 +13,7 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -172,8 +172,8 @@ npx</span> candid-profile resolve ledger.did<span class="tok-attr"> --packs</spa
 <ul>
   <li>
     <code>encode(method, value, args)</code> turns the arguments into the bytes that are sent. Use
-    candid-core's <code>encodeArgs</code> of <code>args</code>, the whole argument tuple, as here. The
-    arguments arrive in candid-core's domain shapes: <code>T | null</code> for an <code>opt</code>,
+    <code>@meantjs/schema</code>'s <code>encodeArgs</code> of <code>args</code>, the whole argument tuple, as here. The
+    arguments arrive in Meant's domain shapes: <code>T | null</code> for an <code>opt</code>,
     <code>bigint</code> for <code>nat</code>, <code>Uint8Array</code> for a <code>blob</code>, principals
     as text.
   </li>

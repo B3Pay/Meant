@@ -13,7 +13,7 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -63,7 +63,7 @@
   <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-type">Error</span><span class="tok-punct">(</span><span class="tok-string">`read the blocks from ${floor} to the tip with your agent`</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
 <span class="tok-punct">}</span>
 
-<span class="tok-comment">// The call whose outcome is unknown, as candid-core values: icrc1_transfer of 1.5 TKA to Alice, memo "lunch".</span>
+<span class="tok-comment">// The call whose outcome is unknown, as Meant values: icrc1_transfer of 1.5 TKA to Alice, memo "lunch".</span>
 <span class="tok-keyword">const</span> arg <span class="tok-punct">=</span> <span class="tok-punct">{</span>
   to<span class="tok-punct">:</span> <span class="tok-punct">{</span> owner<span class="tok-punct">:</span> <span class="tok-string">"k2t6j-2nvnp-4zjm3-25dtz-6xhaa-c7boj-5gayf-oj3xs-i43lp-teztq-6ae"</span><span class="tok-punct">,</span> subaccount<span class="tok-punct">:</span> <span class="tok-type">null</span> <span class="tok-punct">}</span><span class="tok-punct">,</span>
   amount<span class="tok-punct">:</span> <span class="tok-number">150_000_000n</span><span class="tok-punct">,</span>

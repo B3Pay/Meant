@@ -13,7 +13,7 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -1072,7 +1072,7 @@ gate<span class="tok-punct">.</span><span class="tok-fn">check</span><span class
     <tr><td><code>buildToolPlans</code>, <code>resolvedMethods</code>, <code>prepareToolName</code>, <code>caseToolName</code>, <code>COMMIT_TOOL</code></td><td>Which tools a form gives and what each one fills; <code>prepare_&lt;method&gt;</code>; a tool per case of a variant argument (D-053); <code>"commit"</code>.</td></tr>
     <tr><td><code class="wrap">readToolInput(plan, input, context?)</code></td><td>Reads a tool call's inputs in human units: <code>{ value, identity }</code> or <code>{ issues }</code> (<a href="reference-profile-diagnostics.html#meantjs-tools-input-issues">input issues</a>).</td></tr>
     <tr><td><code class="wrap">classifyReply(plan, reply)</code></td><td>The outcome class of a reply, by the method's <code>outcome</code> tag.</td></tr>
-    <tr><td><code>toCandid</code>, <code>displayValue</code>, <code>nameEntries</code></td><td>Converted values to candid-core shapes; values as a preview shows them; the entries of a <code>names</code> set in a reply.</td></tr>
+    <tr><td><code>toCandid</code>, <code>displayValue</code>, <code>nameEntries</code></td><td>Converted values to Meant shapes; values as a preview shows them; the entries of a <code>names</code> set in a reply.</td></tr>
   </tbody>
 </table></div>
 

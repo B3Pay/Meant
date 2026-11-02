@@ -13,7 +13,7 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -190,7 +190,7 @@
     <a class="card" href="profiles.html">
       <span class="card-kicker"><img class="on-dark" src="assets/meant-layer-profiles-dark.svg" alt="" width="12" height="12"><img class="on-light" src="assets/meant-layer-profiles-light.svg" alt="" width="12" height="12">Profiles</span>
       <span class="card-title">Profiles: what each value means</span>
-      <p>The Candid Profile spec, its standard packs, and the five profile packages that
+      <p>The Meant Profile spec, its standard packs, and the five profile packages that
       resolve profiles and generate tools, consent and formatting from them. <code>meant-format</code>
       does the <code>amount</code> tag in Rust.</p>
     </a>

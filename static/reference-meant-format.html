@@ -13,7 +13,7 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -359,10 +359,10 @@ meant-format <span class="tok-punct">=</span> <span class="tok-string">"=0.2.0"<
 
 <p>
   <code>tests/parity.rs</code> runs every case of <code>tests/vectors/amount.json</code>, generated from
-  <code>@meantjs/format</code> 0.2.0, and requires the same value, or the same code and the same message:
-  3,412 cases, the count the README states and the test pins. The vectors are regenerated with
-  <code>node crates/meant-format/tests/vectors/generate-amount.mjs &lt;candid-profile checkout&gt;</code>,
-  never edited by hand. Where the two APIs differ in shape:
+  <code>@meantjs/format</code> 0.8.0 (the same 3,412 answers as 0.2.0), and requires the same value, or the same code and the same message:
+  3,412 cases, the count the README states and the test pins. The vectors are regenerated from the repository root with
+  <code>node crates/meant-format/tests/vectors/generate-amount.mjs</code>, which reads
+  <code>profile/packages/format</code>, never edited by hand. Where the two APIs differ in shape:
 </p>
 
 <ul>

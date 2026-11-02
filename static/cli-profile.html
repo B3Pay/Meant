@@ -13,7 +13,7 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -88,7 +88,7 @@ npx</span> candid-profile resolve ledger.did<span class="tok-attr"> --packs</spa
   <thead><tr><th>Input</th><th>What it reads</th></tr></thead>
   <tbody>
     <tr><td><code>&lt;service.did&gt;</code></td><td>Candid source, compiled with the <code>@meantjs/cli</code> the package pins (0.5.0). One file: an <code>import</code> is not followed, and fails with <span class="diag error" title="error"><span class="sev">E</span><span class="code">E_CANDID</span></span> (<code>did_source_not_found</code>).</td></tr>
-    <tr><td><code>--envelope &lt;file&gt;</code></td><td>The service's candid-core <code>ContractEnvelope</code>, as <code>meant gen</code> writes it beside a generated module. The service is not compiled again, and the resolved form is the same as from the <code>.did</code> (decision D-039).</td></tr>
+    <tr><td><code>--envelope &lt;file&gt;</code></td><td>The service's Meant <code>ContractEnvelope</code>, as <code>meant gen</code> writes it beside a generated module. The service is not compiled again, and the resolved form is the same as from the <code>.did</code> (decision D-039).</td></tr>
     <tr><td><code>--abi &lt;file&gt;</code></td><td>An EVM contract's ABI: a JSON array of human-readable fragments or JSON ABI entries. <a href="chain-evm.html">Experimental</a> (spec §15).</td></tr>
   </tbody>
 </table></div>
