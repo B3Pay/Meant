@@ -253,7 +253,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding, chains }) {
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}
@@ -386,6 +386,38 @@ async function build() {
   for (const name of await readdir(ASSETS)) {
     const from = join(ASSETS, name);
     if ((await stat(from)).isFile()) await copyFile(from, join(OUT, "assets", name));
+  }
+
+  // A page that was renamed keeps its old address: "formerly" in _site.json
+  // lists the old slugs, and each gets a page that sends the reader on, its
+  // query and #fragment kept, with a refresh for a reader without JavaScript
+  // and a canonical link for a search engine.
+  const former = new Set();
+  for (const page of pages) {
+    for (const old of page.formerly || []) {
+      if (!/^[a-z0-9-]+$/.test(old) || pages.some((other) => other.slug === old) || former.has(old)) {
+        throw new Error(`_site.json: "${page.slug}" lists "${old}" as a former slug, which is not a free slug`);
+      }
+      former.add(old);
+      if (!existsSync(join(OUT, `${page.slug}.html`))) continue;
+      const href = `${page.slug}.html`;
+      await writeFile(
+        join(OUT, `${old}.html`),
+        `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Moved: ${escapeHtml(page.title)}</title>
+<script>location.replace(${JSON.stringify(href)} + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=${href}">
+<link rel="canonical" href="${href}">
+</head>
+<body><p>This page moved to <a href="${href}">${escapeHtml(page.title)}</a>.</p></body>
+</html>
+`,
+        "utf8",
+      );
+    }
   }
 
   // GitHub Pages runs Jekyll unless told not to, which would drop any path

@@ -24,7 +24,7 @@ use std::collections::BTreeMap;
 /// # The `org.candid-core.field-names/v1` extension (issue #152)
 ///
 /// The one extension this repository itself emits, via
-/// `candid-core compile <path> --envelope`: the field-name table as an array
+/// `meant compile <path> --envelope`: the field-name table as an array
 /// of `[container, id, name]` triples — named labels only, sorted,
 /// deduplicated — exactly the table `TsNames::from_source_info` builds from
 /// the provenance sidecar and the TypeScript runtime's `schemaFromContract`

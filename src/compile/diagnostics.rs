@@ -432,7 +432,7 @@ mod tests {
             .parse::<IDLProg>()
             .expect_err("not a valid program");
         let bundle = MaterializedBundle::for_tests(
-            std::env::temp_dir().join(format!("candid-core-parse-arm-test-{}", std::process::id())),
+            std::env::temp_dir().join(format!("meant-parse-arm-test-{}", std::process::id())),
             vec!["memory:/entry.did".to_string()],
         );
         let converted = candid_file_error(error, &bundle);

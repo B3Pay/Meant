@@ -1,6 +1,6 @@
 //! Real-binary CLI contract tests.
 //!
-//! Every test runs the actual `candid-core` binary and pins the public
+//! Every test runs the actual `meant` binary and pins the public
 //! contract: the strict argument grammar, the 0/1/64 exit statuses, which
 //! channel each response uses, the JSON shapes and stable codes, source-info
 //! suppression, and the byte bounds at the exact limit and one byte over.
@@ -36,7 +36,7 @@ impl Fixture {
     fn new() -> Self {
         let sequence = NEXT_FIXTURE.fetch_add(1, Ordering::Relaxed);
         let path =
-            std::env::temp_dir().join(format!("candid-core-cli-{}-{sequence}", std::process::id()));
+            std::env::temp_dir().join(format!("meant-cli-{}-{sequence}", std::process::id()));
         fs::create_dir(&path).unwrap();
         Self { path }
     }
@@ -371,12 +371,12 @@ fn compile_envelope_reports_diagnostics_on_failure() {
 fn compile_envelope_field_names_match_the_generator_goldens() {
     for name in ["collections", "variants", "quoting", "proto", "ledger"] {
         let did = format!(
-            "{}/crates/candid-core-ts/tests/fixtures/{name}.did",
+            "{}/crates/meant-ts/tests/fixtures/{name}.did",
             env!("CARGO_MANIFEST_DIR"),
         );
         let golden: Value = serde_json::from_str(
             &fs::read_to_string(format!(
-                "{}/crates/candid-core-ts/tests/goldens/{name}.names.json",
+                "{}/crates/meant-ts/tests/goldens/{name}.names.json",
                 env!("CARGO_MANIFEST_DIR"),
             ))
             .unwrap(),

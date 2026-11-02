@@ -4,7 +4,7 @@
 //! The pinned `candid_parser` 0.4.0 record rule computes the next positional
 //! id as `id + 1` at every record field. At `u32::MAX` that addition panics in
 //! a debug build and wraps to 0 in a release build, where the next unnamed
-//! field silently gets id 0. candid-core refuses every record field whose id
+//! field silently gets id 0. Meant refuses every record field whose id
 //! is `u32::MAX` — written as a number, as a name whose Candid hash is
 //! `u32::MAX`, or reached by an unnamed field — with `did_parse_error` and the
 //! field's exact span, in every build and on every entry point. Variants and
@@ -236,7 +236,7 @@ fn native_file_compilation_refuses_too() {
     use std::sync::atomic::{AtomicU64, Ordering};
     static NEXT: AtomicU64 = AtomicU64::new(0);
     let directory = std::env::temp_dir().join(format!(
-        "candid-core-field-id-{}-{}",
+        "meant-field-id-{}-{}",
         std::process::id(),
         NEXT.fetch_add(1, Ordering::Relaxed)
     ));

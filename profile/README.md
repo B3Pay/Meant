@@ -12,7 +12,7 @@ and UIs each guess. A profile writes that meaning down once, bound to the interf
 - **ICRC-21 consent messages** for any method, not just `icrc1_transfer`.
 - **Display and input formatting** for web UIs.
 
-This folder holds the spec, Candid Profile v0, with its JSON Schema, the standard packs for ICRC-1, ICRC-2 and ERC-20, and the
+This folder holds the spec, Meant Profile v0, with its JSON Schema, the standard packs for ICRC-1, ICRC-2 and ERC-20, and the
 `@meantjs` packages that read them. Profiles bind to the interface ids of [`meant`](../README.md), the compiler from
 `.did` to a canonical Contract graph at the root of this repository (`@meantjs/schema` and `@meantjs/cli` on
 npm). Meant is a B3Pay project.
@@ -22,7 +22,7 @@ npm). Meant is a B3Pay project.
 - The spec is **Draft 0.2**. Breaking changes are expected until the preregistered eval reports; its tasks stay
   private so that no model trains on them.
 - **0.7.0 is on npm** (2026-11-01), published from this repository with provenance (`docs/releasing.md`).
-- **Ready for ICP MCP** (spec §8.2, since 0.7.0): `candid-profile api-doc` writes the text of a canister's
+- **Ready for ICP MCP** (spec §8.2, since 0.7.0): `meant-profile api-doc` writes the text of a canister's
   `get_api_doc` query, which DFINITY's ICP MCP connector reads before it calls a canister, from the canister's profile
   (D-060). [`examples/icp-mcp`](examples/icp-mcp) is a canister that serves its profile, that guide and ICRC-21 consent
   messages from one profile (D-061).
@@ -51,7 +51,7 @@ npm). Meant is a B3Pay project.
 
 | Package | What it does |
 |---|---|
-| [`@meantjs/profile`](packages/resolver) | Validates profiles, matches packs to a service, merges layers and emits the resolved form that consumers read; the `candid-profile` CLI |
+| [`@meantjs/profile`](packages/resolver) | Validates profiles, matches packs to a service, merges layers and emits the resolved form that consumers read; the `meant-profile` CLI |
 | [`@meantjs/format`](packages/format) | Exact parse and display for the six value tags: `amount`, `timestamp`, `duration`, `account`, `subaccount` and `bytes` |
 | [`@meantjs/consent`](packages/consent) | ICRC-21 consent messages for any method, from a resolved form and the Candid-encoded arguments; for an EVM contract, consent text for calldata and the ERC-7730 file (experimental) |
 | [`@meantjs/tools`](packages/tools) | MCP tool definitions, input in human units, a preview a person confirms before every send, and the retry and reconcile rules |

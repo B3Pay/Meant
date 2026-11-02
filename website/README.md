@@ -2,7 +2,7 @@
 
 One site for everything in this repository, in two layers: **Interfaces** (the
 `meant` crate, `@meantjs/schema`, `@meantjs/cli`, the generator) and
-**Profiles** (the Candid Profile spec under `profile/`, the five `@meantjs`
+**Profiles** (the Meant Profile spec under `profile/`, the five `@meantjs`
 profile packages and the `meant-format` crate). The pair took its new names
 with `@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0, published on
 2026-11-01 (issue #306); until then it was `@candid-core/schema` and
@@ -304,7 +304,7 @@ A `js` block is written to a `.js` file and compiled with `allowJs` and
 `checkJs`, so TypeScript-only syntax in it is refused as the syntax error a
 reader copying it would get.
 
-Compilation uses the TypeScript pinned in `crates/candid-core-ts/ts`
+Compilation uses the TypeScript pinned in `crates/meant-ts/ts`
 (`npm ci` there installs it; the site itself still takes no dependency) with
 `strict`, resolving `@meantjs/schema` and its three subpaths to the source in
 that directory and `@meantjs/cli` to its hand-written declarations
@@ -339,7 +339,7 @@ docs still hold — nothing here is generated from the code, so nothing here
 updates itself.
 
 The profile pages describe `profile/`, which is a synced copy of the
-candid-profile repository that each sync pull request replaces whole (see the
+profile's private working repository that each sync pull request replaces whole (see the
 repository's `CLAUDE.md`). A sync that changes the spec, a pack or a package's
 API changes what those pages must say: the snippet, version and diagnostic-code
 gates catch part of it, and the rest is a read of the sync's diff against the

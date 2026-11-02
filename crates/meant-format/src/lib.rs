@@ -33,7 +33,7 @@
 //!
 //! # Where the rules come from
 //!
-//! The rules are the `amount` tag of Candid Profile v0 (§5.3, and §15 for EVM
+//! The rules are the `amount` tag of Meant Profile v0 (§5.3, and §15 for EVM
 //! positions). The JavaScript package `@meantjs/format` is the reference
 //! implementation, and this crate gives the same answer for the same input:
 //! the same value, or the same error code and message. `tests/parity.rs`

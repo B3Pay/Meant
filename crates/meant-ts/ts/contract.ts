@@ -1,0 +1,1792 @@
+// Dynamic schema construction from a canonical Contract JSON document — the
+// second half of issue #102. `schemaFromContract` walks the arena (`types`,
+// `declarations`, field `id`s) and builds the same `c.*` combinator objects
+// the generated builders construct, so any contract can be validated at
+// runtime without generated code.
+//
+// Since issue #152 the same entry point also accepts a `ContractEnvelope`
+// document — `{ contract, extensions }`, as `meant compile --envelope`
+// emits — and consumes the field-name table its
+// `org.candid-core.field-names/v1` extension carries, so one self-describing
+// document replaces the contract-plus-table pair. Envelope-carried names are
+// validated exactly like caller-supplied ones, and an explicit `names` option
+// wins over the envelope's table. Extensions are non-semantic by the
+// envelope's design: they live outside `contract_id` and `interface_id`, so
+// carrying names never moves an identity.
+//
+// # The mapping is the generator's mapping
+//
+// Every owner-reviewed decision in `meant-ts`'s Rust emitter holds here,
+// checked by the golden cross-check test:
+//
+// - every `vec nat8` is a blob, whatever its element type is called: a
+//   declared `type Byte = nat8` does not turn `vec Byte` into an array of
+//   numbers (issue #191);
+// - a record whose ids are exactly `0..n-1` is a tuple; an empty record is
+//   the unit schema; label text comes from a caller-supplied name table and
+//   an unnamed field renders by the `_id_` convention;
+// - an `opt` whose inner node is `opt`, `null`, or `reserved` builds like
+//   any other opt; its present values are boxed as `{ some: v }` because
+//   `T | null` cannot carry `None` versus `Some(None)` there. The walkers
+//   decide that on the resolved inner node at walk time, so an aliased or
+//   recursive opt boxes exactly as the generator's alias says it does;
+// - reference types build like everything else (issue #104): a func schema
+//   carries its signature and describes `{ principal, method }` values, a
+//   service schema carries its methods and describes principal values, and
+//   the class actor root denotes its running service (init args are
+//   install-time metadata). A class is legal *only* as the actor root: a
+//   named declaration targeting a class node is refused, mirroring
+//   meant's `class_not_actor_root` (issue #129). The actor interface,
+//   when present, is built as a service schema and returned as `actor`.
+//
+// # Omission, in parity with the generator
+//
+// Since issue #189 a declaration a generated module cannot represent — an
+// honest `_N_`-shaped field or arm name, a variant arm whose payload is a
+// declared `opt` of an uninhabited type, a name that is not
+// identifier-shaped or is one of the module's export names `actor` and
+// `Actor` — is left out of `schemas`, together with every declaration and
+// actor method that references it, and listed in the result's `omitted`.
+// The loader could build some of these; it leaves them out anyway so that
+// the schemas it returns are exactly the declarations a generated module
+// exports for the same Contract, with the same reasons (the golden
+// crosscheck pins both). Declaration names that are not identifier-shaped
+// used to load here as a deliberate divergence from the generator; they are
+// omitted now, for the same parity. An invalid document still refuses whole.
+//
+// # Untrusted input, bounded and fail closed
+//
+// The document is data from outside: nothing is trusted, nothing throws (the
+// options object is code, and a malformed one throws `TypeError`), and
+// every malformed shape is an issue in the same `{code, path, message,
+// resource_limit?}` shape `validate.ts` documents, with codes reused from
+// meant's own Contract validation where the condition is the same
+// (`unsupported_contract_format`, `unsupported_format_version`,
+// `unsupported_semantics_profile`, `unsupported_canonicalization_profile`,
+// `dangling_type_ref`, `duplicate_field_id`, `empty_declaration_name`,
+// `duplicate_declaration_name`, `orphan_type_node`, `rootless_type_arena`,
+// `resource_limit_exceeded`). Every object the loader reads — the root, a
+// type node, a field, a service method, a declaration, the actor, and the
+// envelope shell — is closed exactly as the Rust loader's
+// `deny_unknown_fields` closes it: a key the format does not define is an
+// `unknown_key` issue at that key's path (issue #228). `identities` and
+// `producer` are not read (see below), so their insides are not checked.
+// Every type node must be reachable from a declaration or the actor, and a
+// non-empty arena needs at least one of them, as in meant's own
+// reachability rule; the walk is an explicit stack, linear in nodes plus
+// edges. Arena size,
+// total field count, and declaration count are capped by the same defaults
+// as meant's `Limits` (`max_type_nodes` 100_000, `max_fields` 500_000,
+// `max_declarations` 100_000), and the caller's name table by its own
+// entry cap. Checks run in one pass over the arena before anything is
+// built, so construction is non-recursive: every edge becomes a lazy
+// `c.rec` thunk, memoized per node, and an adversarially deep type graph
+// costs O(1) construction depth. Unknown node kinds and unknown primitive
+// names fail closed (`invalid_contract_document`): a future format revision
+// must be adopted deliberately, not half-read. Nothing throws even when the
+// document itself fights inspection (accessors, Proxies): the whole
+// construction runs behind a fail-closed choke point that converts such an
+// exception into an `invalid_contract_document` issue. Schema maps — record
+// fields, variant arms, the schemas-by-name result — are built with a null
+// prototype, so a field or declaration legitimately named `__proto__` is an
+// ordinary own key, never a prototype write.
+//
+// What is deliberately *not* checked: the `identities` hashes. Verifying
+// `candid-core:contract:v1` requires the canonicalization procedure, which is
+// meant's job (and no unkeyed content ID authenticates itself). The
+// four format/profile markers are required to match exactly; identities and
+// producer are carried by canonical documents but not consulted here.
+
+import { c, type AnySchema } from "./schema.ts";
+import type { ResourceLimitInfo } from "./validate.ts";
+import { candidLabelHash, isNumericShapedName } from "./labels.ts";
+import { checkOptions } from "./options.ts";
+
+/** Stable failure codes for contract loading. Closed: additions are API changes. */
+export type ContractIssueCode =
+  | "invalid_contract_document"
+  | "unsupported_contract_format"
+  | "unsupported_format_version"
+  | "unsupported_semantics_profile"
+  | "unsupported_canonicalization_profile"
+  | "dangling_type_ref"
+  | "unsupported_construct"
+  | "duplicate_field_id"
+  | "duplicate_field_name"
+  | "empty_declaration_name"
+  | "duplicate_declaration_name"
+  | "unknown_key"
+  | "orphan_type_node"
+  | "rootless_type_arena"
+  | "invalid_name_table"
+  | "invalid_extension_name"
+  | "resource_limit_exceeded";
+
+/** One reason a contract document was refused, in `validate`'s issue shape. */
+export interface ContractIssue {
+  readonly code: ContractIssueCode;
+  /**
+   * `$`-rooted path into the supplied document: for a bare Contract,
+   * `$.types[…]` and friends (or `$.names[…]` for the caller's table); for an
+   * envelope, contract-side paths are rooted at `$.contract` and
+   * envelope-carried names at `$.extensions[…]`.
+   */
+  readonly path: string;
+  readonly message: string;
+  readonly resource_limit?: ResourceLimitInfo | ContractResourceLimitInfo;
+}
+
+/**
+ * The envelope extension carrying field-name triples: its value is exactly a
+ * `FieldNameEntry[]` — named labels only, sorted, deduplicated — as
+ * `meant compile --envelope` emits it. Extensions are non-semantic by
+ * the envelope's design: `contract_id` and `interface_id` are computed over
+ * the Contract alone, so carrying names (or any extension) never moves an
+ * identity.
+ */
+export const FIELD_NAMES_EXTENSION = "org.candid-core.field-names/v1";
+
+/** The `{resource, limit, observed}` triple a document-size bound carries. */
+export interface ContractResourceLimitInfo {
+  readonly resource: "type_nodes" | "fields" | "declarations" | "name_table_entries";
+  readonly limit: number;
+  readonly observed: number;
+}
+
+/**
+ * Caller-supplied field label text as `(container node, label id, name)`
+ * triples — the same table `TsNames::from_pairs` takes in Rust, because the
+ * semantic Contract stores only authoritative label ids. A field with no
+ * entry renders by the ecosystem's `_id_` convention.
+ *
+ * Entries are hash-enforced: a name must be the Candid preimage of its id
+ * (`candidLabelHash(name) === id`), or the table fails closed — the codec
+ * derives wire ids from keys. An honest `_N_`-shaped name never becomes a
+ * key: erased to one it is indistinguishable from the numeric-id rendering,
+ * so the node that would render it is omitted instead.
+ */
+export type FieldNameEntry = readonly [container: number, id: number, name: string];
+
+/**
+ * Field label text plus explicit bounds on the document, each cap defaulting
+ * to the `DEFAULT_MAX_*` below. Each cap is a non-negative safe integer or
+ * absent (`undefined`); any other value, and any key not listed here, makes
+ * `schemaFromContract` throw `TypeError`.
+ */
+export interface ContractSchemaOptions {
+  /**
+   * The field-name table. When the document is an envelope, an explicit table
+   * here wins over the envelope-carried `FIELD_NAMES_EXTENSION` table — the
+   * envelope's is then not consulted at all.
+   */
+  readonly names?: readonly FieldNameEntry[];
+  /** Arena size cap, mirroring `Limits::max_type_nodes`. */
+  readonly maxTypeNodes?: number;
+  /** Total field cap across all nodes, mirroring `Limits::max_fields`. */
+  readonly maxFields?: number;
+  /** Declaration count cap, mirroring `Limits::max_declarations`. */
+  readonly maxDeclarations?: number;
+}
+
+/**
+ * Why a declaration or actor method was left out. Closed: a new reason is
+ * an API change. The same snake_case codes the generator reports
+ * (`@meantjs/cli`'s `ModuleSuccess.omitted`):
+ *
+ * - `reserved_field_name`: a record field or variant arm name shaped like
+ *   the `_N_` id rendering. Erased to a key it would read back as numeric id
+ *   N, so the codec would encode the wrong wire id.
+ * - `ambiguous_variant_arm`: a variant arm whose payload is a declared `opt`
+ *   of an uninhabited type — statically indistinguishable from an alias of
+ *   `null` in generated code.
+ * - `reserved_export_name`: a declaration named `actor` or `Actor`, the
+ *   generated module's own export names.
+ * - `invalid_declaration_name`: a declaration name that is not
+ *   identifier-shaped (`[A-Za-z_$][A-Za-z0-9_$]*`), which no generated module
+ *   can bind.
+ * - `references_omitted`: the entry references an omitted declaration,
+ *   named by `via`.
+ */
+type OmissionReason =
+  | "reserved_field_name"
+  | "ambiguous_variant_arm"
+  | "reserved_export_name"
+  | "invalid_declaration_name"
+  | "references_omitted";
+
+/** One declaration or actor method left out, and why. */
+type Omission = {
+  /** A named declaration, or a method of the actor's service. */
+  readonly kind: "declaration" | "method";
+  /** The declaration or method name, as the document spells it. */
+  readonly name: string;
+  readonly reason: OmissionReason;
+  /**
+   * For `references_omitted`, the omitted declaration the entry references;
+   * absent for every other reason.
+   */
+  readonly via?: string;
+};
+
+/** Schemas keyed by declaration name, or every reason the document failed. */
+export type SchemaFromContractResult =
+  | {
+      readonly ok: true;
+      /**
+       * One schema per declaration, in declaration order, func and service
+       * kinds included — except the declarations listed in `omitted`. A
+       * class is never named: a declaration targeting one is refused, since
+       * a class is legal only as the actor root.
+       */
+      readonly schemas: { readonly [name: string]: AnySchema };
+      /**
+       * The actor interface as a service schema, when the document has one,
+       * without the methods listed in `omitted`. The actor itself is never
+       * omitted.
+       */
+      readonly actor?: AnySchema;
+      /**
+       * What the loader left out, exactly as the generator leaves it out of
+       * a generated module for the same Contract: a declaration no generated
+       * module can represent, with every declaration and actor method that
+       * references it — through nested `func` and `service`
+       * types too, up to the containing declaration, since dropping a method
+       * from a service type in value position would change its wire type.
+       * Declarations first, then methods, each sorted by name in code-point
+       * order. Empty when nothing is left out.
+       */
+      readonly omitted: readonly Omission[];
+    }
+  | { readonly ok: false; readonly issues: readonly ContractIssue[] };
+
+/** Default `maxTypeNodes`, mirroring meant's `max_type_nodes`. */
+export const DEFAULT_MAX_TYPE_NODES = 100_000;
+/** Default `maxFields`, mirroring meant's `max_fields`. */
+export const DEFAULT_MAX_FIELDS = 500_000;
+/** Default `maxDeclarations`, mirroring meant's `max_declarations`. */
+export const DEFAULT_MAX_DECLARATIONS = 100_000;
+/**
+ * The name table is caller-side input with no meant counterpart; it
+ * addresses fields, so it shares the field cap's magnitude.
+ */
+export const DEFAULT_MAX_NAME_TABLE_ENTRIES = 500_000;
+
+const PRIMITIVES: { readonly [name: string]: AnySchema } = {
+  null: c.null,
+  bool: c.bool,
+  nat: c.nat,
+  int: c.int,
+  nat8: c.nat8,
+  nat16: c.nat16,
+  nat32: c.nat32,
+  nat64: c.nat64,
+  int8: c.int8,
+  int16: c.int16,
+  int32: c.int32,
+  int64: c.int64,
+  float32: c.float32,
+  float64: c.float64,
+  text: c.text,
+  reserved: c.reserved,
+  // The one cast in the table: `Schema<never>` is the single schema the
+  // `Schema<any>` wildcard cannot hold (`any` is assignable to everything
+  // except `never` in the invariant phantom's parameter).
+  empty: c.empty as AnySchema,
+  principal: c.principal,
+};
+
+interface ParsedField {
+  readonly id: number;
+  readonly type: number;
+}
+
+interface ParsedMethod {
+  readonly name: string;
+  readonly func: number;
+}
+
+type ParsedNode =
+  | { readonly kind: "primitive"; readonly primitive: string }
+  | { readonly kind: "opt" | "vec"; readonly inner: number }
+  | { readonly kind: "record" | "variant"; readonly fields: readonly ParsedField[] }
+  | {
+      readonly kind: "func";
+      readonly args: readonly number[];
+      readonly results: readonly number[];
+      readonly mode: "update" | "query" | "composite_query" | "oneway";
+    }
+  | { readonly kind: "service"; readonly methods: readonly ParsedMethod[] }
+  | { readonly kind: "class"; readonly init: readonly number[]; readonly service: number };
+
+function hasOwn(target: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(target, key);
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+// The closed key sets of the format's objects: `RawContract`, `TypeNode`,
+// `Field`, `ServiceMethod`, `Declaration`, and `Actor` in meant's
+// `src/model`, each `deny_unknown_fields`. A key outside its set is refused
+// (`unknown_key`): a future format revision must be adopted deliberately,
+// not half-read — the rule unknown node kinds already follow.
+const CONTRACT_KEYS: ReadonlySet<string> = new Set([
+  "format",
+  "format_version",
+  "semantics_profile",
+  "canonicalization_profile",
+  "identities",
+  "producer",
+  "types",
+  "declarations",
+  "actor",
+]);
+const NODE_KEYS: ReadonlyMap<string, ReadonlySet<string>> = new Map([
+  ["primitive", new Set(["kind", "primitive"])],
+  ["opt", new Set(["kind", "inner"])],
+  ["vec", new Set(["kind", "inner"])],
+  ["record", new Set(["kind", "fields"])],
+  ["variant", new Set(["kind", "fields"])],
+  ["func", new Set(["kind", "args", "results", "mode"])],
+  ["service", new Set(["kind", "methods"])],
+  ["class", new Set(["kind", "init", "service"])],
+]);
+const FIELD_KEYS: ReadonlySet<string> = new Set(["id", "type"]);
+const METHOD_KEYS: ReadonlySet<string> = new Set(["name", "id", "function"]);
+const DECLARATION_KEYS: ReadonlySet<string> = new Set(["name", "type"]);
+const ACTOR_KEYS: ReadonlyMap<string, ReadonlySet<string>> = new Map([
+  ["service", new Set(["kind", "service"])],
+  ["class", new Set(["kind", "class"])],
+]);
+const ENVELOPE_KEYS: ReadonlySet<string> = new Set(["contract", "extensions"]);
+
+/**
+ * The `$`-path of `key` inside the object at `base`: dotted when the key is
+ * identifier-shaped, bracketed and JSON-quoted otherwise, so any key text —
+ * empty, spaced, `__proto__` — names exactly one position.
+ */
+function keyPath(base: string, key: string): string {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)
+    ? `${base}.${key}`
+    : `${base}[${JSON.stringify(key)}]`;
+}
+
+/** Every own key of `object` outside `allowed`, in the object's key order. */
+function unknownKeys(object: Record<string, unknown>, allowed: ReadonlySet<string>): string[] {
+  const unknown: string[] = [];
+  for (const key of Object.keys(object)) {
+    if (!allowed.has(key)) {
+      unknown.push(key);
+    }
+  }
+  return unknown;
+}
+
+/**
+ * Build `Schema` objects for every supported declaration of a Contract,
+ * leaving out — and listing in `omitted` — exactly what a generated module
+ * leaves out for the same Contract.
+ *
+ * Accepts either document the `meant` binary emits: a bare canonical
+ * Contract, or a `ContractEnvelope` — recognised by its `contract` key, which
+ * no canonical Contract document carries — whose
+ * `extensions[FIELD_NAMES_EXTENSION]` table is consumed as the field names.
+ * Envelope-carried names are validated exactly like caller-supplied ones
+ * (shape, hash enforcement, `_N_` reservation, entry cap); an explicit
+ * `options.names` wins over the envelope's table, which is then not
+ * consulted. The envelope shell itself fails closed the way the Rust loader
+ * fails it: unknown envelope keys, a non-object `extensions`, and invalid
+ * extension names are all refused.
+ *
+ * Never throws on any document. Throws `TypeError` on an options object with
+ * an unknown key or a limit that is not a non-negative safe integer — options
+ * are code, and a misspelled or `NaN` cap would otherwise apply a policy
+ * nobody asked for. The `names` table is document-like data: a malformed one
+ * is an `invalid_name_table` issue, as before.
+ */
+export function schemaFromContract(
+  contract: unknown,
+  options: ContractSchemaOptions = {},
+): SchemaFromContractResult {
+  // Options are code, not document data: checked before the choke point
+  // below, so a bad one throws rather than becoming a document issue. The
+  // `names` table is data and is validated into issues where it is used.
+  // Everything below reads only the checked snapshot, never `options` again.
+  const checked = checkOptions(
+    "schemaFromContract",
+    options,
+    ["maxTypeNodes", "maxFields", "maxDeclarations"],
+    ["names"],
+  ) as ContractSchemaOptions;
+  // The fail-closed choke point behind the no-throw claim: a document that is
+  // not plain parsed JSON — accessors that throw, hostile Proxy traps — blows
+  // up inside one of the reads below, and the failure must be an issue, not
+  // an escaping exception. The lazy thunks built on success only ever read
+  // the plain parsed structures, never the raw document, so they cannot
+  // throw later.
+  try {
+    return buildFromDocument(contract, checked);
+  } catch {
+    return {
+      ok: false,
+      issues: [
+        {
+          code: "invalid_contract_document",
+          path: "$",
+          message: "the document threw while being inspected",
+        },
+      ],
+    };
+  }
+}
+
+/** Where a name table came from: the entries, and the `$`-rooted path base
+ * its validation issues are reported under. */
+interface NameTableSource {
+  readonly entries: unknown;
+  readonly base: string;
+}
+
+/**
+ * The issues raised about a name table rather than the Contract. An envelope
+ * re-roots Contract issues under `$.contract`; these keep the path of the
+ * table they came from. Provenance is recorded where each issue is made, not
+ * read back from its path: a Contract's own unknown root key `names` is
+ * reported at `$.names` too, and it still belongs under `$.contract`.
+ */
+const nameTableIssues = new WeakSet<ContractIssue>();
+
+/**
+ * Mirrors the Rust loader's `valid_extension_name`: a reverse-domain
+ * namespace (dot-separated segments of lowercase letters, digits, and
+ * hyphens) followed by `/v<integer>` with no leading zero. The two loaders
+ * must refuse the same envelopes.
+ */
+function validExtensionName(name: string): boolean {
+  const split = name.lastIndexOf("/v");
+  if (split < 0) {
+    return false;
+  }
+  const namespace = name.slice(0, split);
+  const version = name.slice(split + 2);
+  return (
+    namespace.includes(".") &&
+    namespace.split(".").every((segment) => /^[a-z0-9-]+$/.test(segment)) &&
+    /^[1-9][0-9]*$/.test(version)
+  );
+}
+
+function buildFromDocument(
+  document: unknown,
+  options: ContractSchemaOptions,
+): SchemaFromContractResult {
+  // Envelope detection: a canonical Contract document has a fixed key set
+  // (`deny_unknown_fields` on the Rust side) that never includes `contract`,
+  // and an envelope always carries it, so one own key distinguishes the two
+  // shapes for every valid document. Malformed hybrids fall into the
+  // envelope arm and are refused by its unknown-key rule.
+  if (!isObject(document) || !hasOwn(document, "contract")) {
+    return buildFromContract(document, options, {
+      entries: options.names ?? [],
+      base: "$.names",
+    });
+  }
+
+  // The envelope shell, held to the Rust loader's strictness: exactly
+  // `contract` plus an optional object-shaped `extensions` whose every key is
+  // a valid extension name. Anything else fails closed before the nested
+  // Contract is read.
+  const issues: ContractIssue[] = [];
+  for (const key of unknownKeys(document, ENVELOPE_KEYS)) {
+    issues.push({
+      code: "unknown_key",
+      path: keyPath("$", key),
+      message: `an envelope carries only contract and extensions, not ${JSON.stringify(key)}`,
+    });
+  }
+  let extensions: Record<string, unknown> = {};
+  // Own-key gated like the `contract` detection itself: an `extensions`
+  // inherited from a prototype is not envelope data, and consulting it would
+  // let a non-JSON document smuggle state past the shell checks.
+  const rawExtensions = hasOwn(document, "extensions") ? document.extensions : undefined;
+  if (rawExtensions !== undefined) {
+    if (!isObject(rawExtensions)) {
+      issues.push({
+        code: "invalid_contract_document",
+        path: "$.extensions",
+        message: "extensions must be a JSON object",
+      });
+    } else {
+      extensions = rawExtensions;
+      for (const name of Object.keys(extensions)) {
+        if (!validExtensionName(name)) {
+          issues.push({
+            code: "invalid_extension_name",
+            path: "$.extensions",
+            message: `extension ${JSON.stringify(name)} must be a reverse-domain name followed by /v<integer>`,
+          });
+        }
+      }
+    }
+  }
+  if (issues.length > 0) {
+    return { ok: false, issues };
+  }
+
+  // Precedence, pinned: an explicit `options.names` wins, and the envelope's
+  // table is then not consulted at all — name validation happens at the point
+  // of use, on the table actually used.
+  const names: NameTableSource =
+    options.names !== undefined
+      ? { entries: options.names, base: "$.names" }
+      : hasOwn(extensions, FIELD_NAMES_EXTENSION)
+        ? {
+            entries: extensions[FIELD_NAMES_EXTENSION],
+            base: `$.extensions[${JSON.stringify(FIELD_NAMES_EXTENSION)}]`,
+          }
+        : { entries: [], base: "$.names" };
+
+  const result = buildFromContract(document.contract, options, names);
+  if (result.ok) {
+    return result;
+  }
+  // Contract-side paths are re-rooted under `$.contract`, where the data
+  // actually sits in the supplied document; name-table issues already carry
+  // their table's base and pass through untouched (`nameTableIssues`).
+  return {
+    ok: false,
+    issues: result.issues.map((issue) =>
+      nameTableIssues.has(issue)
+        ? issue
+        : {
+            ...issue,
+            path: issue.path === "$" ? "$.contract" : `$.contract${issue.path.slice(1)}`,
+          },
+    ),
+  };
+}
+
+function buildFromContract(
+  contract: unknown,
+  options: ContractSchemaOptions,
+  namesSource: NameTableSource,
+): SchemaFromContractResult {
+  const issues: ContractIssue[] = [];
+  const push = (code: ContractIssueCode, path: string, message: string) => {
+    issues.push({ code, path, message });
+  };
+  /** `push`, for an issue about the name table (see `nameTableIssues`). */
+  const pushNameTable = (code: ContractIssueCode, path: string, message: string) => {
+    const issue: ContractIssue = { code, path, message };
+    nameTableIssues.add(issue);
+    issues.push(issue);
+  };
+  /** Refuse every key of `object` the format does not define for it. */
+  const closed = (object: Record<string, unknown>, allowed: ReadonlySet<string>, base: string) => {
+    for (const key of unknownKeys(object, allowed)) {
+      push(
+        "unknown_key",
+        keyPath(base, key),
+        `${JSON.stringify(key)} is not a key the Contract format defines here`,
+      );
+    }
+  };
+
+  if (!isObject(contract)) {
+    push("invalid_contract_document", "$", "a Contract document is a JSON object");
+    return { ok: false, issues };
+  }
+  closed(contract, CONTRACT_KEYS, "$");
+
+  // The four self-identification markers, checked exactly the way meant
+  // checks them. A document claiming a different format or profile is not
+  // half-read on the assumption it is compatible.
+  if (contract.format !== "candid-core") {
+    push("unsupported_contract_format", "$.format", 'format must be "candid-core"');
+  }
+  if (contract.format_version !== 1) {
+    push("unsupported_format_version", "$.format_version", "format_version must be 1");
+  }
+  if (contract.semantics_profile !== "candid-1") {
+    push(
+      "unsupported_semantics_profile",
+      "$.semantics_profile",
+      'semantics_profile must be "candid-1"',
+    );
+  }
+  if (contract.canonicalization_profile !== "candid-core-canon-1") {
+    push(
+      "unsupported_canonicalization_profile",
+      "$.canonicalization_profile",
+      'canonicalization_profile must be "candid-core-canon-1"',
+    );
+  }
+
+  const maxTypeNodes = options.maxTypeNodes ?? DEFAULT_MAX_TYPE_NODES;
+  const maxFields = options.maxFields ?? DEFAULT_MAX_FIELDS;
+
+  const rawTypes = contract.types;
+  const rawDeclarations = contract.declarations;
+  if (!Array.isArray(rawTypes)) {
+    push("invalid_contract_document", "$.types", "types must be an array");
+  }
+  if (!Array.isArray(rawDeclarations)) {
+    push("invalid_contract_document", "$.declarations", "declarations must be an array");
+  }
+  if (issues.length > 0) {
+    return { ok: false, issues };
+  }
+  const types = rawTypes as unknown[];
+  const declarations = rawDeclarations as unknown[];
+
+  if (types.length > maxTypeNodes) {
+    issues.push({
+      code: "resource_limit_exceeded",
+      path: "$.types",
+      message: `type_nodes limit ${maxTypeNodes} exceeded (observed ${types.length})`,
+      resource_limit: {
+        resource: "type_nodes",
+        limit: maxTypeNodes,
+        observed: types.length,
+      },
+    });
+    return { ok: false, issues };
+  }
+
+  // The third mirrored cap: a tiny arena with millions of uniquely named
+  // declarations must fail closed exactly as meant's own validator
+  // fails it (resource "declarations", `Limits::max_declarations`).
+  const maxDeclarations = options.maxDeclarations ?? DEFAULT_MAX_DECLARATIONS;
+  if (declarations.length > maxDeclarations) {
+    issues.push({
+      code: "resource_limit_exceeded",
+      path: "$.declarations",
+      message: `declarations limit ${maxDeclarations} exceeded (observed ${declarations.length})`,
+      resource_limit: {
+        resource: "declarations",
+        limit: maxDeclarations,
+        observed: declarations.length,
+      },
+    });
+    return { ok: false, issues };
+  }
+
+  const validRef = (value: unknown): value is number =>
+    typeof value === "number" && Number.isInteger(value) && value >= 0 && value < types.length;
+
+  // Pass one: parse every arena node structurally. Nothing recursive — each
+  // node is examined alone, and edges are checked as bare indices.
+  const parsed: (ParsedNode | undefined)[] = new Array(types.length);
+  let totalFields = 0;
+  /** A validated list of in-arena type refs, or undefined after issues. */
+  const refList = (value: unknown, base: string): number[] | undefined => {
+    if (!Array.isArray(value)) {
+      push("invalid_contract_document", base, "expected an array of type references");
+      return undefined;
+    }
+    const refs: number[] = [];
+    let sound = true;
+    for (let i = 0; i < value.length; i += 1) {
+      totalFields += 1;
+      if (totalFields > maxFields) {
+        issues.push({
+          code: "resource_limit_exceeded",
+          path: base,
+          message: `fields limit ${maxFields} exceeded`,
+          resource_limit: { resource: "fields", limit: maxFields, observed: totalFields },
+        });
+        return undefined;
+      }
+      if (!validRef(value[i])) {
+        push("dangling_type_ref", `${base}[${i}]`, "type reference is outside the Contract arena");
+        sound = false;
+        continue;
+      }
+      refs.push(value[i] as number);
+    }
+    return sound ? refs : undefined;
+  };
+  for (let index = 0; index < types.length; index += 1) {
+    const base = `$.types[${index}]`;
+    const node = types[index];
+    if (!isObject(node) || typeof node.kind !== "string") {
+      push("invalid_contract_document", base, "a type node is an object with a kind");
+      continue;
+    }
+    // An unknown kind has no key set; the switch's default refuses it.
+    const nodeKeys = NODE_KEYS.get(node.kind);
+    if (nodeKeys !== undefined) {
+      closed(node, nodeKeys, base);
+    }
+    switch (node.kind) {
+      case "primitive": {
+        const primitive = node.primitive;
+        if (typeof primitive !== "string" || !hasOwn(PRIMITIVES, primitive)) {
+          push("invalid_contract_document", `${base}.primitive`, "unknown primitive type");
+          continue;
+        }
+        parsed[index] = { kind: "primitive", primitive };
+        break;
+      }
+      case "opt":
+      case "vec": {
+        if (!validRef(node.inner)) {
+          push(
+            "dangling_type_ref",
+            `${base}.inner`,
+            "type reference is outside the Contract arena",
+          );
+          continue;
+        }
+        parsed[index] = { kind: node.kind, inner: node.inner };
+        break;
+      }
+      case "record":
+      case "variant": {
+        if (!Array.isArray(node.fields)) {
+          push("invalid_contract_document", `${base}.fields`, "fields must be an array");
+          continue;
+        }
+        totalFields += node.fields.length;
+        if (totalFields > maxFields) {
+          issues.push({
+            code: "resource_limit_exceeded",
+            path: `${base}.fields`,
+            message: `fields limit ${maxFields} exceeded (observed ${totalFields})`,
+            resource_limit: {
+              resource: "fields",
+              limit: maxFields,
+              observed: totalFields,
+            },
+          });
+          return { ok: false, issues };
+        }
+        const fields: ParsedField[] = [];
+        const seenIds = new Set<number>();
+        let sound = true;
+        for (let j = 0; j < node.fields.length; j += 1) {
+          const field = node.fields[j];
+          const fieldBase = `${base}.fields[${j}]`;
+          if (isObject(field)) {
+            closed(field, FIELD_KEYS, fieldBase);
+          }
+          if (
+            !isObject(field) ||
+            typeof field.id !== "number" ||
+            !Number.isInteger(field.id) ||
+            field.id < 0 ||
+            field.id > 0xffff_ffff
+          ) {
+            push(
+              "invalid_contract_document",
+              `${fieldBase}.id`,
+              "a field id is a u32 Candid label id",
+            );
+            sound = false;
+            continue;
+          }
+          if (seenIds.has(field.id)) {
+            push("duplicate_field_id", `${fieldBase}.id`, "field id repeats in this node");
+            sound = false;
+            continue;
+          }
+          seenIds.add(field.id);
+          if (!validRef(field.type)) {
+            push(
+              "dangling_type_ref",
+              `${fieldBase}.type`,
+              "type reference is outside the Contract arena",
+            );
+            sound = false;
+            continue;
+          }
+          fields.push({ id: field.id, type: field.type });
+        }
+        if (sound) {
+          parsed[index] = { kind: node.kind, fields };
+        }
+        break;
+      }
+      case "func": {
+        // Reference types ship with issue #104: internals are parsed and
+        // ref-checked like any other node.
+        const args = refList(node.args, `${base}.args`);
+        const results = refList(node.results, `${base}.results`);
+        const mode = node.mode;
+        if (
+          mode !== "update" &&
+          mode !== "query" &&
+          mode !== "composite_query" &&
+          mode !== "oneway"
+        ) {
+          push(
+            "invalid_contract_document",
+            `${base}.mode`,
+            `unknown method mode ${JSON.stringify(mode)}`,
+          );
+          break;
+        }
+        // meant's oneway_has_results rule: a oneway function cannot
+        // carry results — an actor built from one would await a reply the
+        // call never provides.
+        if (mode === "oneway" && Array.isArray(node.results) && node.results.length > 0) {
+          push("invalid_contract_document", `${base}.results`, "a oneway function has no results");
+          break;
+        }
+        if (args !== undefined && results !== undefined) {
+          parsed[index] = { kind: "func", args, results, mode };
+        }
+        break;
+      }
+      case "service": {
+        if (!Array.isArray(node.methods)) {
+          push(
+            "invalid_contract_document",
+            `${base}.methods`,
+            "a service node carries a methods array",
+          );
+          break;
+        }
+        const methods: ParsedMethod[] = [];
+        let sound = true;
+        const seenMethodNames = new Set<string>();
+        for (let m = 0; m < node.methods.length; m += 1) {
+          totalFields += 1;
+          if (totalFields > maxFields) {
+            issues.push({
+              code: "resource_limit_exceeded",
+              path: `${base}.methods`,
+              message: `fields limit ${maxFields} exceeded`,
+              resource_limit: { resource: "fields", limit: maxFields, observed: totalFields },
+            });
+            return { ok: false, issues };
+          }
+          const method: unknown = node.methods[m];
+          const methodBase = `${base}.methods[${m}]`;
+          if (isObject(method)) {
+            closed(method, METHOD_KEYS, methodBase);
+          }
+          if (
+            !isObject(method) ||
+            typeof method.name !== "string" ||
+            typeof method.id !== "number" ||
+            !Number.isInteger(method.id) ||
+            typeof method.function !== "number" ||
+            !Number.isInteger(method.function)
+          ) {
+            push(
+              "invalid_contract_document",
+              methodBase,
+              "a service method is { name, id, function }",
+            );
+            sound = false;
+            continue;
+          }
+          // meant's empty_method_name rule; hash("") is 0, so the
+          // hash-consistency check below cannot catch this on its own.
+          if (method.name.length === 0) {
+            push(
+              "invalid_contract_document",
+              `${methodBase}.name`,
+              "a service method name is non-empty",
+            );
+            sound = false;
+            continue;
+          }
+          // The id is the Candid hash of the name — the same invariant the
+          // name table enforces, and what makes the wire encoding honest.
+          if (candidLabelHash(method.name) !== method.id) {
+            push(
+              "invalid_contract_document",
+              `${methodBase}.id`,
+              `${JSON.stringify(method.name)} hashes to ${candidLabelHash(method.name)}, not ${method.id}`,
+            );
+            sound = false;
+            continue;
+          }
+          if (seenMethodNames.has(method.name)) {
+            push(
+              "invalid_contract_document",
+              `${methodBase}.name`,
+              "duplicate service method name",
+            );
+            sound = false;
+            continue;
+          }
+          seenMethodNames.add(method.name);
+          if (!validRef(method.function)) {
+            push(
+              "dangling_type_ref",
+              `${methodBase}.function`,
+              "type reference is outside the Contract arena",
+            );
+            sound = false;
+            continue;
+          }
+          methods.push({ name: method.name, func: method.function });
+        }
+        if (sound) {
+          parsed[index] = { kind: "service", methods };
+        }
+        break;
+      }
+      case "class": {
+        const init = refList(node.init, `${base}.init`);
+        if (
+          typeof node.service !== "number" ||
+          !Number.isInteger(node.service) ||
+          !validRef(node.service)
+        ) {
+          push(
+            "dangling_type_ref",
+            `${base}.service`,
+            "type reference is outside the Contract arena",
+          );
+          break;
+        }
+        if (init !== undefined) {
+          parsed[index] = { kind: "class", init, service: node.service };
+        }
+        break;
+      }
+      default:
+        push(
+          "invalid_contract_document",
+          `${base}.kind`,
+          `unknown type node kind ${JSON.stringify(node.kind)}`,
+        );
+    }
+  }
+
+  // Pass two, on sound nodes only: the one-hop node check the generator
+  // performs during rendering — the declaration-only rule for classes.
+  for (let index = 0; index < types.length; index += 1) {
+    const node = parsed[index];
+    if (node === undefined) {
+      continue;
+    }
+    const base = `$.types[${index}]`;
+    if (node.kind === "opt" || node.kind === "vec") {
+      const inner = parsed[node.inner];
+      if (inner === undefined) {
+        continue;
+      }
+      if (inner.kind === "class") {
+        push(
+          "unsupported_construct",
+          `${base}.inner`,
+          `a \`class\` type nests inside a supported type; classes exist only at declaration position`,
+        );
+      }
+    } else if (node.kind === "record" || node.kind === "variant") {
+      for (let j = 0; j < node.fields.length; j += 1) {
+        const inner = parsed[node.fields[j].type];
+        if (inner !== undefined && inner.kind === "class") {
+          push(
+            "unsupported_construct",
+            `${base}.fields[${j}].type`,
+            `a \`class\` type nests inside a supported type; classes exist only at declaration position`,
+          );
+        }
+      }
+    }
+  }
+
+  // Declarations: names bind schemas, so emptiness and duplication are the
+  // same defects meant rejects, under the same codes.
+  interface ParsedDeclaration {
+    readonly name: string;
+    readonly type: number;
+  }
+  const parsedDeclarations: ParsedDeclaration[] = [];
+  const seenNames = new Set<string>();
+  for (let index = 0; index < declarations.length; index += 1) {
+    const base = `$.declarations[${index}]`;
+    const declaration = declarations[index];
+    if (isObject(declaration)) {
+      closed(declaration, DECLARATION_KEYS, base);
+    }
+    if (!isObject(declaration) || typeof declaration.name !== "string") {
+      push("invalid_contract_document", base, "a declaration is { name, type }");
+      continue;
+    }
+    if (declaration.name.length === 0) {
+      push("empty_declaration_name", `${base}.name`, "declaration name must not be empty");
+      continue;
+    }
+    if (seenNames.has(declaration.name)) {
+      push(
+        "duplicate_declaration_name",
+        `${base}.name`,
+        `declaration name ${JSON.stringify(declaration.name)} repeats`,
+      );
+      continue;
+    }
+    seenNames.add(declaration.name);
+    if (!validRef(declaration.type)) {
+      push("dangling_type_ref", `${base}.type`, "type reference is outside the Contract arena");
+      continue;
+    }
+    parsedDeclarations.push({ name: declaration.name, type: declaration.type });
+  }
+
+  // The name table — caller-supplied or envelope-carried, validated
+  // identically either way: shape, reservation, hash, and its entry count
+  // included, so a corrupted table cannot amplify into an unbounded issue
+  // list or Map. Issue paths are rooted where the table actually came from.
+  const winners = new Map<string, string>();
+  const nameTable = new Map<string, string>();
+  const reservedKeys = new Set<string>();
+  if (!Array.isArray(namesSource.entries)) {
+    pushNameTable(
+      "invalid_name_table",
+      namesSource.base,
+      "a name table is an array of [container, id, name] entries",
+    );
+    return { ok: false, issues };
+  }
+  const rawNames: readonly unknown[] = namesSource.entries;
+  if (rawNames.length > DEFAULT_MAX_NAME_TABLE_ENTRIES) {
+    const issue: ContractIssue = {
+      code: "resource_limit_exceeded",
+      path: namesSource.base,
+      message: `name_table_entries limit ${DEFAULT_MAX_NAME_TABLE_ENTRIES} exceeded (observed ${rawNames.length})`,
+      resource_limit: {
+        resource: "name_table_entries",
+        limit: DEFAULT_MAX_NAME_TABLE_ENTRIES,
+        observed: rawNames.length,
+      },
+    };
+    nameTableIssues.add(issue);
+    issues.push(issue);
+    return { ok: false, issues };
+  }
+  for (let index = 0; index < rawNames.length; index += 1) {
+    const entry: unknown = rawNames[index];
+    if (
+      !Array.isArray(entry) ||
+      entry.length !== 3 ||
+      typeof entry[0] !== "number" ||
+      !Number.isInteger(entry[0]) ||
+      entry[0] < 0 ||
+      typeof entry[1] !== "number" ||
+      !Number.isInteger(entry[1]) ||
+      entry[1] < 0 ||
+      typeof entry[2] !== "string"
+    ) {
+      pushNameTable(
+        "invalid_name_table",
+        `${namesSource.base}[${index}]`,
+        "a name table entry is [container, id, name]",
+      );
+      continue;
+    }
+    // Hash consistency is the wire-correctness invariant (issue #103): the
+    // codec derives every field's wire id from its rendered key, so a name
+    // that does not hash back to its entry's id would silently encode a
+    // wrong id, and the table is refused at the entry.
+    const name = entry[2];
+    if (candidLabelHash(name) !== entry[1]) {
+      pushNameTable(
+        "invalid_name_table",
+        `${namesSource.base}[${index}]`,
+        `${JSON.stringify(name)} hashes to ${candidLabelHash(name)}, not ${entry[1]}`,
+      );
+      continue;
+    }
+    // Two honest entries may address one `(container, id)` — two spellings
+    // with one Candid hash. The last one wins, exactly as `TsNames` keeps the
+    // last name inserted for a key, and the winner alone is classified below.
+    winners.set(`${entry[0]}:${entry[1]}`, name);
+  }
+  // An honest `_N_`-shaped winner is real provenance — a Candid field
+  // genuinely named `_123_` — but erased to a key it is indistinguishable
+  // from the numeric-id rendering, so it never becomes one: the node that
+  // would render it is omitted with everything that references it, as the
+  // generator omits it (issues #115, #189). It is kept out of the key table,
+  // so no key ever renders from it. Classifying only after the last entry
+  // has won keeps the two collections disjoint whatever the entry order.
+  for (const [key, name] of winners) {
+    if (isNumericShapedName(name)) {
+      reservedKeys.add(key);
+    } else {
+      nameTable.set(key, name);
+    }
+  }
+
+  const fieldKey = (container: number, id: number): string =>
+    nameTable.get(`${container}:${id}`) ?? `_${id}_`;
+
+  // Reference-type structural constraints (issue #104): a service method
+  // must denote a func node, and a class must denote a service node — the
+  // same constraints meant's own Contract validation enforces, so a
+  // hand-built document cannot smuggle a mis-kinded reference past the
+  // builder.
+  for (let index = 0; index < types.length; index += 1) {
+    const node = parsed[index];
+    if (node === undefined) {
+      continue;
+    }
+    if (node.kind === "service") {
+      for (let m = 0; m < node.methods.length; m += 1) {
+        const target = parsed[node.methods[m].func];
+        if (target === undefined || target.kind !== "func") {
+          push(
+            "invalid_contract_document",
+            `$.types[${index}].methods[${m}].function`,
+            "a service method must denote a func type",
+          );
+        }
+      }
+    } else if (node.kind === "class") {
+      const target = parsed[node.service];
+      if (target === undefined || target.kind !== "service") {
+        push(
+          "invalid_contract_document",
+          `$.types[${index}].service`,
+          "a class must denote a service type",
+        );
+      }
+    }
+  }
+  if (issues.length > 0) {
+    return { ok: false, issues };
+  }
+
+  // Rendered keys must be unique per node: two ids mapping to one supplied
+  // name (or a supplied name colliding with an `_id_` rendering) would
+  // silently drop a field from the built record. Fail closed instead. The
+  // check skips exactly the nodes whose build never renders a key — empty
+  // records (unit) and tuple-shaped records — because the generator ignores
+  // name collisions there too: a positional tuple has no keys to collide.
+  for (let index = 0; index < types.length; index += 1) {
+    const node = parsed[index];
+    if (node === undefined || (node.kind !== "record" && node.kind !== "variant")) {
+      continue;
+    }
+    if (node.kind === "record" && node.fields.every((field, position) => field.id === position)) {
+      continue;
+    }
+    const seenKeys = new Set<string>();
+    for (let j = 0; j < node.fields.length; j += 1) {
+      const key = fieldKey(index, node.fields[j].id);
+      if (seenKeys.has(key)) {
+        push(
+          "duplicate_field_name",
+          `$.types[${index}].fields[${j}]`,
+          `field key ${JSON.stringify(key)} repeats in this node`,
+        );
+      }
+      seenKeys.add(key);
+    }
+  }
+
+  if (issues.length > 0) {
+    return { ok: false, issues };
+  }
+
+  // Everything below runs on a fully validated arena. Construction mirrors
+  // the generator: one schema per node, every edge a lazy memoized thunk, so
+  // recursion terminates the same way it terminates in the generated code —
+  // through `c.rec`, with `validate`'s depth limit as the runtime bound.
+  const sound = parsed as ParsedNode[];
+
+  const memo: (AnySchema | undefined)[] = new Array(types.length);
+  const schemaAt = (ref: number): AnySchema => {
+    const existing = memo[ref];
+    if (existing !== undefined) {
+      return existing;
+    }
+    const built = build(ref);
+    memo[ref] = built;
+    return built;
+  };
+  const lazy = (ref: number): AnySchema => c.rec(() => schemaAt(ref));
+
+  const build = (ref: number): AnySchema => {
+    const node = sound[ref];
+    switch (node.kind) {
+      case "primitive":
+        return PRIMITIVES[node.primitive];
+      case "opt":
+        return c.opt(lazy(node.inner));
+      case "vec": {
+        const inner = sound[node.inner];
+        if (inner.kind === "primitive" && inner.primitive === "nat8") {
+          return c.blob();
+        }
+        return c.vec(lazy(node.inner));
+      }
+      case "record": {
+        if (node.fields.length === 0) {
+          return c.unit();
+        }
+        if (node.fields.every((field, position) => field.id === position)) {
+          return c.tuple(node.fields.map((field) => lazy(field.type)));
+        }
+        // Null-prototype maps throughout: on a plain `{}`, assigning the key
+        // "__proto__" invokes the inherited prototype setter and silently
+        // drops the field — a fail-open for a legitimately quoted Candid
+        // name. With no prototype, every key is an ordinary own property.
+        const fields: { [key: string]: AnySchema } = Object.create(null);
+        for (const field of node.fields) {
+          fields[fieldKey(ref, field.id)] = lazy(field.type);
+        }
+        return c.record(fields);
+      }
+      case "variant": {
+        const arms: { [key: string]: AnySchema } = Object.create(null);
+        for (const field of node.fields) {
+          arms[fieldKey(ref, field.id)] = lazy(field.type);
+        }
+        return c.variant(arms);
+      }
+      case "func":
+        return c.func(node.args.map(lazy), node.results.map(lazy), node.mode);
+      case "service": {
+        const methods: { [name: string]: AnySchema } = Object.create(null);
+        for (const method of node.methods) {
+          methods[method.name] = lazy(method.func);
+        }
+        return c.service(methods);
+      }
+      case "class":
+        // A class-typed reference denotes the running service (issue #104):
+        // init args are install-time metadata a call surface never consumes.
+        return schemaAt(node.service);
+      default:
+        // Unreachable by construction; a rec thunk that somehow reached an
+        // unknown node still fails closed in `validate`.
+        return { kind: "unsupported" } as AnySchema;
+    }
+  };
+
+  // meant restricts class nodes to the actor root
+  // (`class_not_actor_root`); mirror it so the two loaders refuse the same
+  // documents.
+  const actorClassTarget = (() => {
+    const raw: unknown = contract.actor;
+    return isObject(raw) && raw.kind === "class" && typeof raw.class === "number"
+      ? (raw.class as number)
+      : undefined;
+  })();
+  const isClassRef = (ref: number): boolean => parsed[ref]?.kind === "class";
+  for (let index = 0; index < types.length; index += 1) {
+    const node = parsed[index];
+    if (node === undefined) {
+      continue;
+    }
+    if (node.kind === "class" && index !== actorClassTarget) {
+      push(
+        "invalid_contract_document",
+        `$.types[${index}]`,
+        "class nodes are only valid as the top-level class actor root",
+      );
+      return { ok: false, issues };
+    }
+    // meant's class_not_first_class_type rule: no type edge — func
+    // args/results and a class's own init/service included — may target a
+    // class, actor-root or not. Opt/vec inners and record/variant fields
+    // are already refused by the pass-two nested checks.
+    const edges: readonly (readonly [number, string])[] =
+      node.kind === "func"
+        ? [
+            ...node.args.map((ref, i) => [ref, `$.types[${index}].args[${i}]`] as const),
+            ...node.results.map((ref, i) => [ref, `$.types[${index}].results[${i}]`] as const),
+          ]
+        : node.kind === "class"
+          ? [
+              ...node.init.map((ref, i) => [ref, `$.types[${index}].init[${i}]`] as const),
+              [node.service, `$.types[${index}].service`] as const,
+            ]
+          : node.kind === "service"
+            ? node.methods.map(
+                (method, i) => [method.func, `$.types[${index}].methods[${i}].function`] as const,
+              )
+            : [];
+    for (const [ref, path] of edges) {
+      if (isClassRef(ref)) {
+        push(
+          "invalid_contract_document",
+          path,
+          "a class is not a first-class type; no type edge may target one",
+        );
+        return { ok: false, issues };
+      }
+    }
+  }
+  // The declaration half of the same rule (`class_not_actor_root`): a named
+  // declaration must never target a class node. The actor-root exemption
+  // above covers the node's existence, not names — meant refuses
+  // `X : class` even when that class is the actor root (issue #129).
+  // Reaching this point implies zero issues so far, so `parsedDeclarations`
+  // aligns index-for-index with `$.declarations`.
+  for (let index = 0; index < parsedDeclarations.length; index += 1) {
+    if (isClassRef(parsedDeclarations[index].type)) {
+      push(
+        "invalid_contract_document",
+        `$.declarations[${index}].type`,
+        "a named declaration must not target a class node",
+      );
+      return { ok: false, issues };
+    }
+  }
+
+  // The actor interface, when the document carries one: a service schema,
+  // with a class actor unwrapped to its running service. Fail closed on any
+  // shape the canonical format does not produce.
+  let actorTarget: number | undefined;
+  let actorService: number | undefined;
+  if (contract.actor !== undefined && contract.actor !== null) {
+    const raw: unknown = contract.actor;
+    if (
+      !isObject(raw) ||
+      (raw.kind !== "service" && raw.kind !== "class") ||
+      typeof raw[raw.kind as "service" | "class"] !== "number"
+    ) {
+      push("invalid_contract_document", "$.actor", "an actor is { kind, service|class }");
+      return { ok: false, issues };
+    }
+    closed(raw, ACTOR_KEYS.get(raw.kind) as ReadonlySet<string>, "$.actor");
+    if (issues.length > 0) {
+      return { ok: false, issues };
+    }
+    const target = raw[raw.kind as "service" | "class"] as number;
+    if (!validRef(target)) {
+      push(
+        "dangling_type_ref",
+        `$.actor.${raw.kind}`,
+        "type reference is outside the Contract arena",
+      );
+      return { ok: false, issues };
+    }
+    const node = sound[target];
+    const resolved = node.kind === "class" ? sound[node.service] : node;
+    if (
+      (raw.kind === "service" && node.kind !== "service" && node.kind !== "class") ||
+      resolved.kind !== "service"
+    ) {
+      push(
+        "invalid_contract_document",
+        `$.actor.${raw.kind}`,
+        "an actor must denote a service (or a class of one)",
+      );
+      return { ok: false, issues };
+    }
+    actorTarget = target;
+    actorService = node.kind === "class" ? node.service : target;
+  }
+
+  // meant's reachability rule (`validate_reachability`): a non-empty
+  // arena needs a root, and every node must be reachable from one. The
+  // roots are the declarations and the actor, all in range by now.
+  const roots = parsedDeclarations.map((declaration) => declaration.type);
+  if (actorTarget !== undefined) {
+    roots.push(actorTarget);
+  }
+  if (!reachability(sound, roots, push)) {
+    return { ok: false, issues };
+  }
+
+  // Every refusal is behind us: the document is valid, and what remains is
+  // which declarations and actor methods to leave out (issue #189).
+  const omission = omissionAnalysis(sound, parsedDeclarations, reservedKeys, actorService);
+
+  const schemas: { [name: string]: AnySchema } = Object.create(null);
+  for (const declaration of parsedDeclarations) {
+    if (omission.declarations.has(declaration.name)) {
+      continue;
+    }
+    // The same shape the generator emits: every declaration wrapped in
+    // `c.rec`, so aliases of one node share the memoized structure beneath.
+    // Reference kinds build like everything else since issue #104.
+    schemas[declaration.name] = c.rec(() => schemaAt(declaration.type));
+  }
+
+  let actor: AnySchema | undefined;
+  if (actorTarget !== undefined && actorService !== undefined) {
+    const target = actorTarget;
+    const service = sound[actorService];
+    if (omission.methods.size === 0 || service.kind !== "service") {
+      actor = c.rec(() => schemaAt(target));
+    } else {
+      // The surviving methods only, exactly as the generator renders the
+      // actor's service inline. Sound only for the actor: calling a method
+      // never encodes the actor's own service type.
+      const methods: { [name: string]: AnySchema } = Object.create(null);
+      for (const method of service.methods) {
+        if (!omission.methods.has(method.name)) {
+          methods[method.name] = lazy(method.func);
+        }
+      }
+      actor = c.rec(() => c.service(methods));
+    }
+  }
+
+  return { ok: true, schemas, actor, omitted: omission.omitted };
+}
+
+/**
+ * meant's reachability rule over a validated arena, reporting through
+ * `push`; true when the arena passes. An empty arena needs no root. A
+ * non-empty one with no root is `rootless_type_arena` at `$.types`, and each
+ * node no root reaches is `orphan_type_node` at `$.types[i]`, in arena order
+ * — the codes, paths, and order of `validate_reachability`.
+ *
+ * Every edge counts, a class's `init` and `service` included (only the actor
+ * root can be a class here, and its init arguments are part of the graph
+ * even though no schema reads them). The walk is an explicit stack with a
+ * visited mark per node, so it is linear in nodes plus edges and its depth
+ * is constant whatever the graph's shape.
+ */
+function reachability(
+  nodes: readonly ParsedNode[],
+  roots: readonly number[],
+  push: (code: ContractIssueCode, path: string, message: string) => void,
+): boolean {
+  if (nodes.length === 0) {
+    return true;
+  }
+  if (roots.length === 0) {
+    push(
+      "rootless_type_arena",
+      "$.types",
+      "a non-empty arena requires an actor or at least one named declaration root",
+    );
+    return false;
+  }
+  const reached = new Uint8Array(nodes.length);
+  const stack: number[] = [];
+  const visit = (ref: number) => {
+    if (reached[ref] === 0) {
+      reached[ref] = 1;
+      stack.push(ref);
+    }
+  };
+  for (const root of roots) {
+    visit(root);
+  }
+  while (stack.length > 0) {
+    const node = nodes[stack.pop() as number];
+    switch (node.kind) {
+      case "primitive":
+        break;
+      case "opt":
+      case "vec":
+        visit(node.inner);
+        break;
+      case "record":
+      case "variant":
+        for (const field of node.fields) {
+          visit(field.type);
+        }
+        break;
+      case "func":
+        node.args.forEach(visit);
+        node.results.forEach(visit);
+        break;
+      case "service":
+        for (const method of node.methods) {
+          visit(method.func);
+        }
+        break;
+      case "class":
+        node.init.forEach(visit);
+        visit(node.service);
+        break;
+    }
+  }
+  let sound = true;
+  for (let index = 0; index < nodes.length; index += 1) {
+    if (reached[index] === 0) {
+      push(
+        "orphan_type_node",
+        `$.types[${index}]`,
+        "every type node must be reachable from actor or declaration roots",
+      );
+      sound = false;
+    }
+  }
+  return sound;
+}
+
+/** A parsed declaration, as the omission analysis reads it. */
+interface NamedDeclaration {
+  readonly name: string;
+  readonly type: number;
+}
+
+/**
+ * The generator's `$`-local shape for a declaration name: `$` plus it must
+ * be a binding, which it is exactly when the name is identifier-shaped.
+ */
+const IDENTIFIER_SHAPED = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
+/** The actor surface's own export names (issue #188). */
+const RESERVED_EXPORT_NAMES: ReadonlySet<string> = new Set(["actor", "Actor"]);
+
+/**
+ * Names in code-point order — the byte order Rust sorts `String`s by. The
+ * default `<` on strings compares UTF-16 code units, which disagrees above
+ * U+FFFF, and the generator's list must match this one element for element.
+ */
+function compareCodePoints(left: string, right: string): number {
+  let i = 0;
+  let j = 0;
+  while (i < left.length && j < right.length) {
+    const a = left.codePointAt(i) as number;
+    const b = right.codePointAt(j) as number;
+    if (a !== b) {
+      return a < b ? -1 : 1;
+    }
+    i += a > 0xffff ? 2 : 1;
+    j += b > 0xffff ? 2 : 1;
+  }
+  return i < left.length ? 1 : j < right.length ? -1 : 0;
+}
+
+/**
+ * Which declarations and actor methods the loader leaves out, and why —
+ * `crates/meant-ts/src/omissions.rs`, step for step, so the loader and
+ * the generator report the same list for the same Contract (the crosscheck
+ * pins it). See that module for the rule; in short:
+ *
+ * - a node has a *direct cause* when it is a record (neither empty nor
+ *   tuple-shaped) or variant with a field or arm whose honest name is shaped
+ *   like `_N_`, or a variant arm whose payload is a *declared* `opt` of a
+ *   never-domain type — arms in order, reserved name before ambiguity;
+ * - a declaration has a *name cause* when its name is not identifier-shaped
+ *   or is `actor` / `Actor`;
+ * - taint spreads from every cause, and from every composite node whose
+ *   first declaration has a name cause, over reverse edges (every structural
+ *   edge, nested `func` and `service` types included) by breadth-first
+ *   search, which also yields each tainted node's distance to a cause;
+ * - a declaration is omitted when it has a name cause or its node is
+ *   tainted; an actor method when its function node is tainted;
+ * - the reason: the name cause; else `references_omitted` via the first
+ *   declaration of the node when that is another declaration; else the
+ *   node reason — the direct cause, or the first child (in edge order) with
+ *   a smaller distance: `references_omitted` via its first declaration when
+ *   it has one, else that child's node reason.
+ *
+ * Iterative and memoized, so it stays linear in the arena like everything
+ * else here.
+ */
+function omissionAnalysis(
+  nodes: readonly ParsedNode[],
+  declarations: readonly NamedDeclaration[],
+  reservedKeys: ReadonlySet<string>,
+  actorService: number | undefined,
+): {
+  readonly declarations: ReadonlySet<string>;
+  readonly methods: ReadonlySet<string>;
+  readonly omitted: readonly Omission[];
+} {
+  // The first declaration of each node without a fixed rendering: the name
+  // every later reference to the node renders as (the generator's
+  // `first_names`). A primitive, a `vec nat8`, an empty record and an empty
+  // variant render the same at every use, so no declaration names them.
+  const rendersStructurally = (node: ParsedNode): boolean => {
+    switch (node.kind) {
+      case "primitive":
+        return true;
+      case "vec": {
+        const inner = nodes[node.inner];
+        return inner?.kind === "primitive" && inner.primitive === "nat8";
+      }
+      case "record":
+      case "variant":
+        return node.fields.length === 0;
+      default:
+        return false;
+    }
+  };
+  const declared = new Map<number, string>();
+  for (const declaration of declarations) {
+    if (!rendersStructurally(nodes[declaration.type]) && !declared.has(declaration.type)) {
+      declared.set(declaration.type, declaration.name);
+    }
+  }
+  const nameCause = (name: string): OmissionReason | undefined =>
+    !IDENTIFIER_SHAPED.test(name)
+      ? "invalid_declaration_name"
+      : RESERVED_EXPORT_NAMES.has(name)
+        ? "reserved_export_name"
+        : undefined;
+
+  const children = (node: ParsedNode): readonly number[] => {
+    switch (node.kind) {
+      case "opt":
+      case "vec":
+        return [node.inner];
+      case "record":
+      case "variant":
+        return node.fields.map((field) => field.type);
+      case "func":
+        return [...node.args, ...node.results];
+      case "service":
+        return node.methods.map((method) => method.func);
+      default:
+        return [];
+    }
+  };
+  const directCause = (index: number): OmissionReason | undefined => {
+    const node = nodes[index];
+    const reserved = (id: number) => reservedKeys.has(`${index}:${id}`);
+    if (node.kind === "record") {
+      const renderedKeys =
+        node.fields.length > 0 && !node.fields.every((field, position) => field.id === position);
+      return renderedKeys && node.fields.some((field) => reserved(field.id))
+        ? "reserved_field_name"
+        : undefined;
+    }
+    if (node.kind === "variant") {
+      for (const field of node.fields) {
+        if (reserved(field.id)) {
+          return "reserved_field_name";
+        }
+        const payload = nodes[field.type];
+        if (declared.has(field.type) && payload.kind === "opt") {
+          const inner = nodes[payload.inner];
+          if (
+            (inner.kind === "primitive" && inner.primitive === "empty") ||
+            (inner.kind === "variant" && inner.fields.length === 0)
+          ) {
+            return "ambiguous_variant_arm";
+          }
+        }
+      }
+    }
+    return undefined;
+  };
+
+  const edges: (readonly number[])[] = new Array(nodes.length);
+  const parents: number[][] = Array.from({ length: nodes.length }, () => []);
+  const direct: (OmissionReason | undefined)[] = new Array(nodes.length);
+  for (let index = 0; index < nodes.length; index += 1) {
+    edges[index] = children(nodes[index]);
+    for (const child of edges[index]) {
+      parents[child].push(index);
+    }
+    direct[index] = directCause(index);
+  }
+
+  // Multi-source breadth-first search from every cause, over reverse edges.
+  const distance: (number | undefined)[] = new Array(nodes.length);
+  const queue: number[] = [];
+  for (let index = 0; index < nodes.length; index += 1) {
+    if (direct[index] !== undefined) {
+      distance[index] = 0;
+      queue.push(index);
+    }
+  }
+  for (const [index, first] of [...declared].sort((a, b) => a[0] - b[0])) {
+    if (nameCause(first) !== undefined && distance[index] === undefined) {
+      distance[index] = 0;
+      queue.push(index);
+    }
+  }
+  for (let head = 0; head < queue.length; head += 1) {
+    const index = queue[head];
+    const next = (distance[index] as number) + 1;
+    for (const parent of parents[index]) {
+      if (distance[parent] === undefined) {
+        distance[parent] = next;
+        queue.push(parent);
+      }
+    }
+  }
+
+  type Reason = { readonly reason: OmissionReason; readonly via?: string };
+  const memo: (Reason | undefined)[] = new Array(nodes.length);
+  const nodeReason = (start: number): Reason => {
+    const chain: number[] = [];
+    let current = start;
+    let found: Reason;
+    for (;;) {
+      const known = memo[current];
+      if (known !== undefined) {
+        found = known;
+        break;
+      }
+      chain.push(current);
+      const cause = direct[current];
+      if (cause !== undefined) {
+        found = { reason: cause };
+        break;
+      }
+      const own = distance[current] as number;
+      // Distances strictly decrease along the walk, so it ends; a tainted
+      // node without a direct cause always has a child one step closer.
+      const closer = edges[current].find(
+        (child) => distance[child] !== undefined && (distance[child] as number) < own,
+      ) as number;
+      const first = declared.get(closer);
+      if (first !== undefined) {
+        found = { reason: "references_omitted", via: first };
+        break;
+      }
+      current = closer;
+    }
+    for (const index of chain) {
+      memo[index] = found;
+    }
+    return found;
+  };
+
+  const entry = (kind: Omission["kind"], name: string, reason: Reason): Omission =>
+    reason.via === undefined
+      ? { kind, name, reason: reason.reason }
+      : { kind, name, reason: reason.reason, via: reason.via };
+
+  const omittedDeclarations = new Set<string>();
+  const omitted: Omission[] = [];
+  for (const declaration of declarations) {
+    const cause = nameCause(declaration.name);
+    let reason: Reason;
+    if (cause !== undefined) {
+      reason = { reason: cause };
+    } else if (distance[declaration.type] === undefined) {
+      continue;
+    } else {
+      const first = declared.get(declaration.type);
+      reason =
+        first !== undefined && first !== declaration.name
+          ? { reason: "references_omitted", via: first }
+          : nodeReason(declaration.type);
+    }
+    omittedDeclarations.add(declaration.name);
+    omitted.push(entry("declaration", declaration.name, reason));
+  }
+
+  const omittedMethods = new Set<string>();
+  const service = actorService === undefined ? undefined : nodes[actorService];
+  if (service !== undefined && service.kind === "service") {
+    for (const method of service.methods) {
+      if (distance[method.func] === undefined) {
+        continue;
+      }
+      const first = declared.get(method.func);
+      omittedMethods.add(method.name);
+      omitted.push(
+        entry(
+          "method",
+          method.name,
+          first !== undefined
+            ? { reason: "references_omitted", via: first }
+            : nodeReason(method.func),
+        ),
+      );
+    }
+  }
+  omitted.sort((left, right) =>
+    left.kind !== right.kind
+      ? left.kind === "declaration"
+        ? -1
+        : 1
+      : compareCodePoints(left.name, right.name),
+  );
+
+  return { declarations: omittedDeclarations, methods: omittedMethods, omitted };
+}

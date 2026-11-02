@@ -821,16 +821,14 @@ fn loader_entry_points() {
     }
 }
 
-/// The `candid-core validate` command loads through `Contract::from_json` and
+/// The `meant validate` command loads through `Contract::from_json` and
 /// reports the refusal as `malformed_contract_json`, the code a value of the
 /// wrong type gets.
 #[cfg(feature = "filesystem-compiler")]
 #[test]
 fn validate_command_refuses_the_repro() {
-    let directory = std::env::temp_dir().join(format!(
-        "candid-core-struct-sequence-{}",
-        std::process::id()
-    ));
+    let directory =
+        std::env::temp_dir().join(format!("meant-struct-sequence-{}", std::process::id()));
     std::fs::create_dir_all(&directory).unwrap();
     let path = directory.join("repro.contract.json");
     std::fs::write(&path, issue_field_repro().to_string()).unwrap();

@@ -10,8 +10,8 @@ npm install @meantjs/reconcile
 
 - **Runs on:** Node 22 or later and browsers: no Node built-in, no `Buffer` (`test/browser-bundle.test.mjs`).
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
-- **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
-- **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
+- **Spec:** [Meant Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
+- **Versions:** the five Meant profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
   `/reconcile`) release together under one version and pin each other exactly; in 0.x a minor is breaking,
   and so is any change to generated text ([releasing](https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md)).
 
@@ -26,7 +26,7 @@ r.status; // "found" (r.block) | "absent" (r.closedBy) | "not_yet" (r.openUntil)
 
 | Input | Shape |
 |---|---|
-| `arg` | the call's argument record as candid-core values: `amount`, `created_at_time`, `fee` bigint; accounts `{ owner: <principal text>, subaccount: Uint8Array \| null }`; `memo` Uint8Array or null |
+| `arg` | the call's argument record as Meant values: `amount`, `created_at_time`, `fee` bigint; accounts `{ owner: <principal text>, subaccount: Uint8Array \| null }`; `memo` Uint8Array or null |
 | `blocks` | `[{ id: bigint, block }]`, `block` an ICRC-3 value in `{ tag, value }` form (`Map`, `Array`, `Nat`, `Text`, `Blob`) |
 
 Rules, all in the safe direction (`src/index.mjs` header):

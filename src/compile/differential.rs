@@ -388,7 +388,7 @@ fn duplicate_declarations_across_sources_are_rejected_the_same_way() {
 
 #[test]
 fn an_imported_opt_only_cycle_is_rejected_the_same_way() {
-    // Issue #234: candid-core's own refusal, after the upstream checker has
+    // Issue #234: Meant's own refusal, after the upstream checker has
     // accepted the bundle, scoped to the source that declares the type.
     let diagnostic = assert_backends_reject(
         "opt-only cycle through an alias",
@@ -493,7 +493,7 @@ fn no_diagnostic_from_either_backend_leaks_a_materialized_identity() {
                 .err()
                 .unwrap_or_else(|| panic!("{label}/{backend} must fail"));
             let rendered = serde_json::to_string(&error.diagnostics).unwrap();
-            for leak in ["0.did", "1.did", "candid-core-"] {
+            for leak in ["0.did", "1.did", "meant-materialized-"] {
                 assert!(
                     !rendered.contains(leak),
                     "{label}/{backend} leaked {leak:?}: {rendered}"

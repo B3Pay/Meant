@@ -163,7 +163,7 @@ fn assert_no_filesystem_leakage(error: &CompileError) {
         "\"1.did\"",
         "\"2.did\"",
         "\"3.did\"",
-        "candid-core-",
+        "meant-materialized-",
         "/tmp",
         "/var/folders",
         "\\\\",

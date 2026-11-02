@@ -1,7 +1,7 @@
 /target/
 .DS_Store
 
-# Local-only repositories and metadata that must never enter Candid Core.
+# Local-only repositories and metadata that must never enter Meant.
 /.gitexclude-local
 /candid-scope/
 
@@ -18,17 +18,17 @@ __pycache__/
 /fuzz/artifacts/
 
 # The golden-TypeScript type-check installs its pinned compiler here
-# (crates/candid-core-ts/ts). Only package.json and package-lock.json are
+# (crates/meant-ts/ts). Only package.json and package-lock.json are
 # tracked; the installed tree never is.
-/crates/candid-core-ts/ts/node_modules/
+/crates/meant-ts/ts/node_modules/
 
-# `crates/candid-core-wasm/` is a separate cargo project (like fuzz/), so the
+# `crates/meant-wasm/` is a separate cargo project (like fuzz/), so the
 # root `/target/` rule misses it. `npm/wasm/` is wasm-pack build output —
 # rebuilt from the pinned toolchain, never committed — and `npm/node_modules/`
 # the pinned dev-dependency install.
-/crates/candid-core-wasm/target/
-/crates/candid-core-wasm/npm/wasm/
-/crates/candid-core-wasm/npm/node_modules/
+/crates/meant-wasm/target/
+/crates/meant-wasm/npm/wasm/
+/crates/meant-wasm/npm/node_modules/
 
 # The documentation site is generated from website/content; the build output
 # is not committed. Build it with `node website/build.mjs`, and the old

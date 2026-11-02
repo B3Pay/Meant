@@ -17,8 +17,8 @@ service : {
 ```
 
 This document is the syntax and the data model. It gives no attribute a meaning: which names exist and what their
-arguments say belongs to the tool that reads them (Candid Profile, for example, reads `@amount`, `@intent` and the rest
-of its tags). candid-core parses every attribute the same way, refuses a malformed one, and hands each out with the
+arguments say belongs to the tool that reads them (Meant Profile, for example, reads `@amount`, `@intent` and the rest
+of its tags). Meant parses every attribute the same way, refuses a malformed one, and hands each out with the
 place it was written. `DocAttributes::from_source_info` is the Rust entry point and `didToDocAttributes` the
 `@meantjs/cli` one (`@candid-core/cli` through 0.4.0).
 

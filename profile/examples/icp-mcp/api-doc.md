@@ -1,6 +1,6 @@
 # TOK, an example token ready for ICP MCP
 
-This guide is generated from the canister's Candid Profile. It says what the positions of the interface in `candid:service` mean; it does not change them. Every path below is an address of the profile spec: `method(0).field` is a field of the first argument, `method->(0).Err.Case` a case of the first result.
+This guide is generated from the canister's Meant profile. It says what the positions of the interface in `candid:service` mean; it does not change them. Every path below is an address of the profile spec: `method(0).field` is a field of the first argument, `method->(0).Err.Case` a case of the first result.
 
 - Interface: `candid-core:interface:v1:sha256:88f4bbfeb015b87b623f049c09150328b82f800616110fa2ea739d9a44643d9b`
 - Profile: `icp-mcp-example` (author), `candid-profile:v0:sha256:062d31e110dd7ffca136e2adf338118c40e5612e77802d2e0fc50cc95ea23198`

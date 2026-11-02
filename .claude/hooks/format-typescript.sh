@@ -16,7 +16,7 @@ set -uo pipefail
 
 root="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 [ -n "${root}" ] || exit 0
-prettier="${root}/crates/candid-core-ts/ts/node_modules/.bin/prettier"
+prettier="${root}/crates/meant-ts/ts/node_modules/.bin/prettier"
 
 # A fresh clone has no node_modules. An agent must still be able to edit files
 # there, so a missing formatter is a no-op rather than a broken toolchain.

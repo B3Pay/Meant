@@ -1,10 +1,15 @@
-# Releasing candid-core
+# Releasing Meant
 
 This is the exact procedure for turning a commit into a published version. It
 holds no stored crates.io credential anywhere: the publish step exchanges a
 GitHub OIDC identity for a token that expires shortly and is revoked when the
 job ends, so there is no long-lived token in Actions secrets and none on an
 operator's workstation either.
+
+The npm release workflows and the downstream check run `main`'s workflow
+files against the commit they publish, and those files name
+`crates/meant-ts` and `crates/meant-wasm`. A commit from before those folders
+were renamed (2026-11-02) cannot be published by them.
 
 Steps 1–6 are read-only with respect to the outside world, and every workflow
 that runs on a pull request — `Verify` and `Release candidate` — holds no more
@@ -441,7 +446,7 @@ The bootstrap, done once per package name by the owner, from a local
 checkout of the merged commit:
 
 ```bash
-cd crates/candid-core-ts/ts
+cd crates/meant-ts/ts
 npm ci                                          # the pinned compiler, not a global one
 npm login                                       # interactive, 2FA
 npm version 0.0.0-bootstrap --no-git-tag-version
@@ -557,7 +562,7 @@ but this package no longer does (`./actor`, `./transport-icp`, `./forms`,
 
 The package versions independently of the crate (pre-1.0). Bump
 `ts/package.json` in an ordinary reviewed PR; state in that PR's body which
-`candid-core` generator version the release pairs with, and record the pair
+`meant` generator version the release pairs with, and record the pair
 in the npm release notes, `.github/release-notes/npm/schema/<version>.md`
 (the convention, and why npm notes never sit at that directory's top level,
 is in [its README](../.github/release-notes/README.md)).
@@ -579,7 +584,7 @@ the artifact exactly, and the gate refuses a stale one.
 The second package of the pair (the name `@candid-core/cli` recorded with
 owner sign-off on issue #153, per the #106 precedent; `@meantjs/cli`, with
 the command `meant`, from 0.5.0, issue #306), publishing from
-`crates/candid-core-wasm/npm` through
+`crates/meant-wasm/npm` through
 [`.github/workflows/npm-release-cli.yml`](../.github/workflows/npm-release-cli.yml)
 — a faithful mirror of `npm-release.yml`: dispatch-only `{commit, version,
 dist-tag}` with the optional `stable-off-latest`, `accept-downstream-failure`
@@ -589,7 +594,7 @@ protected `npm-publish` environment whose reviewers the verify job confirms
 exist, and OIDC trusted publishing with `--provenance`. Everything in the
 schema package's section above applies unchanged — the once-per-name
 prerequisites, the manual bootstrap first publish (run from
-`crates/candid-core-wasm/npm`, with `npm run build` building the wasm), and
+`crates/meant-wasm/npm`, with `npm run build` building the wasm), and
 the trusted-publisher configuration with **workflow filename
 `npm-release-cli.yml`**.
 
@@ -611,9 +616,9 @@ Two differences, both because the artifact embeds a wasm build:
    ordinary CI — and `wasm-opt` is deliberately off, so the published bytes
    are a pure function of those two pins.
 2. The version pairing is a **revision** pairing: the package embeds
-   `candid-core` and the unpublishable `candid-core-ts` generator from the
+   `meant` and the unpublishable `meant-ts` generator from the
    dispatched commit itself. `npm/CHANGELOG.md` names the embedded
-   `candid-core` version per release, and the release record names the exact
+   `meant` version per release, and the release record names the exact
    SHA; the `wasm CLI` workflow's parity gates are what make that pairing a
    verified property rather than a claim.
 
@@ -665,7 +670,7 @@ a plain `meant gen <.did>... -o <dir>` (the regenerated set would be
 a guess), when its `stack.json` has no `meant` pins (an ic-reactor that still
 installs the `@candid-core` pair), or when the install would load other
 bytes than the tarballs'. It
-fails on candid-core's side when a toolchain or the wasm does not build, when
+fails on Meant's side when a toolchain or the wasm does not build, when
 the two packages cannot be built, packed or installed, when the packed CLI
 writes another header than the one the script looks for (exit 2), or when the
 script itself crashes (exit 3). It allows one registry link and reports it:
@@ -685,7 +690,7 @@ the report shows nothing else.
 
 Drift does not fail it. A change here often means to change the generated
 modules, and the repin in ic-reactor regenerates them anyway (its
-CONTRIBUTING.md, "The candid-core pins"). The report says which files moved.
+CONTRIBUTING.md, "The Meant pins"). The report says which files moved.
 
 The report is the job summary and the `downstream-report` artifact:
 `summary.md`; `report.json`, with both tarballs' SHA-256, the ic-reactor
@@ -715,7 +720,7 @@ accepted, and the run's name ends with "accepting a downstream failure", which
 the runs list keeps. Say why in the release note's **Release record**.
 
 Only a failure on ic-reactor's side can be accepted. The `verify` job's gates
-and every failure on candid-core's side (above) still stop the publish.
+and every failure on Meant's side (above) still stop the publish.
 
 ### Outside a release
 
@@ -742,7 +747,7 @@ python3 tests/fixtures/packaging/verify_downstream.py \
   --downstream /tmp/ic-reactor --report /tmp/downstream-report
 ```
 
-`--candid-core <path>` packs another tree than the script's own, as the
+`--meant <path>` packs another tree than the script's own, as the
 workflow does.
 
 The script writes into the clone (the regenerated modules, the overrides, the
@@ -784,11 +789,11 @@ a schema version from the registry, npm warns the same way and then fails with
 published version, such as the last beta, npm refuses the install with
 `ERESOLVE could not resolve`. It contains, and contains only:
 
-1. `crates/candid-core-ts/ts/package.json` and the two root entries of its
-   `package-lock.json` at the schema beta; `crates/candid-core-wasm/npm/package.json`
+1. `crates/meant-ts/ts/package.json` and the two root entries of its
+   `package-lock.json` at the schema beta; `crates/meant-wasm/npm/package.json`
    and the two root entries of its `package-lock.json` at the CLI beta, with
    `peerDependencies["@candid-core/schema"]` set to the schema beta exactly.
-   `crates/candid-core-wasm/Cargo.toml`'s version is not the CLI's and is
+   `crates/meant-wasm/Cargo.toml`'s version is not the CLI's and is
    not bumped.
 2. Both changelogs: `## Unreleased` renamed to `## <version> — <YYYY-MM-DD>`,
    the date being the day the dispatch is planned. The gates require a real
@@ -798,14 +803,14 @@ published version, such as the last beta, npm refuses the install with
    stable version: every **BREAKING** item kept, no per-PR "release ordering"
    notes left contradicting each other, and every measured figure re-measured
    (the rename re-arms `verify_npm_package.py`'s check of the `schema.d.ts`
-   line count). The schema entry carries ``Pairs with `candid-core` X.``; the
-   CLI entry carries ``Embeds `candid-core` X …``, where X is the root
+   line count). The schema entry carries ``Pairs with `meant` X.``; the
+   CLI entry carries ``Embeds `meant` X …``, where X is the root
    `Cargo.toml` version (the CLI gate compares the two).
-3. When the tree's `candid-core` source has moved past the archive crates.io
+3. When the tree's `meant` source has moved past the archive crates.io
    holds for X, but the change neither moves a Contract nor an identity of an
    input X accepts, no crate release is required first: the schema entry still
    pairs with X, because the documents it loads are X's, and the README's
-   `cargo install candid-core --version X` (which the schema gate holds to the
+   `cargo install meant --version X` (which the schema gate holds to the
    pairing) still installs a compiler whose output it loads. The CLI entry
    names X and says, in the same paragraph, what the embedded source has that
    X's archive does not; the release record names the SHA. A change that does
@@ -957,11 +962,11 @@ to 7, with these differences:
   `git grep -n -E '(npm install|npx) [^<]*@(beta|[0-9.]+-beta\.[0-9]+)' -- README.md website/content`
   (the pages that carry them: `quickstart-typescript.html`, `packages.html`,
   `ts-overview.html`, `schema-from-contract.html`, `cli-npm.html`,
-  `generator.html`, `what-is-candid-core.html`, `migrating-from-0-2.html`,
+  `generator.html`, `interface-layer.html`, `migrating-from-0-2.html`,
   `status.html`, and the root `README.md`). And it rewrites the prose that
   says the site describes the `beta` dist-tag: `website/README.md` (the
   `NOTE_TITLE` paragraph), `_site.json` (the migration page's lead) and
-  `what-is-candid-core.html`.
+  `interface-layer.html`.
 
 If the merge slips past the date in the two changelog headings, a commit
 correcting the date comes first and is the one dispatched, as for a beta.
@@ -1020,7 +1025,7 @@ above, and these:
   install paragraph of `migrating-from-0-2.html` and its lead in
   `_site.json`. For 0.5.0 / 0.4.0 they were also the lead and the install
   lines of every earlier migration page, which say what a plain install
-  selects, the install paragraph of `what-is-candid-core.html`, and the
+  selects, the install paragraph of `interface-layer.html`, and the
   pinned `npx @candid-core/cli@<version>` lines, which
   `git grep -n '@candid-core/cli@' -- website/content` finds. Two more searches are read through, the second with the
   previous pair's versions (here 0.3.0 and 0.2.0):

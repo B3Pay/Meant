@@ -10,7 +10,7 @@ const transfer = { canister_id: TKA, to: BOB, amount: "1.5 TKA" };
 
 /**
  * A layer over a scripted ledger. `answers` are what successive update calls get; queries answer `query`.
- * Every send is recorded with its bytes, which must be candid-core's encoding of the value it carries.
+ * Every send is recorded with its bytes, which must be Meant's encoding of the value it carries.
  */
 function setup({ resolved = PACKS, answers = [], confirm = async () => true, reconcile, query = () => ({ status: "replied", reply: 150000000n }), clock, asyncEncode = false } = {}) {
   const sent = [];
@@ -27,7 +27,7 @@ function setup({ resolved = PACKS, answers = [], confirm = async () => true, rec
       return confirm(preview);
     },
     call: async (req) => {
-      assert.deepEqual(req.arg, encodeArgsFor(req.method, req.value), "the bytes sent are candid-core's encodeArgs of the value");
+      assert.deepEqual(req.arg, encodeArgsFor(req.method, req.value), "the bytes sent are Meant's encodeArgs of the value");
       sent.push(req);
       if (req.mode === "query") return query(req);
       const a = answers.shift();
@@ -73,7 +73,7 @@ test("confirm sees the preview: title, effect, the arguments formatted, the exac
   assert.equal(asked[0].arg_hex, p.preview.arg_hex);
 });
 
-test("encode is injected: the bytes are candid-core's encodeArgs of the argument with the stamp", async () => {
+test("encode is injected: the bytes are Meant's encodeArgs of the argument with the stamp", async () => {
   const { layer, updates } = setup({ answers: [ok(3)] });
   const p = await prepare(layer);
   const r = await commit(layer, p.preview.preview_id);

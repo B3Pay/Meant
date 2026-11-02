@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Candid Profile validator: a thin CLI over @meantjs/profile (packages/resolver).
+ * Meant profile validator: a thin CLI over @meantjs/profile (packages/resolver).
  *
  *   node scripts/validate.mjs                         # every packs/*.profile.json
  *   node scripts/validate.mjs path/to/x.profile.json --did path/to/service.did
@@ -8,11 +8,11 @@
  *   node scripts/validate.mjs --json                  # machine-readable report
  *
  * Layer 1: JSON Schema (spec/profile-v0.schema.json).
- * Layer 2: semantic checks against the Candid interface, compiled to a canonical candid-core Contract
+ * Layer 2: semantic checks against the Candid interface, compiled to a canonical Meant Contract
  *          (packs: `binds.requires`; canister profiles: the --did file). All of it lives in packages/resolver.
  *
  * One profile at a time. Several profiles, pack matching and layer merging (docs/profile-v0.md section 8) are
- * `candid-profile resolve` (packages/resolver/bin/candid-profile.mjs).
+ * `meant-profile resolve` (packages/resolver/bin/meant-profile.mjs).
  *
  * The package is imported by relative path so that this script keeps working in a checkout that has not been
  * re-installed since the workspace was added.

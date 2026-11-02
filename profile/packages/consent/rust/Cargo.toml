@@ -1,10 +1,10 @@
 [package]
-name = "candid-profile-consent"
+name = "meant-profile-consent"
 version = "0.0.0"
 edition = "2021"
 rust-version = "1.85"
 publish = false
-description = "Consent and SNS validator texts from a Candid Profile resolved form; the Rust version of packages/consent, for canisters."
+description = "Consent and SNS validator texts from a Meant profile resolved form; the Rust version of packages/consent, for canisters."
 license = "Apache-2.0"
 
 [lib]

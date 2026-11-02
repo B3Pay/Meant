@@ -1,10 +1,10 @@
 /**
- * Structural Candid subtyping over candid-core Contract graphs, with the pack-matching relaxation of D-019.
+ * Structural Candid subtyping over Meant Contract graphs, with the pack-matching relaxation of D-019.
  *
  * No existing checker could be reused (see README.md, "Subtyping"): @dfinity/didc 0.0.4 exports only
  * getServiceMethods/encode/decode, and @candid-core/cli 0.2.0 exported only didToContract/didToModule/init (surveyed 2026-10-09; 0.3.0, pinned since D-037, adds
  * projectDid and checkCompatible, not checked here).
- * candid-core's service-level check (b3hr4d/candid-core#247) is an open issue, not code. So this is our own
+ * Meant's service-level check (B3Pay/Meant#247) is an open issue, not code. So this is our own
  * implementation of the rules in the Candid specification, section "Upgrading and Subtyping > Rules"
  * (https://github.com/dfinity/candid/blob/c7659ca/spec/Candid.md), checked against the Rust crate
  * candid 0.10.37 (src/types/subtype.rs).

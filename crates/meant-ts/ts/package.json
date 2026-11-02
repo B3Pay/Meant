@@ -1,0 +1,49 @@
+{
+  "name": "@meantjs/schema",
+  "version": "0.6.0",
+  "description": "Zod-style schema runtime for Candid: builders with static inference, structural validation, a TypeScript-native binary codec, and a loader that builds the same schemas from Meant's canonical Contract documents.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/B3Pay/Meant.git",
+    "directory": "crates/meant-ts/ts"
+  },
+  "homepage": "https://github.com/B3Pay/Meant/tree/main/crates/meant-ts/ts#readme",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./validate": {
+      "types": "./dist/validate.d.ts",
+      "default": "./dist/validate.js"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "default": "./dist/contract.js"
+    },
+    "./codec": {
+      "types": "./dist/codec.d.ts",
+      "default": "./dist/codec.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "test": "node --test --import ./tests/register.ts tests/*.test.ts",
+    "format": "cd ../../.. && prettier --write \"**/*.ts\"",
+    "format:check": "cd ../../.. && prettier --check \"**/*.ts\""
+  },
+  "devDependencies": {
+    "@icp-sdk/core": "6.1.0",
+    "prettier": "3.9.6",
+    "typescript": "7.0.2"
+  }
+}

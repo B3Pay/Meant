@@ -1,6 +1,6 @@
 # Benchmark corpus
 
-These fixtures are part of the repository's Apache-2.0-licensed test material. They were written specifically for `candid-core`; they are not copied from a production canister or presented as an official Candid workload.
+These fixtures are part of the repository's Apache-2.0-licensed test material. They were written specifically for this repository; they are not copied from a production canister or presented as an official Candid workload.
 
 | Case | Purpose |
 | --- | --- |

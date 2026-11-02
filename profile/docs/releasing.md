@@ -41,7 +41,7 @@ Semantic versioning, read the 0.x way: while the major is 0, **the minor is the 
 | patch (0.1.0 to 0.1.1) | A fix that changes no generated text and no accepted input, docs, and dependency patches. |
 | prerelease (0.2.0-beta.1) | A version for trying before the stable one, published under its own dist-tag (`beta`), never `latest`. |
 
-1.0.0 waits until the spec leaves v0 and the owner says the API is stable. The packages implement Candid Profile v0
+1.0.0 waits until the spec leaves v0 and the owner says the API is stable. The packages implement Meant Profile v0
 (`docs/profile-v0.md`, `spec/profile-v0.schema.json`); a spec change follows AGENTS.md rule 1 and is at least a minor.
 
 ## Changelogs
@@ -175,7 +175,7 @@ import), the declaration names (a declaration removed), the strict consumer prog
 assignment), the LICENSE hash (one byte changed), the changelog entry (removed), lockstep (one version changed), and
 `release-check.mjs` (`scripts/release.test.mjs`; the version's dots unescaped). The same test file runs the
 workflow's own input step under bash with 3 accepted and 12 refused inputs; it caught that `grep -qE`, as first
-copied from candid-core's workflows, matches line by line and passed a two-line version, so the step now matches with
+copied from Meant's workflows, matches line by line and passed a two-line version, so the step now matches with
 `[[ =~ ]]`. The environment check and the publish loop run only in the workflow. Both ran for the first time in the
 0.1.0 release (run 40692299884, 2026-10-28): the check found a required reviewer, and the loop published the five in
 dependency order. Its skip of a version already published with the same bytes, and its refusal when the bytes

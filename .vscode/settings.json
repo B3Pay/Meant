@@ -48,7 +48,7 @@
   // happens to bundle. The extension's Prettier moves on its own release
   // schedule, and a formatter that disagrees with CI by a minor version is
   // exactly the churn this setup exists to remove.
-  "prettier.prettierPath": "crates/candid-core-ts/ts/node_modules/prettier",
+  "prettier.prettierPath": "crates/meant-ts/ts/node_modules/prettier",
 
   // Fail closed: with no resolvable config, format nothing at all. Without
   // this, a file outside the config's reach would be formatted with the user's
@@ -70,14 +70,14 @@
   // errors on Rust 1.91.1 and 1.93.1, zero from 1.94.0 on.
 
   // Analyse with every feature on. That is an editor setting, not a relaxation
-  // of the boundary claim: `candid-core-ts` has no default features on purpose,
+  // of the boundary claim: `meant-ts` has no default features on purpose,
   // so rust-analyzer at Cargo's defaults greys out `TsNames::from_source_info`
   // and the whole of tests/golden.rs and tests/wire_vectors.rs — about a
   // thousand lines with no completion, no go-to-definition and no diagnostics.
   // The featureless build stays enforced where enforcement belongs, by
-  // `cargo check -p candid-core-ts --locked` in CI.
+  // `cargo check -p meant-ts --locked` in CI.
   //
-  // `"all"` rather than `["candid-core-ts/compiler"]` because one value is
+  // `"all"` rather than `["meant-ts/compiler"]` because one value is
   // applied to every linked project below, and a package-qualified feature is a
   // hard error in a workspace that does not contain that package — it would
   // stop `fuzz/` loading at all.

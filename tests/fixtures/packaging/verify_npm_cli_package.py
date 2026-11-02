@@ -28,8 +28,8 @@ import sys
 import tempfile
 
 REPO = pathlib.Path(__file__).resolve().parents[3]
-PACKAGE = REPO / "crates" / "candid-core-wasm" / "npm"
-SCHEMA = REPO / "crates" / "candid-core-ts" / "ts"
+PACKAGE = REPO / "crates" / "meant-wasm" / "npm"
+SCHEMA = REPO / "crates" / "meant-ts" / "ts"
 
 # The npm names and the command, exactly. Through 0.4.0 the package was
 # `@candid-core/cli`, its peer `@candid-core/schema` and its command
@@ -171,7 +171,7 @@ def main():
         # actually embeds, not merely required to exist. Asserting that *some*
         # token follows the package name would pass a stale version carried
         # forward from a previous release — or the word "nonsense" — while the
-        # tarball claims verified provenance. `candid-core-wasm` depends on the
+        # tarball claims verified provenance. `meant-wasm` depends on the
         # root crate by path, so the root manifest is what it embeds.
         #
         # Which entry makes the claim follows the sibling gate's rule. While

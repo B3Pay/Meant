@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Instructions for any coding agent (Claude Code, Codex, others) working in `profile/`, the Candid Profile spec and the
+Instructions for any coding agent (Claude Code, Codex, others) working in `profile/`, the Meant Profile spec and the
 `@meantjs` packages. Humans: see `README.md`. Run every command below from this folder.
 
 ## Commands

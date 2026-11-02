@@ -5,7 +5,7 @@
 //
 // The caller reads the blocks (certified, and from archives when it needs them) and passes them in; this module
 // only maps a call to the block it leaves and judges the blocks. It imports no Node built-in and needs no codec:
-// arguments are candid-core values (bigint, Uint8Array, principal text) and blocks are ICRC-3 values in the
+// arguments are Meant values (bigint, Uint8Array, principal text) and blocks are ICRC-3 values in the
 // `{ tag, value }` shape (`Map`, `Array`, `Nat`, `Int`, `Text`, `Blob`).
 //
 // Rules, each one in the safe direction:
@@ -76,7 +76,7 @@ const present = (key, value) => (value === undefined ? {} : { [key]: value });
  * The ICRC-3 transaction a call leaves in the log.
  *
  * @param {string} method  `icrc1_transfer`, `icrc2_approve` or `icrc2_transfer_from`
- * @param {Record<string, unknown>} arg  the call's argument record as candid-core values (`amount` and
+ * @param {Record<string, unknown>} arg  the call's argument record as Meant values (`amount` and
  *        `created_at_time` bigint, accounts `{ owner: <principal text>, subaccount: Uint8Array | null }`, `memo`
  *        Uint8Array or null)
  * @param {string} caller  the caller's principal text

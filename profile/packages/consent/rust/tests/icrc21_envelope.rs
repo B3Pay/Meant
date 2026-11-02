@@ -8,8 +8,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use candid::Nat;
-use candid_profile_consent::icrc21::{ConsentInfo, ConsentMessage, ConsentMessageMetadata, ConsentMessageResponse, ErrorInfo, Icrc21Error};
-use candid_profile_consent::{handle_consent_request, parse_resolved, ConsentContext, LanguagePolicy};
+use meant_profile_consent::icrc21::{ConsentInfo, ConsentMessage, ConsentMessageMetadata, ConsentMessageResponse, ErrorInfo, Icrc21Error};
+use meant_profile_consent::{handle_consent_request, parse_resolved, ConsentContext, LanguagePolicy};
 use serde_json::{Map, Value};
 
 fn here(rel: &str) -> PathBuf {

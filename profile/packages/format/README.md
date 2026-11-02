@@ -1,6 +1,6 @@
 # @meantjs/format
 
-Exact value conversion for the six value tags of Candid Profile v0 (`docs/profile-v0.md` §5.3): `amount`, `timestamp`, `duration`, `account`, `subaccount` and `bytes`. It turns the text a person or an agent writes (`"1.5 ICP"`, `"+PT24H"`, `"#7"`) into the value a call carries, and back into canonical text for display. The agent tools (`@meantjs/tools`) and the ICRC-21 consent generator (`@meantjs/consent`) both use it, so they cannot disagree about what a value means.
+Exact value conversion for the six value tags of Meant Profile v0 (`docs/profile-v0.md` §5.3): `amount`, `timestamp`, `duration`, `account`, `subaccount` and `bytes`. It turns the text a person or an agent writes (`"1.5 ICP"`, `"+PT24H"`, `"#7"`) into the value a call carries, and back into canonical text for display. The agent tools (`@meantjs/tools`) and the ICRC-21 consent generator (`@meantjs/consent`) both use it, so they cannot disagree about what a value means.
 
 ```sh
 npm install @meantjs/format
@@ -8,8 +8,8 @@ npm install @meantjs/format
 
 - **Runs on:** Node 22 or later and browsers: no dependency, no I/O, no Node built-in.
 - **Module format:** ES modules only, with hand-written TypeScript declarations for every entry.
-- **Spec:** [Candid Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
-- **Versions:** the five Candid Profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
+- **Spec:** [Meant Profile v0](https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md). **Licence:** Apache-2.0.
+- **Versions:** the five Meant profile packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`,
   `/reconcile`) release together under one version and pin each other exactly; in 0.x a minor is breaking,
   and so is any change to generated text ([releasing](https://github.com/B3Pay/Meant/blob/main/profile/docs/releasing.md)).
 

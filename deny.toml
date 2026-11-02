@@ -6,7 +6,7 @@
 # docs/verification.md#dependency-license-and-advisory-review.
 #
 # cargo-deny is a *release* tool, not an MSRV dependency and not a dependency of
-# this crate: 0.20.2 declares `rust-version = "1.88"`, well above candid-core's
+# this crate: 0.20.2 declares `rust-version = "1.88"`, well above `meant`'s
 # own 1.78, and it is installed as a binary rather than declared in Cargo.toml.
 #
 # Nothing here is a blanket allow. `licenses.allow` is exactly the five

@@ -1,6 +1,6 @@
 // One tool per case (B2 rule 3 of docs/proposals/w9-b3wallet-gaps.md, D-053): a method whose single argument is a
 // variant with an intent or an effect on a case gets a tool for each case, against resolved nodes shaped as the
-// resolver writes them; every prepared value is encoded by candid-core.
+// resolver writes them; every prepared value is encoded by Meant.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { c } from "@meantjs/schema";
@@ -136,7 +136,7 @@ test("a case tool's title, effect and kind come from its case, else from its met
   assert.deepEqual(plans.get("prepare_nested").params.map((p) => p.name), ["id", "action"]);
 });
 
-test("a case tool sends its case around the payload, a null payload as a bare tag, and candid-core encodes it", () => {
+test("a case tool sends its case around the payload, a null payload as a bare tag, and Meant encodes it", () => {
   const transfer = readToolInput(plans.get("prepare_propose_Transfer"), { amount: "1.5", to: ALICE });
   assert.deepEqual(transfer.value, { tag: "Transfer", value: { amount: 150_000_000n, to: ALICE } });
   const pause = readToolInput(plans.get("prepare_propose_Pause"), {});

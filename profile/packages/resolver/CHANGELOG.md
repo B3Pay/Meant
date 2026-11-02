@@ -1,6 +1,14 @@
 # Changelog: @meantjs/profile
 
-The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
+The five Meant profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
+
+## 0.9.0 (unreleased)
+
+- The command is `meant-profile` (D-064). `candid-profile`, its name until now, still runs it and prints a warning on
+  stderr; a later release removes it. Its usage text and messages say `meant-profile`.
+- The spec is named Meant Profile v0, and the guide `renderApiDoc` and `meant-profile api-doc` write says "the
+  canister's Meant profile" in its first paragraph. Nothing else in the guide, the resolved form or any identity
+  changes: the `format` values and id prefixes keep their names.
 
 ## 0.8.0 — 2026-11-02
 

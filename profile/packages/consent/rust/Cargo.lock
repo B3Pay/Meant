@@ -102,7 +102,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "candid-profile-consent"
+name = "meant-profile-consent"
 version = "0.0.0"
 dependencies = [
  "candid",

@@ -1,5 +1,5 @@
 {
-  "source": {"repository":"https://github.com/b3hr4d/candid-profile","commit":"b6059abce12dc1b241a48deddc801db47d860b4d","package":"@meantjs/format@0.2.0","node":"v22.22.0","unicode":"16.0","seed":20261027},
+  "source": {"repository":"https://github.com/B3Pay/Meant","commit":"86069f937d1c5a598a4f0a67f3bcb23dcc823653","package":"@meantjs/format@0.8.0","node":"v22.22.0","unicode":"16.0","seed":20261027},
   "parse": [
     {"in":"1.5","d":8,"sym":"ICP","candid":"nat","ok":"150000000"},
     {"in":"1.5","d":8,"sym":"TKA","candid":"int","ok":"150000000"},

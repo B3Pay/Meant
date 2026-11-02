@@ -22,9 +22,9 @@ const tuples: unknown[][] = [];
 const layer = createToolLayer({
   resolved: [r.resolved],
   canisters,
-  // `args` is the whole argument tuple, what candid-core's encodeArgs takes
+  // `args` is the whole argument tuple, what Meant's encodeArgs takes
   encode: (_method: string, _value: unknown, args: unknown[]) => (tuples.push(args), new Uint8Array([0x44, 0x49, 0x44, 0x4c])),
-  // The reply is the decoded first result in candid-core's domain shape: a variant is { tag, value }.
+  // The reply is the decoded first result in Meant's domain shape: a variant is { tag, value }.
   call: async ({ mode, args }): Promise<CallResult> => (check(mode === "update" && args.length === 1, "an update call with the tuple"), { status: "replied", reply: { tag: "Ok", value: 7n } }),
   now: async () => 1791547200000000000n,
   confirm: async (preview) => (seen.push(preview), true),

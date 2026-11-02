@@ -2,8 +2,8 @@ name: Verify
 
 on:
   # A pull request that changes only the profile copy (profile/, synced from
-  # candid-profile, see CLAUDE.md) and its two workflows builds nothing this
-  # workflow checks, so it does not start one. A push to main is not filtered:
+  # the profile's private working repository, see CLAUDE.md) and its two
+  # workflows builds nothing this workflow checks, so it does not start one. A push to main is not filtered:
   # every commit there gets its run, which a release needs on its commit
   # (docs/releasing.md, step 2).
   pull_request:
@@ -246,12 +246,12 @@ jobs:
       # tests need `compiler` (they compile fixtures and use the provenance
       # name bridge), so both configurations run.
       - name: Check the featureless library
-        run: cargo check -p candid-core-ts --locked
+        run: cargo check -p meant-ts --locked
       - name: Lint both feature configurations
         run: |
           set -euxo pipefail
-          cargo clippy -p candid-core-ts --all-targets --locked -- -D warnings
-          cargo clippy -p candid-core-ts --all-targets --features compiler --locked -- -D warnings
+          cargo clippy -p meant-ts --all-targets --locked -- -D warnings
+          cargo clippy -p meant-ts --all-targets --features compiler --locked -- -D warnings
       # With `compiler`, this includes the differential fuzz's reference half
       # (issue #196): tests/differential regenerates the committed seeded
       # corpus (a fixed count, no time budget, per #39) with the `candid`
@@ -260,8 +260,8 @@ jobs:
       - name: Test both feature configurations
         run: |
           set -euxo pipefail
-          cargo test -p candid-core-ts --locked
-          cargo test -p candid-core-ts --features compiler --locked
+          cargo test -p meant-ts --locked
+          cargo test -p meant-ts --features compiler --locked
       # Golden TypeScript that does not type-check is not evidence of anything,
       # so the checked-in goldens are compiled by the exact TypeScript pinned in
       # ts/package-lock.json under strict mode. SHA-pinned like the release
@@ -273,7 +273,7 @@ jobs:
         with:
           node-version: '24.18.0'
       - name: Type-check the golden TypeScript
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: |
           set -euxo pipefail
           npm ci
@@ -292,7 +292,7 @@ jobs:
       # belongs to the emitter, and formatting them would turn the golden suite
       # red (verified — Prettier rewrites 6 of the 10).
       - name: Check TypeScript formatting
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npm run format:check
       # The schema runtime (issue #102) runs on Node's built-in test runner
       # with native type stripping: no test framework enters the supply chain,
@@ -305,7 +305,7 @@ jobs:
       # the symptom tests/goldens/differential/divergences.json lists for its
       # case id, with its issue.
       - name: Run the schema runtime tests
-        working-directory: crates/candid-core-ts/ts
+        working-directory: crates/meant-ts/ts
         run: npm test
       # The packaged-consumer gate (issue #106): the artifact npm would ship
       # must stand alone — root and subpath exports resolving, compiling

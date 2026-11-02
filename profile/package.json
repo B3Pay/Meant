@@ -2,7 +2,7 @@
   "name": "meant-profile",
   "version": "0.0.0",
   "private": true,
-  "description": "Meant profiles, the meaning layer for Internet Computer canister calls: the Candid Profile v0 spec, its schema and standard packs, and the @meantjs packages that read them.",
+  "description": "Meant profiles, the meaning layer for Internet Computer canister calls: the Meant Profile v0 spec, its schema and standard packs, and the @meantjs packages that read them.",
   "type": "module",
   "engines": {
     "node": ">=22"

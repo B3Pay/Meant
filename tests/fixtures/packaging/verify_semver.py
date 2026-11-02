@@ -227,7 +227,7 @@ def main() -> int:
         "the marker, describing what changed and what a consumer must do:\n"
         "\n"
         "    - **BREAKING**: `ContractEnvelope` is no longer re-exported at the "
-        "crate root; import it from `candid_core::envelope`.\n"
+        "crate root; import it from `meant::envelope`.\n"
         "\n"
         "The marker must start a list item. A mention inside prose or backticks "
         "does not acknowledge anything — otherwise the changelog entry that "

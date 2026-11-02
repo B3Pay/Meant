@@ -1,5 +1,5 @@
 // The readers D-050 adds (proposal docs/proposals/w6-adoption.md, items 2 and 3), each against resolved nodes shaped as
-// the resolver writes them, and every prepared value encoded by candid-core, so the domain shapes are the ones
+// the resolver writes them, and every prepared value encoded by Meant, so the domain shapes are the ones
 // ic-reactor sends:
 //   text   the text as given, within the `text` tag (max_len, pattern, format) and `range` lengths;
 //   bool   "true" or "false";

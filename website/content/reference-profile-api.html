@@ -149,7 +149,7 @@ export interface ProfileStatus {
 export interface ResolveOptions {
   /** Candid source of the service (exactly one of `did`, `envelope` and `abi`). */
   did?: string;
-  /** The service's candid-core ContractEnvelope. */
+  /** The service's Meant ContractEnvelope. */
   envelope?: unknown;
   /** An EVM contract's ABI: human-readable fragments or JSON ABI entries (section 15). */
   abi?: readonly (string | Record<string, unknown>)[];
@@ -581,7 +581,7 @@ const response = icrc21ConsentMessage(
     user_preferences: { metadata: { language: "en", utc_offset_minutes: 120 }, device_spec: { GenericDisplay: null } },
   },
   {
-    resolved, // fixtures/*.resolved.json shape, or the output of `candid-profile resolve`
+    resolved, // fixtures/*.resolved.json shape, or the output of `meant-profile resolve`
     refs: { "query:icrc1_decimals": 8, "query:icrc1_symbol": "TKA" }, // dynamic refs, resolved by the caller
   },
 );
@@ -1084,7 +1084,7 @@ export function createToolLayer(config: ToolLayerConfig): ToolLayer;
     <tr><td><code>buildToolPlans</code>, <code>resolvedMethods</code>, <code>prepareToolName</code>, <code>caseToolName</code>, <code>COMMIT_TOOL</code></td><td>Which tools a form gives and what each one fills; <code>prepare_&lt;method&gt;</code>; a tool per case of a variant argument (D-053); <code>"commit"</code>.</td></tr>
     <tr><td><code class="wrap">readToolInput(plan, input, context?)</code></td><td>Reads a tool call's inputs in human units: <code>{ value, identity }</code> or <code>{ issues }</code> (<a href="reference-profile-diagnostics.html#meantjs-tools-input-issues">input issues</a>).</td></tr>
     <tr><td><code class="wrap">classifyReply(plan, reply)</code></td><td>The outcome class of a reply, by the method's <code>outcome</code> tag.</td></tr>
-    <tr><td><code>toCandid</code>, <code>displayValue</code>, <code>nameEntries</code></td><td>Converted values to candid-core shapes; values as a preview shows them; the entries of a <code>names</code> set in a reply.</td></tr>
+    <tr><td><code>toCandid</code>, <code>displayValue</code>, <code>nameEntries</code></td><td>Converted values to Meant shapes; values as a preview shows them; the entries of a <code>names</code> set in a reply.</td></tr>
   </tbody>
 </table>
 

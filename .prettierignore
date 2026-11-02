@@ -1,7 +1,7 @@
 # What Prettier must never rewrite in this repository.
 #
 # Prettier's job here is narrow: the hand-written TypeScript under
-# crates/candid-core-ts/ts/. Everything below is either generated, compared
+# crates/meant-ts/ts/. Everything below is either generated, compared
 # byte for byte by a test, or not ours — and every entry is a file Prettier
 # *would* have changed, not a precaution against a hypothetical.
 #
@@ -10,12 +10,12 @@
 # passing --ignore-path (which replaces the default list rather than adding to
 # it) still fails closed.
 
-# Generator output, compared byte for byte by `cargo test -p candid-core-ts
+# Generator output, compared byte for byte by `cargo test -p meant-ts
 # --features compiler`. Prettier reformats 6 of the 10 goldens (152 lines), so
 # formatting them turns the golden suite red and, worse, would silently move
 # the reviewed mapping decisions these files record. The emitter owns their
 # layout; regenerate with UPDATE_GOLDENS=1, never with a formatter.
-/crates/candid-core-ts/tests/goldens/
+/crates/meant-ts/tests/goldens/
 
 # Conformance and artifact-identity vectors are digests of exact octets
 # (docs/artifact-identity-v1.md). .gitattributes already pins their line
@@ -24,7 +24,7 @@
 /tests/fixtures/
 
 # Build output of `npm run build`, and the packaged-consumer fixture's tree.
-/crates/candid-core-ts/ts/dist/
+/crates/meant-ts/ts/dist/
 
 # Documentation page fragments. Inside a <pre> the text is taken literally by
 # website/build.mjs and escaped on the way out, so a sample containing
@@ -36,7 +36,7 @@
 # formatted by this same Prettier and must stay that way.
 /website/content/
 
-# The profile packages' copy, synced from the candid-profile repository, which
+# The profile packages' copy, synced from their private working repository, which
 # owns its layout: a sync must leave it byte for byte as that repository's
 # build wrote it, and the sync's `diff -r` against the build checks exactly
 # that. This repository's .prettierrc.json would rewrite 16 of its 17 .mts

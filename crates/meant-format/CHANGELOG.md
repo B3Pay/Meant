@@ -2,9 +2,9 @@
 
 ## 0.2.0
 
-Brings the crate level with the JavaScript reference `@meantjs/format` 0.2.0
-(candid-profile decision D-054). Breaking, as 0.x releases may be: `IntType`
-gains variants and `IntType::ALL` becomes a slice.
+Brings the crate level with the JavaScript reference `@meantjs/format` 0.2.0.
+Breaking, as 0.x releases may be: `IntType` gains variants and `IntType::ALL`
+becomes a slice.
 
 - EVM positions (Candid Profile v0 §15): `IntType` gains the EVM ABI's
   `uint8` to `uint256` and `int8` to `int256` (`int8` to `int64` are the

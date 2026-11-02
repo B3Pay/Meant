@@ -393,7 +393,7 @@ fn rewritten_producer_bytes_move_the_artifact_id_and_not_the_semantic_ids() {
     let rebranded = draft
         .clone()
         .with_producer(ProducerInfo {
-            name: "candid-core-fork".to_string(),
+            name: "meant-fork".to_string(),
             version: "9.9.9".to_string(),
             ..contract.producer().clone()
         })

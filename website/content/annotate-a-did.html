@@ -117,7 +117,7 @@ true [ 'tokens-docs applied' ] 0</pre>
   to its end, or a key repeated in one argument list, makes <code>didToDocAttributes</code> fail, and
   the reader reports each as <diag>E_DOC_SYNTAX</diag> with no profile. A line where the name is followed by a space or by text
   (<code>@amount (decimals = 8)</code>, <code>@param amount the value</code>) is prose, not an
-  attribute. The full grammar is candid-core's
+  attribute. The full grammar is Meant's
   <a href="https://github.com/B3Pay/Meant/blob/main/docs/doc-attributes.md">doc attributes v1</a>.
 </p>
 
@@ -265,7 +265,7 @@ warning  W_DOC_UNKNOWN_TAG  send   doc line 2: @amout: not a profile tag; did yo
   <tbody>
     <tr><td><diag>E_DOC_TARGET</diag></td><td>A tag no v0 address reaches (inside a <code>func</code> or <code>service</code> value), or one in the wrong place: a value tag on a method without <code>at</code>, a method tag on a field, an <code>at</code> that is not a relative path, a missing <code>(i)</code>.</td></tr>
     <tr><td><diag>E_DOC_VALUE</diag></td><td>A value the profile cannot hold: a fraction, an unknown call, <code>query</code> with more than one name.</td></tr>
-    <tr><td><diag>E_DOC_SYNTAX</diag></td><td>candid-core refused the comment: an attribute line that does not parse, or a repeated key.</td></tr>
+    <tr><td><diag>E_DOC_SYNTAX</diag></td><td>Meant refused the comment: an attribute line that does not parse, or a repeated key.</td></tr>
     <tr><td><diag>E_DOC_INPUT</diag></td><td>What was passed in is not a doc attributes v1 response.</td></tr>
     <tr><td><diag>E_CANDID</diag></td><td>The <code>.did</code> itself does not compile.</td></tr>
     <tr><td><diag>W_DOC_UNKNOWN_TAG</diag></td><td>A bare name one or two letters from a tag.</td></tr>

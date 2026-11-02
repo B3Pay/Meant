@@ -429,7 +429,7 @@ fn check_type_depth(
 /// type that unwraps `opt` without end, so decoding has no finite derivation:
 /// the reference `candid` crate stops only at its stack guard, and a runtime
 /// only at its depth budget. `candid_parser` accepts these types; this is
-/// candid-core's own refusal, made at compile time only. A Contract document
+/// Meant's own refusal, made at compile time only. A Contract document
 /// that already holds such a type still loads (`Contract::from_json`,
 /// `schemaFromContract`); decoding at it still ends in a depth refusal.
 ///

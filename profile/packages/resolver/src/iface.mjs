@@ -1,5 +1,5 @@
 /**
- * A compiled Candid interface: the candid-core Contract graph plus the field-name table, with the lookups the
+ * A compiled Candid interface: the Meant Contract graph plus the field-name table, with the lookups the
  * resolver needs (address resolution, opt-transparent walks, shape tests). Moved verbatim from scripts/validate.mjs;
  * the only additions are `label` (used in subtype diagnostics) and `interfaceId`.
  */
@@ -7,7 +7,7 @@ import { idlHash } from "./util.mjs";
 import { parseRelPath, methodKey, edgeKey } from "./address.mjs";
 
 export class Iface {
-  /** @param envelope a candid-core ContractEnvelope; @param label how diagnostics name this side ("canister", "pack fragment") */
+  /** @param envelope a Meant ContractEnvelope; @param label how diagnostics name this side ("canister", "pack fragment") */
   constructor(envelope, label = "interface") {
     this.label = label;
     this.contract = envelope.contract;

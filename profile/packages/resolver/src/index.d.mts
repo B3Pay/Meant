@@ -66,7 +66,7 @@ export function createSchemaValidator(schema?: string | Record<string, unknown>)
 /** Every `*.profile.json` of kind "pack" in a directory, sorted by file name (default: the packs this package ships). */
 export function loadPacks(dir?: string): Promise<Pack[]>;
 
-/** `candid-profile` as a function: the exit code (0 no error, 1 an error diagnostic, 2 usage or I/O). */
+/** `meant-profile` as a function: the exit code (0 no error, 1 an error diagnostic, 2 usage or I/O). */
 export function runCli(argv: string[], io: { stdout: { write(text: string): unknown }; stderr: { write(text: string): unknown } }): Promise<0 | 1 | 2>;
 /** The CLI's help text. */
 export const USAGE: string;
