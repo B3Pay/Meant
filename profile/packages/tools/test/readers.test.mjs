@@ -8,8 +8,8 @@
 //          result that has no variant to select.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { c } from "@candid-core/schema";
-import { encodeArgs } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { encodeArgs } from "@meantjs/schema/codec";
 import { buildToolPlans, classifyReply, createToolLayer, readToolInput, toolDefinitions } from "../src/index.mjs";
 import { MAX_NESTED_VALUES, MAX_TEXT_CHARS, MAX_VEC_ITEMS } from "../src/input.mjs";
 

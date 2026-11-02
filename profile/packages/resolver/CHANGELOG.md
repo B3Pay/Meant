@@ -2,6 +2,13 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.8.0 — 2026-11-02
+
+- Depends on `@meantjs/cli` 0.5.0 instead of `@candid-core/cli` 0.4.0: the same Candid compiler under its new name
+  (Meant). The repository's resolved forms come out byte-identical, and so do the `didToDocAttributes` responses its
+  tests read. `@meantjs/profile/browser` still loads `candid_core_wasm_bg.wasm` from next to the bundle; a build that
+  copies it there now finds it in `node_modules/@meantjs/cli/wasm/`. The help for `--envelope` names `meant gen`.
+
 ## 0.7.0 — 2026-11-01
 
 - The text of a canister's `get_api_doc` query, from its profile (spec §8.2, D-060): `renderApiDoc(resolved, { refs,

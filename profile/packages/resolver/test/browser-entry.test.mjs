@@ -22,7 +22,7 @@ test("the browser entry is exported", async () => {
 });
 
 test("the browser entry bundles with no node:* import and no Node global; its one package import is the cli", async () => {
-  // @candid-core/cli is left out: it is the wasm compiler's own published package, and it reads its wasm with a
+  // @meantjs/cli is left out: it is the wasm compiler's own published package, and it reads its wasm with a
   // guarded `import("node:fs/promises")` only when it runs on Node.
   const result = await build({
     entryPoints: [path.join(PKG, "src/browser.mjs")],
@@ -35,7 +35,7 @@ test("the browser entry bundles with no node:* import and no Node global; its on
     legalComments: "none",
     metafile: true,
     logLevel: "silent",
-    external: ["@candid-core/cli"],
+    external: ["@meantjs/cli"],
   });
   const inputs = Object.keys(result.metafile.inputs);
   assert.deepEqual(inputs.filter((p) => p.startsWith("node:") || p.includes("(disabled):")), []);
@@ -43,7 +43,7 @@ test("the browser entry bundles with no node:* import and no Node global; its on
   assert.ok(own.includes("src/browser.mjs") && own.includes("data/profile-v0.schema.json"), own.join("\n"));
   assert.deepEqual(own.filter((p) => ["src/cli.mjs", "src/packs.mjs", "src/schema.mjs", "src/index.mjs"].includes(p)), []);
   const [output] = Object.values(result.metafile.outputs);
-  assert.deepEqual([...new Set(output.imports.map((i) => i.path))], ["@candid-core/cli"]);
+  assert.deepEqual([...new Set(output.imports.map((i) => i.path))], ["@meantjs/cli"]);
   const text = result.outputFiles[0].text;
   assert.doesNotMatch(text, /\bBuffer\b/);
   // `process` as a global; ajv has an option called `code.process`, read as a property.

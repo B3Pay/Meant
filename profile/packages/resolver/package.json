@@ -1,6 +1,6 @@
 {
   "name": "@meantjs/profile",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Candid Profile resolver: validates profiles, matches packs by Candid subtyping, merges layers (spec section 8) and emits the resolved form (spec section 10).",
   "license": "Apache-2.0",
   "repository": {
@@ -69,7 +69,7 @@
     "data:check": "node scripts/data.mjs --check"
   },
   "dependencies": {
-    "@candid-core/cli": "0.4.0",
+    "@meantjs/cli": "0.5.0",
     "ajv": "8.18.0"
   },
   "devDependencies": {

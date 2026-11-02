@@ -20,7 +20,7 @@ export const USAGE = `usage: candid-profile resolve <service.did> [options] > re
        candid-profile api-doc <service.did> [options] [--ref from=value ...] [--title text] > api-doc.md
        candid-profile api-doc --envelope <file> [options] [--ref ...] [--title text] > api-doc.md
 
-  --envelope <file>   the service's candid-core ContractEnvelope (as \`candid-core-cli gen\` writes it), instead of
+  --envelope <file>   the service's ContractEnvelope (as \`meant gen\` writes it), instead of
                       compiling a .did here
   --abi <file>        an EVM contract's ABI, a JSON array of human-readable fragments or JSON ABI entries
                       (experimental, spec section 15)

@@ -2,7 +2,7 @@
  * `@meantjs/profile/browser`: the resolver without Node built-ins, for a browser bundle. The same functions as
  * the main entry, except the ones that read files (`loadPacks`, the CLI, the default paths): the schema and the
  * standard packs come in as the data this package ships, and `createSchemaValidator` takes a document, never a
- * path. The Candid compiler is the `@candid-core/cli` wasm; it initializes itself on first use (fetched next to the
+ * path. The Candid compiler is the `@meantjs/cli` wasm; it initializes itself on first use (fetched next to the
  * module), or call `initCompiler(urlOrBytes)` first when a bundler moves the wasm file.
  *
  * test/browser-entry.test.mjs keeps the module graph free of node:* imports and checks the data against data/.
@@ -14,7 +14,7 @@ import erc20 from "../data/packs/erc20.profile.json" with { type: "json" };
 import erc2612 from "../data/packs/erc2612.profile.json" with { type: "json" };
 import { compileSchema } from "./schema-core.mjs";
 
-export { init as initCompiler } from "@candid-core/cli";
+export { init as initCompiler } from "@meantjs/cli";
 export { idlHash, jcs, profileId } from "./util.mjs";
 export { parseAddress, parseRelPath } from "./address.mjs";
 export { Iface } from "./iface.mjs";

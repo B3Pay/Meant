@@ -81,7 +81,7 @@ test("in Chromium, under a CSP with no 'unsafe-eval', the browser entry resolves
     });
     bundles[`/${name}.js`] = out.outputFiles[0].text;
   }
-  const wasm = await readFile(path.join(path.dirname(require.resolve("@candid-core/cli/package.json")), "wasm/candid_core_wasm_bg.wasm"));
+  const wasm = await readFile(path.join(path.dirname(require.resolve("@meantjs/cli/package.json")), "wasm/candid_core_wasm_bg.wasm"));
   const server = createServer((req, res) => {
     const send = (type, body) => res.writeHead(200, { "content-type": type, "content-security-policy": CSP }).end(body);
     const page = /^\/(\w+)\.html$/.exec(req.url)?.[1];

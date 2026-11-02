@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { resolveService, interfaceFromEnvelope, runCli } from "../src/index.mjs";
 import { HERE, ROOT, icrc1, icrc2, read, readJson, validateSchema } from "./helpers.mjs";
 import path from "node:path";
-import { didToContract } from "@candid-core/cli";
+import { didToContract } from "@meantjs/cli";
 
 const env = (name) => readJson(path.join(HERE, "fixtures/envelopes", `${name}.envelope.json`));
 const CASES = [

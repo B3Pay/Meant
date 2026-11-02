@@ -1,5 +1,5 @@
 // The ICRC-21 types (topics/ICRC-21/ICRC-21.did of dfinity/wg-identity-authentication, commit pinned in
-// test/upstream/icrc21/SOURCE.json) as @candid-core/schema schemas, and the conversion between the JS shapes
+// test/upstream/icrc21/SOURCE.json) as @meantjs/schema schemas, and the conversion between the JS shapes
 // this package uses and the shapes of the codec.
 //
 // JS shape (what `icrc21ConsentMessage` takes and returns):
@@ -9,8 +9,8 @@
 //   vec record { text; Value }   array of [label, value] pairs
 // Codec shape: variants are { tag, value } (a bare case is { tag }).
 
-import { c } from "@candid-core/schema";
-import { decode, encode } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { decode, encode } from "@meantjs/schema/codec";
 import { asUint8Array } from "@meantjs/format";
 import { CODES, fail } from "./errors.mjs";
 

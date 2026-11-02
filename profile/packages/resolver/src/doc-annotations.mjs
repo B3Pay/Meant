@@ -55,7 +55,7 @@ class DocError extends Error {
 /**
  * An `author` canister profile from the doc comments of a `.did`.
  *
- * @param response what `didToDocAttributes(sources)` of `@candid-core/cli` returns: `{ ok: true, contract,
+ * @param response what `didToDocAttributes(sources)` of `@meantjs/cli` returns: `{ ok: true, contract,
  *        source_info, doc_attributes }`, or `{ ok: false, diagnostics }`, which is passed through
  * @param opts.name        the profile's name (default "doc-annotations")
  * @param opts.origin      "author" (default) or "third_party"
@@ -109,7 +109,7 @@ function readResponse(response, diagnostics) {
     return null;
   }
   const { contract, source_info: sourceInfo, doc_attributes: attrs } = response;
-  if (response.ok !== true || !contract || !sourceInfo || !attrs) return fail("not a didToDocAttributes response: it needs ok, contract, source_info and doc_attributes (is @candid-core/cli older than doc attributes?)");
+  if (response.ok !== true || !contract || !sourceInfo || !attrs) return fail("not a didToDocAttributes response: it needs ok, contract, source_info and doc_attributes (is it from a CLI older than doc attributes, such as @candid-core/cli 0.3.0?)");
   if (attrs.doc_attributes_version !== DOC_ATTRIBUTES_VERSION) return fail(`doc_attributes_version is ${JSON.stringify(attrs.doc_attributes_version)}; this compiler reads version ${DOC_ATTRIBUTES_VERSION}`);
   const id = contract.identities?.interface;
   if (typeof id !== "string" || !/^candid-core:interface:v1:sha256:[0-9a-f]{64}$/.test(id)) return fail("the contract has no identities.interface");

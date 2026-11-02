@@ -1,9 +1,9 @@
-import { didToContract } from "@candid-core/cli";
+import { didToContract } from "@meantjs/cli";
 import { Iface } from "./iface.mjs";
 import { U32_MAX, idlHash } from "./idl.mjs";
 
 /**
- * Compile Candid source text to an Iface with @candid-core/cli (wasm).
+ * Compile Candid source text to an Iface with @meantjs/cli (wasm).
  * @returns { iface } or { failure: [candid-core diagnostics] }
  */
 export async function compileInterface(source, label = "interface") {
@@ -13,7 +13,7 @@ export async function compileInterface(source, label = "interface") {
 }
 
 /**
- * An Iface from a candid-core ContractEnvelope another tool already wrote (the one `candid-core-cli gen` writes next
+ * An Iface from a candid-core ContractEnvelope another tool already wrote (the one `meant gen` writes next
  * to a generated module), without compiling the .did again. The envelope is checked for the shape the resolver reads;
  * its identities are taken as written (nothing here can recompute them).
  * @returns { iface } or { failure: [{ code, message }] }
