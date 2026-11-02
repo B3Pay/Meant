@@ -3,8 +3,8 @@
 // resolver writes them; every prepared value is encoded by candid-core.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { c } from "@candid-core/schema";
-import { encodeArgs } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { encodeArgs } from "@meantjs/schema/codec";
 import { buildToolPlans, caseToolName, createToolLayer, readToolInput, toolDefinitions } from "../src/index.mjs";
 
 const CANISTER = "rrkah-fqaaa-aaaaa-aaaaq-cai";

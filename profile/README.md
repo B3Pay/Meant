@@ -14,7 +14,7 @@ and UIs each guess. A profile writes that meaning down once, bound to the interf
 
 This folder holds the spec, Candid Profile v0, with its JSON Schema, the standard packs for ICRC-1, ICRC-2 and ERC-20, and the
 `@meantjs` packages that read them. Profiles bind to the interface ids of [`meant`](../README.md), the compiler from
-`.did` to a canonical Contract graph at the root of this repository (`@candid-core/schema` and `@candid-core/cli` on
+`.did` to a canonical Contract graph at the root of this repository (`@meantjs/schema` and `@meantjs/cli` on
 npm). Meant is a B3Pay project.
 
 ## Status

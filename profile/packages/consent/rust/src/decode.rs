@@ -3,7 +3,7 @@
 //!
 //! The expected types are built from the method's resolved-form tree, so the decoder never trusts the types the bytes
 //! claim: an argument is read as the signature says (with Candid's subtyping and `opt` rules) or the call is refused.
-//! The codec is the `candid` crate; the JavaScript version uses `@candid-core/schema`. Both follow the Candid
+//! The codec is the `candid` crate; the JavaScript version uses `@meantjs/schema`. Both follow the Candid
 //! specification; the golden tests check that they agree.
 
 use std::rc::Rc;

@@ -36,8 +36,8 @@
 //      A proposal never reaches voters undescribed.
 
 import { createHash } from "node:crypto";
-import { c } from "@candid-core/schema";
-import { decode, encode } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { decode, encode } from "@meantjs/schema/codec";
 import { MAX_MESSAGE_CHARS, Renderer } from "./display.mjs";
 import { bytesOf } from "./bytes.mjs";
 import { ConsentError, CODES, fail } from "./errors.mjs";

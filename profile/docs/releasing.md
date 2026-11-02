@@ -83,7 +83,7 @@ requires. In lockstep, a package that did not change still gets an entry that sa
    ```
    (Or Actions, "npm release (profile)", "Run workflow".) A stable version under another tag, a backport that must not
    move `latest`, needs `--field stable-off-latest=true` too. The repository's other release workflows (the crates,
-   `@candid-core/schema`, `@candid-core/cli`) are separate and unaffected.
+   `@meantjs/schema`, `@meantjs/cli`) are separate and unaffected.
 4. **The verify job** (no secrets, read-only) refuses input that is not a full SHA, semver and a lowercase dist-tag;
    refuses a prerelease under `latest` and a stable version under any other tag unless `stable-off-latest` says so;
    refuses to go on unless the `npm-publish` environment exists with required reviewers (GitHub silently creates a
@@ -105,8 +105,8 @@ All of these come before the first dispatch, and only the owner can do them.
 
 1. **The names.** The packages publish under the `@meantjs` scope, the owner's npm organization (D-051; fact:
    `https://registry.npmjs.org/-/org/meantjs/package` answered `{}` on 2026-10-27, an organization with no packages
-   yet, where a missing one answers 404). `@candid-core/cli` and `@candid-core/schema` stay dependencies under their
-   own scope.
+   yet, where a missing one answers 404). The compiler's packages, `@meantjs/cli` and `@meantjs/schema`, are
+   dependencies; until D-063 they were `@candid-core/cli` and `@candid-core/schema`.
 2. **The repository must be public.** Three facts, each a reason:
    - "If you are on a GitHub Free, GitHub Pro, or GitHub Team plan, required reviewers are only available for
      public repositories" (GitHub Docs, "Deployments and environments", read 2026-10-24). Without them there is no

@@ -18,7 +18,7 @@
 //   node scripts/package-check/check.mjs --update   rewrite manifest.json from what is packed now, then check
 //   node scripts/package-check/check.mjs --keep     keep the scratch directory and print where it is
 //
-// The install reaches the npm registry for the third-party dependencies (ajv, @candid-core/cli, @candid-core/schema).
+// The install reaches the npm registry for the third-party dependencies (ajv, @meantjs/cli, @meantjs/schema).
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -28,7 +28,7 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { createHash } from "node:crypto";
 import { build } from "esbuild";
-import { APACHE_2_0_SHA256, LIBRARY_DIRS } from "./packages.mjs";
+import { APACHE_2_0_SHA256, COMPILER_PACKAGES, LIBRARY_DIRS } from "./packages.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
@@ -38,7 +38,7 @@ const { values: opts } = parseArgs({ options: { update: { type: "boolean" }, kee
 const DIRS = LIBRARY_DIRS;
 /** Browser entries, and what each bundle may leave out (the cli is its own package and loads its wasm itself). */
 const BROWSER = [
-  ["@meantjs/profile/browser", ["@candid-core/cli"]],
+  ["@meantjs/profile/browser", ["@meantjs/cli"]],
   ["@meantjs/profile/address", []],
   ["@meantjs/profile/evm", []],
   ["@meantjs/format", []],
@@ -80,7 +80,7 @@ try {
       assert.ok(files.includes(target.replace(/^\.\//, "")), `${pkg.name}: export target ${target} is not in the tarball`);
     }
     for (const [dep, range] of Object.entries(pkg.dependencies ?? {})) {
-      if (!dep.startsWith("@meantjs/")) continue;
+      if (!dep.startsWith("@meantjs/") || COMPILER_PACKAGES.includes(dep)) continue;
       assert.ok(versions.has(dep), `${pkg.name} depends on ${dep}, which is not one of the published packages`);
       assert.equal(range, versions.get(dep), `${pkg.name} must pin ${dep} at its exact version ${versions.get(dep)}`);
     }

@@ -1,5 +1,5 @@
 // Shared test helpers. Argument bytes are produced by @dfinity/didc (the Rust candid crates compiled to wasm), an
-// encoder independent of the @candid-core/schema codec the library decodes with.
+// encoder independent of the @meantjs/schema codec the library decodes with.
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";

@@ -1,7 +1,7 @@
 # @meantjs/profile
 
 Validates Candid Profiles, matches packs to a service, merges layers and emits the resolved form that consumers read
-(`docs/profile-v0.md` sections 7, 8 and 10). Dependencies, pinned exactly: `@candid-core/cli` 0.4.0 (wasm: `.did`
+(`docs/profile-v0.md` sections 7, 8 and 10). Dependencies, pinned exactly: `@meantjs/cli` 0.5.0 (wasm: `.did`
 to Contract) and `ajv` 8.18.0.
 
 ```sh
@@ -33,7 +33,7 @@ r.ok; r.resolved; r.diagnostics; r.profiles;                           // r.reso
 ```
 
 Two inputs, exactly one per call: `did` (Candid source, compiled here with the pinned cli) or `envelope` (the
-service's candid-core `ContractEnvelope`, as `candid-core-cli gen` writes it next to a generated module). With an
+service's `ContractEnvelope`, as `meant gen` writes it next to a generated module). With an
 envelope the service is not compiled again, so the resolved form's `interface_id` is the one the app's generator
 wrote (`test/envelope.test.mjs`: the same resolved form for the ledger `.did` and `examples/tokens.did` either way).
 The envelope's identities are taken as written (nothing here can recompute them, so a hand-edited envelope keeps an
@@ -113,7 +113,7 @@ service : {
 ```
 
 ```js
-import { didToDocAttributes } from "@candid-core/cli"; // a release after 0.3.0: 0.3.0 does not have it
+import { didToDocAttributes } from "@meantjs/cli";
 import { profileFromDocAttributes, resolveService } from "@meantjs/profile";
 
 const { ok, doc, diagnostics } = profileFromDocAttributes(await didToDocAttributes(did), { name: "my-ledger" });
@@ -138,7 +138,7 @@ const r = await resolveService({ did, validateSchema, profiles: doc ? [{ doc }] 
   call), `E_DOC_SYNTAX` (candid-core refused the comment), `E_DOC_INPUT` (not a doc attributes v1 response). Each
   names the item's address, its SourceInfo `path` and `source`, and the doc line.
 
-`didToDocAttributes` is new in the pinned `@candid-core/cli` 0.4.0; the tests read real responses it wrote
+`didToDocAttributes` is in every `@meantjs/cli` (it came with `@candid-core/cli` 0.4.0); the tests read real responses the pinned one wrote
 (`test/fixtures/doc-attributes/`, provenance in its `SOURCE.json`, regenerated with
 `node scripts/doc-attributes-fixtures.mjs`, or with `--cli <path>` for a local build of candid-core's npm package). The proposal is `docs/proposals/w1-doc-attributes.md`.
 

@@ -236,7 +236,7 @@ Local files only, no network.
 
 ## Codec
 
-**`@candid-core/schema` 0.5.0** (`decodeArgs`, the same package that backs `@candid-core/cli` 0.4.0, pinned exactly; 0.4.0 until D-047, 0.3.0 and 0.2.0 until D-037). It decodes against an expected schema with the Candid coercion relation and explicit resource budgets, returns `bigint` and `Uint8Array` (lossless), and has no dependencies. The schema is built from the resolved-form tree, so the bytes never choose the types.
+**`@meantjs/schema` 0.6.0** (`decodeArgs`, the same package that backs `@meantjs/cli` 0.5.0, pinned exactly; `@candid-core/schema` 0.5.0 until D-063, 0.4.0 until D-047, 0.3.0 and 0.2.0 until D-037). It decodes against an expected schema with the Candid coercion relation and explicit resource budgets, returns `bigint` and `Uint8Array` (lossless), and has no dependencies. The schema is built from the resolved-form tree, so the bytes never choose the types.
 
 Considered and not chosen: `@dfinity/didc` 0.0.4 (the Rust crates as wasm) prints textual Candid, which would need a second parser, and wants a `.did` the consent generator does not have; a hand-written decoder would be new code to trust. `@dfinity/didc` is used **in the tests**, as an independent oracle: 16 wire variants and 3000 mutated encodings are accepted and rejected exactly as Rust candid does (`test/decode-differential.test.mjs`; a 20,000-input scratch run found 0 disagreements), and every reply is decoded against the standard's `.did`.
 
@@ -271,7 +271,7 @@ An SNS validator is a canister method, so the renderer also exists as a Rust cra
 | `handle_consent_request(request, &ConsentContext)` | The whole `icrc21_canister_call_consent_message` call: Candid request bytes in, Candid response bytes out, as `handleConsentRequest` (D-061). `icrc21_consent_message` takes the decoded request; the ICRC-21 types are in `icrc21`. |
 | `parse_resolved(json)` | The resolved form from its JSON text (field order kept: it is the order of the Candid text). |
 
-It decodes with the `candid` crate against types built from the resolved form, as `src/decode.mjs` does with `@candid-core/schema`, and ports the format library's display side (`packages/format`) for the six value tags. Where JavaScript's strings show through (UTF-16 lengths for the 32 KiB budget, `trim`, the neighbours of an underscore), the crate counts and looks the way JavaScript does.
+It decodes with the `candid` crate against types built from the resolved form, as `src/decode.mjs` does with `@meantjs/schema`, and ports the format library's display side (`packages/format`) for the six value tags. Where JavaScript's strings show through (UTF-16 lengths for the 32 KiB budget, `trim`, the neighbours of an underscore), the crate counts and looks the way JavaScript does.
 
 ```sh
 cd packages/consent/rust

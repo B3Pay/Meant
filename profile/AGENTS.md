@@ -6,7 +6,7 @@ Instructions for any coding agent (Claude Code, Codex, others) working in `profi
 ## Commands
 
 ```sh
-npm ci                # Node >= 22; installs @candid-core/cli (wasm), ajv and TypeScript, pinned exactly
+npm ci                # Node >= 22; installs @meantjs/cli (wasm), ajv and TypeScript, pinned exactly
 npm run validate      # JSON Schema + semantic checks: packs/*.profile.json and examples/
 npm test              # node:test over scripts/*.test.mjs and packages/*/test/*.test.mjs
 npm run fixtures      # regenerate fixtures/*.resolved.json and packages/resolver/data/ after any spec, pack, example or validator change

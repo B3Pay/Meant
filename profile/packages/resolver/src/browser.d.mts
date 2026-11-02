@@ -184,7 +184,7 @@ export interface DocDiagnostic extends Diagnostic {
 }
 /**
  * An author canister profile from the tags written as doc comments in a `.did` (spec section 9). `response` is what
- * `didToDocAttributes(sources)` of `@candid-core/cli` returns; a failed response is passed through as diagnostics.
+ * `didToDocAttributes(sources)` of `@meantjs/cli` returns; a failed response is passed through as diagnostics.
  * `doc` is null when the comments hold no tag. The profile still goes through `resolveService`, which checks the tags.
  */
 export function profileFromDocAttributes(

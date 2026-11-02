@@ -1,6 +1,6 @@
 // Step 1: Candid argument bytes -> a value tree aligned with the resolved form's positions.
 //
-// Codec: @candid-core/schema 0.5.0 `decodeArgs` (schema-directed, with the Candid coercion relation and explicit
+// Codec: @meantjs/schema 0.6.0 `decodeArgs` (schema-directed, with the Candid coercion relation and explicit
 // resource budgets). The expected schema is built from the method's resolved-form tree, so the decoder never
 // trusts the types the bytes claim: an argument is read as the signature says or the call is refused.
 //
@@ -25,8 +25,8 @@
 //   - `func` and `service` positions anywhere in the method (the resolved form does not carry their signatures);
 //   - nested `opt` (`opt opt T` collapses to one `optional` flag in the resolved form).
 
-import { c } from "@candid-core/schema";
-import { decodeArgs } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { decodeArgs } from "@meantjs/schema/codec";
 import { bytesOf } from "./bytes.mjs";
 import { CODES, fail } from "./errors.mjs";
 import { entriesOf } from "./resolved.mjs";

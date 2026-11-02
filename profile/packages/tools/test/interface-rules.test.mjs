@@ -8,8 +8,8 @@
 // The packs meet none of them, so their tools stay as they were (definitions.test.mjs, principal.test.mjs).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { c } from "@candid-core/schema";
-import { encodeArgs } from "@candid-core/schema/codec";
+import { c } from "@meantjs/schema";
+import { encodeArgs } from "@meantjs/schema/codec";
 import { buildToolPlans, classifyReply, createToolLayer, readToolInput, toolDefinitions } from "../src/index.mjs";
 import { PACKS } from "./helpers.mjs";
 

@@ -1,9 +1,9 @@
 // Shared test fixtures: the two pack resolved forms, three ledgers, and candid-core's encoder for the ledger .did
 // (built from the envelope W1's tests generated with @candid-core/cli 0.3.0).
 import { readFileSync } from "node:fs";
-import { schemaFromContract } from "@candid-core/schema/contract";
-import { serviceMethods } from "@candid-core/schema";
-import { encodeArgs } from "@candid-core/schema/codec";
+import { schemaFromContract } from "@meantjs/schema/contract";
+import { serviceMethods } from "@meantjs/schema";
+import { encodeArgs } from "@meantjs/schema/codec";
 
 const json = (rel) => JSON.parse(readFileSync(new URL(rel, import.meta.url), "utf8"));
 export const ICRC1 = json("../../../fixtures/icrc1.resolved.json");

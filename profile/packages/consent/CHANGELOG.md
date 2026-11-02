@@ -2,6 +2,12 @@
 
 The five Candid Profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
+## 0.8.0 — 2026-11-02
+
+- Depends on `@meantjs/schema` 0.6.0 instead of `@candid-core/schema` 0.5.0: the same codec under its new name
+  (Meant). Nothing it decodes, encodes or writes changes. With `@meantjs/profile` 0.8.0, installing this package
+  installs nothing from the `@candid-core` scope.
+
 ## 0.7.0 — 2026-11-01
 
 - `@meantjs/consent/guard`, new (D-062): `guardSigner` puts confirmed terms in front of an EVM signer, a viem account
