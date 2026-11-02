@@ -14,7 +14,7 @@
 
   /* ------------------------------------------------------------- theme */
 
-  var STORAGE_KEY = "candid-core-theme";
+  var STORAGE_KEY = "meant-theme";
 
   function currentTheme() {
     return document.documentElement.getAttribute("data-theme") || "light";

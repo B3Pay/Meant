@@ -36,7 +36,7 @@
 # formatted by this same Prettier and must stay that way.
 /website/content/
 
-# The profile packages' copy, synced from the candid-profile repository, which
+# The profile packages' copy, synced from their private working repository, which
 # owns its layout: a sync must leave it byte for byte as that repository's
 # build wrote it, and the sync's `diff -r` against the build checks exactly
 # that. This repository's .prettierrc.json would rewrite 16 of its 17 .mts

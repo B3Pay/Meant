@@ -1,6 +1,6 @@
 //! Real-binary CLI contract tests.
 //!
-//! Every test runs the actual `candid-core` binary and pins the public
+//! Every test runs the actual `meant` binary and pins the public
 //! contract: the strict argument grammar, the 0/1/64 exit statuses, which
 //! channel each response uses, the JSON shapes and stable codes, source-info
 //! suppression, and the byte bounds at the exact limit and one byte over.

@@ -8,7 +8,7 @@
 //!   code, method and path;
 //! - a differential against upstream `candid`'s own subtype check
 //!   (`candid::types::subtype::subtype_with_config`, the exact version
-//!   `candid-core` pins), for every hand case and a seeded random campaign:
+//!   `meant` pins), for every hand case and a seeded random campaign:
 //!   per written method, the verdict must equal upstream's under the spec's
 //!   rules (`OptReport::Silence`), and "no error and no warning" must equal
 //!   upstream's verdict with the special opt rule refused

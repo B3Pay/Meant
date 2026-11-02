@@ -1,7 +1,7 @@
 /target/
 .DS_Store
 
-# Local-only repositories and metadata that must never enter Candid Core.
+# Local-only repositories and metadata that must never enter Meant.
 /.gitexclude-local
 /candid-scope/
 

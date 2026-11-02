@@ -253,7 +253,7 @@ function shell({ site, page, body, toc, nav, pageNav, isLanding, chains }) {
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem("candid-core-theme");
+      var stored = localStorage.getItem("meant-theme");
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
     } catch (error) {}

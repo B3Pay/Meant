@@ -1,4 +1,4 @@
-# candid-core — how this repository works
+# Meant — how this repository works
 
 Read `.codex/skills/candid-core-issue-pipeline/SKILL.md` before acting; it
 defines the modes (triage, implement, publish, review, merge, close) and
@@ -13,21 +13,20 @@ design) generates a Zod-style TypeScript schema runtime from that graph — the
 program tracked by umbrella issue #38 and its slice issues, each of which is
 self-contained. `crates/meant-format` (publishable, versioned on its own, no
 dependencies, `no_std`) is exact value conversion for the profile `amount`
-tag, matched case by case against the JavaScript reference in the
-candid-profile repository. `fuzz/` is its own
-workspace root with its own lockfile.
+tag, matched case by case against the JavaScript reference,
+`profile/packages/format`. `fuzz/` is its own workspace root with its own
+lockfile.
 
 ## profile/, a synced copy
 
 `profile/` and two root workflows, `.github/workflows/profile-ci.yml` and
 `.github/workflows/npm-release-profile.yml`, are the public copy of the
-private candid-profile repository: the profile spec and the five profile
-packages, published to npm as `@meantjs/*` (decisions D-051 and D-052 there).
-They arrive only through a sync pull request, built by that repository's
-`scripts/public-copy/build.mjs`, and each sync replaces them whole. Do not
-edit them here: a pull request that changes them is applied in candid-profile
-by a maintainer and comes back with the next sync, and a change made only
-here is undone by it. Their own instructions are `profile/AGENTS.md`, their
+profile's private working repository: the profile spec and the five profile
+packages, published to npm as `@meantjs/*`. They arrive only through a sync
+pull request, built by that repository's public-copy build, and each sync
+replaces them whole. Do not edit them here: a pull request that changes them
+is applied in the working repository by a maintainer and comes back with the
+next sync, and a change made only here is undone by it. Their own instructions are `profile/AGENTS.md`, their
 CI is `profile-ci.yml`, and their releases are `profile/docs/releasing.md`;
 nothing in the batteries below covers them. Prettier leaves them alone
 (`/profile/` in `.prettierignore`), and `Verify`, `wasm CLI` and `Benchmark
@@ -120,8 +119,9 @@ Format crate, `meant-format` (with and without the default `std` feature):
 `tests/parity.rs` is the cross-implementation gate: every case in
 `tests/vectors/amount.json` must get the JavaScript reference's value, or its
 error code and message. The vectors are generated, never hand-edited: from the
-repository root, `node crates/meant-format/tests/vectors/generate-amount.mjs <path to
-a candid-profile checkout>`, then review the diff. The file records the commit
+repository root, `node crates/meant-format/tests/vectors/generate-amount.mjs`
+(Node 22.22.0, whose Unicode is the 16.0 the file records), which reads
+`profile/packages/format`, then review the diff. The file records the commit
 it came from, and the parity test pins the case count the crate's README states.
 
 TypeScript formatting is Prettier, exact-pinned in `ts/package-lock.json` and

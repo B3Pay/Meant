@@ -1,5 +1,5 @@
 //! Random Candid type environments, rendered as `.did` source so the
-//! reference (`candid_parser`) and the model under test (candid-core's
+//! reference (`candid_parser`) and the model under test (Meant's
 //! compiler, then `schemaFromContract`) read the very same text.
 //!
 //! An environment is a list of declarations `T0 … Tn` grouped in families: a
@@ -182,7 +182,7 @@ const NAMES: &[&str] = &[
 const TWINS: &[(&str, &str)] = &[("aaazaa", "cctakw"), ("cctakw", "aaazaa")];
 // Not 4_294_967_295: `candid_parser` 0.4.0 computes the next positional id
 // as `id + 1` while parsing a record, which overflows for a field labelled
-// `u32::MAX`, so candid-core refuses such a record field before the upstream
+// `u32::MAX`, so Meant refuses such a record field before the upstream
 // grammar (#230). A generated record could not compile with it.
 const IDS: &[u32] = &[0, 1, 2, 3, 5, 7, 100, 4_294_967_294];
 const METHODS: &[&str] = &["m", "get", "put", "run"];

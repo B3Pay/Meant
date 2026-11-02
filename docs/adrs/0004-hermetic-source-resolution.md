@@ -57,7 +57,7 @@ Since issue #24 that split is also a Cargo feature boundary. `SourceId`,
 which needs no host filesystem — are `compiler` surface, along with
 `compile_did` and its option/context variants. `WorkspaceResolver`,
 `compile_did_file` and its variants, materialization, the `cap-std` capability
-crate, and the `candid-core` binary are `filesystem-compiler` surface.
+crate, and the `meant` binary are `filesystem-compiler` surface.
 
 Issue #21 moved `compile_with_resolver` to the `compiler` side, which is what
 this ADR's "if the upstream checker cannot consume virtual sources directly"

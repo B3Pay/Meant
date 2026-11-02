@@ -406,7 +406,7 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
     if (hit) fail(page, `${rule.message} — found ${JSON.stringify(hit[0].trim())}`);
   }
 
-  /* --- candid-core dependency requirements ---
+  /* --- crate dependency requirements ---
    *
    * An allowlist, not a blocklist, for the same reason Cargo.toml's `include`
    * is one: it decides which way a mistake falls. A blocklist of the caret

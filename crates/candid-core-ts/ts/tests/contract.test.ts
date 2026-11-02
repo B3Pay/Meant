@@ -239,7 +239,7 @@ test("non-object documents and malformed nodes fail closed", () => {
   failsWith(schemaFromContract(document([42], [])), "invalid_contract_document", "$.types[0]");
 });
 
-test("declaration defects reuse candid-core's codes", () => {
+test("declaration defects reuse Meant's codes", () => {
   failsWith(
     schemaFromContract(document([primitive("nat")], [{ name: "", type: 0 }])),
     "empty_declaration_name",
@@ -912,7 +912,7 @@ test("a class actor denotes its running service; classes elsewhere are refused",
       assert.deepStrictEqual(validate(result.actor, principal), { ok: true });
     }
   }
-  // candid-core's class_not_actor_root rule, mirrored: a class anywhere but
+  // Meant's class_not_actor_root rule, mirrored: a class anywhere but
   // the actor root — a declaration included — fails closed.
   failsWith(
     schemaFromContract(
@@ -929,7 +929,7 @@ test("a class actor denotes its running service; classes elsewhere are refused",
   );
   // The declaration half of the rule has no actor-root exemption (issue
   // #129): a declaration naming the class node that IS the actor root is
-  // refused at the declaration edge, as candid-core refuses it at
+  // refused at the declaration edge, as Meant refuses it at
   // $.declarations[0].type. Without the dedicated declaration walk this
   // document loaded, because the exempted node itself is legal.
   failsWith(
@@ -966,7 +966,7 @@ test("a class actor denotes its running service; classes elsewhere are refused",
   );
   // The exemption is the actor root's index, not "some actor exists": a
   // second class node in a class-actor document is refused even when no
-  // declaration or type edge reaches it, as candid-core refuses it at
+  // declaration or type edge reaches it, as Meant refuses it at
   // $.types[1].
   failsWith(
     schemaFromContract(

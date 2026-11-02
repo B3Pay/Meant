@@ -179,7 +179,7 @@ python3 tests/fixtures/packaging/verify_package_manifest.py --locked
 4. **The manifest has not drifted.** The `include` list, `repository`,
    `homepage`, `documentation`, `readme`, `license`, the keywords, and the
    categories are compared against recorded values, and both lockfiles must
-   record the same `candid-core` version as `Cargo.toml`. Relaxing the allowlist
+   record the same `meant` version as `Cargo.toml`. Relaxing the allowlist
    is a deliberate edit to this script, in the same change.
 
 ### Clean packaged-consumer surfaces

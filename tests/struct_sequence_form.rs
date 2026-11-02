@@ -821,7 +821,7 @@ fn loader_entry_points() {
     }
 }
 
-/// The `candid-core validate` command loads through `Contract::from_json` and
+/// The `meant validate` command loads through `Contract::from_json` and
 /// reports the refusal as `malformed_contract_json`, the code a value of the
 /// wrong type gets.
 #[cfg(feature = "filesystem-compiler")]

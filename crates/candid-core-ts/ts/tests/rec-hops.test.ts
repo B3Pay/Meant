@@ -1,13 +1,13 @@
 // Issue #231: a `rec` hop is an indirection — an alias, a declaration
 // reference, a lazy edge — not a level of the value. `validate`, encode's
 // value walk and `decode` charge a value for its constructors alone, so
-// `maxDepth` and `maxElements` mean what candid-core's `max_value_depth` and
+// `maxDepth` and `maxElements` mean what Meant's `max_value_depth` and
 // `max_value_elements` mean, and a recursive value is judged alike whether
 // its schema was built with `c.rec`, loaded from a Contract (where every
 // type reference is a hop) or built with no `rec` at all. What bounds a
 // chain of thunks is its own cap: more than `maxDepth` consecutive hops.
 //
-// The boundaries are candid-core's: `validate_host_value` under
+// The boundaries are Meant's: `validate_host_value` under
 // `Limits::default()` accepts `vec T` with `T = vec T` nested 257 levels
 // (the root at depth 0, the innermost at 256) and refuses 258, and charges a
 // variant's `null` payload as a node one level below it. The differential
@@ -293,7 +293,7 @@ test("a value is charged the same elements with rec and without, one per constru
   const rows: readonly [string, AnySchema, AnySchema, unknown, number][] = [
     // 40 vecs: 40 constructors.
     ["vec T, 40 levels", RecVec, staticVec(40), vecLevels(40), 40],
-    // The vec and its 100 nulls: 101, as candid-core counts the HostValue.
+    // The vec and its 100 nulls: 101, as Meant counts the HostValue.
     ["vec null, 100 elements", nullVec, c.vec(c.null), nulls, 101],
   ];
   for (const [name, recursive, plain, value, expected] of rows) {
@@ -331,7 +331,7 @@ function variantChain(count: number, a: string, b: string): unknown {
   return value;
 }
 
-test("a tag-only arm's null payload is a level below its variant, as candid-core counts it", () => {
+test("a tag-only arm's null payload is a level below its variant, as Meant counts it", () => {
   // variant { a : T; b } nested `count` levels: the variants sit at depths 0
   // to count - 1 and the innermost `null` payload at count, so 256 variants
   // are accepted and 257 refused (validate_depth_variant_null_*).

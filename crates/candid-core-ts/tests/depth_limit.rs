@@ -1,5 +1,5 @@
 //! The depth property of issue #192 (decision D1 as the maintainer settled
-//! it), compiler half: any type the candid-core compiler accepts encodes
+//! it), compiler half: any type Meant's compiler accepts encodes
 //! through its generated module at the runtime's default limits, however the
 //! type is split into declarations.
 //!

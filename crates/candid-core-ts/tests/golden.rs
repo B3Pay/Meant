@@ -358,7 +358,7 @@ fn golden_runtime_contract_documents() {
         // triples as one `ContractEnvelope` carrying the recorded
         // `org.candid-core.field-names/v1` extension — built through the real
         // envelope type so the extension name and value pass the envelope's
-        // own validation, exactly as the `candid-core compile --envelope`
+        // own validation, exactly as the `meant compile --envelope`
         // path builds it. `ts/tests/crosscheck.test.ts` proves this document
         // yields verdict-for-verdict the same schemas as the two files above.
         let mut envelope = meant::ContractEnvelope::new(reparsed);

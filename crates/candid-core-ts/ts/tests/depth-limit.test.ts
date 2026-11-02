@@ -1,5 +1,5 @@
 // The depth property of issue #192 (decision D1 as the maintainer settled it):
-// any type the candid-core compiler accepts encodes through its generated
+// any type Meant's compiler accepts encodes through its generated
 // module at the default limits, however it is split into declarations.
 //
 // The encoder's type-table walk charges `maxDepth` for Candid nesting depth

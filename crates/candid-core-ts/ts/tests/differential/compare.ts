@@ -7,7 +7,7 @@
 // - decode: `decodeArgs` with schemas `schemaFromContract` builds from the
 //   environment's envelope, against the `candid` crate's
 //   `IDLArgs::from_bytes_with_types`;
-// - validate: `validate` on a rebuilt JavaScript value, against candid-core's
+// - validate: `validate` on a rebuilt JavaScript value, against Meant's
 //   `validate_host_value` (under its default limits, whose `max_value_depth`
 //   this runtime's depth budget mirrors) on the HostValue that value converts
 //   to;
@@ -86,7 +86,7 @@ export interface EnvLine {
   readonly did: string;
   readonly envelope: { readonly contract: unknown };
   /**
-   * Set on a regression environment whose source candid-core's compiler
+   * Set on a regression environment whose source Meant's compiler
    * refuses while the reference accepts it: the compiler's code and the
    * issue that decided the refusal. Its envelope holds the Contract the
    * vector supplies, which the loaders still accept.
@@ -392,7 +392,7 @@ export type Ours =
       readonly resource?: string;
     }
   | { readonly verdict: "skip"; readonly reason: string }
-  /** The loader refused an envelope candid-core itself compiled. */
+  /** The loader refused an envelope Meant itself compiled. */
   | { readonly verdict: "env-refused"; readonly code: string };
 
 /** How one case came out (see the module comment). */

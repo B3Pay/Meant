@@ -1,6 +1,6 @@
 //! The `validate` target, reference half: a JavaScript domain value (written
 //! as a small tagged descriptor the runner rebuilds exactly), converted to a
-//! HostValue under the documented mapping, and judged by candid-core's
+//! HostValue under the documented mapping, and judged by Meant's
 //! `validate_host_value` against the same Contract type the TypeScript side
 //! builds its schema from.
 //!

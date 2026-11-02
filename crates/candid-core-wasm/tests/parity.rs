@@ -2,7 +2,7 @@
 //! same code the wasm artifact wraps runs on the host here, and its outputs
 //! are compared byte-for-byte against the repository's reviewed artifacts —
 //! the generator's golden `.ts` modules and the committed envelope fixture
-//! the native `candid-core compile --envelope` binary produced. CI runs the
+//! the native `meant compile --envelope` binary produced. CI runs the
 //! same comparisons again through the actual wasm build under Node, so the
 //! "same code compiled twice" claim is asserted, not assumed.
 
@@ -73,7 +73,7 @@ fn modules_match_the_generator_goldens() {
 }
 
 /// The envelope path must be byte-identical to the native binary's: the
-/// committed fixture is real `candid-core compile <path> --envelope` output,
+/// committed fixture is real `meant compile <path> --envelope` output,
 /// and this compares the entire document — producer included.
 #[test]
 fn envelope_matches_the_native_cli_fixture_byte_for_byte() {
