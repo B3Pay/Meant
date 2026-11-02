@@ -685,7 +685,7 @@ the report shows nothing else.
 
 Drift does not fail it. A change here often means to change the generated
 modules, and the repin in ic-reactor regenerates them anyway (its
-CONTRIBUTING.md, "The candid-core pins"). The report says which files moved.
+CONTRIBUTING.md, "The Meant pins"). The report says which files moved.
 
 The report is the job summary and the `downstream-report` artifact:
 `summary.md`; `report.json`, with both tarballs' SHA-256, the ic-reactor
@@ -1122,6 +1122,12 @@ command `candid-core-cli` becoming `meant` (issue #306), in this order:
    A deprecation only warns at install: every version stays installable. The
    `@candid-core` scope stays registered, so nobody else can publish under
    it.
+
+   Done on 2026-11-02. It waited for the five profile packages as well as
+   ic-reactor 4.1.0: `@meantjs/profile` and `@meantjs/consent` 0.7.0 still
+   depended on the old pair, and 0.8.0, published the same day, moved them
+   to the new one. `npm view` then showed the message on all eight versions
+   of `@candid-core/schema` and all six of `@candid-core/cli`.
 
 ## Moving the repository
 

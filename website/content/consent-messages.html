@@ -197,7 +197,7 @@ console.log(JSON.stringify(toJson({ values, grant }), null, 2));
     <span class="step-title">Decode</span>
     <p>
       The argument bytes are decoded against the method's tree in the resolved form, with
-      <code>@candid-core/schema</code> 0.5.0 (<code>decodeArgs</code>), so the bytes never choose the
+      <code>@meantjs/schema</code> 0.6.0 (<code>decodeArgs</code>), so the bytes never choose the
       types. Integers become decimal strings, <code>blob</code> a <code>Uint8Array</code>, an absent
       <code>opt</code> <code>null</code>, a variant <code>{ tag, value }</code>. Nothing is rounded or
       truncated.
