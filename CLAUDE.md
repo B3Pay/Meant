@@ -183,3 +183,11 @@ publish on an explicit naming decision).
   `benches/allocation.rs`).
 - TypeScript 7 removed `baseUrl`; the `ts/` harness uses `paths` only. Run
   tsc locally before pinning anything new.
+- A job no hosted runner takes fails its run after about fifteen minutes
+  ("The job was not acquired by Runner of type hosted even after multiple
+  attempts"). macOS arm64 capacity did that to Verify #502 and #504 and to
+  Release candidate #407. `runner-retry.yml` re-runs such a run's failed
+  jobs, at most twice, and only when none of them started. Don't answer it
+  with `continue-on-error` or by making the macOS leg optional: that leg also
+  fails for reasons a person must see (Verify #463, #489 and #491, in
+  `tests/type_preflight_memory.rs`), and an allowance would hide them.

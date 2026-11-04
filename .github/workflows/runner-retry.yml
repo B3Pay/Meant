@@ -1,0 +1,76 @@
+name: Runner retry
+
+# GitHub sometimes finds no hosted runner for a job. After about fifteen
+# minutes it cancels the job and fails the run: "The job was not acquired by
+# Runner of type hosted even after multiple attempts". Verify #502
+# (2026-11-02), Verify #504 and Release candidate #407 (both 2026-11-04)
+# failed that way, each on its one macOS job, while GitHub reported capacity
+# constraints for macOS arm64 runners. Every other job in them passed, and
+# nothing ran on the macOS job, so those failures said nothing about the
+# commit. A person had to re-run them by hand.
+#
+# When a run of Verify or Release candidate fails, this workflow re-runs its
+# failed jobs if, and only if, none of them ever started: no runner, no step.
+# The rule is tests/fixtures/ci/runner_retry.py, and its tests replay the job
+# lists of those three runs and of the three where the macOS job did run and
+# failed (Verify #463, #489, #491).
+#
+#   * A job that ran and failed is never re-run, alone or beside one that never
+#     started. A retry could turn an intermittent failure green, and that is a
+#     person's call.
+#   * Two retries at most, attempts 2 and 3. If no runner comes by then, the run
+#     stays red for a person.
+#   * Nothing from the failed run is checked out or executed. A workflow_run
+#     event checks out the default branch, so the rule is main's own, and the
+#     failed run is named only by its numeric id.
+#
+# This is its own file because re-running needs `actions: write`, and Verify and
+# Release candidate deliberately hold nothing beyond `contents: read`. This one
+# cannot write contents, tag, publish or comment.
+
+on:
+  workflow_run:
+    workflows: [Verify, Release candidate]
+    types: [completed]
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  retry:
+    name: Re-run jobs no runner took
+    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.run_attempt < 3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Test the retry rule
+        run: python3 tests/fixtures/ci/test_runner_retry.py
+      - name: Re-run the failed jobs if none of them started
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          set -euo pipefail
+          jobs="${RUNNER_TEMP}/jobs.json"
+          gh api "repos/${REPO}/actions/runs/${RUN_ID}/attempts/${ATTEMPT}/jobs?per_page=100" > "${jobs}"
+          echo "Run ${RUN_ID}, attempt ${ATTEMPT}:" >> "${GITHUB_STEP_SUMMARY}"
+          status=0
+          python3 tests/fixtures/ci/runner_retry.py "${jobs}" | tee -a "${GITHUB_STEP_SUMMARY}" || status=$?
+          if [ "${status}" -eq 2 ]; then
+            exit 0
+          elif [ "${status}" -ne 0 ]; then
+            exit "${status}"
+          fi
+          # A person may have re-run it in the meantime; one re-run is enough.
+          current="$(gh api "repos/${REPO}/actions/runs/${RUN_ID}" --jq '.run_attempt')"
+          if [ "${current}" != "${ATTEMPT}" ]; then
+            echo "The run is on attempt ${current} already, so this leaves it." | tee -a "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+          gh api -X POST "repos/${REPO}/actions/runs/${RUN_ID}/rerun-failed-jobs"
+          echo "Re-ran the failed jobs as attempt $((ATTEMPT + 1)) of at most 3." | tee -a "${GITHUB_STEP_SUMMARY}"
