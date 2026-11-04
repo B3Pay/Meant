@@ -10,9 +10,10 @@ Verify #502 (2026-11-02), Verify #504 and Release candidate #407 (both
 passed. Nothing of the commit ran on the macOS job, so its failure says
 nothing about the commit.
 
-The REST API shows such a job plainly: no runner (`runner_id` stays null until
-a runner is assigned) and no steps. A job that got a runner has at least its
-"Set up job" step.
+The REST API shows such a job plainly: no runner and no steps. GitHub
+documents `runner_id` as null until a runner is assigned; for the finished
+macOS job of Verify #504, attempt 2, it returned `runner_id` 0 and an empty
+`runner_name`. A job that got a runner has at least its "Set up job" step.
 
 `runner-retry.yml` asks this script about every failed run of Verify and
 Release candidate, and re-runs the run's failed jobs only when it says yes:
@@ -54,9 +55,9 @@ NOT_FAILED = frozenset({"success", "skipped", "neutral"})
 def never_started(job: dict) -> bool:
     """No runner was assigned and no step ran.
 
-    The API writes a missing runner as null; a missing, null or zero
-    `runner_id` all mean the same here, and so do missing, null or empty
-    `steps`.
+    A missing, null or zero `runner_id` all mean the same here: the
+    documentation says null, the API has returned 0, and a client that drops
+    null fields leaves it out. So do missing, null or empty `steps`.
     """
     return not job.get("runner_id") and not job.get("steps")
 

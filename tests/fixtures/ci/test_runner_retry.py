@@ -97,13 +97,14 @@ def ran(name: str, conclusion: str = "success", failed_step: str = "") -> dict:
 
 
 def never_started(name: str, conclusion: str = "cancelled") -> dict:
-    """A job no runner took, as the API writes it: null runner, no steps."""
+    """A job no runner took, as the API returned the macOS job of Verify #504,
+    attempt 2: runner id 0, an empty runner name, no steps."""
     return {
         "name": name,
         "status": "completed",
         "conclusion": conclusion,
-        "runner_id": None,
-        "runner_name": None,
+        "runner_id": 0,
+        "runner_name": "",
         "steps": [],
     }
 
@@ -203,7 +204,8 @@ class EdgeTests(unittest.TestCase):
         self.assertEqual(reasons, ["no job failed"])
 
     def test_no_runner_reads_the_same_null_absent_or_zero(self):
-        # The API writes null; a connector that drops null fields omits it.
+        # GitHub documents null and has returned 0; a client that drops null
+        # fields leaves the field out.
         for runner in ({"runner_id": None}, {}, {"runner_id": 0}):
             for steps in ({"steps": []}, {}, {"steps": None}):
                 job = {"name": VERIFY_MACOS, "status": "completed", "conclusion": "cancelled"}
