@@ -138,6 +138,17 @@ jobs:
       # `contract_id` spans several distinct artifact IDs.
       - name: Reproduce every artifact identity vector without Rust
         run: python3 tests/fixtures/artifact-identity/verify_artifact_ids.py
+  runner-retry-rule:
+    name: Runner retry rule
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # `runner-retry.yml` re-runs a failed run of this workflow only when no
+      # runner ever took the failed jobs. It runs on main, after a failure, so
+      # a pull request that changes its rule is tested here. The tests replay
+      # the job lists of real failed runs, of both kinds.
+      - name: Test the rule against recorded runs
+        run: python3 tests/fixtures/ci/test_runner_retry.py
   wasm:
     name: Stable WASM
     runs-on: ubuntu-latest
