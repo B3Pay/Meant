@@ -157,11 +157,13 @@
 </p>
 
 <p>
-  The profile packages through <code>0.5.0</code> depend on the old pair:
+  The profile packages through <code>0.7.0</code> depend on the old pair:
   <code>@meantjs/profile</code> on <code>@candid-core/cli</code> <code>0.4.0</code>, and
   <code>@meantjs/consent</code> on <code>@candid-core/schema</code> <code>0.5.0</code>. Their
   declared types take no value of either pair, so your own code can move to the new names while the
-  old pair stays installed as their dependency, until a release of theirs moves too.
+  old pair stays installed as their dependency. Since <code>0.8.0</code> (2026-11-02) they depend
+  on the new pair, <code>@meantjs/cli</code> <code>0.5.0</code> and <code>@meantjs/schema</code>
+  <code>0.6.0</code>, so installing them installs nothing from <code>@candid-core</code>.
 </p>
 
 <h2 id="order-of-upgrade">Order of upgrade<a class="heading-anchor" href="#order-of-upgrade" aria-label="Link to Order of upgrade">#</a></h2>
