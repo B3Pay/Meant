@@ -12,9 +12,11 @@ use super::*;
 /// `Tokenizer` pass for exactly that reason: the guard must not be built on
 /// the thing it guards.
 ///
-/// **Structural nesting**, second, over the token stream: open delimiters
-/// plus a run of `opt`/`vec` constructors. Comment and string *contents*
-/// never count here; what a comment costs is the comment-run bound above.
+/// **Structural nesting**, second, over the token stream: the depth each
+/// token is written at, open delimiters plus every `opt` and `vec` whose
+/// operand has not ended, at every level ([`StructuralNesting`]). Comment and
+/// string *contents* never count here; what a comment costs is the
+/// comment-run bound above.
 pub(super) fn check_source_nesting(
     source: &str,
     budget: &mut crate::budget::Budget<'_>,
@@ -42,8 +44,7 @@ pub(super) fn check_source_nesting(
             ),
         ));
     }
-    let mut delimiters = 0usize;
-    let mut unary = 0usize;
+    let mut nesting = StructuralNesting::default();
     for token in Tokenizer::new(text) {
         budget
             .checkpoint()
@@ -53,20 +54,12 @@ pub(super) fn check_source_nesting(
             // Preserve the parser's established lexical diagnostic.
             Err(_) => return Ok(()),
         };
-        match token {
-            Token::Opt | Token::Vec => unary = unary.saturating_add(1),
-            Token::LParen | Token::LBrace => {
-                delimiters = delimiters.saturating_add(1);
-                unary = 0;
-            }
-            Token::RParen | Token::RBrace => {
-                delimiters = delimiters.saturating_sub(1);
-                unary = 0;
-            }
-            _ => unary = 0,
-        }
-        let observed = delimiters.saturating_add(unary);
-        if observed > limits.max_source_nesting {
+        if nesting.push(&token) > limits.max_source_nesting {
+            // A token is written at most one level deeper than the deepest
+            // before it, and a `blob` reaches one more, its `nat8`, so the
+            // first level past the limit is the one reported, as the
+            // type-depth walk reports its own.
+            let observed = limits.max_source_nesting.saturating_add(1);
             return Err(CompileError::resource_limit(
                 "source_nesting",
                 limits.max_source_nesting,
@@ -79,6 +72,106 @@ pub(super) fn check_source_nesting(
         }
     }
     Ok(())
+}
+
+/// Structural nesting, counted one token at a time: the depth each token is
+/// written at, which is how many types enclose it, each open delimiter and
+/// every `opt` and `vec` whose operand has not ended, at every level.
+///
+/// A constructor wraps the type written after it, and that type may be a
+/// record, a variant, a service or a function, so it stays open until its
+/// operand ends: at a leaf (a name, `null`, `principal`, or `blob`, whose
+/// `nat8` is one level inside), or, for an operand that opens a delimiter,
+/// at the `;` or `,` that ends the item it is written in or the delimiter
+/// that closes its level. A run of constructors written before a `{` or `(`
+/// therefore still counts inside it: in
+/// `vec vec record { a : vec record { b : nat } }` the `nat` is at depth 5,
+/// inside three `vec`s and two records. Counting only the run at the
+/// innermost level let each level's run nest inside the previous ones
+/// uncounted, multiplying the depth the parser builds under the limit; the
+/// pinned grammar's record rule clones every field's type
+/// (`grammar.lalrpop:177`), recursively, so that depth is stack.
+///
+/// Every type starts with a token written at its depth, and a closing
+/// delimiter starts none, so the deepest count over a source the parser
+/// accepts is the depth `max_type_depth` measures from a declaration's type
+/// at 0, when every type is written out in one declaration and the main
+/// actor takes no init arguments (`preflight_tests` checks it against that
+/// walk). An alias adds the depth of the type it names, and init arguments
+/// put the actor's service one level deeper, which only the type check after
+/// parsing sees: this count is never more, so it refuses no type that check
+/// accepts. At the level an operand is written at, only a separator, a
+/// closing delimiter, a function's `->` and its modes, or the `service` of
+/// the main actor after a last declaration without its `;`, can follow it,
+/// so nothing nests between the end of an operand and the token that ends
+/// its count. That `service` ends the count unless it follows a constructor,
+/// where it is the constructor's operand. Leaves and separators end only the
+/// constructors of their own level. The memory is one `usize` per open
+/// delimiter, which the limit bounds.
+#[derive(Default)]
+struct StructuralNesting {
+    /// For each open delimiter, outermost first, the constructors still open
+    /// at the level it interrupted.
+    suspended: Vec<usize>,
+    /// The constructors still open at the innermost level.
+    pending: usize,
+    /// Every constructor still open: `pending` plus the `suspended` counts.
+    constructors: usize,
+    /// Whether the last token was `opt` or `vec`.
+    after_constructor: bool,
+}
+
+impl StructuralNesting {
+    /// Count `token`, and return the depth it is written at.
+    fn push(&mut self, token: &Token) -> usize {
+        let depth = self.depth();
+        let reached = match token {
+            // What a delimiter holds was counted at its own tokens.
+            Token::RParen | Token::RBrace => 0,
+            // `vec nat8`: the `nat8` is one level inside.
+            Token::Blob => depth.saturating_add(1),
+            _ => depth,
+        };
+        match token {
+            Token::Opt | Token::Vec => {
+                self.pending = self.pending.saturating_add(1);
+                self.constructors = self.constructors.saturating_add(1);
+            }
+            Token::LParen | Token::LBrace => {
+                self.suspended.push(std::mem::take(&mut self.pending));
+            }
+            Token::RParen | Token::RBrace => {
+                self.constructors = self.constructors.saturating_sub(self.pending);
+                // A closing delimiter with nothing open is the parser's error
+                // to report; the level stays the outermost one.
+                self.pending = self.suspended.pop().unwrap_or(0);
+            }
+            Token::Service if self.after_constructor => {}
+            Token::Semi
+            | Token::Comma
+            | Token::Id(_)
+            | Token::Null
+            | Token::Principal
+            | Token::Blob
+            | Token::Service => self.end_run(),
+            _ => {}
+        }
+        self.after_constructor = matches!(token, Token::Opt | Token::Vec);
+        reached
+    }
+
+    /// The types around the next token: open delimiters plus open
+    /// constructors.
+    fn depth(&self) -> usize {
+        self.suspended.len().saturating_add(self.constructors)
+    }
+
+    /// End the constructors of the innermost level.
+    fn end_run(&mut self) {
+        self.constructors = self
+            .constructors
+            .saturating_sub(std::mem::take(&mut self.pending));
+    }
 }
 
 /// Refuse a record field whose id would be `u32::MAX` before the upstream
@@ -686,6 +779,223 @@ mod preflight_tests {
 
     fn longest_comment_run(text: &str) -> usize {
         comment_run_preflight(text.as_bytes(), usize::MAX).unwrap()
+    }
+
+    /// The deepest nesting [`StructuralNesting`] reaches over `text`.
+    fn structural_nesting(text: &str) -> usize {
+        let mut nesting = StructuralNesting::default();
+        Tokenizer::new(text)
+            .map(|token| nesting.push(&token.expect("the source lexes").1))
+            .max()
+            .unwrap_or(0)
+    }
+
+    /// Every `opt` and `vec` counts until its operand ends, at every level,
+    /// and each token counts the types around it.
+    #[test]
+    fn structural_nesting_counts_each_constructor_until_its_operand_ends() {
+        for (source, expected) in [
+            ("type T = nat;", 0),
+            ("type T = opt opt nat;", 2),
+            // A type's own delimiter is not around it: `record {}` is at 0.
+            ("type T = record {};", 0),
+            ("type T = vec vec record {};", 2),
+            // A run before a delimiter counts inside it.
+            ("type T = vec vec record { a : vec record { b : nat } };", 5),
+            ("type T = record { a : opt opt nat; b : vec vec record {} };", 3),
+            // Each level's run inside the previous ones: 9, where the
+            // delimiters and the innermost run alone add up to 3.
+            (
+                "type T = vec vec vec record { a : vec vec record { a : vec record { a : nat } } };",
+                9,
+            ),
+            // An `opt` before a function stays open through its results.
+            ("type F = opt func (vec nat) -> (opt opt nat) query;", 4),
+            // `blob` is `vec nat8`.
+            ("type T = vec blob;", 2),
+            // `service` after a constructor is its operand...
+            ("type S = vec service { m : (nat) -> () };", 3),
+            // ...and after a declaration without its `;`, the main actor.
+            ("type T = vec vec record {} service : { m : (nat) -> () }", 2),
+            // Separators end each item's run.
+            ("type T = record { opt opt nat; opt opt nat; opt opt nat };", 3),
+            ("type F = func (opt opt nat, opt opt nat) -> ();", 3),
+            // A closing delimiter with nothing open counts nothing.
+            ("} ) opt opt nat", 2),
+        ] {
+            assert_eq!(structural_nesting(source), expected, "{source}");
+        }
+    }
+
+    /// The count is the depth `max_type_depth` measures. Random programs of
+    /// every type form, a few levels deep, with or without a main actor
+    /// after a last declaration that has no `;`, and no alias declared: for
+    /// each, the type-depth walk over the parsed program accepts the deepest
+    /// count over its tokens as its limit, and refuses one less.
+    #[test]
+    fn structural_nesting_is_the_checked_type_depth() {
+        struct Random(u64);
+        impl Random {
+            fn below(&mut self, bound: usize) -> usize {
+                self.0 ^= self.0 << 13;
+                self.0 ^= self.0 >> 7;
+                self.0 ^= self.0 << 17;
+                (self.0 % bound as u64) as usize
+            }
+        }
+        fn items(
+            out: &mut String,
+            count: usize,
+            separator: &str,
+            mut item: impl FnMut(&mut String, usize),
+        ) {
+            for index in 0..count {
+                if index > 0 {
+                    out.push_str(separator);
+                }
+                item(out, index);
+            }
+        }
+        fn signature(random: &mut Random, depth: usize, out: &mut String) {
+            for (index, part) in ["(", ") -> ("].into_iter().enumerate() {
+                out.push_str(part);
+                let named = random.below(2) == 0;
+                items(out, random.below(3), ", ", |out, arg| {
+                    if named {
+                        out.push_str(&format!("a{index}{arg} : "));
+                    }
+                    typ(random, depth, out);
+                });
+            }
+            out.push(')');
+            out.push_str(["", " query", " oneway", " composite_query"][random.below(4)]);
+        }
+        fn typ(random: &mut Random, depth: usize, out: &mut String) {
+            match random.below(if depth == 0 { 5 } else { 12 }) {
+                0 => out.push_str("nat"),
+                1 => out.push_str("null"),
+                2 => out.push_str("blob"),
+                3 => out.push_str("principal"),
+                4 => out.push_str("Alias"),
+                5 => {
+                    out.push_str("opt ");
+                    typ(random, depth - 1, out);
+                }
+                6 => {
+                    out.push_str("vec ");
+                    typ(random, depth - 1, out);
+                }
+                7 => {
+                    // A run of constructors.
+                    for _ in 0..=random.below(3) {
+                        out.push_str(["opt ", "vec "][random.below(2)]);
+                    }
+                    typ(random, depth - 1, out);
+                }
+                8 => {
+                    out.push_str("record { ");
+                    let (named, fields) = (random.below(2) == 0, random.below(4));
+                    items(out, fields, "; ", |out, field| {
+                        if named {
+                            out.push_str(&format!("f{field} : "));
+                        }
+                        typ(random, depth - 1, out);
+                    });
+                    // A last `;` is allowed after a field, not alone.
+                    out.push_str(if fields > 0 && random.below(2) == 0 {
+                        "; }"
+                    } else {
+                        " }"
+                    });
+                }
+                9 => {
+                    out.push_str("variant { ");
+                    items(out, random.below(4), "; ", |out, field| {
+                        out.push_str(&format!("v{field}"));
+                        if random.below(2) == 0 {
+                            out.push_str(" : ");
+                            typ(random, depth - 1, out);
+                        }
+                    });
+                    out.push_str(" }");
+                }
+                10 => {
+                    out.push_str("func ");
+                    signature(random, depth - 1, out);
+                }
+                _ => {
+                    out.push_str("service { ");
+                    items(out, random.below(3), "; ", |out, method| {
+                        out.push_str(&format!("m{method} : "));
+                        if random.below(4) == 0 {
+                            out.push_str("Alias");
+                        } else {
+                            signature(random, depth - 1, out);
+                        }
+                    });
+                    out.push_str(" }");
+                }
+            }
+        }
+
+        let mut random = Random(0x9e37_79b9_7f4a_7c15);
+        let (mut compared, mut deepest, mut actors, mut bare) = (0usize, 0, 0, 0);
+        for _ in 0..4_000 {
+            let mut source = String::new();
+            let declarations = 1 + random.below(3);
+            let actor = random.below(3) == 0;
+            // The main actor may follow the last declaration without its `;`.
+            let bare_last = actor && random.below(2) == 0;
+            for index in 0..declarations {
+                source.push_str(&format!("type T{index} = "));
+                let depth = 1 + random.below(5);
+                typ(&mut random, depth, &mut source);
+                if index + 1 < declarations || !bare_last {
+                    source.push(';');
+                }
+                source.push('\n');
+            }
+            if actor {
+                if random.below(4) == 0 {
+                    source.push_str("service : Alias");
+                } else {
+                    source.push_str("service : { m : ");
+                    let depth = 1 + random.below(4);
+                    signature(&mut random, depth, &mut source);
+                    source.push_str(" }");
+                }
+            }
+            let program: IDLProg = source
+                .parse()
+                .unwrap_or_else(|error| panic!("{source}\ndoes not parse: {error}"));
+            let walk = |max_type_depth: usize| {
+                let limits = Limits::default().with_max_type_depth(max_type_depth);
+                check_programs_type_depth(
+                    std::iter::once(&program),
+                    &mut Budget::from_limits(&limits),
+                )
+            };
+            let count = structural_nesting(&source);
+            if let Err(error) = walk(count) {
+                panic!("{source}\nis deeper than {count}: {error:?}");
+            }
+            if let Some(less) = count.checked_sub(1) {
+                let error = walk(less).expect_err(&source);
+                let resource = error.diagnostics[0].resource_limit.as_ref().unwrap();
+                assert_eq!(
+                    (resource.resource.as_str(), resource.observed),
+                    ("type_depth", count as u64),
+                    "{source}"
+                );
+            }
+            compared += 1;
+            deepest = deepest.max(count);
+            actors += usize::from(actor);
+            bare += usize::from(bare_last);
+        }
+        // The corpus is not vacuous: it nests deep, and it has main actors,
+        // after a last `;` and without one.
+        assert_eq!((compared, deepest, actors, bare), (4_000, 11, 1_335, 666));
     }
 
     /// Issue #219's counting rules: comments between two real tokens, line
