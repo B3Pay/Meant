@@ -6,11 +6,26 @@ use candid_parser::{check_prog, IDLProg};
 use meant::{compile_did_with_options, CompileOptions, Contract};
 use serde::Serialize;
 use std::alloc::{GlobalAlloc, Layout, System};
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::cell::Cell;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 struct CountingAllocator;
 
-static ENABLED: AtomicBool = AtomicBool::new(false);
+thread_local! {
+    /// Whether the allocator counts this thread's allocations. `measure`
+    /// switches it on and off on the thread that measures. This binary runs no
+    /// other thread, so the counts equal a process-wide flag's; it counts per
+    /// thread like the allocation tests, which must, because the test harness
+    /// allocates on a thread of its own (issue #332).
+    static COUNTING: Cell<bool> = const { Cell::new(false) };
+}
+
+/// `try_with`, because an allocator must never panic, and it also runs while
+/// a thread is being torn down.
+fn counting() -> bool {
+    COUNTING.try_with(Cell::get).unwrap_or(false)
+}
+
 static ALLOCATIONS: AtomicUsize = AtomicUsize::new(0);
 static ALLOCATED_BYTES: AtomicUsize = AtomicUsize::new(0);
 static LIVE_BYTES: AtomicUsize = AtomicUsize::new(0);
@@ -22,7 +37,7 @@ static GLOBAL_ALLOCATOR: CountingAllocator = CountingAllocator;
 unsafe impl GlobalAlloc for CountingAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         let pointer = unsafe { System.alloc(layout) };
-        if !pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !pointer.is_null() && counting() {
             record_allocation(layout.size());
         }
         pointer
@@ -30,14 +45,14 @@ unsafe impl GlobalAlloc for CountingAllocator {
 
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         let pointer = unsafe { System.alloc_zeroed(layout) };
-        if !pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !pointer.is_null() && counting() {
             record_allocation(layout.size());
         }
         pointer
     }
 
     unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {
-        if ENABLED.load(Ordering::Relaxed) {
+        if counting() {
             record_deallocation(layout.size());
         }
         unsafe { System.dealloc(pointer, layout) };
@@ -45,7 +60,7 @@ unsafe impl GlobalAlloc for CountingAllocator {
 
     unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
         let new_pointer = unsafe { System.realloc(pointer, layout, new_size) };
-        if !new_pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !new_pointer.is_null() && counting() {
             record_deallocation(layout.size());
             record_allocation(new_size);
         }
@@ -86,12 +101,12 @@ fn record_deallocation(size: usize) {
 }
 
 fn reset_counters() {
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
     ALLOCATIONS.store(0, Ordering::Relaxed);
     ALLOCATED_BYTES.store(0, Ordering::Relaxed);
     LIVE_BYTES.store(0, Ordering::Relaxed);
     PEAK_LIVE_BYTES.store(0, Ordering::Relaxed);
-    ENABLED.store(true, Ordering::SeqCst);
+    COUNTING.set(true);
 }
 
 #[derive(Serialize)]
@@ -120,7 +135,7 @@ fn measure<T>(
         allocated_bytes: ALLOCATED_BYTES.load(Ordering::Relaxed),
         peak_live_bytes: PEAK_LIVE_BYTES.load(Ordering::Relaxed),
     };
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
     drop(output);
     measurement
 }

@@ -16,7 +16,8 @@
 
 use meant::{compile_did_with_options, CompileOptions};
 use std::alloc::{GlobalAlloc, Layout, System};
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::cell::Cell;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, MutexGuard};
 
 /// The counters are process globals and the harness runs tests in parallel,
@@ -31,7 +32,20 @@ fn measuring() -> MutexGuard<'static, ()> {
 
 struct CountingAllocator;
 
-static ENABLED: AtomicBool = AtomicBool::new(false);
+thread_local! {
+    /// Whether the allocator counts this thread's allocations. Only the thread
+    /// that measures switches it on, so nothing another thread allocates
+    /// meanwhile is counted, such as the harness printing that a test "has been
+    /// running for over 60 seconds" (issue #332).
+    static COUNTING: Cell<bool> = const { Cell::new(false) };
+}
+
+/// `try_with`, because an allocator must never panic, and it also runs while
+/// a thread is being torn down.
+fn counting() -> bool {
+    COUNTING.try_with(Cell::get).unwrap_or(false)
+}
+
 static ALLOCATED_BYTES: AtomicUsize = AtomicUsize::new(0);
 
 #[global_allocator]
@@ -40,7 +54,7 @@ static GLOBAL_ALLOCATOR: CountingAllocator = CountingAllocator;
 unsafe impl GlobalAlloc for CountingAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         let pointer = unsafe { System.alloc(layout) };
-        if !pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !pointer.is_null() && counting() {
             ALLOCATED_BYTES.fetch_add(layout.size(), Ordering::Relaxed);
         }
         pointer
@@ -48,7 +62,7 @@ unsafe impl GlobalAlloc for CountingAllocator {
 
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         let pointer = unsafe { System.alloc_zeroed(layout) };
-        if !pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !pointer.is_null() && counting() {
             ALLOCATED_BYTES.fetch_add(layout.size(), Ordering::Relaxed);
         }
         pointer
@@ -60,7 +74,7 @@ unsafe impl GlobalAlloc for CountingAllocator {
 
     unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
         let new_pointer = unsafe { System.realloc(pointer, layout, new_size) };
-        if !new_pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !new_pointer.is_null() && counting() {
             ALLOCATED_BYTES.fetch_add(new_size, Ordering::Relaxed);
         }
         new_pointer
@@ -80,9 +94,9 @@ fn allocated_bytes(source: &str, include_source_info: bool) -> usize {
         include_source_info,
     };
     ALLOCATED_BYTES.store(0, Ordering::Relaxed);
-    ENABLED.store(true, Ordering::Relaxed);
+    COUNTING.set(true);
     let compilation = compile_did_with_options(source, options);
-    ENABLED.store(false, Ordering::Relaxed);
+    COUNTING.set(false);
     let compilation = compilation.unwrap();
     assert_eq!(compilation.source_info().is_some(), include_source_info);
     ALLOCATED_BYTES.load(Ordering::Relaxed)

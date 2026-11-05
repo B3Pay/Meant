@@ -191,3 +191,10 @@ publish on an explicit naming decision).
   with `continue-on-error` or by making the macOS leg optional: that leg also
   fails for reasons a person must see (Verify #463, #489 and #491, in
   `tests/type_preflight_memory.rs`), and an allowance would hide them.
+- A counting global allocator in a test counts only the thread that
+  measures. The test harness allocates on its own thread when it prints that
+  a test "has been running for over 60 seconds", and a process-wide count put
+  those 3 allocations and 758 bytes into an exact-equality measurement when a
+  slow macOS runner reached that mark mid-measurement (#332). The allocation
+  tests and `benches/allocation.rs` switch counting on with a thread-local
+  `COUNTING`; copy that, not a global flag.
