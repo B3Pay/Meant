@@ -20,14 +20,14 @@
 
 use meant::{compile_did_with_context, CompileOptions, Limits, RuntimeContext};
 use std::alloc::{GlobalAlloc, Layout, System};
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::cell::Cell;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, MutexGuard};
 
 /// The counters below are process globals, so only one test may measure at a
-/// time; the harness runs test functions in parallel by default. Held for a
-/// whole test body rather than around each measurement, because an
-/// unsynchronized allocation from another test would perturb the peak just as
-/// badly between two measurements as during one.
+/// time; the harness runs test functions in parallel by default. A test holds
+/// this for its whole body. What other threads allocate meanwhile is not
+/// counted at all: see `COUNTING`.
 static MEASURING: Mutex<()> = Mutex::new(());
 
 fn measuring() -> MutexGuard<'static, ()> {
@@ -40,7 +40,25 @@ fn measuring() -> MutexGuard<'static, ()> {
 
 struct CountingAllocator;
 
-static ENABLED: AtomicBool = AtomicBool::new(false);
+thread_local! {
+    /// Whether the allocator counts this thread's allocations. A measurement
+    /// switches it on and off on the thread that measures, so nothing another
+    /// thread allocates meanwhile is counted. The harness is such a thread:
+    /// when a test passes 60 seconds it prints "has been running for over 60
+    /// seconds", and printing allocates. Counted, that print added 3
+    /// allocations and 758 bytes to a measurement on slow macOS runners, and
+    /// the heap-layout test below failed (issue #332). A compilation spawns no
+    /// thread, so counting only the measuring one misses none of its work.
+    static COUNTING: Cell<bool> = const { Cell::new(false) };
+}
+
+/// Whether the allocation in progress belongs to a measurement. `try_with`,
+/// because an allocator must never panic, and it also runs while a thread is
+/// being torn down.
+fn counting() -> bool {
+    COUNTING.try_with(Cell::get).unwrap_or(false)
+}
+
 static LIVE_BYTES: AtomicUsize = AtomicUsize::new(0);
 static PEAK_LIVE_BYTES: AtomicUsize = AtomicUsize::new(0);
 static ALLOCATIONS: AtomicUsize = AtomicUsize::new(0);
@@ -52,7 +70,7 @@ static GLOBAL_ALLOCATOR: CountingAllocator = CountingAllocator;
 unsafe impl GlobalAlloc for CountingAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         let pointer = unsafe { System.alloc(layout) };
-        if !pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !pointer.is_null() && counting() {
             record_allocation(layout.size());
         }
         pointer
@@ -60,14 +78,14 @@ unsafe impl GlobalAlloc for CountingAllocator {
 
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         let pointer = unsafe { System.alloc_zeroed(layout) };
-        if !pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !pointer.is_null() && counting() {
             record_allocation(layout.size());
         }
         pointer
     }
 
     unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {
-        if ENABLED.load(Ordering::Relaxed) {
+        if counting() {
             record_deallocation(layout.size());
         }
         unsafe { System.dealloc(pointer, layout) };
@@ -75,7 +93,7 @@ unsafe impl GlobalAlloc for CountingAllocator {
 
     unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
         let new_pointer = unsafe { System.realloc(pointer, layout, new_size) };
-        if !new_pointer.is_null() && ENABLED.load(Ordering::Relaxed) {
+        if !new_pointer.is_null() && counting() {
             record_deallocation(layout.size());
             record_allocation(new_size);
         }
@@ -117,17 +135,17 @@ fn record_deallocation(size: usize) {
 
 /// Peak simultaneously-live heap bytes during one compilation.
 fn peak_live_bytes(source: &str) -> usize {
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
     LIVE_BYTES.store(0, Ordering::Relaxed);
     PEAK_LIVE_BYTES.store(0, Ordering::Relaxed);
-    ENABLED.store(true, Ordering::SeqCst);
+    COUNTING.set(true);
     let result = compile_did_with_context(
         source,
         CompileOptions::default(),
         &RuntimeContext::new(Limits::default()),
     );
     let peak = PEAK_LIVE_BYTES.load(Ordering::Relaxed);
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
     result.expect("the adversarial bundle is valid and within every default limit");
     peak
 }
@@ -360,17 +378,17 @@ fn memory_committed_before_a_charge_lands_stays_in_proportion() {
     const BUDGET: usize = 50_000;
 
     let source = cycle_then_wide_record(200, 4_000);
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
     LIVE_BYTES.store(0, Ordering::Relaxed);
     PEAK_LIVE_BYTES.store(0, Ordering::Relaxed);
-    ENABLED.store(true, Ordering::SeqCst);
+    COUNTING.set(true);
     let result = compile_did_with_context(
         &source,
         CompileOptions::default(),
         &RuntimeContext::new(Limits::default().with_max_type_preflight_work(BUDGET)),
     );
     let peak = PEAK_LIVE_BYTES.load(Ordering::Relaxed);
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
 
     // The point of the input: it must actually exhaust the budget, so the
     // measurement is of memory committed on the way to a refusal.
@@ -395,10 +413,10 @@ fn memory_committed_before_a_charge_lands_stays_in_proportion() {
 
 /// Allocations and bytes requested by one compilation.
 fn allocation_totals(source: &str) -> (usize, usize) {
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
     ALLOCATIONS.store(0, Ordering::Relaxed);
     ALLOCATED_BYTES.store(0, Ordering::Relaxed);
-    ENABLED.store(true, Ordering::SeqCst);
+    COUNTING.set(true);
     let result = compile_did_with_context(
         source,
         CompileOptions::default(),
@@ -408,7 +426,7 @@ fn allocation_totals(source: &str) -> (usize, usize) {
         ALLOCATIONS.load(Ordering::Relaxed),
         ALLOCATED_BYTES.load(Ordering::Relaxed),
     );
-    ENABLED.store(false, Ordering::SeqCst);
+    COUNTING.set(false);
     result.expect("the bundle is valid and within every default limit");
     totals
 }
