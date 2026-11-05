@@ -53,6 +53,31 @@ and therefore the identities computed over them. Pin an exact version.
 
 ### Resource bounds
 
+- **`max_source_nesting` counts every `opt` and `vec` until its operand
+  ends.** The structural count added the open delimiters to the run of
+  `opt`/`vec` at the innermost level only, and a delimiter that opened
+  dropped the run before it. So a run written before a `record {`, a
+  `variant {`, a `service {` or a function's `(` stopped counting inside it,
+  and each level's run could nest inside the previous ones: within the
+  default 256, a source of about 135 KB nested 33 152 levels deep. The pinned
+  parser clones each record field's type recursively, so that source
+  overflowed the stack and aborted the process, through every entry point.
+  A constructor now counts until its operand ends: at a leaf, or at the `;`,
+  `,` or closing delimiter after a delimited operand, a function's results
+  included, and `blob` counts as the `vec nat8` it is. Each token counts the
+  types around it, so for a type written out in one declaration the count is
+  the depth `max_type_depth` measures, which a unit test checks against the
+  type-depth walk over 4 000 random programs; with the two limits equal, as
+  they are by default, a type that `max_type_depth` accepts passes here too.
+  A source nested deeper than the limit only through runs before delimiters
+  is now refused with `source_nesting` before the parser runs, and every
+  refusal reports the first level past the limit as `observed`. One count
+  drops by one: a type's own delimiters are not around it, so an empty `{}`
+  or `()` with no `opt` or `vec` open around it no longer counts a level
+  inside. Nested records whose innermost `record {}` is at depth 256, which
+  `max_type_depth` accepts, were refused here with `observed` 257 and now
+  compile, as `vec` × 256 `record {}` already did.
+
 - **The type-depth walks allocate the same way for the same input**
   ([issue #263]). Both walks that enforce `max_type_depth` memoized their
   states in an ordered set keyed by each type node's memory address, so how

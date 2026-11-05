@@ -189,6 +189,176 @@ fn source_nesting_accepts_exact_limit_and_rejects_one_over() {
     assert_eq!(resource.observed, 33);
 }
 
+/// The one `source_nesting` refusal, with its limit and what it observed.
+fn assert_nesting_refused(entry: &str, error: &meant::CompileError, limit: u64, observed: u64) {
+    assert_eq!(error.diagnostics.len(), 1, "{entry}: {error:#?}");
+    let diagnostic = &error.diagnostics[0];
+    assert_eq!(diagnostic.code, "resource_limit_exceeded", "{entry}");
+    let resource = diagnostic.resource_limit.as_ref().unwrap();
+    assert_eq!(resource.resource, "source_nesting", "{entry}");
+    assert_eq!(
+        (resource.limit, resource.observed),
+        (limit, observed),
+        "{entry}"
+    );
+}
+
+/// The source check counts each type at the depth the type check does, from
+/// 0 at a declaration's type, whatever ends the deepest path: with both
+/// limits at 32, a type at depth 32 passes both, and one level more is
+/// refused before the parser runs, reporting the first level past the limit.
+#[test]
+fn the_source_check_counts_the_depth_the_type_check_does() {
+    /// A shape: its name, and its source at a depth.
+    type Shape = (&'static str, fn(usize) -> String);
+    let shapes: [Shape; 6] = [
+        ("vec nat", |depth| {
+            format!("type T = {}nat;", "vec ".repeat(depth))
+        }),
+        ("vec record", |depth| {
+            format!("type T = {}record {{}};", "vec ".repeat(depth))
+        }),
+        // `blob` is `vec nat8`, its `nat8` one level inside.
+        ("vec blob", |depth| {
+            format!("type T = {}blob;", "vec ".repeat(depth - 1))
+        }),
+        ("records", |depth| {
+            format!(
+                "type T = {}record {{}}{};",
+                "record { a : ".repeat(depth),
+                " }".repeat(depth)
+            )
+        }),
+        ("variants", |depth| {
+            format!(
+                "type T = {}variant {{}}{};",
+                "variant { a : ".repeat(depth),
+                " }".repeat(depth)
+            )
+        }),
+        ("functions", |depth| {
+            format!(
+                "type T = {}func () -> (){};",
+                "func () -> (".repeat(depth),
+                ")".repeat(depth)
+            )
+        }),
+    ];
+    let limits = Limits::default()
+        .with_max_source_nesting(32)
+        .with_max_type_depth(32);
+    for (name, shape) in shapes {
+        compile_with_limits(&shape(32), limits.clone())
+            .unwrap_or_else(|error| panic!("{name}: {error}"));
+        let error = compile_with_limits(&shape(33), limits.clone()).unwrap_err();
+        assert_nesting_refused(name, &error, 32, 33);
+    }
+    // A `blob` whose own `vec` is already past the limit reports that level.
+    let error =
+        compile_with_limits(&format!("type T = {}blob;", "vec ".repeat(33)), limits).unwrap_err();
+    assert_nesting_refused("deeper blob", &error, 32, 33);
+}
+
+/// `levels` records, each behind a run of `run` `vec`s, around `tail` `opt`s
+/// of `nat`: `levels * (run + 1) + tail` deep.
+fn runs_before_records(levels: usize, run: usize, tail: usize) -> String {
+    format!(
+        "type T = {}{}nat{}; service : {{}};",
+        format!("{}record {{ a : ", "vec ".repeat(run)).repeat(levels),
+        "opt ".repeat(tail),
+        " }".repeat(levels)
+    )
+}
+
+/// A run of `opt`/`vec` written before a delimiter counts inside it: eight
+/// records behind three `vec`s each are 32 deep, where counting the open
+/// delimiters and only the innermost run saw 10.
+#[test]
+fn a_run_before_a_delimiter_counts_inside_it() {
+    let limits = Limits::default().with_max_source_nesting(32);
+    compile_with_limits(&runs_before_records(8, 3, 0), limits.clone()).unwrap();
+    let error = compile_with_limits(&runs_before_records(8, 3, 1), limits).unwrap_err();
+    assert_nesting_refused("records", &error, 32, 33);
+}
+
+/// An `opt` before a function stays open through its results: sixteen
+/// levels of `opt func () -> (` are 32 deep.
+#[test]
+fn a_run_before_a_function_counts_through_its_results() {
+    fn functions(levels: usize, tail: usize) -> String {
+        format!(
+            "type T = {}{}nat{}; service : {{}};",
+            "opt func () -> (".repeat(levels),
+            "opt ".repeat(tail),
+            ")".repeat(levels)
+        )
+    }
+    let limits = Limits::default().with_max_source_nesting(32);
+    compile_with_limits(&functions(16, 0), limits.clone()).unwrap();
+    let error = compile_with_limits(&functions(16, 1), limits).unwrap_err();
+    assert_nesting_refused("functions", &error, 32, 33);
+}
+
+/// Each item's run ends with the item, so twenty declarations of twenty
+/// fields, each field a run before a record, are as deep as one field.
+#[test]
+fn each_items_run_ends_with_the_item() {
+    let item = "vec vec record { x : opt opt nat }";
+    let fields: Vec<String> = (0..20).map(|index| format!("f{index} : {item}")).collect();
+    let mut source = String::new();
+    for index in 0..20 {
+        source.push_str(&format!(
+            "type T{index} = record {{ {} }};\n",
+            fields.join("; ")
+        ));
+    }
+    source.push_str(&format!(
+        "service : {{ m : ({}) -> () }};",
+        vec![item; 20].join(", ")
+    ));
+    // A declaration: `record {` 1, `vec vec` 3, `record {` 4, `opt opt` 6.
+    // The method: `service {` 1, `(` 2, then the same five levels, 7.
+    compile_with_limits(&source, Limits::default().with_max_source_nesting(7)).unwrap();
+    let error =
+        compile_with_limits(&source, Limits::default().with_max_source_nesting(6)).unwrap_err();
+    assert_nesting_refused("items", &error, 6, 7);
+}
+
+/// A leaf ends the run before it, so a source that writes types one after
+/// another without separators keeps the parser's diagnostic, where the
+/// parser stops, at the second `opt`, rather than a nesting refusal.
+#[test]
+fn a_syntax_error_after_a_leaf_keeps_the_parser_diagnostic() {
+    let source = format!("type T = {}; service : {{}};", "opt nat ".repeat(300));
+    let error = compile_with_limits(&source, Limits::default()).unwrap_err();
+    let diagnostic = &error.diagnostics[0];
+    assert_eq!(diagnostic.code, "did_parse_error", "{diagnostic:#?}");
+    let span = diagnostic.span.as_ref().unwrap();
+    assert_eq!((span.start_byte, span.end_byte), (Some(17), Some(20)));
+}
+
+/// `service` after `opt` or `vec` is that constructor's operand and keeps it
+/// open; after a last declaration without its `;`, it starts the main actor,
+/// which ends what the declaration left open.
+#[test]
+fn service_keeps_a_run_as_its_operand_and_ends_it_as_the_actor() {
+    let limits = Limits::default().with_max_source_nesting(7);
+    // `opt opt` 2, `service {` 3, `(` 4, `opt opt` 6, `record {` 7.
+    let operand = |tail: &str| {
+        format!(
+            "type S = opt opt service {{ m : (opt opt record {{ a : {tail}nat }}) -> () }}; service : {{}};"
+        )
+    };
+    compile_with_limits(&operand(""), limits.clone()).unwrap();
+    let error = compile_with_limits(&operand("opt "), limits.clone()).unwrap_err();
+    assert_nesting_refused("operand", &error, 7, 8);
+    // The declaration's three `vec`s end at the actor, whose method is 6
+    // deep, not 9.
+    let actor =
+        "type T = vec vec vec record {} service : { m : (vec vec vec record { a : nat }) -> () }";
+    compile_with_limits(actor, limits.with_max_source_nesting(6)).unwrap();
+}
+
 #[test]
 fn checked_type_depth_accepts_exact_limit_and_rejects_one_over() {
     let limits = Limits::default()
@@ -532,6 +702,117 @@ fn small_stack_sidecar_rederivation_refuses_an_over_long_comment_run() {
     }
     assert_child_succeeded(&run_in_child(
         "small_stack_sidecar_rederivation_refuses_an_over_long_comment_run",
+        MARKER,
+        "1",
+    ));
+}
+
+/// Each level's run nested inside the previous ones: 256 records, the one at
+/// depth `i` behind `256 - i` `vec`s, 33 152 levels deep in 135 KB. Counting
+/// the open delimiters and only the innermost run, this was 256 deep, within
+/// the default limit, and the parser's recursion through the depth it builds
+/// overflowed any thread's stack.
+fn stacked_runs() -> String {
+    let mut source = String::from("type T = ");
+    for depth in 0..256 {
+        source.push_str(&"vec ".repeat(256 - depth));
+        source.push_str("record { a : ");
+    }
+    source.push_str("nat");
+    source.push_str(&" }".repeat(256));
+    source.push_str(";\nservice : { f : (T) -> () };\n");
+    source
+}
+
+/// Stacked runs are refused by every entry point on a 64 KiB stack, before
+/// the parser runs. Counting only the innermost run, this child aborts
+/// (SIGABRT, exit 134).
+#[test]
+fn small_stack_refuses_stacked_runs_on_every_entry_point() {
+    const MARKER: &str = "MEANT_STACKED_RUNS_CHILD";
+    if std::env::var_os(MARKER).is_some() {
+        let source = stacked_runs();
+        assert_eq!(source.len(), 135_467);
+        let outcomes = std::thread::Builder::new()
+            .stack_size(SMALL_STACK_BYTES)
+            .spawn(move || every_entry_point(&source, &Limits::default(), "stacked-runs"))
+            .unwrap()
+            .join()
+            .expect("small-stack stacked-runs worker must not abort");
+        let expected = if cfg!(feature = "filesystem-compiler") {
+            7
+        } else {
+            4
+        };
+        assert_eq!(outcomes.len(), expected);
+        for (entry, outcome) in &outcomes {
+            assert_nesting_refused(entry, outcome.as_ref().unwrap_err(), 256, 257);
+        }
+        return;
+    }
+    assert_child_succeeded(&run_in_child(
+        "small_stack_refuses_stacked_runs_on_every_entry_point",
+        MARKER,
+        "1",
+    ));
+}
+
+/// A presented `SourceInfo` whose embedded source nests one past the limit
+/// only through runs before delimiters is refused by rederivation with
+/// `source_nesting`, on a 64 KiB stack. The sidecar is genuine (compiled
+/// under raised limits on a large stack), so rederivation is reached.
+#[test]
+fn small_stack_sidecar_rederivation_refuses_runs_before_delimiters() {
+    const MARKER: &str = "MEANT_RUNS_SIDECAR_CHILD";
+    if std::env::var_os(MARKER).is_some() {
+        // 64 records behind three `vec`s each, and one `opt`: 257 deep.
+        let source = runs_before_records(64, 3, 1);
+        let compilation = std::thread::Builder::new()
+            .stack_size(64 * 1024 * 1024)
+            .spawn(move || {
+                compile_did_with_context(
+                    &source,
+                    CompileOptions::default(),
+                    &RuntimeContext::new(
+                        Limits::default()
+                            .with_max_source_nesting(257)
+                            .with_max_type_depth(300),
+                    ),
+                )
+                .unwrap()
+            })
+            .unwrap()
+            .join()
+            .unwrap();
+        let raw: meant::RawSourceInfo = serde_json::from_value(
+            serde_json::to_value(compilation.source_info().unwrap()).unwrap(),
+        )
+        .unwrap();
+        let contract = compilation.contract().clone();
+        let error = std::thread::Builder::new()
+            .stack_size(SMALL_STACK_BYTES)
+            .spawn(move || {
+                meant::SourceInfo::try_from_raw_with_context(
+                    raw,
+                    &contract,
+                    &RuntimeContext::default(),
+                )
+                .map(drop)
+            })
+            .unwrap()
+            .join()
+            .expect("small-stack rederivation worker must not abort")
+            .unwrap_err();
+        assert_eq!(error.violations.len(), 1, "{error:#?}");
+        let violation = &error.violations[0];
+        assert_eq!(violation.code, "resource_limit_exceeded");
+        let resource = violation.resource_limit.as_ref().unwrap();
+        assert_eq!(resource.resource, "source_nesting");
+        assert_eq!((resource.limit, resource.observed), (256, 257));
+        return;
+    }
+    assert_child_succeeded(&run_in_child(
+        "small_stack_sidecar_rederivation_refuses_runs_before_delimiters",
         MARKER,
         "1",
     ));

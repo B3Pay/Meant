@@ -228,9 +228,14 @@ limit_fields! {
     /// Two things count against it, each on its own, and a refusal of either
     /// reports `source_nesting`:
     ///
-    /// - **Structural nesting**: open delimiters plus a run of `opt`/`vec`
-    ///   constructors, which the upstream type checker and this crate's
-    ///   lowering descend through.
+    /// - **Structural nesting**: the types around each token, open
+    ///   delimiters plus every `opt` and `vec` whose operand has not ended,
+    ///   at every level: a `vec` written before a `record {` counts inside
+    ///   the record too, until the `;` or `,` after it or the delimiter
+    ///   around it. For a type written out in one declaration that is the
+    ///   depth [`Limits::max_type_depth`] measures, from 0 at the
+    ///   declaration's type, and the depth the upstream parser builds and
+    ///   its type checker and this crate's lowering descend through.
     /// - **Comment runs**: the number of consecutive comments, line (`//`) or
     ///   block (`/* */`), between two real tokens. Comments are not free.
     ///   The pinned upstream tokenizer skips each comment by calling itself,
