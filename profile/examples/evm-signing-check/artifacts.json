@@ -1,0 +1,57 @@
+{
+  "about": "The contract code the local chain runs, as deployed on Base Sepolia (a test network). `npm run fetch` reads each contract's code from a Base Sepolia node and keeps it only if its keccak-256 is the one below; the run checks the hashes again before it loads the code. Pinned on 2026-11-04 at block 54440084 (0xf2fe1300e623f99f1e9bd9727553b116e9e9ad3d9da484a6ea502ad467f6b8a9); each hash equals the codeHash that eth_getProof returns for that account at that block.",
+  "chain_id": 84532,
+  "rpc": "https://sepolia.base.org",
+  "contracts": {
+    "usdc": {
+      "address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "what": "USDC on Base Sepolia: Circle's FiatTokenProxy",
+      "source": "circlefin/stablecoin-evm, Apache-2.0",
+      "bytes": 1798,
+      "keccak256": "0xedc5281a85c0efecd49999a1ef668390c59b88702f2d4a07029d7f5d63059d6c"
+    },
+    "usdc_implementation": {
+      "address": "0xd74cc5d436923b8ba2c179b4bCA2841D8A52C5B5",
+      "what": "the implementation the USDC proxy delegates to (FiatTokenV2_2), read from the proxy's implementation slot",
+      "source": "circlefin/stablecoin-evm, Apache-2.0",
+      "bytes": 23464,
+      "keccak256": "0x1254951e5483b882fd5def9452f58fe786eb3380c0bf9bb2744fa21a0a97a16c"
+    },
+    "usdc_signature_checker": {
+      "address": "0xbA3b60c21e28C41df4bABd90f228e1D368627DA6",
+      "what": "the SignatureChecker library the implementation is linked to, which checks every EIP-3009 and EIP-2612 signature",
+      "source": "circlefin/stablecoin-evm, Apache-2.0",
+      "bytes": 1741,
+      "keccak256": "0x0855e691adf48a1a47437ec347119ebfea7d3997af9a17f253178569753665c0"
+    },
+    "permit2": {
+      "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+      "what": "Uniswap's Permit2",
+      "source": "Uniswap/permit2, MIT",
+      "bytes": 9152,
+      "keccak256": "0xdcde65555316946c298e4c60c6213eb5c3aeab4354d1f3fac5427236bcbb9ebe"
+    },
+    "x402_exact_proxy": {
+      "address": "0x402085c248EeA27D92E8b30b2C58ed07f9E20001",
+      "what": "x402's Permit2 proxy for the exact scheme (x402ExactPermit2Proxy)",
+      "source": "coinbase/x402, Apache-2.0",
+      "bytes": 2913,
+      "keccak256": "0xce6429c0bb49284660683287c0a8fe548a88379072327d026626909d202048b9"
+    },
+    "x402_upto_proxy": {
+      "address": "0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002",
+      "what": "x402's Permit2 proxy for the upto scheme (x402UptoPermit2Proxy)",
+      "source": "coinbase/x402, Apache-2.0",
+      "bytes": 3142,
+      "keccak256": "0x4662dc27323421a3698be49ac95f7b0dba141c238d31ef543248d1a11f8d8eec"
+    }
+  },
+  "usdc_proxy_slots": {
+    "implementation": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
+    "admin": "0x10d6a54a4754c8869d6886b5f5d7fbfa5b4522237ea5c60d11bc4e7a1ff9390b"
+  },
+  "domain_separators": {
+    "usdc": "0x71f17a3b2ff373b803d70a5a07c046c1a2bc8e89c09ef722fcb047abe94c9818",
+    "permit2": "0x010f27a92fb9a32622f44f001dc4d15706a85b33499cfc2ce9033113ab26592c"
+  }
+}
