@@ -163,7 +163,7 @@ jobs:
 
       - name: Read the pinned toolchain
         run: grep -E '^[A-Z_]+=' tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
-      - uses: dtolnay/rust-toolchain@master
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           toolchain: ${{ env.RELEASE_TOOLCHAIN }}
           targets: wasm32-unknown-unknown
@@ -229,7 +229,7 @@ jobs:
 
       - name: Read the pinned toolchain
         run: grep -E '^[A-Z_]+=' tests/fixtures/packaging/release-tools.env >> "$GITHUB_ENV"
-      - uses: dtolnay/rust-toolchain@master
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           toolchain: ${{ env.RELEASE_TOOLCHAIN }}
           targets: wasm32-unknown-unknown

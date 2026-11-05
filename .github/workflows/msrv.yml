@@ -149,6 +149,17 @@ jobs:
       # the job lists of real failed runs, of both kinds.
       - name: Test the rule against recorded runs
         run: python3 tests/fixtures/ci/test_runner_retry.py
+  pinned-actions:
+    name: Pinned actions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # A workflow that can write (publish to npm or crates.io, push, deploy,
+      # re-run) runs every action at a full commit, and so do the workflows it
+      # calls: a tag or a branch is code someone else can move under the
+      # credentials. This workflow writes nothing and follows tags on purpose.
+      - name: Check that every workflow that can write pins its actions
+        run: python3 tests/fixtures/ci/test_pinned_actions.py
   wasm:
     name: Stable WASM
     runs-on: ubuntu-latest
