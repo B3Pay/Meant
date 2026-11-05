@@ -1,6 +1,6 @@
 {
   "name": "@meantjs/cli",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Candid .did to canonical Contract envelopes and @meantjs/schema modules, compiled to WebAssembly: a JavaScript-only on-ramp with no Rust toolchain, for Node CLIs and browsers alike.",
   "license": "Apache-2.0",
   "repository": {

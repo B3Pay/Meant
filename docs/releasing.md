@@ -834,6 +834,10 @@ published version, such as the last beta, npm refuses the install with
    `UNPUBLISHED_NPM_SPECS` naming each prepared version and the `beta` tag
    while the tag does not exist on the registry, so no page offers a copyable
    line that resolves to nothing. Pages say in prose what the line will be.
+   For a package the registry already holds, `PUBLISHED_WHILE_PREPARED`
+   names the release its install and npx blocks keep selecting until the
+   publish, because `website/check.mjs` otherwise holds every pinned
+   `@meantjs/…@<version>` in a block to the version in `package.json`.
 
 ### Dispatch, schema first
 
@@ -1008,8 +1012,9 @@ above, and these:
 - `UNPUBLISHED_NPM_SPECS` names the two exact versions only, as before.
 - Dispatch, the window between the two publishes and the checks afterwards
   are the section above's, with the new versions.
-- On publish day the follow-up pull request empties `UNPUBLISHED_NPM_SPECS`,
-  rewrites each note so the new pair is the one published and the previous
+- On publish day the follow-up pull request empties `UNPUBLISHED_NPM_SPECS`
+  and `PUBLISHED_WHILE_PREPARED`, moves every pinned install and npx block to
+  the new versions, rewrites each note so the new pair is the one published and the previous
   one is the release that differs, and rewrites every marker of the
   prepared pair: "not yet published", "prepared" and "does not hold yet",
   some of which wrap across a line break, so
@@ -1039,6 +1044,25 @@ above, and these:
   page's prose install lines into blocks, records the publish date and both
   runs on the status page, and appends each npm release note's **Release
   record**.
+
+### A release of the CLI alone
+
+When the generator and the schema runtime do not change, the CLI can release
+without the schema: a compiler fix is one, since the CLI embeds `meant` from
+the dispatched commit, as in `@meantjs/cli` `0.5.1`. The pull request
+is items 1 to 7 above for the CLI only: its manifest and the two lock roots,
+with the exact peer unchanged; a dated changelog entry, written for a reader
+on the previous release, that says what the embedded source has that the
+crate archive does not and what the upgrade changes, measured against the
+registry's tarball over the repository's tracked `.did` files; the package
+README; the release note with the public-API diff; the prepared version in
+`UNPUBLISHED_NPM_SPECS`, the published one in `PUBLISHED_WHILE_PREPARED`;
+and one sentence, in each note that says what the repository builds of the
+CLI, that it is prepared and not yet published. Only `npm-release-cli.yml` is
+dispatched. Its downstream check still packs both packages from the commit;
+where a project depends on the CLI alone, pnpm takes the schema peer from the
+registry, the one registry link the check allows. ic-reactor's repin follows
+the publish (its CONTRIBUTING.md, "The Meant pins").
 
 ### Promoting to `latest`
 

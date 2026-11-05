@@ -126,7 +126,7 @@
       <td><code>max_source_nesting</code></td>
       <td>256</td>
       <td><code>source_nesting</code></td>
-      <td><em>Lexical</em> nesting: the types around each token, open delimiters plus every <code>opt</code>/<code>vec</code> constructor whose operand has not ended, at every level (a <code>vec</code> before a <code>record {</code> still counts inside the record), counted over a token scan before the recursive upstream parser is invoked; for a type written out in one declaration, the depth <code>max_type_depth</code> counts. Also bounds a run of consecutive comments between two tokens, line and block alike, since the upstream tokenizer spends a stack frame on each; a single <code>/* */</code> block counts once.</td>
+      <td><em>Lexical</em> nesting: the types around each token, open delimiters plus every <code>opt</code>/<code>vec</code> constructor whose operand has not ended, at every level (a <code>vec</code> before a <code>record {</code> still counts inside the record) (new in <code>@meantjs/cli</code> <code>0.5.1</code>, not yet published, and in the next <code>meant</code> release; <code>@meantjs/cli</code> <code>0.5.0</code> and <code>meant</code> <code>0.1.0</code> count the open delimiters and the innermost run only), counted over a token scan before the recursive upstream parser is invoked; for a type written out in one declaration, the depth <code>max_type_depth</code> counts. Also bounds a run of consecutive comments between two tokens, line and block alike, since the upstream tokenizer spends a stack frame on each; a single <code>/* */</code> block counts once.</td>
       <td><span class="pill accent">compiler</span></td>
     </tr>
     <tr>

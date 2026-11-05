@@ -5,10 +5,19 @@ toolchain: the [Meant] compiler and its TypeScript generator compiled
 to WebAssembly, usable as a Node CLI and as a browser library. Data in, data
 out — no eval, no network, and nothing generated is ever executed.
 
-> **0.5.0, the `latest` release, and the first under the name
-> `@meantjs/cli`.** Through 0.4.0 this package was published as
-> `@candid-core/cli`, with the command `candid-core-cli`. 0.5.0 is 0.4.0's
-> code under new names: the command is `meant`, and the modules it writes
+> **0.5.1, the `latest` release.** It is 0.5.0 with one fix in the
+> compiler it embeds: the source nesting limit counts every `opt` and `vec`
+> until its operand ends, so a source nested past the limit is refused
+> before parsing with `resource_limit_exceeded`, where 0.5.0 could run out
+> of stack and fail with `internal_error`, and nested records, variants and
+> functions at the type depth limit compile. Upgrading from 0.5.0 changes no
+> module and no envelope: `npm install --save-dev --save-exact
+> @meantjs/cli`, beside `@meantjs/schema` 0.6.0 as before.
+>
+> **0.5.0 was the first release under the name `@meantjs/cli`.** Through
+> 0.4.0 this package was published as `@candid-core/cli`, with the command
+> `candid-core-cli`. 0.5.0 is 0.4.0's code under new names: the command is
+> `meant`, and the modules it writes
 > import `@meantjs/schema`, the new name of `@candid-core/schema`. To upgrade
 > from 0.4.0, install the new pair in place of the old one, each with
 > `--save-exact`: `npm install --save-exact @meantjs/schema` and
@@ -42,9 +51,10 @@ out — no eval, no network, and nothing generated is ever executed.
 > `@candid-core/schema` 0.3 breaks the 0.2 API (principal values are canonical text, collapsing opts are boxed, every `vec nat8` is a `Uint8Array`, generated modules use a new binding layout and may omit declarations, and the `./actor`, `./transport-icp`, `./forms` and `./labels` subpaths are gone); there is no compatibility layer.
 >
 > Every change is recorded in the [changelog](./CHANGELOG.md), which ships
-> in the tarball: since 0.4.0 under `0.5.0`, since 0.3.0 under `0.5.0` and
-> `0.4.0`, since 0.2.0 under those and `0.3.0`, and since 0.1.0 under those,
-> `0.2.0` and `0.2.0-beta.1`. The migration notes
+> in the tarball: since 0.5.0 under `0.5.1`, since 0.4.0 under that and
+> `0.5.0`, since 0.3.0 under those and `0.4.0`, since 0.2.0 under those and
+> `0.3.0`, and since 0.1.0 under those, `0.2.0` and `0.2.0-beta.1`. The
+> migration notes
 > [from 0.4.0](https://b3pay.net/docs/meant/migrating-from-0-5.html),
 > [from 0.3.0](https://b3pay.net/docs/meant/migrating-from-0-4.html),
 > [from 0.2.0](https://b3pay.net/docs/meant/migrating-from-0-3.html)

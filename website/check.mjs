@@ -191,7 +191,15 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
 // until their own publish. The renamed pair's, `@meantjs/schema@0.6.0` and
 // `@meantjs/cli@0.5.0`, needed no entry: UNPUBLISHED_NPM refused every line
 // that named either package until their publish on 2026-11-01.
-const UNPUBLISHED_NPM_SPECS = [];
+// `@meantjs/cli@0.5.1` is prepared alone: its peer stays `@meantjs/schema`
+// 0.6.0, which the registry holds.
+const UNPUBLISHED_NPM_SPECS = ["@meantjs/cli@0.5.1"];
+
+/* While a package's version is prepared (its spec is in UNPUBLISHED_NPM_SPECS),
+ * the pages keep describing the release the registry holds, and their install
+ * and npx blocks keep selecting it: this names that release. The publish-day
+ * change empties it with the list above. */
+const PUBLISHED_WHILE_PREPARED = { "@meantjs/cli": "0.5.0" };
 
 const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({
   /* The spec followed by anything that cannot continue a version or a tag, so
@@ -466,11 +474,19 @@ for (const name of (await readdir(CONTENT)).filter((f) => f.endsWith(".html"))) 
     }
   }
 
-  /* --- @meantjs install lines name the version each package releases under --- */
+  /* --- @meantjs install lines name the version each package releases under,
+   * or, while that version is prepared and not yet published, the release the
+   * registry holds --- */
   for (const match of code.matchAll(/(@meantjs\/[a-z-]+)@([^\s"'`]+)/g)) {
     const expected = MEANTJS_PACKAGES[match[1]];
+    const prepared = expected !== undefined && UNPUBLISHED_NPM_SPECS.includes(`${match[1]}@${expected}`);
+    const published = PUBLISHED_WHILE_PREPARED[match[1]];
     if (!expected) fail(page, `${match[1]} is not one of the @meantjs packages this repository builds`);
-    else if (match[2] !== expected) {
+    else if (prepared && published === undefined) {
+      fail(page, `${match[1]}@${expected} is prepared, and PUBLISHED_WHILE_PREPARED names no release for its install lines`);
+    } else if (prepared && match[2] !== published && match[2] !== expected) {
+      fail(page, `${match[1]}@${match[2]}; ${expected} is prepared and not yet published, so install lines name ${published}`);
+    } else if (!prepared && match[2] !== expected) {
       fail(page, `${match[1]}@${match[2]}; its package.json holds ${expected}`);
     }
   }
