@@ -48,6 +48,10 @@ npm). Meant is a B3Pay project.
 - **See it next to the usual tools:** [`examples/meant-vs-native`](examples/meant-vs-native) runs the published
   packages against hand-written code, viem, ethers, @dfinity/utils, @icp-sdk/canisters and the DFINITY ledger's own
   ICRC-21 endpoint, on PocketIC, and writes [what it found](examples/meant-vs-native/results.md).
+- **Put it in front of an agent's EVM key:** [`examples/evm-signing-check`](examples/evm-signing-check) is a
+  signing check a wallet can copy, on `@meantjs/consent` and `@meantjs/profile` 0.8.0. It replays 16 x402 and Permit2
+  requests on a local EVM that runs Base Sepolia's USDC, Permit2 and x402 code: the bare key signs all 11 bad ones,
+  the check signs none of them and all 4 real ones ([the run](examples/evm-signing-check/results.md)).
 
 ## Packages
 
