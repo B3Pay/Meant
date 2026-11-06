@@ -108,7 +108,7 @@ import { serviceMethods } from "@meantjs/schema";
 import { schemaFromContract } from "@meantjs/schema/contract";
 import { encodeArgs } from "@meantjs/schema/codec";
 
-// Meant's encoder for the ledger: npx @meantjs/cli@0.5.0 gen ledger.did -o generated
+// Meant's encoder for the ledger: npx @meantjs/cli@0.5.1 gen ledger.did -o generated
 const loaded = schemaFromContract(JSON.parse(readFileSync("generated/ledger.envelope.json", "utf8")));
 if (!loaded.ok || loaded.actor === undefined) throw new Error("the ledger envelope does not load");
 const methods = serviceMethods(loaded.actor);

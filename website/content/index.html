@@ -310,8 +310,8 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
   <callout type="note" title="Upgrading from an earlier release">
     <p>
       The TypeScript on this site is <code>@meantjs/schema</code> <code>0.6.0</code> and
-      <code>@meantjs/cli</code> <code>0.5.0</code>, published on 2026-11-01 under the npm <code>latest</code> dist-tag. The previous
-      stable releases, <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, are the same code under the old names: the CLI&rsquo;s command is <code>candid-core-cli</code>, and the modules it generates differ only in their first two lines, the old header and an import of <code>@candid-core/schema</code>. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+      <code>@meantjs/cli</code> <code>0.5.1</code>, published on 2026-11-01 and 2026-11-06 under the npm <code>latest</code> dist-tag. CLI <code>0.5.0</code>, published with that schema, differs only in its source nesting count (<a href="limits-and-diagnostics.html#lexical-nesting-versus-semantic-depth">Limits and diagnostics</a>). The stable
+      releases before those, <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, are the code of <code>0.6.0</code> and <code>0.5.0</code> under the old names: the CLI&rsquo;s command is <code>candid-core-cli</code>, and the modules it generates differ only in their first two lines, the old header and an import of <code>@candid-core/schema</code>. <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
       The stable releases before those, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, also type a decoded value as <code>unknown</code> and have no <code>didToDocAttributes</code>; <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means.
       The stable releases before those, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, differ more: CLI <code>0.2.0</code> declares each type as a <code>$</code>-prefixed local (<code>type $Status = …</code>) and types no method with its mode. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
       The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface, and <a href="migrating-from-0-2.html">Migrating from 0.2.0</a> shows what each break means, with before and
@@ -323,7 +323,7 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
     <p>
       The crates are <code>meant</code> <code>0.1.0</code> and <code>meant-format</code>
       <code>0.2.0</code>; the npm packages are <code>@meantjs/schema</code> <code>0.6.0</code>,
-      <code>@meantjs/cli</code> <code>0.5.0</code> and the five profile packages at
+      <code>@meantjs/cli</code> <code>0.5.1</code> and the five profile packages at
       <code>0.8.0</code>; the profile spec is Draft 0.2. Any release before 1.0 may change the public
       API, the serialized shapes, the canonical bytes and every identity computed over them, so pin
       exact versions: <code>meant = "=0.1.0"</code>, <code>npm install --save-exact</code>.

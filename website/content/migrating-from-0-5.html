@@ -3,7 +3,8 @@
   <code>@candid-core/cli</code> <code>0.4.0</code>, published on 2026-10-27, the last stable pair
   under the old names. The next stable pair takes new names: <code>@meantjs/schema</code>
   <code>0.6.0</code> and <code>@meantjs/cli</code> <code>0.5.0</code>, published on 2026-11-01 under
-  the npm <code>latest</code> dist-tag. Every change is recorded under those two versions
+  the npm <code>latest</code> dist-tag, where the CLI is <code>0.5.1</code> since 2026-11-06, which
+  corrects the source nesting count. Every change is recorded under those two versions
   in the
   <a href="https://github.com/B3Pay/Meant/blob/main/crates/meant-ts/ts/CHANGELOG.md">schema package's changelog</a>
   and the
@@ -141,6 +142,6 @@ import * as $ from "@meantjs/schema";
   over every committed module, replace the old imports in your own code, run <code>tsc</code>, and
   uninstall the old pair. The plain
   <code>npm install --save-exact @meantjs/schema</code> and
-  <code>npm install --save-dev --save-exact @meantjs/cli</code> select them from
-  <code>latest</code>.
+  <code>npm install --save-dev --save-exact @meantjs/cli</code> select <code>0.6.0</code> and
+  <code>0.5.1</code> from <code>latest</code>; <code>0.5.1</code> peers <code>0.6.0</code> exactly too.
 </p>

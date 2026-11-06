@@ -256,7 +256,7 @@ const r = await resolveService({ did, validateSchema, packs: STANDARD_PACKS.map(
 
 <h2>Resolve from a ContractEnvelope</h2>
 
-<pre data-lang="bash">npx @meantjs/cli@0.5.0 gen tokens.did -o gen
+<pre data-lang="bash">npx @meantjs/cli@0.5.1 gen tokens.did -o gen
 npx candid-profile resolve --envelope gen/tokens.envelope.json --profile tokens.profile.json > tokens.resolved.json</pre>
 <pre data-lang="text">contract:  candid-core:contract:v1:sha256:9f5c81035f14d348d05279bf3683ef288679897e69dcb752b74250afc558ae67
 interface: candid-core:interface:v1:sha256:f8358625dd47a9b6a237a3a268ba83291fcd0dc27093e80ac27cc48a49dc1d6c
