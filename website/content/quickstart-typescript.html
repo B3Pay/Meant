@@ -14,8 +14,8 @@ install below pulls in nothing else.</p>
 
 <callout type="note" title="Upgrading from an earlier release">
   <p>This guide describes <code>@meantjs/schema</code> <code>0.6.0</code> and
-  <code>@meantjs/cli</code> <code>0.5.0</code>, published on 2026-11-01 under the npm <code>latest</code> dist-tag, which is what the install and <code>npx</code> lines below
-  select. The previous stable releases, <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, are the same code under the old names: their install lines and imports name <code>@candid-core/schema</code> and <code>@candid-core/cli</code>, the CLI&rsquo;s command is <code>candid-core-cli</code>, and the modules it generates open with the old header and import <code>@candid-core/schema</code>; nothing else this guide does differs, and <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
+  <code>@meantjs/cli</code> <code>0.5.1</code>, published on 2026-11-01 and 2026-11-06 under the npm <code>latest</code> dist-tag, which is what the install and <code>npx</code> lines below
+  select. CLI <code>0.5.0</code>, published with that schema, differs only in its source nesting count (<a href="limits-and-diagnostics.html#lexical-nesting-versus-semantic-depth">Limits and diagnostics</a>), so nothing this guide does differs there. The stable releases before those, <code>@candid-core/schema</code> <code>0.5.0</code> and <code>@candid-core/cli</code> <code>0.4.0</code>, are the code of <code>0.6.0</code> and <code>0.5.0</code> under the old names: their install lines and imports name <code>@candid-core/schema</code> and <code>@candid-core/cli</code>, the CLI&rsquo;s command is <code>candid-core-cli</code>, and the modules it generates open with the old header and import <code>@candid-core/schema</code>; nothing else this guide does differs, and <a href="migrating-from-0-5.html">Migrating from 0.5.0</a> says what the upgrade means.
   The stable releases before those, <code>@candid-core/schema</code> <code>0.4.0</code> and <code>@candid-core/cli</code> <code>0.3.0</code>, also type a decoded value as <code>unknown</code>, so the annotation in the codec step below needs <code>as Account</code> there. <a href="migrating-from-0-4.html">Migrating from 0.4.0</a> says what that upgrade means.
   The stable releases before those, <code>@candid-core/schema</code> <code>0.3.0</code> and <code>@candid-core/cli</code> <code>0.2.0</code>, also lack method modes on the generated <code>Actor</code> (<code>WithMode</code>, <code>ModeOf</code>), plain type names in generated modules, and the CLI's <code>project</code> and <code>check</code>. <a href="migrating-from-0-3.html">Migrating from 0.3.0</a> says what that upgrade means.
   The stable releases before those, <code>@candid-core/schema</code> <code>0.2.0</code> and <code>@candid-core/cli</code> <code>0.1.0</code>, have the old surface: a principal is an object with <code>toText()</code>,
@@ -299,7 +299,7 @@ at runtime</a> covers the options and the failure modes;
 
 <pre data-lang="bash">
 # the CLI release that pairs with @meantjs/schema 0.6.0
-npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
+npx @meantjs/cli@0.5.1 gen ./service.did -o ./generated
 </pre>
 
 <h2>Next: calling a canister</h2>

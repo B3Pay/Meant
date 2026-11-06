@@ -1064,6 +1064,22 @@ where a project depends on the CLI alone, pnpm takes the schema peer from the
 registry, the one registry link the check allows. ic-reactor's repin follows
 the publish (its CONTRIBUTING.md, "The Meant pins").
 
+On publish day the follow-up pull request empties both lists, moves every
+pinned CLI install and `npx` block to the new version, and rewrites each
+sentence above so the new release is the published one and the previous
+release is the one that differs. It does the same to each note that names the
+CLI's `latest` without such a sentence, and to the leads and install
+paragraphs of the migration pages, which say what a plain install selects.
+It records the run on the status page and appends the release note's
+**Release record**, as for a pair. The wasm module records the paths of
+the machine that builds it, those of the checkout and of the Cargo registry,
+so no local pack reproduces the published module's bytes or size, even with
+the pinned toolchain: a size the release note states for the new module is
+the registry tarball's, read after the publish. For `0.5.1`, two local
+builds with both pins, from checkouts at different paths, gave 1 959 468
+bytes (the size the prepared note stated) and 1 959 946, and the registry's
+module is 1 959 854.
+
 ### Promoting to `latest`
 
 The supported way to move `latest` is a stable release through the workflows

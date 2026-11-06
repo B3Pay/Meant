@@ -187,19 +187,20 @@ const unpublishedRules = UNPUBLISHED_NPM.flatMap((name) => [
  * publish-day change empties this list and turns that prose into blocks. */
 // Emptied when @candid-core/schema 0.5.0 and @candid-core/cli 0.4.0 were
 // published under `latest` on 2026-10-27, as it was for 0.4.0 / 0.3.0 before
-// them. The next version-bump pull request adds its prepared versions back
-// until their own publish. The renamed pair's, `@meantjs/schema@0.6.0` and
-// `@meantjs/cli@0.5.0`, needed no entry: UNPUBLISHED_NPM refused every line
-// that named either package until their publish on 2026-11-01.
-// `@meantjs/cli@0.5.1` is prepared alone: its peer stays `@meantjs/schema`
-// 0.6.0, which the registry holds.
-const UNPUBLISHED_NPM_SPECS = ["@meantjs/cli@0.5.1"];
+// them, and again when `@meantjs/cli@0.5.1`, prepared alone, was published
+// under `latest` on 2026-11-06. The next version-bump pull request adds its
+// prepared versions back until their own publish. The renamed pair's,
+// `@meantjs/schema@0.6.0` and `@meantjs/cli@0.5.0`, needed no entry:
+// UNPUBLISHED_NPM refused every line that named either package until their
+// publish on 2026-11-01.
+const UNPUBLISHED_NPM_SPECS = [];
 
 /* While a package's version is prepared (its spec is in UNPUBLISHED_NPM_SPECS),
  * the pages keep describing the release the registry holds, and their install
  * and npx blocks keep selecting it: this names that release. The publish-day
- * change empties it with the list above. */
-const PUBLISHED_WHILE_PREPARED = { "@meantjs/cli": "0.5.0" };
+ * change empties it with the list above. Emptied when `@meantjs/cli` 0.5.1
+ * was published on 2026-11-06, after naming 0.5.0 while it was prepared. */
+const PUBLISHED_WHILE_PREPARED = {};
 
 const unpublishedSpecRules = UNPUBLISHED_NPM_SPECS.map((spec) => ({
   /* The spec followed by anything that cannot continue a version or a tag, so

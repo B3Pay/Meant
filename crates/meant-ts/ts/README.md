@@ -19,9 +19,9 @@ handling included ([principal values](#principal-values) below).
 > `@candid-core/schema`. 0.6.0 is 0.5.0's code under the new name, so
 > upgrading from `@candid-core/schema` 0.5.0 changes the name you import and
 > nothing else: replace `@candid-core/schema` with `@meantjs/schema` in every
-> import, regenerate committed modules with `@meantjs/cli` 0.5.0 (the new
-> name of `@candid-core/cli`, whose command is now `meant`), which pairs with
-> exactly this release, and uninstall the old package. The strings inside
+> import, regenerate committed modules with `@meantjs/cli` 0.5.1 (the new
+> name of `@candid-core/cli` since 0.5.0, whose command is now `meant`), which
+> pairs with exactly this release, and uninstall the old package. The strings inside
 > Contract documents keep their names, such as the
 > `candid-core:interface:v1:sha256:…` identities. Upgrading from 0.4.0 also
 > changes one omission rule of [`schemaFromContract`](#from-a-did-file), and
@@ -167,7 +167,7 @@ which is byte-identical to the `compile --envelope` output below:
 
 ```sh
 # The CLI release that pairs with this one: it peers exactly 0.6.0.
-npx @meantjs/cli@0.5.0 gen ./service.did -o ./generated
+npx @meantjs/cli@0.5.1 gen ./service.did -o ./generated
 ```
 
 With the Rust crate, it is two commands. Install the compiler, `meant`, which

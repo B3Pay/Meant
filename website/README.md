@@ -228,10 +228,12 @@ node website/build.mjs && node website/check.mjs
   `migrating-from-0-4.html`, `migrating-from-0-3.html` and
   `migrating-from-0-2.html`, inside the callout itself (`NOTE_LINKS`). The
   site describes the surface the repository builds, which is what the `latest`
-  dist-tag holds (`@meantjs/schema` 0.6.0 and `@meantjs/cli` 0.5.0, published
-  on 2026-11-01). Each page's note says that the previous stable pair,
-  `@candid-core/schema` 0.5.0 and `@candid-core/cli` 0.4.0, is the same code
-  under the old names, with `migrating-from-0-5.html`; names what the pair
+  dist-tag holds (`@meantjs/schema` 0.6.0, published on 2026-11-01, and
+  `@meantjs/cli` 0.5.1, published on 2026-11-06). A note that names the CLI
+  says that 0.5.0, published with the schema, differs only in its source
+  nesting count. Each page's note says that the stable pair before,
+  `@candid-core/schema` 0.5.0 and `@candid-core/cli` 0.4.0, is the code of
+  0.6.0 and 0.5.0 under the old names, with `migrating-from-0-5.html`; names what the pair
   before it (0.4.0 / 0.3.0) lacks of what the page shows, with
   `migrating-from-0-4.html`, and what the pair before that (0.3.0 / 0.2.0)
   lacks, with `migrating-from-0-3.html`; the stable pair before that
