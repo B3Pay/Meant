@@ -17,6 +17,51 @@ fixtures.
 grammar, the library API, and the request/response shapes. Pin an exact
 version.
 
+## 0.5.1 — 2026-11-06
+
+Embeds `meant` 0.1.0 and the `meant-ts` generator from the repository
+commit the release is dispatched from; the release record names the exact
+SHA. The generator is the one 0.5.0 embedded, as `candid-core-ts`, under its
+new crate name. The dispatched commit's `meant` source is ahead of the
+crates.io 0.1.0 archive by three changes, and none moves a Contract or an
+identity of an input 0.1.0 compiles: the two 0.5.0 embedded already (the
+reader of doc attributes behind `didToDocAttributes`, and type-depth walks
+that allocate the same way whatever the heap layout), and the source nesting
+count below. So no crate release comes first.
+
+A stable release, published under the npm `latest` dist-tag; keep it pinned,
+`npm install --save-dev --save-exact @meantjs/cli`. The optional peer is
+still `@meantjs/schema` at exactly `0.6.0`, so only this package moves.
+Upgrading from 0.5.0 changes no module and no envelope: measured over the
+repository's 44 tracked `.did` files, both releases compile the same 40 to
+byte-identical modules and envelopes, and refuse the other 4 with the same
+diagnostics. The library's exports, the command grammar, the exit codes and
+the `--json` documents are 0.5.0's.
+
+### Fixed
+
+- **The source nesting limit counts every `opt` and `vec` until its operand
+  ends.** Before the parser runs, the compiler bounds how deep the source
+  nests, 256 by default. 0.5.0 counted the open delimiters plus the run of
+  `opt` and `vec` at the innermost level only, so a run written before a
+  `record {`, a `variant {`, a `service {` or a function's `(` stopped
+  counting inside it, and runs nested inside one another passed the limit
+  however deep they went. A 135 KB source of that shape nests 33 152 levels:
+  0.5.0 runs out of stack on it and fails the entry with `internal_error`
+  ("Maximum call stack size exceeded" under Node), and 0.5.1 refuses it
+  before parsing with `resource_limit_exceeded`, resource `source_nesting`,
+  limit 256, observed 257. A source that nests past the limit only through
+  such runs, which 0.5.0 refused after parsing with resource `type_depth`,
+  is refused before parsing too, with resource `source_nesting` and the same
+  limit and observed values.
+- **One level looser where a type's innermost delimiter is empty.** The
+  count is the type depth limit's, 0 at a declaration's type, so for a type
+  written out in one declaration the two limits agree. 257 nested records,
+  variants or functions, whose innermost `record {}`, `variant {}` or
+  `func () -> ()` sits at type depth 256, now compile; 0.5.0 refused them
+  with `source_nesting` observed 257. 256 `vec` around a `record {}`
+  compile in both releases, and one more is refused in both.
+
 ## 0.5.0 — 2026-11-01
 
 Embeds `meant` 0.1.0 and the `candid-core-ts` generator from the repository
