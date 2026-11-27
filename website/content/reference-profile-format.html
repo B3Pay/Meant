@@ -47,7 +47,7 @@
   <tbody>
     <tr><td><code>format</code></td><td>yes</td><td><code>"candid-profile"</code></td></tr>
     <tr><td><code>format_version</code></td><td>yes</td><td><code>0</code></td></tr>
-    <tr><td><code>kind</code></td><td>yes</td><td><code>"canister"</code>, <code>"pack"</code> or <code>"contract"</code> (an EVM contract, experimental)</td></tr>
+    <tr><td><code>kind</code></td><td>yes</td><td><code>"canister"</code>, <code>"pack"</code> or <code>"contract"</code> (an EVM contract, spec §15)</td></tr>
     <tr><td><code>name</code></td><td>yes</td><td>matches <code>^[a-z0-9][a-z0-9_.-]{0,63}$</code></td></tr>
     <tr><td><code>origin</code></td><td>yes</td><td><code>"author"</code>, <code>"third_party"</code>, <code>"pack"</code> or <code>"inferred"</code>; which ones a kind allows is below</td></tr>
     <tr><td><code>language</code></td><td>no</td><td>a language tag matching <code>^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$</code>; default <code>"en"</code></td></tr>
@@ -109,7 +109,7 @@
     <tr><td><code>spec_url</code></td><td>no</td><td>an <code>https://</code> URL</td></tr>
     <tr><td><code>requires</code></td><td>exactly one of the two</td><td>a Candid service fragment (at least 10 characters). The pack applies to a canister whose service type is a subtype of it.</td></tr>
     <tr><td><code>abi</code></td><td>exactly one of the two</td><td>an EVM ABI (as for a contract, below). The pack applies to a contract that has each function with the same selector, outputs and kind of call.</td></tr>
-    <tr><td><code>eip712</code></td><td>no; only beside <code>abi</code></td><td>the EIP-712 messages of an EVM pack (<a href="#binds-eip712">below</a>), experimental. The pack still matches by its <code>binds.abi</code>, and has no domain (spec §15.9: each token's is its own).</td></tr>
+    <tr><td><code>eip712</code></td><td>no; only beside <code>abi</code></td><td>the EIP-712 messages of an EVM pack (<a href="#binds-eip712">below</a>). The pack still matches by its <code>binds.abi</code>, and has no domain (spec §15.9: each token's is its own).</td></tr>
   </tbody>
 </table>
 
@@ -123,15 +123,15 @@
   </thead>
   <tbody>
     <tr><td><code>abi</code></td><td>at least one of <code>abi</code> and <code>eip712</code></td><td>an array of at least one entry: a human-readable fragment starting with <code>function</code>, <code>event</code>, <code>error</code>, <code>constructor</code>, <code>fallback</code> or <code>receive</code>, or a JSON ABI entry with one of those as <code>type</code>. Only functions are read.</td></tr>
-    <tr><td><code>eip712</code></td><td>at least one of <code>abi</code> and <code>eip712</code></td><td>the EIP-712 messages the contract verifies, with its domain's name and version (<a href="#binds-eip712">below</a>), experimental.</td></tr>
+    <tr><td><code>eip712</code></td><td>at least one of <code>abi</code> and <code>eip712</code></td><td>the EIP-712 messages the contract verifies, with its domain's name and version (<a href="#binds-eip712">below</a>).</td></tr>
     <tr><td><code>deployments</code></td><td>no</td><td>an array of at least one <code>{ "chain_id": integer ≥ 1, "address": "0x" and 40 hex digits }</code>. A mixed-case address that fails its EIP-55 checksum is <diag>E_ADDRESS_CHECKSUM</diag>; a deployment listed twice is <diag>W_DUPLICATE</diag>. For messages, it gives the domain's <code>chainId</code> and <code>verifyingContract</code>.</td></tr>
   </tbody>
 </table>
 
 <h3 id="binds-eip712">binds.eip712</h3>
 
-<callout type="warn" title="Experimental">
-  <p>Spec §15.9, D-055: EIP-712 typed messages, the first part of the EVM binding's phase 2. See <a href="chain-evm.html">EVM contracts</a>.</p>
+<callout type="note" title="Stable within v0">
+  <p>Spec §15.9, D-055: EIP-712 typed messages, stable within v0 since D-065. See <a href="chain-evm.html">EVM contracts</a>.</p>
 </callout>
 
 <pre data-lang="json" data-file="profile/packs/dai-permit.profile.json">
@@ -352,7 +352,7 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
     <tr><td><code>interface_id</code></td><td>the service's <code>candid-core:interface:v1:sha256:…</code> (from the compiled <code>.did</code>, or the envelope's <code>contract.identities.interface</code>), or an ABI's <code>candid-profile:evm-abi:v0:sha256:…</code></td></tr>
     <tr><td><code>profiles</code></td><td>every applied profile, highest layer first: <code>{ name, origin, profile_id }</code>, plus <code>deployments</code> when the profile binds them and <code>eip712_domain</code> (the domain's <code>name</code> and <code>version</code>) when it binds a domain</td></tr>
     <tr><td><code>methods</code></td><td>one entry per method, keyed by name, in sorted order. An EIP-712 message is never here.</td></tr>
-    <tr><td><code>messages</code></td><td>EVM only, experimental: one entry per EIP-712 message, keyed by name, in sorted order (<a href="#eip-712-messages">below</a>). Absent when there is none, so a form without messages is unchanged.</td></tr>
+    <tr><td><code>messages</code></td><td>EVM only: one entry per EIP-712 message, keyed by name, in sorted order (<a href="#eip-712-messages">below</a>). Absent when there is none, so a form without messages is unchanged.</td></tr>
     <tr><td><code>diagnostics</code></td><td>the diagnostics of the resolve (<a href="reference-profile-diagnostics.html">Profile diagnostics</a>); a diagnostic from a multi-profile resolve may carry <code>profile</code></td></tr>
   </tbody>
 </table>
@@ -574,8 +574,8 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
 
 <h2>EVM contracts: chain evm</h2>
 
-<callout type="warn" title="Experimental">
-  <p>Spec §15, phase 1 and the first part of phase 2 (EIP-712 messages). See <a href="chain-evm.html">EVM contracts</a>.</p>
+<callout type="note" title="Stable and experimental parts">
+  <p>Spec §15 (D-065): the EIP-712 messages of a form are stable within v0; its ABI functions are experimental. See <a href="chain-evm.html">EVM contracts</a>.</p>
 </callout>
 
 <p>
@@ -776,7 +776,7 @@ jcs({ b: 1, a: [true, "x"] }); // '{"a":[true,"x"],"b":1}'
   {
     "name": "permit2",
     "origin": "third_party",
-    "profile_id": "candid-profile:v0:sha256:c00678ab9eda6a94d91b893af1a3c256a7fde497f0800f173ca9ef6579e86d0c",
+    "profile_id": "candid-profile:v0:sha256:145c940ef0079ef46af6f5ac1600c0b3fc2280200e509907d3482c925614e8e4",
     "deployments": [
       {
         "chain_id": 1,

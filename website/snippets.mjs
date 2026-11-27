@@ -166,9 +166,14 @@ function profileExports(root) {
     const base = join(root, "profile", "packages", dir);
     const manifest = JSON.parse(readFileSync(join(base, "package.json"), "utf8"));
     for (const [subpath, target] of Object.entries(manifest.exports || {})) {
-      // Data subpaths (`./schema.json`, `./packs/*`) are strings and carry no types.
-      if (typeof target !== "object" || target === null || typeof target.types !== "string") continue;
       const specifier = subpath === "." ? manifest.name : `${manifest.name}${subpath.slice(1)}`;
+      // Data subpaths (`./schema.json`, `./packs/*`) are strings: they resolve to the JSON files
+      // themselves (resolveJsonModule), so a snippet can import a pack the way a consumer does.
+      if (typeof target === "string") {
+        if (target.endsWith(".json") || target.endsWith("/*")) paths[specifier] = [join(base, target)];
+        continue;
+      }
+      if (target === null || typeof target.types !== "string") continue;
       paths[specifier] = [join(base, target.types)];
     }
   }
@@ -207,6 +212,7 @@ function tsconfig(root, cli) {
       lib: ["es2022", "dom"],
       types: [],
       skipLibCheck: false,
+      resolveJsonModule: true,
       paths: {
         ...pairExports(root, cli),
         ...profileExports(root),

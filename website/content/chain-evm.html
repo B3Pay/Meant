@@ -1,16 +1,24 @@
-<callout type="warn" title="Experimental: spec §15, phase 1 and the first part of phase 2">
+<callout type="note" title="Spec §15: what is stable, what is experimental (D-065)">
   <p>
-    A profile can describe an EVM contract's functions. From it come consent text for a call's calldata and an
-    ERC-7730 clear-signing file with its ERC-8176 <code>descriptorHash</code>. A profile can also describe the
-    <a href="#typed-messages-eip-712">EIP-712 messages</a> a wallet is asked to sign, with consent text for a signing
-    request and an ERC-7730 file of the messages. The consent text comes with
-    <a href="#what-a-call-or-signature-grants">what the call or signature grants</a>, for a wallet that checks requests
-    against terms the person confirmed (D-056). Agent tools, <code>outcome</code> classes over reverts,
-    <code>idempotency</code> by nonce and ERC-7730 import are later phases, each its own decision; signing, checking
-    signatures and Permit2's witness messages other than x402's are not in it. The preregistered eval uses none of it.
-    Decisions D-054, D-055, D-058 and D-059; the text is
-    <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>
+    <strong>Stable within v0</strong>, what a signer's guard uses: profiles of the
+    <a href="#typed-messages-eip-712">EIP-712 messages</a> a wallet is asked to sign and their consent text,
+    <a href="#what-a-call-or-signature-grants">what a signature grants</a> (<code>effect.grant</code>), the
+    <code>fixed</code> pin, the EIP-712 packs and contract profiles (EIP-2612, Permit2, DAI's permit, USDC's EIP-3009
+    messages, x402), and the check of a grant against <a href="confirmed-terms.html">terms the person confirmed</a>, with
+    its guard. A change to any of them needs a decision row and a breaking-change note in the changelog.
+  </p>
+  <p>
+    <strong>Experimental</strong>: an EVM contract's functions read from its ABI, and the consent text for a call's
+    calldata; the <code>erc20</code> pack; ERC-7730 clear-signing files with their ERC-8176 <code>descriptorHash</code>.
+    They wait on overloaded names and a <code>payable</code> call's value (open items O1 and O2).
+  </p>
+  <p>
+    Not in it yet: agent tools, <code>outcome</code> classes over reverts, <code>idempotency</code> by nonce, reconcile
+    from receipts and ERC-7730 import, each a later phase with its own decision (OQ-18); signing, checking signatures
+    and Permit2's witness messages other than x402's. Decisions D-054, D-055, D-058, D-059 and D-065; the text is
+    <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-d-054">spec §15</a>
     and its <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#159-typed-messages-eip-712-d-055">§15.9</a>.
+    To start, follow <a href="quickstart-evm.html">Quickstart: EVM signing</a>.
   </p>
 </callout>
 
@@ -862,7 +870,7 @@ This is a signature, not a transaction: whoever holds it can submit it.
 <h3 id="x402-payments">x402 payments</h3>
 
 <p>
-  <span class="pill warn">experimental</span> D-058, D-059. x402 pays for an HTTP request with a signature the client's
+  <span class="pill ok">stable</span> D-058, D-059, D-065. x402 pays for an HTTP request with a signature the client's
   wallet makes. Its <code>exact</code> scheme pays a set amount in one of two forms: USDC's EIP-3009
   <code>TransferWithAuthorization</code>, the default, or, for a token without EIP-3009, Permit2's
   <code>PermitWitnessTransferFrom</code> with x402's witness (<claim>fact</claim> <code>coinbase/x402</code> at

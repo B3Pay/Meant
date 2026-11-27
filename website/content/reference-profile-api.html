@@ -58,7 +58,8 @@ npm install @meantjs/profile@0.8.0 @meantjs/format@0.8.0 \
 </callout>
 
 <p>
-  All entries are ES modules only. An EVM resolved form (<code>"chain": "evm"</code>) is experimental, spec §15: see
+  All entries are ES modules only. An EVM resolved form (<code>"chain": "evm"</code>) is spec §15: its EIP-712 messages are
+  stable within v0 and its ABI functions experimental (D-065), see
   <a href="chain-evm.html">EVM contracts</a>.
 </p>
 
@@ -356,7 +357,7 @@ parseEip712Types({ Short: [{ name: "x", type: "uint" }] }).errors;
   <code>erc20.profile.json</code> and <code>erc2612.profile.json</code>, and the EVM contract profiles
   <code>permit2.profile.json</code>, <code>dai-permit.profile.json</code>, <code>usdc.profile.json</code>,
   <code>usdc-domain-usdc.profile.json</code>, <code>usdc-base-sepolia.profile.json</code>,
-  <code>x402-exact-permit2.profile.json</code> and <code>x402-upto-permit2.profile.json</code> (experimental, §15.9). A
+  <code>x402-exact-permit2.profile.json</code> and <code>x402-upto-permit2.profile.json</code> (§15.9). A
   contract profile is never tried as a pack: pass it in <code>profiles</code>. Import them with an import attribute, and
   pass them as documents:
 </p>
@@ -489,8 +490,8 @@ f?.display("1461501637330902918203684832716283019655932542975"); // "Unlimited U
 
 <p>
   ICRC-21 consent messages for any method, from a resolved form and the Candid-encoded argument bytes; the text an SNS
-  proposal's validator returns; experimental, consent text and ERC-7730 files for EVM calls and EIP-712 signing
-  requests; and, since 0.4.0, what a request grants and the check of that grant against terms the person confirmed
+  proposal's validator returns; consent text for EIP-712 signing requests and, experimental, for EVM calls, with
+  ERC-7730 files; and, since 0.4.0, what a request grants and the check of that grant against terms the person confirmed
   (<a href="#consent-terms"><code>/terms</code></a>). No network code.
 </p>
 
@@ -664,8 +665,9 @@ export function verifySnsRendering(input: {
 <h3 id="consent-evm"><code>@meantjs/consent/evm</code></h3>
 
 <p>
-  Experimental (spec §15.6 and §15.9): the consent text of an EVM call, from an EVM contract's resolved form and its
-  calldata, and of an EIP-712 signing request, from a resolved form with <code>messages</code> and the request's JSON.
+  Spec §15.6 and §15.9: the consent text of an EVM call (experimental), from an EVM contract's resolved form and its
+  calldata, and of an EIP-712 signing request (stable within v0, D-065), from a resolved form with <code>messages</code> and
+  the request's JSON.
 </p>
 
 <pre data-lang="ts" data-file="profile/packages/consent/src/evm.d.mts" data-partial>

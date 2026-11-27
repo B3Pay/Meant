@@ -109,7 +109,7 @@
     <code>third_party</code> or <code>inferred</code>.</li>
   <li><code>pack</code>: any service that matches a Candid fragment, <code>binds.requires</code>.
     Its <code>origin</code> is <code>pack</code>.</li>
-  <li><code>contract</code>: an EVM contract, by its ABI. Experimental; see
+  <li><code>contract</code>: an EVM contract, by its ABI and the EIP-712 messages it verifies; see
     <a href="chain-evm.html">EVM contracts</a>.</li>
 </ul>
 
@@ -251,8 +251,8 @@ candid-profile: wide-ledger.did  candid-core:interface:v1:sha256:269d2a66494731b
 <callout type="note" title="EVM packs match by selector">
   <p>
     An EVM pack, such as the ERC-20 pack, has no subtyping. It applies to a contract that has
-    every one of its functions with the same selector, output types and kind of call. EVM support
-    is experimental; <a href="chain-evm.html">EVM contracts</a> has the rules.
+    every one of its functions with the same selector, output types and kind of call. ABI functions
+    are experimental, EIP-712 messages stable within v0 (D-065); <a href="chain-evm.html">EVM contracts</a> has the rules.
   </p>
 </callout>
 

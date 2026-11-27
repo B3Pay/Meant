@@ -71,7 +71,7 @@ service : {
   <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
   <tbody>
     <tr><td><code>format</code>, <code>format_version</code></td><td>Always <code>"candid-profile"</code> and <code>0</code>.</td></tr>
-    <tr><td><code>kind</code></td><td><code>"canister"</code> for a profile of one interface. <code>"pack"</code> is a standard pack that matches by subtyping; <code>"contract"</code> is an EVM contract (<a href="chain-evm.html">experimental</a>).</td></tr>
+    <tr><td><code>kind</code></td><td><code>"canister"</code> for a profile of one interface. <code>"pack"</code> is a standard pack that matches by subtyping; <code>"contract"</code> is an EVM contract (<a href="chain-evm.html">EVM contracts</a>).</td></tr>
     <tr><td><code>name</code></td><td>Lowercase letters, digits, <code>_</code>, <code>.</code> and <code>-</code>, starting with a letter or digit, at most 64 characters. Diagnostics and the resolved form name the profile by it.</td></tr>
     <tr><td><code>origin</code></td><td>The layer it merges in: <code>author</code> if you wrote the canister, <code>third_party</code> for a profile someone else chose to trust, <code>inferred</code> for one a model proposed, which is active only once a person approves it.</td></tr>
     <tr><td><code>language</code></td><td>The language of its titles, templates and help text. Optional; <code>"en"</code> when absent.</td></tr>

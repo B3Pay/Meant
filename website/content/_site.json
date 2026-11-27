@@ -1,6 +1,6 @@
 {
   "title": "Meant",
-  "description": "The meaning layer for contract calls: Candid interfaces compiled into a canonical, identity-addressed graph, and profiles that say what each value means and what each call does.",
+  "description": "The meaning layer for contract calls and signing requests, EVM first: profiles that say what each value means and what each call or signature grants, a guard in front of an AI agent's signer, and Candid interfaces compiled into a canonical, identity-addressed graph.",
   "repo": "https://github.com/B3Pay/Meant",
   "url": "https://b3pay.net/docs/meant/",
   "docs": {
@@ -49,6 +49,13 @@
           "lead": "Two layers for one job: the interface says what a call's values are, the profile says what they mean."
         },
         {
+          "slug": "quickstart-evm",
+          "title": "Quickstart: EVM signing",
+          "nav": "Quickstart · EVM signing",
+          "lead": "Put a check between an AI agent and its EVM key: the person confirms a task's terms once, and the key signs only an EIP-712 request that fits them.",
+          "layer": "profiles"
+        },
+        {
           "slug": "interface-layer",
           "formerly": ["what-is-candid-core"],
           "title": "The interface layer",
@@ -94,7 +101,7 @@
           "slug": "write-a-profile",
           "title": "Write a profile",
           "nav": "Write a profile",
-          "lead": "Describe a canister's methods once: units, intent, effects, retries and outcomes, bound to its interface."
+          "lead": "Describe a contract's or a canister's calls once: units, intent, effects, what they grant, retries and outcomes, bound to its interface."
         },
         {
           "slug": "annotate-a-did",
@@ -398,7 +405,7 @@
           "slug": "reference-packs",
           "title": "Standard packs",
           "nav": "Standard packs",
-          "lead": "The ICRC-1, ICRC-2, ERC-20 and EIP-2612 packs, and the Permit2 and DAI permit profiles: what each matches and every annotation it carries.",
+          "lead": "The EIP-2612, ERC-20, ICRC-1 and ICRC-2 packs, and the Permit2, DAI permit, USDC and x402 profiles: what each matches and every annotation it carries.",
           "wide": true
         },
         {
@@ -455,16 +462,16 @@
       "title": "Chains",
       "pages": [
         {
+          "slug": "chain-evm",
+          "title": "EVM contracts",
+          "nav": "EVM",
+          "lead": "Profiles for EIP-712 signing requests and Solidity ABIs, consent text for a signature or a call, a guard in front of an agent's key, x402 and Permit2, and ERC-7730 clear-signing files."
+        },
+        {
           "slug": "chain-icp",
           "title": "Internet Computer",
           "nav": "Internet Computer",
-          "lead": "Candid interfaces, ICRC ledgers, ICRC-21 consent and PocketIC: the chain Meant was built on."
-        },
-        {
-          "slug": "chain-evm",
-          "title": "EVM contracts",
-          "nav": "EVM (experimental)",
-          "lead": "Experimental: profiles for Solidity ABIs and EIP-712 typed messages, consent text for a call or a signature, and ERC-7730 clear-signing files."
+          "lead": "Candid interfaces, ICRC ledgers, ICRC-21 consent and PocketIC: the chain Meant was built on first, and the one with agent tools and reconcile today."
         },
         {
           "slug": "chain-solana",

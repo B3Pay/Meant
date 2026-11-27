@@ -2,36 +2,189 @@
   <a class="hero-eyebrow" href="status.html">meant 0.1.0 · @meantjs/profile 0.8.0 · pre-1.0</a>
   <h1>What you meant is what runs</h1>
   <p class="hero-sub">
-    Meant is the meaning layer for contract calls. It compiles a Candid interface into a canonical
-    graph with an identity, and a profile bound to that identity says what each value means and
-    what each call does: 1 ICP is 10<sup>8</sup> base units, this call moves money, this error means
-    it already went through. From one profile come agent tools in human units, ICRC-21 consent
-    messages, and display and input formatting.
+    Meant is the meaning layer for contract calls and signing requests, EVM first. A profile bound
+    to a contract says what each value means and what each call or signature grants: this
+    <code>uint256</code> is USDC with 6 decimals, this EIP-712 message pays <code>to</code> once, this
+    permit lets a spender take tokens until a deadline. From one profile come the consent text a
+    wallet shows, a guard in front of an AI agent's signer that signs only what the person agreed
+    to, and ERC-7730 files; on the Internet Computer, agent tools and ICRC-21 consent messages too.
   </p>
   <div class="hero-actions">
-    <a class="button" href="what-is-meant.html">What Meant is</a>
-    <a class="button secondary" href="quickstart-profiles.html">Quickstart · Profiles</a>
-    <a class="button secondary" href="quickstart-typescript.html">Quickstart · TypeScript</a>
+    <a class="button" href="quickstart-evm.html">Quickstart · EVM signing</a>
+    <a class="button secondary" href="what-is-meant.html">What Meant is</a>
+    <a class="button secondary" href="chain-evm.html">EVM contracts</a>
   </div>
 </section>
 
 <section class="section" id="how">
-  <h2>From an interface to a call the owner confirms</h2>
+  <h2>From a request to a signature the owner agreed to</h2>
   <p class="section-sub">
-    Two layers, one job. The interface layer says what a call's values are; the profile layer
-    says what they mean.
+    Two layers, one job. The interface says what a request's values are; the profile says what
+    they mean.
   </p>
   <ol class="pipeline">
-    <li class="pipeline-step"><span class="n">01</span><h3>Compile</h3><p>The <code>.did</code> becomes a validated Contract graph with an <code>interface_id</code>.</p></li>
-    <li class="pipeline-step"><span class="n">02</span><h3>Describe</h3><p>A profile bound to that id says what each value means and what each call does.</p></li>
-    <li class="pipeline-step"><span class="n">03</span><h3>Generate</h3><p>Agent tools, consent messages and formatters come from the resolved profile.</p></li>
-    <li class="pipeline-step"><span class="n">04</span><h3>Confirm</h3><p>The owner approves the exact call. Retries cannot pay twice.</p></li>
+    <li class="pipeline-step"><span class="n">01</span><h3>Read</h3><p>An ABI and its EIP-712 types, or a <code>.did</code>, become one graph with an <code>interface_id</code>.</p></li>
+    <li class="pipeline-step"><span class="n">02</span><h3>Describe</h3><p>A profile bound to that id says what each value means and what each call or signature grants.</p></li>
+    <li class="pipeline-step"><span class="n">03</span><h3>Confirm</h3><p>The owner confirms a task's terms once, on the wallet's own screen. The model never does.</p></li>
+    <li class="pipeline-step"><span class="n">04</span><h3>Guard</h3><p>The key signs only a request a profile reads and whose grant fits those terms.</p></li>
   </ol>
 </section>
 
 <section class="section" id="showcase">
-  <h2>One transfer, start to finish</h2>
+  <h2>One x402 payment, start to finish</h2>
   <p class="section-sub">
+    An AI agent pays an API by x402 on Base Sepolia, a test network. The profile annotations are
+    files in the repository; the terms, the consent text and the verdicts are what the published
+    <code>@meantjs</code> 0.8.0 packages return for this request
+    (<a href="quickstart-evm.html">Quickstart: EVM signing</a> runs it).
+  </p>
+  <ol class="steps">
+  <li>
+    <span class="step-title">The request says what the values are</span>
+<pre data-lang="json">
+{
+  "primaryType": "TransferWithAuthorization",
+  "domain": { "name": "USDC", "version": "2", "chainId": 84532, "verifyingContract": "0x036CbD53842c5426634e7929541eC2318f3dCF7e" },
+  "message": {
+    "from": "0x857b06519E91e3A54538791bDbb0E22373e36b66",
+    "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+    "value": "10000",
+    "validAfter": "1740672089",
+    "validBefore": "1740672154",
+    "nonce": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+  }
+}
+</pre>
+<p>
+  The API's 402 answer names the payee and the amount, and the agent hands its key this EIP-712
+  request, x402's own EIP-3009 example. It says <code>value: uint256</code>. It does not say that
+  the token counts in units of 10<sup>-6</sup>, that the signature pays <code>to</code> once, or
+  that whoever holds it can submit it. A bare key signs it, and it signs the same request for
+  25 USDC just as readily.
+</p>
+  </li>
+  <li>
+    <span class="step-title">A profile says what they mean</span>
+<pre data-lang="json" data-file="profile/packs/usdc-domain-usdc.profile.json">
+{
+  "at": "TransferWithAuthorization",
+  "tag": "effect",
+  "args": {
+    "kind": "transfer",
+    "irreversible": true,
+    "grant": {
+      "to": "to",
+      "amount": "value",
+      "ends": [
+        "validBefore"
+      ]
+    }
+  }
+},
+// …
+{
+  "at": "TransferWithAuthorization(0).value",
+  "tag": "amount",
+  "args": {
+    "decimals": 6,
+    "symbol": "USDC"
+  }
+},
+</pre>
+<p>
+  USDC's profile, shipped with <code>@meantjs/profile</code>, says what the message grants: a
+  transfer of <code>value</code> to <code>to</code>, until <code>validBefore</code>. It is bound to
+  USDC's EIP-712 domain and to its contracts, each read on chain, so a look-alike token gets none
+  of its words. The <a href="reference-packs.html">standard packs</a> cover EIP-2612, Permit2,
+  DAI's permit, USDC and x402's payments.
+</p>
+  </li>
+  <li>
+    <span class="step-title">The owner confirms the terms once</span>
+<pre data-lang="text">
+Weather API (0x209693Bc6afc0C5328bA36FaF03C514EF312287C) may be sent at most 0.05 USDC, until the end of 28 February 2025 (UTC).
+</pre>
+<p>
+  Before the agent reads any request, the wallet shows the task's terms on its own screen, from
+  the person's own words and lists: an app or a token is named from them, never guessed. The
+  person confirms once (<a href="confirmed-terms.html">Confirmed terms</a>).
+</p>
+  </li>
+  <li>
+    <span class="step-title">The wallet reads what the signature does</span>
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "TransferWithAuthorization",
+    "message": {
+      "intent": "Pay USDC by signature: Send 0.01 USDC from 0x857b06519E91e3A54538791bDbb0E22373e36b66 to 0x209693Bc6afc0C5328bA36FaF03C514EF312287C, once. Valid after 2025-02-27T16:01:29Z. Expires: 2025-02-27T16:02:34Z.",
+      "fields": [
+        ["Amount", "0.01 USDC"],
+        ["From", "0x857b06519E91e3A54538791bDbb0E22373e36b66"],
+        ["To", "0x209693Bc6afc0C5328bA36FaF03C514EF312287C"],
+        ["Valid after", "2025-02-27T16:01:29Z"],
+        ["Expires", "2025-02-27T16:02:34Z"],
+        ["Contract", "0x036CbD53842c5426634e7929541eC2318f3dCF7e on chain 84532"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0xf256992871671abcb27ff92885a7afa46218724e5fc0bac35d050115aa1d22e6"]
+      ]
+    },
+    "model": {"title": "Pay USDC by signature", "effect": "transfer"},
+    "provenance": {"intent": {"origin": "third_party", "profile": "usdc-domain-usdc"}}
+  },
+  "chain": {"family": "evm", "id": 84532, "name": "Base Sepolia", "network": "test"},
+  "standard": "EIP-3009",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner confirms the terms. The model never does."
+}
+</signing-sheet>
+<grant-summary>
+{
+  "grant": {
+    "kind": "transfer",
+    "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+    "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "amount": {"units": "10000", "unlimited": false},
+    "ends": {"at": "1740672154"}
+  },
+  "tokens": {"0x036CbD53842c5426634e7929541eC2318f3dCF7e": {"symbol": "USDC", "decimals": 6}},
+  "names": {"0x209693Bc6afc0C5328bA36FaF03C514EF312287C": "Weather API"}
+}
+</grant-summary>
+<p>
+  <code>@meantjs/consent/evm</code> writes the consent text of the request and says what it
+  grants, matched by its EIP-712 type hash, never by its name, and refused outright when its domain
+  is another chain's or another contract's.
+</p>
+  </li>
+  <li>
+    <span class="step-title">The key signs only what fits</span>
+<table>
+  <thead><tr><th>Request</th><th>Bare key</th><th>Behind the guard</th></tr></thead>
+  <tbody>
+    <tr><td>Pays the API 0.01 USDC</td><td>Signed</td><td>Signed: it fits the terms</td></tr>
+    <tr><td>The API asks for 25 USDC instead</td><td>Signed; the API got 25 USDC</td><td><strong>Not signed.</strong> The request allows 25 USDC, the terms say at most 0.05 USDC.</td></tr>
+    <tr><td>The 402 answer names another payee</td><td>Signed; the attacker got 0.01 USDC</td><td><strong>Not signed.</strong> The recipient is not Weather API.</td></tr>
+    <tr><td>The payment is for Base, a mainnet</td><td>Signed</td><td><strong>Not signed.</strong> The domain is for chain 8453, the wallet is on chain 84532.</td></tr>
+    <tr><td>A second payment for the same task</td><td>Signed both</td><td><strong>Not signed.</strong> These terms cover one request; another is a new task, with new terms.</td></tr>
+  </tbody>
+</table>
+<p>
+  <code>guardSigner</code> wraps a viem account or x402's client signer so that its
+  <code>signTypedData</code> signs only what fits, and the agent cannot reach the key's other
+  methods. <claim>fact</claim> The rows are from a replay on a local EVM that runs Base Sepolia's
+  USDC, Permit2 and x402 code, where every signature was then used: the bare key signed 11 of 11
+  bad x402 and Permit2 requests and the guard 0 of 11, with all 4 real ones signed by both
+  (<a href="https://github.com/B3Pay/Meant/blob/main/profile/examples/evm-signing-check/results.md">results</a>).
+</p>
+  </li>
+  </ol>
+</section>
+
+<section class="section" id="showcase-icp">
+  <h2>On the Internet Computer: one transfer, start to finish</h2>
+  <p class="section-sub">
+    Where Meant began, and where it goes furthest today: agent tools, outcome classes and reconcile.
     An ICRC-1 transfer of 1.5 ICP, from the interface to the result. The interface, the
     annotation and the consent message are real: the first two are files in the repository, and
     the message is what <code>@meantjs/consent</code> returns for this transfer with the ICRC-1
@@ -168,9 +321,9 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
     <a class="card" href="profiles.html">
       <span class="card-kicker"><layer>profiles</layer></span>
       <span class="card-title">Profiles: what each value means</span>
-      <p>The Meant Profile spec, its standard packs, and the five profile packages that
-      resolve profiles and generate tools, consent and formatting from them. <code>meant-format</code>
-      does the <code>amount</code> tag in Rust.</p>
+      <p>The Meant Profile spec, its standard packs for EVM and the Internet Computer, and the five
+      profile packages that resolve profiles and generate consent text, a signer's guard, tools and
+      formatting from them. <code>meant-format</code> does the <code>amount</code> tag in Rust.</p>
     </a>
   </div>
 </section>
@@ -178,15 +331,27 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
 <section class="section" id="capabilities">
   <h2>What you can build on it</h2>
   <div class="card-grid">
+    <a class="card" href="quickstart-evm.html">
+      <span class="card-kicker"><layer>profiles</layer></span>
+      <span class="card-title">Guard an AI agent's EVM key</span>
+      <p>The person confirms a task's terms once; the key signs only an EIP-712 request a profile
+      reads and whose grant fits them, x402 and Permit2 included.</p>
+    </a>
+    <a class="card" href="chain-evm.html#consent-text-for-a-signing-request">
+      <span class="card-kicker"><layer>profiles</layer></span>
+      <span class="card-title">Consent text for a signing request</span>
+      <p>What an EIP-712 request does, in words and fields a wallet shows, matched by type hash and
+      refused for another chain's or contract's domain.</p>
+    </a>
     <a class="card" href="agent-tools.html">
       <span class="card-kicker"><layer>profiles</layer></span>
-      <span class="card-title">Give an agent a canister's tools</span>
+      <span class="card-title">Give an agent a canister's tools (ICP)</span>
       <p>Input in human units, a preview the person confirms before every send, and retries that
       cannot pay twice.</p>
     </a>
     <a class="card" href="consent-messages.html">
       <span class="card-kicker"><layer>profiles</layer></span>
-      <span class="card-title">Consent messages for any method</span>
+      <span class="card-title">ICRC-21 consent messages for any method</span>
       <p>ICRC-21 messages, both forms, from a resolved profile and the encoded arguments, in a
       browser, in Node, or inside the canister.</p>
     </a>
@@ -256,19 +421,19 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
 <section class="section" id="chains">
   <h2>Chains</h2>
   <p class="section-sub">
-    Meant was built on the Internet Computer. Most of the profile spec does not depend on the chain,
-    and a binding per chain covers what does.
+    Meant leads with EVM and was first built on the Internet Computer. Most of the profile spec does
+    not depend on the chain, and a binding per chain covers what does.
   </p>
   <div class="card-grid">
+    <a class="card" href="chain-evm.html">
+      <span class="card-kicker">EVM · signing requests stable</span>
+      <span class="card-title">EVM contracts</span>
+      <p>Profiles for EIP-712 messages, x402 and Permit2 included, consent text for signatures, and the guard in front of a signer; ABI calls and ERC-7730 files are experimental.</p>
+    </a>
     <a class="card" href="chain-icp.html">
       <span class="card-kicker">ICP · supported</span>
       <span class="card-title">Internet Computer</span>
-      <p>Candid interfaces, the ICRC-1 and ICRC-2 packs, ICRC-21 consent and PocketIC.</p>
-    </a>
-    <a class="card" href="chain-evm.html">
-      <span class="card-kicker">EVM · experimental</span>
-      <span class="card-title">EVM contracts</span>
-      <p>Profiles for Solidity ABIs and EIP-712 messages, x402 payments included, consent text for calls and signatures, and ERC-7730 files.</p>
+      <p>Candid interfaces, the ICRC-1 and ICRC-2 packs, ICRC-21 consent, agent tools and PocketIC.</p>
     </a>
     <a class="card" href="chain-solana.html">
       <span class="card-kicker">SOL · planned</span>
@@ -281,9 +446,15 @@ parseAmount("1.123456789", { decimals: 8 }); // throws E_EXCESS_PRECISION: never
 <section class="section" id="start">
   <h2>Start where you are</h2>
   <div class="card-grid">
+    <a class="card" href="quickstart-evm.html">
+      <span class="card-kicker"><layer>profiles</layer></span>
+      <span class="card-title">Guard an agent's EVM signer</span>
+      <p>Confirm a task's terms, read an x402 payment against them, and refuse the one that asks
+      for more.</p>
+    </a>
     <a class="card" href="quickstart-profiles.html">
       <span class="card-kicker"><layer>profiles</layer></span>
-      <span class="card-title">Profile a token ledger</span>
+      <span class="card-title">Profile an ICP token ledger</span>
       <p>Check the ICRC-1 pack against a ledger's interface and convert an amount exactly.</p>
     </a>
     <a class="card" href="quickstart-typescript.html">
