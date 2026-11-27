@@ -7,7 +7,7 @@
     {
       "name": "x402-exact-permit2",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:738df6785be150eccfbabf0f59473c7c4d23ddf3d9c53a8867bbcd9e56591c00",
+      "profile_id": "candid-profile:v0:sha256:326e6d58146ce0ca56de436347fab3a237f947f00fdb809a5625eba3ccb149e1",
       "deployments": [
         {
           "chain_id": 1,

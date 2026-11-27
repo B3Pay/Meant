@@ -1,7 +1,7 @@
 # @meantjs/reconcile
 
 Consumer rule 1 (`docs/profile-v0.md` section 5.3, outcome handling rules for consumers) without a transport: after an
-unknown outcome, before any new attempt, is the original in the ledger's ICRC-3 history? One dependency:
+unknown outcome, before any new attempt, is the original in the ledger's ICRC-3 history? It reads Internet Computer ledgers only; EVM receipts are not supported yet (OQ-18). One dependency:
 `@meantjs/format` (principal text to bytes).
 
 ```sh

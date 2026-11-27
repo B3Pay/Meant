@@ -20,23 +20,26 @@ import { methodOf } from "./resolved.mjs";
  * @param {string} [input.canisterId]  the canister called: the token of a grant (spec section 5.3, D-056). Without it
  *   nothing is read: `grant` is null and no diagnostic says so, since a caller that does not name the canister is not
  *   asking what the call grants (an ICRC-21 message, for one)
+ * @param {Record<string, { name: string, value: unknown, show?: unknown }[]>} [input.names]  the entries of each names
+ *   set (spec section 5.3, D-045), as its method lists them: a `named` position whose value one entry has is shown as
+ *   "name (value)". Without them every value is shown alone
  * @returns {{ form: "fields" | "generic", message: object, zoneSensitive: boolean, values: unknown[], grant: object | null, diagnostics: object[], provenance: object, model: object }}
  *   `message` is `{ FieldsDisplayMessage: { intent, fields } }` or `{ GenericDisplayMessage: string }` (ICRC-21 shapes,
  *   integers as bigint). `zoneSensitive` is true when a timestamp was shown in the requested zone. `values` are the
  *   decoded arguments as `decodeArguments` gives them, and `grant` what the call grants (`grant.mjs`), or null.
  */
-export function generateConsent({ resolved, method, arg, refs = {}, form = "generic", utcOffsetMinutes = null, rawArguments = false, limits, canisterId }) {
+export function generateConsent({ resolved, method, arg, refs = {}, form = "generic", utcOffsetMinutes = null, rawArguments = false, limits, canisterId, names = {} }) {
   const called = canisterId === undefined ? undefined : canisterText(canisterId);
   const model = buildModel({ resolved, method, arg, limits });
   const diagnostics = model.diagnostics;
   const grant = called === undefined ? null : grantOf({ name: method, method: methodOf(resolved, method), argValues: model.argValues, called, diagnostics });
   const done = (rest) => ({ ...rest, values: model.argValues, grant, diagnostics: dedupe(diagnostics), provenance: model.provenance, model });
   if (form === "fields") {
-    const renderer = new Renderer({ refs, utcOffsetMinutes: null, diagnostics });
+    const renderer = new Renderer({ refs, utcOffsetMinutes: null, diagnostics, names });
     const { intent, fields } = renderFields(model, renderer, { rawArguments });
     return done({ form, message: { FieldsDisplayMessage: { intent, fields } }, zoneSensitive: false });
   }
-  const renderer = new Renderer({ refs, utcOffsetMinutes: utcOffsetMinutes ?? 0, diagnostics });
+  const renderer = new Renderer({ refs, utcOffsetMinutes: utcOffsetMinutes ?? 0, diagnostics, names });
   const text = renderGeneric(model, renderer, { rawArguments });
   return done({ form: "generic", message: { GenericDisplayMessage: text }, zoneSensitive: renderer.usedZone });
 }

@@ -1,7 +1,7 @@
 {
   "name": "@meantjs/tools",
   "version": "0.8.0",
-  "description": "Agent tools from any Meant profile resolved form: tool definitions, exact input reading, and a tool layer with a confirmation hook, an injected encoder, call and clock. Browser-safe.",
+  "description": "Agent tools from a Meant profile resolved form of an Internet Computer canister (EVM calls not yet): tool definitions, exact input reading, and a tool layer with a confirmation hook, an injected encoder, call and clock. Browser-safe.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -13,13 +13,13 @@
     "url": "https://github.com/B3Pay/Meant/issues"
   },
   "keywords": [
-    "candid",
-    "internet-computer",
-    "icp",
     "agent",
     "mcp",
     "tools",
-    "wallet"
+    "wallet",
+    "candid",
+    "internet-computer",
+    "icp"
   ],
   "type": "module",
   "sideEffects": false,

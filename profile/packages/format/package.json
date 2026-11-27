@@ -1,7 +1,7 @@
 {
   "name": "@meantjs/format",
   "version": "0.8.0",
-  "description": "Exact value conversion for Meant profile value tags (amount, timestamp, duration, account, subaccount, bytes): parse human input, display canonical text, never round.",
+  "description": "Exact value conversion for Meant profile value tags on EVM and Internet Computer values (amount, timestamp, duration, account, subaccount, bytes): parse human input, display canonical text, never round.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -13,14 +13,17 @@
     "url": "https://github.com/B3Pay/Meant/issues"
   },
   "keywords": [
+    "evm",
+    "uint256",
+    "amount",
+    "no-rounding",
+    "decimals",
     "candid",
     "internet-computer",
     "icp",
     "icrc-1",
-    "amount",
     "account",
-    "principal",
-    "no-rounding"
+    "principal"
   ],
   "type": "module",
   "sideEffects": false,

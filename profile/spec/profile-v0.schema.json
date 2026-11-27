@@ -149,7 +149,7 @@
         },
         "abi": {
           "$ref": "#/$defs/evm_abi",
-          "description": "An EVM pack (spec section 15, experimental): the functions it applies to. The pack applies to a contract that has each of them, with the same selector, outputs and kind of call."
+          "description": "An EVM pack (spec section 15; its functions are experimental, its EIP-712 messages stable within v0): the functions it applies to. The pack applies to a contract that has each of them, with the same selector, outputs and kind of call."
         },
         "eip712": {
           "$ref": "#/$defs/eip712",
@@ -203,7 +203,7 @@
     },
     "contract_binds": {
       "type": "object",
-      "description": "An EVM contract (spec section 15, experimental): its ABI, the EIP-712 messages it verifies (section 15.9), and where it is deployed.",
+      "description": "An EVM contract (spec section 15): its ABI (experimental), the EIP-712 messages it verifies (section 15.9), and where it is deployed.",
       "additionalProperties": false,
       "properties": {
         "abi": {
@@ -288,7 +288,7 @@
     },
     "eip712": {
       "type": "object",
-      "description": "EIP-712 typed messages (spec section 15.9, experimental): the struct types, in the JSON shape of an eth_signTypedData request without EIP712Domain, and the domain's name and version. A type whose name the profile tags with intent is a message; chainId and verifyingContract come from binds.deployments.",
+      "description": "EIP-712 typed messages (spec section 15.9, stable within v0): the struct types, in the JSON shape of an eth_signTypedData request without EIP712Domain, and the domain's name and version. A type whose name the profile tags with intent is a message; chainId and verifyingContract come from binds.deployments.",
       "required": [
         "types"
       ],

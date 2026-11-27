@@ -7,7 +7,7 @@
     {
       "name": "erc2612",
       "origin": "pack",
-      "profile_id": "candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705"
+      "profile_id": "candid-profile:v0:sha256:15ccb9dbde8bbd0cab210bce477901854a22a9fd53525468dfbce5a03ce42cc3"
     }
   ],
   "methods": {

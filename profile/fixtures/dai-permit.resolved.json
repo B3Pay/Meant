@@ -7,7 +7,7 @@
     {
       "name": "dai-permit",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8",
+      "profile_id": "candid-profile:v0:sha256:a81f5243cbb9c14353095e0e70c36f7a80cf65299d47f548696c031c56b7af0e",
       "deployments": [
         {
           "chain_id": 1,

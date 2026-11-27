@@ -1,7 +1,7 @@
 {
   "name": "@meantjs/consent",
   "version": "0.8.0",
-  "description": "ICRC-21 consent messages and SNS proposal validator renderings generated from a Meant profile resolved form: any method, both GenericDisplayMessage and FieldsDisplayMessage, values formatted and escaped, nothing rounded.",
+  "description": "Consent text and a signing guard from a Meant profile: EIP-712 signing requests and EVM calls checked and described, terms the user confirmed enforced in front of a signer (x402, Permit2, EIP-2612, EIP-3009), ERC-7730 files; and ICRC-21 consent messages for any canister method. Values formatted and escaped, nothing rounded.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -13,18 +13,24 @@
     "url": "https://github.com/B3Pay/Meant/issues"
   },
   "keywords": [
-    "candid",
-    "internet-computer",
-    "icp",
-    "icrc-21",
-    "consent-message",
-    "sns",
-    "wallet",
     "evm",
+    "eip-712",
+    "signing",
+    "guard",
+    "x402",
+    "permit2",
+    "eip-3009",
     "erc-7730",
     "erc-8176",
     "clear-signing",
-    "x402"
+    "wallet",
+    "ai-agent",
+    "icrc-21",
+    "consent-message",
+    "candid",
+    "internet-computer",
+    "icp",
+    "sns"
   ],
   "type": "module",
   "sideEffects": false,

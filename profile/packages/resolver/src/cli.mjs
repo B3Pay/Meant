@@ -23,7 +23,7 @@ export const USAGE = `usage: meant-profile resolve <service.did> [options] > res
   --envelope <file>   the service's ContractEnvelope (as \`meant gen\` writes it), instead of
                       compiling a .did here
   --abi <file>        an EVM contract's ABI, a JSON array of human-readable fragments or JSON ABI entries
-                      (experimental, spec section 15)
+                      (spec section 15; ABI functions are experimental)
   --profile <file>    a profile to apply (repeatable). A pack given this way must match the service.
   --packs             try every pack in the packs directory; apply those that match
   --packs-dir <dir>   packs directory (default: the standard packs this package ships)

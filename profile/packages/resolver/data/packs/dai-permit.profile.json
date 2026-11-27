@@ -5,7 +5,7 @@
   "name": "dai-permit",
   "origin": "third_party",
   "language": "en",
-  "description": "DAI's permit on Ethereum mainnet (spec section 15.9, experimental), older than EIP-2612 and different from it: `allowed` sets the allowance to all of the holder's DAI (true, uint256 max) or to none (false), and `expiry` 0 means the signature never expires (MakerDAO dss, src/dai.sol). Only the message is described; DAI's functions are ERC-20's and the erc20 pack covers them.",
+  "description": "DAI's permit on Ethereum mainnet (spec section 15.9), older than EIP-2612 and different from it: `allowed` sets the allowance to all of the holder's DAI (true, uint256 max) or to none (false), and `expiry` 0 means the signature never expires (MakerDAO dss, src/dai.sol). Only the message is described; DAI's functions are ERC-20's and the erc20 pack covers them.",
   "binds": {
     "eip712": {
       "domain": {

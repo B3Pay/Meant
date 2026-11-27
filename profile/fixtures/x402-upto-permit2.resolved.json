@@ -7,7 +7,7 @@
     {
       "name": "x402-upto-permit2",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:a639234f92ecc714654951a9391b2f9b4df7821353961ed701eb851d0ba24320",
+      "profile_id": "candid-profile:v0:sha256:f4f9bdec2a8236572d5664a36e40716efbdb0d27bbf07372e38724fce2c67dda",
       "deployments": [
         {
           "chain_id": 1,
