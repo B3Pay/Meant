@@ -1,6 +1,6 @@
 {
   "name": "@meantjs/consent",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Consent text and a signing guard from a Meant profile: EIP-712 signing requests and EVM calls checked and described, terms the user confirmed enforced in front of a signer (x402, Permit2, EIP-2612, EIP-3009), ERC-7730 files; and ICRC-21 consent messages for any canister method. Values formatted and escaped, nothing rounded.",
   "license": "Apache-2.0",
   "repository": {
@@ -79,8 +79,8 @@
   },
   "dependencies": {
     "@meantjs/schema": "0.6.0",
-    "@meantjs/format": "0.8.0",
-    "@meantjs/profile": "0.8.0"
+    "@meantjs/format": "0.9.0",
+    "@meantjs/profile": "0.9.0"
   },
   "devDependencies": {
     "@dfinity/didc": "0.0.4",

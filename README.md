@@ -56,7 +56,7 @@ A **profile** bound to a contract's interface writes the meaning down once, and 
 **EVM signing.** Check an x402 payment against the terms the person confirmed:
 
 ```sh
-npm install --save-exact @meantjs/profile@0.8.0 @meantjs/consent@0.8.0
+npm install --save-exact @meantjs/profile@0.9.0 @meantjs/consent@0.9.0
 ```
 
 ```js
