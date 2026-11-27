@@ -7,7 +7,7 @@
     {
       "name": "usdc",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:582649e5d05eda40f369d939c4948f551522844e404c5a3b3b09ed99e7858ae1",
+      "profile_id": "candid-profile:v0:sha256:118793df6653243fb633960977eb8320ea5a6398409d5cb3ad4f74eb1ff2c2f7",
       "deployments": [
         {
           "chain_id": 1,

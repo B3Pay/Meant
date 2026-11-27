@@ -1,6 +1,6 @@
 # Meant Profile v0
 
-**Status:** Draft 0.2 (2026-10-08). Breaking changes are expected until the preregistered eval reports.
+**Status:** Draft 0.2 (2026-10-08). Breaking changes are expected before v1; each one is a decision row and a breaking-change note in the changelog (D-065).
 **Normative keywords:** MUST, SHOULD and MAY as in RFC 2119.
 **Machine-readable parts:** [`spec/profile-v0.schema.json`](../spec/profile-v0.schema.json) (structure) and [`packages/resolver`](../packages/resolver) (reference checks for addresses, applicability, refs, templates, idempotency and outcomes; `scripts/validate.mjs` is a single-profile CLI over them).
 
@@ -8,20 +8,34 @@
 
 ## 1. What a profile is
 
-A **profile** attaches *meaning* to positions in a Candid interface: what a number's unit is, which call moves value, how to describe a call to a human, whether a retry is safe, and what each error means. One profile feeds four consumers:
+A **profile** attaches *meaning* to positions in a contract's interface: the functions of an EVM contract and the EIP-712 messages it asks a wallet to sign (§15), or the methods of an Internet Computer canister's Candid service (§2 to §14). It says what a number's unit is, which call or signature moves value and what it grants, how to describe it to a human, whether a retry is safe, and what each error means. One profile feeds these consumers:
 
-| Consumer | What it gets from the profile |
-|---|---|
-| Agent tools (MCP, WebMCP) | Human-unit inputs, filled defaults, safe retries, classified outcomes, a confirmation step |
-| ICRC-21 consent messages | An intent line and typed display fields, generated for any method |
-| MCP Apps cards | The same intent and fields, rendered as an approval or inspection card |
-| Web UI (ic-reactor, Rust SSR) | Input widgets, labels, formatting |
+| Consumer | What it gets from the profile | Binding |
+|---|---|---|
+| A signer's guard | Whether a signing request is the message it claims to be, and whether what it grants fits the terms the person confirmed (§5.3, §15.9) | EVM |
+| Consent text and clear signing | An intent line and typed display fields for a call or a signing request; on EVM also an ERC-7730 file with its ERC-8176 `descriptorHash` (§15.6, §15.7, §15.9); on the Internet Computer an ICRC-21 consent message for any method (§12) | EVM, ICP |
+| Agent tools (MCP, WebMCP) | Human-unit inputs, filled defaults, safe retries, classified outcomes, a confirmation step | ICP (EVM: not yet, §1.1) |
+| MCP Apps cards | The same intent and fields, rendered as an approval or inspection card | either |
+| Web UI (ic-reactor, Rust SSR) | Input widgets, labels, formatting | either |
 
-**Non-goals for v0:** page layout or views (MCP Apps and host renderers own presentation), cross-canister references, multi-language templates. EVM contracts are in, as an experimental binding (§15: profiles of an ABI and of EIP-712 messages, consent text, the ERC-7730 export); what is still out for them is ERC-7730 import, agent tools, `outcome` classes over reverts and `idempotency` by nonce, later phases of §15 that each need their own decision.
+**Non-goals for v0:** page layout or views (MCP Apps and host renderers own presentation), cross-canister references, multi-language templates. For EVM contracts (§15: profiles of an ABI and of EIP-712 messages, consent text, the guard's terms, the ERC-7730 export), what is still out is ERC-7730 import, agent tools, `outcome` classes over reverts and `idempotency` by nonce, later phases of §15 that each need their own decision.
+
+### 1.1 Two bindings
+
+| | EVM contracts (§15) | Internet Computer canisters |
+|---|---|---|
+| The interface | `binds.abi`: the contract's functions; `binds.eip712`: the typed messages it verifies (§15.1, §15.9) | a Candid service (`.did`), compiled to a Meant Contract (§2) |
+| Its identity | `candid-profile:evm-abi:v0:sha256:…` over the functions and message types (§15.1, §15.9) | `candid-core:interface:v1:sha256:…` (§7) |
+| A profile binds | `kind: "contract"` with `binds.deployments`, or an EVM pack that matches by selectors (§15.3) | `kind: "canister"`, or a pack that matches by Candid subtyping (§7) |
+| Consent | text for a call (§15.6) and for a signing request (§15.9); the ERC-7730 file (§15.7) | ICRC-21 consent messages (§12) |
+| What it lacks today | agent tools, `outcome` over reverts, `idempotency` by nonce, overloaded names (O1), a `payable` call's value (O2); reconcile from receipts | nothing in this list |
+| Stability | stable within v0: EIP-712 messages and their consent text (§15.9), `effect.grant`, `fixed`, the EIP-712 packs and contract profiles. Experimental: ABI functions and their consent text (§15.1 to §15.6), the `erc20` pack, the ERC-7730 export (D-065) | the core tags are stable within v0 (§5) |
+
+Sections 3 to 14 are written in Candid's terms, since the Internet Computer binding came first. They apply to an EVM contract through §15.1's mapping (a function is a method, its parameters one record at argument 0, a tuple a record), with the differences §15 states. A reader on EVM reads §15 first, then the sections it cites. "Stable within v0" means that a change needs a decision row and a breaking-change note in the changelog.
 
 ## 2. Relationship to Meant's Contract
 
-- **Input:** a Meant Contract v1, compiled from a `.did` file, plus the optional `SourceInfo` sidecar (needed only for doc annotations, §9).
+- **Input:** for a canister, a Meant Contract v1, compiled from a `.did` file, plus the optional `SourceInfo` sidecar (needed only for doc annotations, §9). For an EVM contract, the profile's own `binds.abi` and `binds.eip712`, which the resolver reads as the same kind of graph (§15.1).
 - **Identity is untouched.** A profile never changes `interface_id` or `contract_id`. It is a separate document bound to them (§7), the same way SourceInfo is a sidecar.
 - **Why addresses target positions, not type nodes.** Meant's compiler interns structurally equal types into one node. Compiling the ICRC-1 fragment shows the consequence: one `opt blob` node serves `from_subaccount`, `memo` and `Account.subaccount`, and one `nat` node serves `amount`, `fee`, `Ok`, `duplicate_of` and `expected_fee`. Tagging the node would tag every one of them. So profiles address the **edge** that leads to a value: a method argument or result, then a path through fields (§3).
 
@@ -62,6 +76,9 @@ U32          = decimal integer, 0 … 4294967295
 
 | Address | Meaning |
 |---|---|
+| `transfer(0).value` | EVM: the `value` parameter of `transfer(address to, uint256 value)` (§15.1) |
+| `balanceOf->(0)` | EVM: the `uint256` result |
+| `PermitSingle(0).details.amount` | EVM: a member of Permit2's `PermitSingle` message (§15.9) |
 | `icrc1_transfer` | The method (for method tags) |
 | `icrc1_transfer(0).amount` | `amount` field of the first argument |
 | `icrc1_transfer(0).to` | The whole `Account` record (for the `account` tag) |
@@ -83,7 +100,7 @@ U32          = decimal integer, 0 … 4294967295
 
 ## 5. Tags
 
-There are 19 tags. Twelve are **core**: the eval depends on them, so they are stable within v0. Seven are **experimental** and may change.
+There are 19 tags. Twelve are **core**: they are stable within v0, so a change to one needs a decision row and a breaking-change note in the changelog (D-065). Seven are **experimental** and may change, except `fixed`, which is stable within v0 since D-065 (§1.1).
 
 ### 5.1 Value tags
 
@@ -101,7 +118,7 @@ There are 19 tags. Twelve are **core**: the eval depends on them, so they are st
 | `range` | numeric, `text`, `vec` | `min`, `max` (decimal strings, base units); `min_len`, `max_len` | exp. |
 | `ui` | any position | `order`, `group`, `hidden`, `widget` (UI only; agents ignore it) | exp. |
 | `named` | a position a name from a `names` set can stand for (D-045) | `set` (required); `by`: `value`/`show` | exp. |
-| `fixed` | an `address` in the arguments of an EVM function or message (§15.4, D-058) | `value`: one address (required) | exp. |
+| `fixed` | an `address` in the arguments of an EVM function or message (§15.4, D-058) | `value`: one address (required) | stable (D-065) |
 
 ### 5.2 Method tags (address = bare method name)
 
@@ -619,19 +636,22 @@ For `GenericDisplay`, the output is the rendered template as Markdown, followed 
 - ICRC-21 types, including `FieldsDisplayMessage`, `TokenAmount.amount : nat64` and `TimestampSeconds`.
 
 **Assumptions:**
-- Typed tools built from these tags reduce agent value errors. This is what the eval tests.
+- Typed tools built from these tags reduce agent value errors. The preregistered eval of small models on ICP ledgers would test it; it is parked (D-066). The practice runs and the EVM signing check (`examples/evm-signing-check/results.md`: a bare key signed 11 of 11 bad requests, the check none) are evidence, not a test of this claim.
 - Doc-annotation ergonomics are good enough for authors.
 - Candid subtyping, relaxed for result variants (§7), is the right pack-match rule.
 
 **Open questions:** see [`open-questions.md`](./open-questions.md).
 
-## 15. EVM contracts (experimental, D-054)
+## 15. EVM contracts (D-054)
 
-**Status:** experimental, phase 1 and the first part of phase 2. A profile can describe an EVM contract's functions;
+**Status:** phase 1 and the first part of phase 2. What a signer's guard uses is stable within v0 (D-065): EIP-712
+messages and their consent text (§15.9), `effect.grant`, `fixed` and the EIP-712 packs and contract profiles. ABI
+functions and their consent text (§15.1 to §15.6), the `erc20` pack and the ERC-7730 export (§15.7) stay experimental
+until O1 and O2 are settled. A profile can describe an EVM contract's functions;
 from it come consent text for a call's calldata and an ERC-7730 clear-signing file with its ERC-8176
 `descriptorHash`. It can also describe the EIP-712 messages a wallet is asked to sign (§15.9, D-055), with consent text
 for a signing request and an ERC-7730 file of the messages. Agent tools, `outcome` classes over reverts,
-`idempotency` by nonce and ERC-7730 import are later phases, each its own decision. The eval does not use any of it.
+`idempotency` by nonce and ERC-7730 import are later phases, each its own decision (OQ-18). The parked eval (D-066) does not use any of it.
 
 ### 15.1 The interface: an ABI
 
@@ -826,7 +846,8 @@ Checking attestations is a later phase.
 
 ### 15.9 Typed messages (EIP-712, D-055)
 
-**Status:** experimental, the first part of phase 2 (`proposals/w0-evm-eip712.md`, Q1 to Q5 as recommended). A
+**Status:** stable within v0 (D-065), the first part of phase 2 (`proposals/w0-evm-eip712.md`, Q1 to Q5 as
+recommended); the ERC-7730 file of the messages stays experimental with §15.7. A
 profile can describe the EIP-712 messages a wallet is asked to sign; from it come consent text for a signing request
 and an ERC-7730 file of the messages. Signing, checking signatures, witness messages other than x402's (O9) and agent
 tools are not in it.

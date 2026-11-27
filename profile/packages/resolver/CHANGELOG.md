@@ -4,6 +4,10 @@ The five Meant profile library packages (`@meantjs/profile`, `/format`, `/consen
 
 ## 0.9.0 (unreleased)
 
+- Package description, keywords and README lead with EVM (D-065). Spec section 15's EIP-712 messages are stable
+  within v0, ABI functions stay experimental; the `--abi` help line and the `./evm` types say so. Seven EIP-712 packs
+  and contract profiles drop "experimental" from their descriptions, so their `profile_id`s change; no rule, tag or
+  resolved-form field changes.
 - The command is `meant-profile` (D-064). `candid-profile`, its name until now, still runs it and prints a warning on
   stderr; a later release removes it. Its usage text and messages say `meant-profile`.
 - The spec is named Meant Profile v0, and the guide `renderApiDoc` and `meant-profile api-doc` write says "the

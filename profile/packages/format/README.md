@@ -1,6 +1,6 @@
 # @meantjs/format
 
-Exact value conversion for the six value tags of Meant Profile v0 (`docs/profile-v0.md` §5.3): `amount`, `timestamp`, `duration`, `account`, `subaccount` and `bytes`. It turns the text a person or an agent writes (`"1.5 ICP"`, `"+PT24H"`, `"#7"`) into the value a call carries, and back into canonical text for display. The agent tools (`@meantjs/tools`) and the ICRC-21 consent generator (`@meantjs/consent`) both use it, so they cannot disagree about what a value means.
+Exact value conversion for the six value tags of Meant Profile v0 (`docs/profile-v0.md` §5.3): `amount`, `timestamp`, `duration`, `account`, `subaccount` and `bytes`. It works on EVM integers (`uint8`…`uint256`) and on Candid values alike. It turns the text a person or an agent writes (`"1.5 USDC"`, `"+PT24H"`, `"#7"`) into the value a call carries, and back into canonical text for display. The agent tools (`@meantjs/tools`) and the ICRC-21 consent generator (`@meantjs/consent`) both use it, so they cannot disagree about what a value means.
 
 ```sh
 npm install @meantjs/format
@@ -17,7 +17,7 @@ npm install @meantjs/format
 - **No dependencies** at run time or for tests. Node >= 22.
 - **No I/O.** Dynamic tag arguments (`{ "from": "query:icrc1_decimals" }`) are resolved by the caller and passed in.
 - The choices it made where §5.3 was open were accepted as D-024 and are now in spec §5.3.
-- **EVM types** (spec §15, experimental): a position of an EVM contract's resolved form (`{ abi: "uint256", tags }`)
+- **EVM types** (spec §15): a position of an EVM contract's resolved form (`{ abi: "uint256", tags }`)
   works like a Candid one. `amount` takes `uint8`…`uint256` and `int8`…`int256`, `timestamp` and `duration`
   `uint32`…`uint256` and `int64`…`int256`, each with the bounds of its bits; `bytes` takes `bytes` and `bytesN`
   (exactly N bytes). `amount`'s `threshold` and `message` show a value at or above the threshold as `Unlimited USDC`.

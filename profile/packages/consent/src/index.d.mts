@@ -1,7 +1,7 @@
 // Types for @meantjs/consent. Hand-written; the source is plain ES modules (src/*.mjs).
 // test/types.test.mjs keeps the declared names equal to the runtime exports, and `npm run types` compiles a consumer
 // against these declarations under strict TypeScript.
-import type { Formatter } from "@meantjs/format";
+import type { Formatter, NameEntry } from "@meantjs/format";
 
 /** A candid-profile-resolved v0 document (docs/profile-v0.md section 10). */
 export interface ResolvedForm {
@@ -161,6 +161,11 @@ export interface GenerateConsentInput {
    * diagnostic. Any spelling of a principal; anything else is E_REQUEST.
    */
   canisterId?: string;
+  /**
+   * The entries of each names set (spec section 5.3, D-045), as its method lists them. A `named` position whose value
+   * one entry has is shown as "name (value)"; without them every value is shown alone.
+   */
+  names?: Record<string, NameEntry[]>;
 }
 /** One form without the ICRC-21 envelope. `zoneSensitive` is true when a timestamp was shown in the requested zone. */
 export function generateConsent(input: GenerateConsentInput): {
@@ -175,7 +180,7 @@ export function generateConsent(input: GenerateConsentInput): {
   provenance: Provenance;
   model: Model;
 };
-export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits }): Model;
+export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits; names?: Record<string, NameEntry[]> }): Model;
 /** Argument bytes to one value tree per argument. Throws E_DECODE, E_TOO_LARGE, E_UNSUPPORTED_TYPE or E_RESOLVED_FORM. */
 export function decodeArguments(method: { args: unknown[] }, arg: Bytes, limits?: DecodeLimits): unknown[];
 /** The Meant codec schema of one resolved-form position. */

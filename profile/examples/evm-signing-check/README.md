@@ -62,7 +62,7 @@ reach the key's `signTransaction` or `signMessage`.
 These facts were observed in the run that wrote [`results.md`](results.md). The run checks each one, so it fails if one
 stops holding:
 
-- **The bare key signs every request it is handed.** It signs all 16, through x402's own client (`@x402/evm` 2.28.0) or a viem
+- **The bare key signs every request it is handed.** It signs all 16, through x402's own client (`@x402/evm` 2.30.0) or a viem
   2.57.4 wallet client. On the local chain those signatures paid 25 USDC for a 0.01 USDC call, paid an
   attacker, let a facilitator charge a 50 USDC usage cap, let a swap router take all 1,000 USDC the agent held
   (an unlimited permit, and 100 USDC written with 18 decimals), and let a router take 100 USDC two years later (a

@@ -1,4 +1,4 @@
-// Types for @meantjs/profile/evm: the EVM helpers of spec section 15 (experimental), with no dependency, for a
+// Types for @meantjs/profile/evm: the EVM helpers of spec section 15 (ABI functions experimental, EIP-712 messages stable within v0), with no dependency, for a
 // browser bundle. Hand-written; the source is src/evm.mjs, src/abi.mjs and src/keccak.mjs.
 // test/types.test.mjs keeps the declared names equal to the runtime exports.
 

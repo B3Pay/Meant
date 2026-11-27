@@ -1,6 +1,8 @@
 # @meantjs/consent
 
-ICRC-21 consent messages, and the text an SNS proposal's validator returns, from a Meant profile resolved form (`docs/profile-v0.md` sections 6, 11 and 12). Give it the resolved form of a canister, a method name and the Candid-encoded argument bytes; it returns the `icrc21_consent_message_response` for **any** method, as `GenericDisplayMessage` (Markdown) or `FieldsDisplayMessage` (typed rows). No network code; tested against the standard's `.did`. A Rust version for canisters lives in the repository (`packages/consent/rust/`, not in the npm package; section below).
+**On EVM chains** it checks and describes what an AI agent's key is asked to sign. `eip712Consent` (`@meantjs/consent/evm`) refuses a signing request that is not the message it claims to be (wrong domain, chain, contract or type hash, a pinned spender changed) and gives the exact consent text of one that is; `@meantjs/consent/terms` checks what it grants against terms the person confirmed for the task; `@meantjs/consent/guard` wraps a viem account or x402's client signer so that it signs nothing else. Profiles ship for x402's payments, Permit2, EIP-2612, DAI's permit and USDC's EIP-3009 messages. EVM calls (`evmConsent`) and the ERC-7730 export are experimental (D-065). Sections below.
+
+**On the Internet Computer** it writes ICRC-21 consent messages, and the text an SNS proposal's validator returns, from a Meant profile resolved form (`docs/profile-v0.md` sections 6, 11 and 12). Give it the resolved form of a canister, a method name and the Candid-encoded argument bytes; it returns the `icrc21_consent_message_response` for **any** method, as `GenericDisplayMessage` (Markdown) or `FieldsDisplayMessage` (typed rows). No network code; tested against the standard's `.did`. A Rust version for canisters lives in the repository (`packages/consent/rust/`, not in the npm package; section below).
 
 ```sh
 npm install @meantjs/consent
@@ -61,7 +63,7 @@ bundles it with esbuild for the browser platform). The three SNS rows below are 
    - `FieldsDisplayMessage`: `intent` = title, `": "`, rendered template; one `(label, Value)` row per placeholder, label from `describe.label` else the field name; `amount` is a `TokenAmount` when it fits `nat64` and has a symbol, else `Text`; `timestamp` is `TimestampSeconds` after an exact ns-to-s conversion (the library throws `E_INEXACT` otherwise and the row is `Text` in RFC 3339 UTC); `duration` is `DurationSeconds`; everything else is `Text`. UTC only, never zone-sensitive.
    - `GenericDisplayMessage`: `# title`, the rendered template as a paragraph, then `- **label:** value` for the same fields. Times are shown in `utc_offset_minutes` (`2026-10-09 14:00:00 UTC+02:00`), UTC when absent, and the response metadata says which offset was applied.
 
-## EVM contracts (experimental: `src/evm.mjs`, `src/erc7730.mjs`)
+## EVM contracts (`src/evm.mjs`, `src/erc7730.mjs`; calls and the ERC-7730 export experimental)
 
 Spec section 15, D-054 and D-055 (EIP-712 messages, §15.9). An EVM contract's resolved form (`"chain": "evm"`, from `resolveService({ abi })` of
 `@meantjs/profile`) is read by two subpaths; the main entry refuses it with `E_RESOLVED_FORM`, and `evmConsent` refuses

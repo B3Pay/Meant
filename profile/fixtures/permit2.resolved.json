@@ -7,7 +7,7 @@
     {
       "name": "permit2",
       "origin": "third_party",
-      "profile_id": "candid-profile:v0:sha256:c00678ab9eda6a94d91b893af1a3c256a7fde497f0800f173ca9ef6579e86d0c",
+      "profile_id": "candid-profile:v0:sha256:145c940ef0079ef46af6f5ac1600c0b3fc2280200e509907d3482c925614e8e4",
       "deployments": [
         {
           "chain_id": 1,

@@ -535,7 +535,7 @@ export function generateConsent(input: GenerateConsentInput): {
   provenance: Provenance;
   model: Model;
 };
-export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits }): Model;
+export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits; names?: Record<string, NameEntry[]> }): Model;
 export function decodeArguments(method: { args: unknown[] }, arg: Bytes, limits?: DecodeLimits): unknown[];
 export function schemaFor(node: unknown, where?: string, depth?: number): unknown;
 export function parseTemplate(template: string): TemplatePart[];

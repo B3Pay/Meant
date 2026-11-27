@@ -5,7 +5,7 @@
   "name": "erc2612",
   "origin": "pack",
   "language": "en",
-  "description": "Standard pack for EIP-2612 permits on EVM chains (spec section 15.9, experimental): the signed `Permit` message that sets an ERC-20 allowance, and the `permit` function that submits one. Applies to a contract that has every function of `binds.abi` with the same selector, outputs and kind of call, `decimals()` and `symbol()` included, since the amounts read them. A signing request matches the `Permit` message by its EIP-712 type hash, and its verifying contract is the token, so `query:` refs are calls to that token. The domain's name and version are each token's own, so the pack names neither.",
+  "description": "Standard pack for EIP-2612 permits on EVM chains (spec section 15.9; the message is stable within v0, the `permit` function experimental with section 15.1): the signed `Permit` message that sets an ERC-20 allowance, and the `permit` function that submits one. Applies to a contract that has every function of `binds.abi` with the same selector, outputs and kind of call, `decimals()` and `symbol()` included, since the amounts read them. A signing request matches the `Permit` message by its EIP-712 type hash, and its verifying contract is the token, so `query:` refs are calls to that token. The domain's name and version are each token's own, so the pack names neither.",
   "binds": {
     "standard": "ERC-2612",
     "spec_url": "https://eips.ethereum.org/EIPS/eip-2612",

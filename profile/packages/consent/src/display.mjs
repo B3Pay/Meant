@@ -9,12 +9,44 @@
 // cannot be built (a dynamic ref the caller did not supply, a bad tag argument) is a configuration error and
 // stops the message: showing a number without its decimals would be worse than no message.
 
-import { FormatError, convertUnit, displayTimestamp, formatterFor } from "@meantjs/format";
+import { FormatError, convertUnit, displayTimestamp, formatterFor, ownerOf } from "@meantjs/format";
 import { CODES, ConsentError, fail } from "./errors.mjs";
 import { entriesOf } from "./resolved.mjs";
-import { visible } from "./text.mjs";
+import { oneLine, visible } from "./text.mjs";
 
 const U64_MAX = 2n ** 64n - 1n;
+const INTEGERS = new Set(["nat", "int", "nat8", "nat16", "nat32", "nat64", "int8", "int16", "int32", "int64"]);
+
+/**
+ * The one entry of a `named` position's set that holds `value`, or null (spec section 5.3, D-045).
+ * @param {Record<string, unknown>} names  the entries of each names set
+ * @param {object} node  the resolved-form position
+ * @param {unknown} value  its decoded value
+ */
+export function nameOwner(names, node, value) {
+  const named = node.tags?.named?.args;
+  const entries = named ? names?.[named.set] : undefined;
+  if (!Array.isArray(entries)) return null;
+  return ownerOf(entries, asEntryValue(node, value), { by: named.by }) ?? null;
+}
+
+/**
+ * A decoded value (integers as decimal strings) in the shape a names set's entries hold values in (integers as
+ * numbers or bigints), so the two compare as Candid values.
+ */
+function asEntryValue(node, value) {
+  if (value === null || value === undefined || node === undefined) return value;
+  if (INTEGERS.has(node.candid) && typeof value === "string") return BigInt(value);
+  if (node.candid === "record") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, asEntryValue(node.fields?.[k], v)]));
+  if (node.candid === "variant") {
+    // A null-payload case is a bare { tag }, as the tool layer gives it (packages/tools input.mjs): Meant's domain shape.
+    const arm = node.cases?.[value.tag];
+    if (arm?.candid === "null" && !arm.optional) return { tag: value.tag };
+    return { tag: value.tag, value: asEntryValue(arm, value.value) };
+  }
+  if (node.candid === "vec" && Array.isArray(value)) return value.map((v) => asEntryValue(node.element, v));
+  return value;
+}
 const CONFIG_CODES = new Set(["E_REF_UNRESOLVED", "E_ARG", "E_TAG_TYPE", "E_TAG_CONFLICT", "E_TYPE"]);
 
 /** Budget for the text of one message: a consent message is read by a person (ICRC-21: short and concise). */
@@ -46,8 +78,10 @@ export class Renderer {
    *   `refs`: the resolved dynamic values, keyed by their `from` string (for example `query:icrc1_decimals`).
    *   `utcOffsetMinutes`: when a number, timestamps are shown in that zone (the generic form); otherwise in UTC.
    */
-  constructor({ refs = {}, utcOffsetMinutes = null, diagnostics = [] } = {}) {
+  constructor({ refs = {}, utcOffsetMinutes = null, diagnostics = [], names = {} } = {}) {
     this.refs = refs;
+    /** The entries of each names set the call's `named` positions may show a name from (spec section 5.3, D-045). */
+    this.names = names;
     this.utcOffsetMinutes = utcOffsetMinutes;
     this.diagnostics = diagnostics;
     this.chars = 0;
@@ -91,12 +125,25 @@ export class Renderer {
    * @param {string} where  for diagnostics
    */
   text(node, value, where) {
-    const shown = this.#formatted(node, value, where);
-    if (shown !== null) return this.charge(shown);
+    let shown = this.#formatted(node, value, where);
     // An untagged principal is its canonical text, as everywhere else on the Internet Computer. Inside a composite it
     // stays `principal "..."` so that the Candid text of the composite is still Candid.
-    if (node.candid === "principal") return this.charge(value);
-    return this.charge(this.#raw(node, value, where));
+    if (shown === null) shown = node.candid === "principal" ? value : this.#raw(node, value, where);
+    return this.charge(this.#named(node, value, shown));
+  }
+
+  /**
+   * `shown` with the name of the one entry of its names set the value belongs to before it, "Savings (shown)"
+   * (spec section 5.3: a name is never shown without the value). A name is text people chose: one line, and the
+   * caller escapes it with the value.
+   */
+  #named(node, value, shown) {
+    const owner = this.#owner(node, value);
+    return owner ? `${oneLine(owner.name).trim()} (${shown})` : shown;
+  }
+
+  #owner(node, value) {
+    return nameOwner(this.names, node, value);
   }
 
   /** Candid text of a whole argument tuple (the "raw arguments" of spec section 11 item 1), tagged children formatted. */
@@ -236,7 +283,9 @@ export class Renderer {
    */
   icrc21Value(node, value, where) {
     const f = this.formatter(node);
-    if (f !== null && typeof value === "string") {
+    // A value that has a name is a Text field, "Savings (4 TOK)": a typed field has no room for the name, and the
+    // fields form would show it nowhere (spec section 5.3, D-045).
+    if (f !== null && typeof value === "string" && this.#owner(node, value) === null) {
       const typed = this.#typed(f, value);
       if (typed !== null) return typed;
     }

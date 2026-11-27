@@ -194,7 +194,7 @@ fn get_api_doc() -> String { include_str!("../api-doc.md").to_string() }
   itself. Example output: `test/fixtures/api-doc/ledger.md`. Tests: `test/api-doc.test.mjs`
   (`UPDATE_GOLDENS=1` regenerates the goldens; review the diff).
 
-## EVM contracts (experimental, spec section 15, D-054 and D-055)
+## EVM contracts (spec section 15, D-054 and D-055; ABI functions experimental, EIP-712 messages stable within v0, D-065)
 
 A third input, `abi`: an EVM contract's ABI as human-readable fragments or JSON ABI entries. The resolver reads it as
 the graph a `.did` compiles to (a function is a method, its parameters one record at argument 0, a tuple a record in

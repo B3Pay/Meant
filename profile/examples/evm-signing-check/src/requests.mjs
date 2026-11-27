@@ -1,7 +1,7 @@
 // The requests the agent is handed, each with what the user asked for. Two tasks:
 //
 //   x402     an agent pays a paid API (the "Weather API") by x402. The request comes from the API's 402 answer, so
-//            the API, or anyone who can change that answer, writes it; x402's own client (@x402/evm 2.28.0) builds
+//            the API, or anyone who can change that answer, writes it; x402's own client (@x402/evm 2.30.0) builds
 //            and signs it: by EIP-3009 (x402's default), by Permit2 and x402's exact proxy, and by the upto scheme.
 //   permit2  a trading agent signs a Permit2 permit so that a swap app's router can spend the user's USDC, through
 //            a viem wallet client. The look-alike contract and type are the requests of examples/meant-vs-native, on
