@@ -1,6 +1,6 @@
 {
   "name": "@meantjs/profile",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Meant profile resolver for EVM contracts and Internet Computer canisters: validates profiles of an ABI, EIP-712 messages or a Candid service, matches packs (by selectors, or by Candid subtyping), merges layers (spec section 8) and emits the resolved form (spec section 10).",
   "license": "Apache-2.0",
   "repository": {

@@ -2,7 +2,7 @@
 
 The five Meant profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
-## 0.9.0 (unreleased)
+## 0.9.0 — 2026-11-27
 
 - README, description and keywords lead with EVM signing: `eip712Consent`, `./terms` and `./guard` are stable within
   v0 (D-065); `evmConsent` for calls and the ERC-7730 export stay experimental. No code change.

@@ -2,7 +2,7 @@
 
 The five Meant profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
-## 0.9.0 (unreleased)
+## 0.9.0 — 2026-11-27
 
 - Package description, keywords and README lead with EVM (D-065). Spec section 15's EIP-712 messages are stable
   within v0, ABI functions stay experimental; the `--abi` help line and the `./evm` types say so. Seven EIP-712 packs

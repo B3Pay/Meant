@@ -2,7 +2,7 @@
 
 The five Meant profile library packages (`@meantjs/profile`, `/format`, `/consent`, `/tools`, `/reconcile`) release together under one version and pin each other exactly; a version appears here even when this package did not change. Release steps: `docs/releasing.md` in the repository.
 
-## 0.9.0 (unreleased)
+## 0.9.0 — 2026-11-27
 
 - README and description say that the tools read Internet Computer canisters only; EVM calls are open (OQ-18,
   D-065). No code change.
