@@ -8,8 +8,11 @@
   added the USDC and x402 profiles (spec §15.9, D-058). 0.6.0 added x402's <code>upto</code> payment, a USDC profile for
   the chains where USDC signs under the name <code>USDC</code>, USDC's permit and the other networks x402 names, so the
   <code>profile_id</code>s of <code>permit2</code>, <code>usdc</code> and <code>x402-exact-permit2</code> changed
-  (D-059). <code>profile_id</code> and the checked interface are the real output of the validator, run from
-  <code>profile/</code>:
+  (D-059). D-065 made the EIP-712 messages stable and took "experimental" out of the descriptions of the seven
+  EIP-712 files, so their <code>profile_id</code>s changed again; <code>erc20</code>, <code>usdc-base-sepolia</code>,
+  <code>icrc1</code> and <code>icrc2</code> kept theirs. <code>@meantjs/profile</code> 0.8.0 ships the earlier ids, and
+  the next release ships these. <code>profile_id</code> and the checked interface are the real output of the
+  validator, run from <code>profile/</code>:
 </p>
 
 <pre data-lang="bash">
@@ -19,13 +22,13 @@ node scripts/validate.mjs
 
 <pre data-lang="text">
 PASS packs/dai-permit.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8
+     profile_id   candid-profile:v0:sha256:a81f5243cbb9c14353095e0e70c36f7a80cf65299d47f548696c031c56b7af0e
      interface_id candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46  [1 methods, 8 annotations]
 PASS packs/erc20.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
      interface_id candid-profile:evm-abi:v0:sha256:81471b5efd3e34c464b5dda12ccdd454d8ca6e0d0c069871c8152bc6b154be4b  [7 methods, 23 annotations]
 PASS packs/erc2612.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705
+     profile_id   candid-profile:v0:sha256:15ccb9dbde8bbd0cab210bce477901854a22a9fd53525468dfbce5a03ce42cc3
      interface_id candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee  [6 methods, 18 annotations]
 PASS packs/icrc1.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:4eaa9312d60661248ff5627dba9906aa91240abe84cb1b1da8ca20a6fba2e3e6
@@ -34,26 +37,31 @@ PASS packs/icrc2.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:f9d75e8bf5ff2edb0b167988feee494eeb54c386e6f62252c4bd96ac56346567
      interface_id candid-core:interface:v1:sha256:c7e94a82863faf90ec6906e7b35a1b917b94a34664bb3a54cc3fca979b3bda3f  [5 methods, 56 annotations]
 PASS packs/permit2.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:c00678ab9eda6a94d91b893af1a3c256a7fde497f0800f173ca9ef6579e86d0c
+     profile_id   candid-profile:v0:sha256:145c940ef0079ef46af6f5ac1600c0b3fc2280200e509907d3482c925614e8e4
      interface_id candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [4 methods, 40 annotations]
 PASS packs/usdc-base-sepolia.profile.json  (0 error, 0 warning, 0 info)
      profile_id   candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d
      interface_id candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c  [3 methods, 26 annotations]
 PASS packs/usdc-domain-usdc.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:73c87cba33cddfa70d43eda1ef74ef35116b7960710b36566a14c1f5f28ac4c9
+     profile_id   candid-profile:v0:sha256:b43fcf13523aef9e93b5711568ae67a31bcbd150e89b635e28027b4565d50dbc
      interface_id candid-profile:evm-abi:v0:sha256:6ea9f4d61268e1e8086677f6e90a4bd1f51f35b019f35d4dae5af30abc7fcf63  [4 methods, 35 annotations]
 PASS packs/usdc.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:582649e5d05eda40f369d939c4948f551522844e404c5a3b3b09ed99e7858ae1
+     profile_id   candid-profile:v0:sha256:118793df6653243fb633960977eb8320ea5a6398409d5cb3ad4f74eb1ff2c2f7
      interface_id candid-profile:evm-abi:v0:sha256:6ea9f4d61268e1e8086677f6e90a4bd1f51f35b019f35d4dae5af30abc7fcf63  [4 methods, 35 annotations]
 PASS packs/x402-exact-permit2.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:738df6785be150eccfbabf0f59473c7c4d23ddf3d9c53a8867bbcd9e56591c00
+     profile_id   candid-profile:v0:sha256:326e6d58146ce0ca56de436347fab3a237f947f00fdb809a5625eba3ccb149e1
      interface_id candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef  [1 methods, 13 annotations]
 PASS packs/x402-upto-permit2.profile.json  (0 error, 0 warning, 0 info)
-     profile_id   candid-profile:v0:sha256:a639234f92ecc714654951a9391b2f9b4df7821353961ed701eb851d0ba24320
+     profile_id   candid-profile:v0:sha256:f4f9bdec2a8236572d5664a36e40716efbdb0d27bbf07372e38724fce2c67dda
      interface_id candid-profile:evm-abi:v0:sha256:2b101cfab2b4bcbe3381ff29739b2397f5014b0836b28fed723391a74e5285df  [1 methods, 14 annotations]
 </pre>
 
-<p>The validator's <code>methods</code> count takes an EIP-712 message as a method; the table splits them.</p>
+<p>
+  The validator's <code>methods</code> count takes an EIP-712 message as a method; the table splits them. Since D-065
+  the EIP-712 messages of every EVM file here are <span class="pill ok">stable</span> within v0: a change to one needs a
+  decision row and a breaking-change note in the changelog. The <code>erc20</code> pack and the functions of an ABI stay
+  <span class="pill warn">experimental</span> (<a href="chain-evm.html">EVM contracts</a>).
+</p>
 
 <table>
   <thead>
@@ -63,14 +71,14 @@ PASS packs/x402-upto-permit2.profile.json  (0 error, 0 warning, 0 info)
     <tr><td><a href="#icrc1"><code>icrc1</code></a></td><td>pack</td><td>ICRC-1</td><td>5</td><td>0</td><td>29</td></tr>
     <tr><td><a href="#icrc2"><code>icrc2</code></a></td><td>pack</td><td>ICRC-2</td><td>5</td><td>0</td><td>56</td></tr>
     <tr><td><a href="#erc20"><code>erc20</code></a></td><td>pack</td><td>ERC-20 <span class="pill warn">experimental</span></td><td>7</td><td>0</td><td>23</td></tr>
-    <tr><td><a href="#erc2612"><code>erc2612</code></a></td><td>pack</td><td>ERC-2612 <span class="pill warn">experimental</span></td><td>5</td><td>1</td><td>18</td></tr>
-    <tr><td><a href="#permit2"><code>permit2</code></a></td><td>contract profile</td><td>Uniswap's Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>4</td><td>40</td></tr>
-    <tr><td><a href="#dai-permit"><code>dai-permit</code></a></td><td>contract profile</td><td>DAI's permit <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>8</td></tr>
-    <tr><td><a href="#usdc"><code>usdc</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments and permit, where USDC signs as <code>USD Coin</code> <span class="pill warn">experimental</span></td><td>0</td><td>4</td><td>35</td></tr>
-    <tr><td><a href="#usdc"><code>usdc-domain-usdc</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments and permit, where USDC signs as <code>USDC</code> <span class="pill warn">experimental</span></td><td>0</td><td>4</td><td>35</td></tr>
-    <tr><td><a href="#usdc"><code>usdc-base-sepolia</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments on Base Sepolia, as 0.5.0 published them <span class="pill warn">experimental</span></td><td>0</td><td>3</td><td>26</td></tr>
-    <tr><td><a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a></td><td>contract profile</td><td>x402's <code>exact</code> payment through Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>13</td></tr>
-    <tr><td><a href="#x402-upto-permit2"><code>x402-upto-permit2</code></a></td><td>contract profile</td><td>x402's <code>upto</code> payment through Permit2 <span class="pill warn">experimental</span></td><td>0</td><td>1</td><td>14</td></tr>
+    <tr><td><a href="#erc2612"><code>erc2612</code></a></td><td>pack</td><td>ERC-2612 <span class="pill ok">stable</span> (its <code>permit</code> function: <span class="pill warn">experimental</span>)</td><td>5</td><td>1</td><td>18</td></tr>
+    <tr><td><a href="#permit2"><code>permit2</code></a></td><td>contract profile</td><td>Uniswap's Permit2 <span class="pill ok">stable</span></td><td>0</td><td>4</td><td>40</td></tr>
+    <tr><td><a href="#dai-permit"><code>dai-permit</code></a></td><td>contract profile</td><td>DAI's permit <span class="pill ok">stable</span></td><td>0</td><td>1</td><td>8</td></tr>
+    <tr><td><a href="#usdc"><code>usdc</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments and permit, where USDC signs as <code>USD Coin</code> <span class="pill ok">stable</span></td><td>0</td><td>4</td><td>35</td></tr>
+    <tr><td><a href="#usdc"><code>usdc-domain-usdc</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments and permit, where USDC signs as <code>USDC</code> <span class="pill ok">stable</span></td><td>0</td><td>4</td><td>35</td></tr>
+    <tr><td><a href="#usdc"><code>usdc-base-sepolia</code></a></td><td>contract profile</td><td>USDC's EIP-3009 payments on Base Sepolia, as 0.5.0 published them <span class="pill ok">stable</span></td><td>0</td><td>3</td><td>26</td></tr>
+    <tr><td><a href="#x402-exact-permit2"><code>x402-exact-permit2</code></a></td><td>contract profile</td><td>x402's <code>exact</code> payment through Permit2 <span class="pill ok">stable</span></td><td>0</td><td>1</td><td>13</td></tr>
+    <tr><td><a href="#x402-upto-permit2"><code>x402-upto-permit2</code></a></td><td>contract profile</td><td>x402's <code>upto</code> payment through Permit2 <span class="pill ok">stable</span></td><td>0</td><td>1</td><td>14</td></tr>
   </tbody>
 </table>
 
@@ -214,7 +222,7 @@ npx candid-profile resolve --abi token.abi.json --packs > token.resolved.json
 <pre data-lang="text">
 candid-profile: token.abi.json  candid-profile:evm-abi:v0:sha256:adaf687bca6190caca23583655028c78a0ad4d9fca99fe1f1efdf96758b910eb  [10 methods]
   applied     erc20            pack         candid-profile:v0:sha256:afc7d231076699406b2fc9f74da372f5da88465027ab1d46eca526e646368a81
-  applied     erc2612          pack         candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705
+  applied     erc2612          pack         candid-profile:v0:sha256:15ccb9dbde8bbd0cab210bce477901854a22a9fd53525468dfbce5a03ce42cc3
   0 error, 0 warning, 2 info
 </pre>
 
@@ -230,7 +238,7 @@ npx candid-profile resolve --abi empty.abi.json --profile packs/permit2.profile.
 
 <pre data-lang="text">
 candid-profile: empty.abi.json  candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646  [0 methods]
-  applied     permit2          third_party  candid-profile:v0:sha256:c00678ab9eda6a94d91b893af1a3c256a7fde497f0800f173ca9ef6579e86d0c
+  applied     permit2          third_party  candid-profile:v0:sha256:145c940ef0079ef46af6f5ac1600c0b3fc2280200e509907d3482c925614e8e4
   0 error, 0 warning, 0 info
 </pre>
 
@@ -457,8 +465,8 @@ service : {
 
 <callout type="warn" title="Experimental">
   <p>
-    EVM support is spec §15, phase 1 and the first part of phase 2: profiles, consent text for calldata and for
-    EIP-712 signing requests, and ERC-7730 export. See <a href="chain-evm.html">EVM contracts</a>.
+    ABI functions and their consent text are spec §15.1 to §15.6, experimental until overloaded names and a
+    <code>payable</code> call's value are settled (D-065). See <a href="chain-evm.html">EVM contracts</a>.
   </p>
 </callout>
 
@@ -531,11 +539,11 @@ service : {
 
 <h2 id="erc2612">ERC-2612</h2>
 
-<callout type="warn" title="Experimental">
+<callout type="note" title="Stable within v0, except the function">
   <p>
-    EIP-712 messages are spec §15.9 (D-055), the first part of the EVM binding's phase 2: profiles, consent text for a
-    signing request and an ERC-7730 file of the messages. Signing and checking signatures are not in it. See
-    <a href="chain-evm.html">EVM contracts</a>.
+    The <code>Permit</code> message and its consent text are spec §15.9 (D-055), stable within v0 since D-065. The
+    <code>permit</code> function that submits one is an ABI function, experimental with spec §15.1. Signing and
+    checking signatures are not in it. See <a href="chain-evm.html">EVM contracts</a>.
   </p>
 </callout>
 
@@ -553,7 +561,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:136de06daafff15af3dc5010c97929854d8f02f72bcb71ff1ebcbe7088a2b705</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:15ccb9dbde8bbd0cab210bce477901854a22a9fd53525468dfbce5a03ce42cc3</id-chip></li>
   <li>checked against (the ABI and the struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:73c9721a3b8abd52830805c1ac5f848f1ef8918e9cf681b5d4e134333d0955ee</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 6 methods (5 functions and 1 message), 18 annotations</li>
 </ul>
@@ -644,7 +652,7 @@ service : {
 <h2 id="permit2">Permit2</h2>
 
 <p>
-  <span class="pill warn">experimental</span> Uniswap's Permit2, as a contract profile (<code>kind: "contract"</code>,
+  <span class="pill ok">stable</span> Uniswap's Permit2, as a contract profile (<code>kind: "contract"</code>,
   <code>origin: "third_party"</code>), not a pack. File:
   <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/permit2.profile.json"><code>profile/packs/permit2.profile.json</code></a>.
   It describes four messages and no function: the AllowanceTransfer messages <code>PermitSingle</code> and
@@ -674,7 +682,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:c00678ab9eda6a94d91b893af1a3c256a7fde497f0800f173ca9ef6579e86d0c</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:145c940ef0079ef46af6f5ac1600c0b3fc2280200e509907d3482c925614e8e4</id-chip></li>
   <li>checked against (its struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:e013c202cb76d4b7fefbb510ee6c1a806bbbdc1eee87dfb85c6e1a520c72d646</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 4 methods (4 messages), 40 annotations</li>
 </ul>
@@ -793,7 +801,7 @@ service : {
 <h2 id="dai-permit">DAI permit</h2>
 
 <p>
-  <span class="pill warn">experimental</span> DAI's <code>permit</code> on Ethereum mainnet, older than EIP-2612 and
+  <span class="pill ok">stable</span> DAI's <code>permit</code> on Ethereum mainnet, older than EIP-2612 and
   different from it, as a contract profile (<code>origin: "third_party"</code>). File:
   <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/dai-permit.profile.json"><code>profile/packs/dai-permit.profile.json</code></a>.
   Only the message is described: DAI's functions are ERC-20's, and the <a href="#erc20">ERC-20 pack</a> covers them. It
@@ -814,7 +822,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:942de20c5e311b6cd32b02c80c6aec2a80eeee50f9bcc5846120d23fac690dc8</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:a81f5243cbb9c14353095e0e70c36f7a80cf65299d47f548696c031c56b7af0e</id-chip></li>
   <li>checked against (its struct type): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:3ed4a3aea8a76d5194413a0196ab608414c8bf9687592f591d8ecffb53255b46</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 8 annotations</li>
 </ul>
@@ -857,7 +865,7 @@ service : {
 <h2 id="usdc">USDC</h2>
 
 <p>
-  <span class="pill warn">experimental</span> USDC's EIP-3009 messages and its EIP-2612 permit, as contract profiles
+  <span class="pill ok">stable</span> USDC's EIP-3009 messages and its EIP-2612 permit, as contract profiles
   (<code>origin: "third_party"</code>, D-058, D-059). A profile binds one domain name, and USDC signs under two:
   <code>usdc</code> describes it where it signs as <code>USD Coin</code>, and <code>usdc-domain-usdc</code> where it
   signs as <code>USDC</code>, with the same words. <code>usdc-base-sepolia</code>, Base Sepolia alone and without the
@@ -895,8 +903,8 @@ service : {
 </p>
 
 <ul>
-  <li><code>usdc</code>, <code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:582649e5d05eda40f369d939c4948f551522844e404c5a3b3b09ed99e7858ae1</id-chip></li>
-  <li><code>usdc-domain-usdc</code>, <code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:73c87cba33cddfa70d43eda1ef74ef35116b7960710b36566a14c1f5f28ac4c9</id-chip></li>
+  <li><code>usdc</code>, <code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:118793df6653243fb633960977eb8320ea5a6398409d5cb3ad4f74eb1ff2c2f7</id-chip></li>
+  <li><code>usdc-domain-usdc</code>, <code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:b43fcf13523aef9e93b5711568ae67a31bcbd150e89b635e28027b4565d50dbc</id-chip></li>
   <li><code>usdc-base-sepolia</code>, <code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:b45486b03703f95f7b06bcc456b3f122f9b6e041e6a1e80dea3b621727880b1d</id-chip></li>
   <li><code>usdc</code> and <code>usdc-domain-usdc</code> checked against (their struct types, the same in both): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:6ea9f4d61268e1e8086677f6e90a4bd1f51f35b019f35d4dae5af30abc7fcf63</id-chip></li>
   <li><code>usdc-base-sepolia</code> checked against (its struct types, without <code>Permit</code>): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:a57c198655811ae21e94724f34b90a032e1439c9ff8b08d9dbea48f23b4b610c</id-chip></li>
@@ -1104,7 +1112,7 @@ service : {
 <h2 id="x402-exact-permit2">x402's exact payment through Permit2</h2>
 
 <p>
-  <span class="pill warn">experimental</span> x402's <code>exact</code> payment through Permit2, as a contract profile
+  <span class="pill ok">stable</span> x402's <code>exact</code> payment through Permit2, as a contract profile
   (<code>origin: "third_party"</code>, D-058). File:
   <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/x402-exact-permit2.profile.json"><code>profile/packs/x402-exact-permit2.profile.json</code></a>.
   It describes one message, Permit2's <code>PermitWitnessTransferFrom</code> with x402's witness <code>Witness(address
@@ -1131,7 +1139,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:738df6785be150eccfbabf0f59473c7c4d23ddf3d9c53a8867bbcd9e56591c00</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:326e6d58146ce0ca56de436347fab3a237f947f00fdb809a5625eba3ccb149e1</id-chip></li>
   <li>checked against (its struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:ecf9fdd3df80383854a3d7d4a0b1600a05c6c4b2d3c230c9f49c77dce94e0bef</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 13 annotations</li>
 </ul>
@@ -1186,7 +1194,7 @@ service : {
 <h2 id="x402-upto-permit2">x402's upto payment through Permit2</h2>
 
 <p>
-  <span class="pill warn">experimental</span> x402's usage-based <code>upto</code> payment through Permit2, as a contract
+  <span class="pill ok">stable</span> x402's usage-based <code>upto</code> payment through Permit2, as a contract
   profile (<code>origin: "third_party"</code>, D-059). File:
   <a href="https://github.com/B3Pay/Meant/blob/main/profile/packs/x402-upto-permit2.profile.json"><code>profile/packs/x402-upto-permit2.profile.json</code></a>.
   It describes one message, Permit2's <code>PermitWitnessTransferFrom</code> with x402's witness <code>Witness(address
@@ -1214,7 +1222,7 @@ service : {
 </p>
 
 <ul>
-  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:a639234f92ecc714654951a9391b2f9b4df7821353961ed701eb851d0ba24320</id-chip></li>
+  <li><code>profile_id</code>: <id-chip kind="profile_id">candid-profile:v0:sha256:f4f9bdec2a8236572d5664a36e40716efbdb0d27bbf07372e38724fce2c67dda</id-chip></li>
   <li>checked against (its struct types): <id-chip kind="interface_id">candid-profile:evm-abi:v0:sha256:2b101cfab2b4bcbe3381ff29739b2397f5014b0836b28fed723391a74e5285df</id-chip></li>
   <li>validator: 0 error, 0 warning, 0 info; 1 method (1 message), 14 annotations</li>
 </ul>

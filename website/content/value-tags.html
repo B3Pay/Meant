@@ -366,7 +366,7 @@ labels: { "0": "Only in the block it is used" }
 <h2>On an EVM contract</h2>
 
 <p>
-  Profiles for EVM contracts are experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>). The rules above carry over unchanged
+  Profiles for EVM contracts are <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-d-054">spec §15</a>: EIP-712 messages are stable within v0, ABI functions experimental (D-065). The rules above carry over unchanged
   for <code>amount</code>, <code>timestamp</code>, <code>duration</code> and <code>bytes</code>,
   with ABI types in place of Candid ones: <code>amount</code> applies to <code>uint8</code> to
   <code>uint256</code> and <code>int8</code> to <code>int256</code>, each with the bounds of its

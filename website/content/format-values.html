@@ -277,8 +277,8 @@ const allowance = formatterFor(
 allowance?.display("1500000"); // "1.5 USDC"
 </pre>
   <p>
-    <claim>fact</claim> EVM support is experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>,
-    phase 1 and the first part of phase 2). An EVM position is a node with <code>abi</code> where a Candid one has <code>candid</code>,
+    <claim>fact</claim> EVM values follow <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-d-054">spec §15</a>: EIP-712 messages are stable within v0 and
+    ABI functions experimental (D-065). An EVM position is a node with <code>abi</code> where a Candid one has <code>candid</code>,
     and it formats the same way. <code>amount</code> takes <code>uint8</code> to <code>uint256</code> and
     <code>int8</code> to <code>int256</code>, each with the bounds of its bits; <code>timestamp</code> and
     <code>duration</code> take <code>uint32</code> to <code>uint256</code> and <code>int64</code> to

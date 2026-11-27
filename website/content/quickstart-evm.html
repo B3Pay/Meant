@@ -1,0 +1,224 @@
+<p>
+  An AI agent that holds an EVM key signs what it is handed. When an x402 API's answer asks for 25 USDC instead of
+  0.01, a bare key signs that too. This quickstart puts a Meant check between the agent and its key: the person
+  confirms the task's terms once, on the wallet's own screen, and the wallet then signs only an EIP-712 request that a
+  profile reads and whose grant fits those terms. You need Node 22 or later and npm. Nothing here touches a chain or
+  holds funds: the request is x402's own EIP-3009 example on Base Sepolia, a test network.
+</p>
+
+<pre data-lang="bash">
+mkdir evm-quickstart && cd evm-quickstart
+npm init -y
+npm install --save-exact @meantjs/profile@0.8.0 @meantjs/consent@0.8.0
+</pre>
+
+<p>
+  <code>@meantjs/profile</code> ships the profiles of x402's payments, Permit2, EIP-2612, DAI's permit and USDC's
+  EIP-3009 messages, and resolves them. <code>@meantjs/consent</code> reads a signing request against a profile, writes
+  its consent text and says what it grants (<code>./evm</code>), checks that grant against terms
+  (<code>./terms</code>), and guards a signer (<code>./guard</code>). Set <code>"type": "module"</code> in
+  <code>package.json</code> and put the three blocks below in <code>quickstart.js</code>, in order.
+</p>
+
+<h2>Load a profile and say what the wallet knows</h2>
+
+<pre data-lang="js" data-check="quickstart">
+import { createSchemaValidator, validateProfile } from "@meantjs/profile";
+import { eip712Consent } from "@meantjs/consent/evm";
+import { readTerms, termsGate } from "@meantjs/consent/terms";
+import usdc from "@meantjs/profile/packs/usdc-domain-usdc.profile.json" with { type: "json" };
+
+// USDC's EIP-3009 messages where USDC signs as "USDC", Base Sepolia among them, shipped with @meantjs/profile.
+const validateSchema = await createSchemaValidator();
+const result = await validateProfile(usdc, { validateSchema, resolved: true });
+if (!result.resolved) throw new Error("the profile does not validate");
+const resolved = result.resolved;
+
+// What the wallet knows: its tokens, the apps the person named, its clock.
+const USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+const wallet = {
+  tokens: { USDC: { address: USDC, decimals: 6 } },
+  apps: { "Weather API": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C" },
+  now: BigInt(Date.parse("2025-02-27T16:00:00Z")) * 1_000_000n, // nanoseconds
+};
+</pre>
+
+<p>
+  The profile is bound to USDC's EIP-712 domain and to its contracts, each read on chain, so a look-alike token gets
+  none of its words. The wallet's lists are the person's own: an app or a token is named from them, never guessed.
+</p>
+
+<h2>The request the agent is handed</h2>
+
+<pre data-lang="js" data-check="quickstart">
+// x402's EIP-3009 payment: the API's 402 answer names the payee and the amount, and the agent asks the key to sign.
+/** @param {string} value */
+const payment = (value) => ({
+  types: {
+    TransferWithAuthorization: [
+      { name: "from", type: "address" },
+      { name: "to", type: "address" },
+      { name: "value", type: "uint256" },
+      { name: "validAfter", type: "uint256" },
+      { name: "validBefore", type: "uint256" },
+      { name: "nonce", type: "bytes32" },
+    ],
+  },
+  primaryType: "TransferWithAuthorization",
+  domain: { name: "USDC", version: "2", chainId: 84532, verifyingContract: USDC },
+  message: {
+    from: "0x857b06519E91e3A54538791bDbb0E22373e36b66",
+    to: "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+    value,
+    validAfter: "1740672089",
+    validBefore: "1740672154",
+    nonce: "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480",
+  },
+});
+</pre>
+
+<h2>Confirm the terms, then check the request</h2>
+
+<pre data-lang="js" data-check="quickstart">
+/** One task: the person confirms its terms, then the wallet checks the one request the agent hands it. */
+/** @param {ReturnType<typeof payment>} typedData */
+function task(typedData) {
+  const gate = termsGate();
+  const terms = readTerms({ token: "USDC", to: "Weather API", max_amount: "0.05", expires_by: "1 day" }, wallet);
+  const shown = gate.propose(terms);
+  gate.confirm(shown); // only after the person confirmed this text on the wallet's own screen
+  gate.read(); // from here the agent may read the request
+  const consent = eip712Consent({ resolved, typedData, chainId: 84532 });
+  return { shown, message: consent.message, verdict: gate.check(consent.grant, wallet, consent.digest) };
+}
+
+const real = task(payment("10000")); // 0.01 USDC, what the API costs
+console.log(real.shown);
+console.log(real.message);
+console.log(real.verdict);
+console.log(task(payment("25000000")).verdict); // the API asks for 25 USDC instead
+</pre>
+
+<p><code>node quickstart.js</code> prints the terms the wallet shows, the consent text of the real request, and two verdicts:</p>
+
+<pre data-lang="text">
+Weather API (0x209693Bc6afc0C5328bA36FaF03C514EF312287C) may be sent at most 0.05 USDC, until the end of 28 February 2025 (UTC).
+# Pay USDC by signature
+
+Send `0.01 USDC` from `0x857b06519E91e3A54538791bDbb0E22373e36b66` to `0x209693Bc6afc0C5328bA36FaF03C514EF312287C`, once. Valid after `2025-02-27 16:01:29 UTC`. Expires: `2025-02-27 16:02:34 UTC`.
+
+- **Amount:** `0.01 USDC`
+- **From:** `0x857b06519E91e3A54538791bDbb0E22373e36b66`
+- **To:** `0x209693Bc6afc0C5328bA36FaF03C514EF312287C`
+- **Valid after:** `2025-02-27 16:01:29 UTC`
+- **Expires:** `2025-02-27 16:02:34 UTC`
+
+**Contract:** `0x036CbD53842c5426634e7929541eC2318f3dCF7e` on chain 84532
+
+**EIP-712 digest:** `0xf256992871671abcb27ff92885a7afa46218724e5fc0bac35d050115aa1d22e6`
+
+This is a signature, not a transaction: whoever holds it can submit it.
+{ fits: true, reasons: [] }
+{
+  fits: false,
+  reasons: [ 'the request allows 25 USDC, the terms say at most 0.05 USDC' ]
+}
+</pre>
+
+<p>
+  <claim>fact</claim> Observed with <code>@meantjs/profile</code> and <code>@meantjs/consent</code> 0.8.0 from npm on
+  Node 22.23.5, on 2026-11-27. The real request fits, so it needs no second yes. The one that asks for 25 USDC does
+  not, and the reason says why in words the agent can pass on; the agent then asks the person for new terms. The same
+  request in the fields form, as a wallet would show it:
+</p>
+
+<signing-sheet>
+{
+  "consent": {
+    "primaryType": "TransferWithAuthorization",
+    "message": {
+      "intent": "Pay USDC by signature: Send 0.01 USDC from 0x857b06519E91e3A54538791bDbb0E22373e36b66 to 0x209693Bc6afc0C5328bA36FaF03C514EF312287C, once. Valid after 2025-02-27T16:01:29Z. Expires: 2025-02-27T16:02:34Z.",
+      "fields": [
+        ["Amount", "0.01 USDC"],
+        ["From", "0x857b06519E91e3A54538791bDbb0E22373e36b66"],
+        ["To", "0x209693Bc6afc0C5328bA36FaF03C514EF312287C"],
+        ["Valid after", "2025-02-27T16:01:29Z"],
+        ["Expires", "2025-02-27T16:02:34Z"],
+        ["Contract", "0x036CbD53842c5426634e7929541eC2318f3dCF7e on chain 84532"],
+        ["Signature", "This is a signature, not a transaction: whoever holds it can submit it"],
+        ["EIP-712 digest", "0xf256992871671abcb27ff92885a7afa46218724e5fc0bac35d050115aa1d22e6"]
+      ]
+    },
+    "model": {"title": "Pay USDC by signature", "effect": "transfer"},
+    "provenance": {"intent": {"origin": "third_party", "profile": "usdc-domain-usdc"}}
+  },
+  "chain": {"family": "evm", "id": 84532, "name": "Base Sepolia", "network": "test"},
+  "standard": "EIP-3009",
+  "effects": ["transfer", "irreversible"],
+  "who": "Only the owner confirms the terms. The model never does."
+}
+</signing-sheet>
+
+<h2>Put the guard in front of the key</h2>
+
+<p>
+  A wallet does not have to call the check itself. <code>guardSigner</code> wraps a viem account, or x402's client
+  signer, which has the same shape, so that its <code>signTypedData</code> signs only a request a profile in
+  <code>forms</code> reads and whose grant fits the gate's confirmed terms, and nothing else: the guarded signer has
+  only <code>address</code> and <code>signTypedData</code> (and <code>readContract</code> when the wrapped signer has
+  one), so neither the agent nor x402's client can reach the key's <code>signTransaction</code> or
+  <code>signMessage</code>. With viem 2.57.4 and a local test key:
+</p>
+
+<pre data-lang="js" data-unchecked="imports viem, which the snippet gate does not resolve; run as shown with viem 2.57.4">
+import { guardSigner } from "@meantjs/consent/guard";
+import { privateKeyToAccount } from "viem/accounts";
+
+const gate = termsGate();
+gate.confirm(gate.propose(readTerms({ token: "USDC", to: "Weather API", max_amount: "0.05", expires_by: "1 day" }, wallet)));
+
+// Anvil's first test account: a well-known key that must never hold funds.
+const key = privateKeyToAccount("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80");
+const signer = guardSigner(key, { gate, wallet, chainId: 84532, forms: [resolved], now: () => wallet.now });
+
+try {
+  await signer.signTypedData(payment("25000000"));
+} catch (error) {
+  console.log(error.code, error.message); // nothing is signed
+}
+</pre>
+
+<pre data-lang="text">
+E_GUARD_REFUSED the request does not fit the confirmed terms: the request allows 25 USDC, the terms say at most 0.05 USDC
+</pre>
+
+<p>
+  <claim>fact</claim> Observed with the same packages and viem 2.57.4. Confirmed terms cover one request: once the gate
+  has checked one, signed or refused, the next is refused with <diag>E_TERMS_ORDER</diag> ("another request is a new
+  task, with new terms"), so a guard over <code>payment("10000")</code> needs a gate of its own, and then signs it.
+</p>
+
+<p>
+  Give <code>signer</code> to x402's client (<code>new ExactEvmScheme(signer)</code>) or to a viem wallet client in
+  place of the key. <a href="https://github.com/B3Pay/Meant/tree/main/profile/examples/evm-signing-check">examples/evm-signing-check</a>
+  is a copyable version of this check: it replays 16 x402 and Permit2 requests on a local EVM that runs Base Sepolia's
+  USDC, Permit2 and x402 code, and <claim>fact</claim> the bare key signs all 11 bad ones while the check signs none of
+  them and all 4 real ones (<a href="https://github.com/B3Pay/Meant/blob/main/profile/examples/evm-signing-check/results.md">its run</a>).
+</p>
+
+<h2>What this does not cover yet</h2>
+
+<ul>
+  <li>Transactions: the guard reads EIP-712 signing requests, not an <code>approve</code> or a router call sent as a
+    transaction. Consent text for calldata exists, and is experimental (<a href="chain-evm.html#consent-text-for-a-call">Consent text for a call</a>).</li>
+  <li>Agent tools, outcome classes over reverts and reconcile from receipts are Internet Computer only today
+    (open question OQ-18).</li>
+  <li>A request that no profile reads is refused (<diag>E_GUARD_UNKNOWN</diag>), never guessed: a new contract needs
+    its own profile first (<a href="write-a-profile.html">Write a profile</a>).</li>
+</ul>
+
+<div class="card-grid">
+  <a class="card" href="confirmed-terms.html"><span class="card-title">Confirmed terms</span><p>The rules a grant is checked by, the order the gate keeps, and every reason it gives.</p></a>
+  <a class="card" href="chain-evm.html"><span class="card-title">EVM contracts</span><p>The binding: ABIs, EIP-712 messages, x402, Permit2 and ERC-7730 files.</p></a>
+  <a class="card" href="reference-packs.html"><span class="card-title">Standard packs</span><p>Every profile <code>@meantjs/profile</code> ships, with its deployments.</p></a>
+</div>

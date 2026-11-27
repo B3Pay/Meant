@@ -327,7 +327,7 @@ symbol: query:icrc1_symbol
 
 <div data-chain-panel="evm">
   <p>
-    Experimental (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-experimental-d-054">spec §15</a>). The resolver reads an ABI as the graph a <code>.did</code> compiles
+    Spec §15 (<a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#15-evm-contracts-d-054">EVM contracts</a>); ABI functions are experimental, EIP-712 messages stable within v0 (D-065). The resolver reads an ABI as the graph a <code>.did</code> compiles
     to: a function is a method, and its parameters are <strong>one record at argument 0</strong>,
     so <code>function transfer(address to, uint256 value)</code> has the positions
     <code>transfer(0).to</code> and <code>transfer(0).value</code>. A function without parameters

@@ -1,7 +1,8 @@
 <p>
-  A tag gives one position of an interface a meaning. Twelve tags are <span class="pill ok">core</span>: the
-  preregistered eval depends on them, so they are stable within v0. Seven are
-  <span class="pill warn">experimental</span> and may change. The tables below are checked against
+  A tag gives one position of an interface a meaning. Twelve tags are <span class="pill ok">core</span>: they are
+  stable within v0, so a change to one needs a decision row and a breaking-change note in the changelog (D-065). Seven
+  are <span class="pill warn">experimental</span> and may change, except <code>fixed</code>, which is
+  <span class="pill ok">stable</span> within v0 since D-065 because a signer's guard depends on it. The tables below are checked against
   <a href="https://github.com/B3Pay/Meant/blob/main/profile/docs/profile-v0.md#5-tags">spec §5</a>, the JSON Schema
   (<a href="https://github.com/B3Pay/Meant/blob/main/profile/spec/profile-v0.schema.json"><code>profile/spec/profile-v0.schema.json</code></a>,
   the <code>args_*</code> definitions) and the resolver's applicability checks
@@ -139,7 +140,7 @@ symbol: { "from": "query:icrc1_symbol" }
     </tr>
     <tr>
       <td><a href="#a-pin-fixed"><code>fixed</code></a></td>
-      <td><span class="pill warn">experimental</span></td>
+      <td><span class="pill ok">stable</span></td>
       <td>an <code>address</code> in the arguments of an EVM function or message (§15.4, D-058)</td>
       <td>
         <code>value</code>, required: one address; in mixed case it matches its EIP-55 checksum (<diag>E_ADDRESS_CHECKSUM</diag>).
@@ -205,7 +206,7 @@ labels: { "0": "Only in the block it is used" }
 <h3>An amount in the token a field names</h3>
 
 <p>
-  <span class="pill warn">experimental</span> EVM only (spec §15.9). <code>amount.token</code> is a relative path from
+  <span class="pill ok">stable</span> EVM only (spec §15.9, D-065). <code>amount.token</code> is a relative path from
   the argument to an <code>address</code> field of the same argument whose path up to its last <code>[]</code> is the
   amount's own: the token is in the same array element as the amount, or outside every array
   (<code>"token": "details[].token"</code> for <code>details[].amount</code>). <code>decimals</code> and
@@ -453,7 +454,7 @@ grant: { "spender": "spender", "amount": "amount", "ends": ["expires_at"] }
 <h3 id="a-pin-fixed">A pin: <code>fixed</code></h3>
 
 <p>
-  <span class="pill warn">experimental</span> Spec §15.4, D-058. <code>fixed</code> says that the profile describes the
+  <span class="pill ok">stable</span> Spec §15.4, D-058, D-065. <code>fixed</code> says that the profile describes the
   call or the message only with one address at a position, its <code>value</code>. x402's Permit2 payment needs it:
   Permit2 lets the spender choose where the tokens go, and only the code of x402's proxy sends them to the payee the
   message names, so its words hold only when the spender is that proxy. From
@@ -490,7 +491,7 @@ value: "0x402085c248EeA27D92E8b30b2C58ed07f9E20001"
 <h2>Tags on EIP-712 messages</h2>
 
 <p>
-  <span class="pill warn">experimental</span> Spec §15.9, D-055. A contract profile or an EVM pack may bind EIP-712
+  <span class="pill ok">stable</span> Spec §15.9, D-055, D-065. A contract profile or an EVM pack may bind EIP-712
   struct types in <code>binds.eip712.types</code> (<a href="reference-profile-format.html">Profile and resolved
   form</a>). A <strong>message</strong> is a type the same document tags with <code>intent</code> at its bare name; its
   struct is argument 0, as a function's parameters are, so its members are addressed like a function's:
@@ -556,6 +557,6 @@ grant: { "spender": "spender", "amount": "details.amount", "ends": ["details.exp
   <a class="card" href="intent-and-effects.html"><span class="card-title">Intent, effects and confirmation</span><p>The line a person reads, and which calls need their confirmation.</p></a>
   <a class="card" href="outcomes-and-retries.html"><span class="card-title">Outcomes and retries</span><p>Outcome classes, the idempotency stamp and the consumer's retry rules.</p></a>
   <a class="card" href="names.html"><span class="card-title">Names</span><p>The <code>names</code> and <code>named</code> tags and the one matching rule.</p></a>
-  <a class="card" href="chain-evm.html"><span class="card-title">EVM contracts</span><p>The experimental binding: ABIs, calldata, EIP-712 messages and ERC-7730.</p></a>
+  <a class="card" href="chain-evm.html"><span class="card-title">EVM contracts</span><p>The EVM binding: EIP-712 messages (stable), ABIs and calldata, ERC-7730 (experimental).</p></a>
   <a class="card" href="reference-profile-diagnostics.html"><span class="card-title">Profile diagnostics</span><p>Every code a misplaced or misapplied tag produces.</p></a>
 </div>

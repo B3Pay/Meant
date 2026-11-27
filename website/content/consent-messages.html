@@ -533,7 +533,7 @@ Send `1.5 USDC` to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
 </pre>
 
 <p>
-  <claim>fact</claim> EVM support is experimental (spec §15, phase 1 and the first part of phase 2).
+  <claim>fact</claim> Consent text for an EVM call is experimental, and for an EIP-712 signing request stable within v0 (spec §15, D-065).
   ICRC-21 is the Internet Computer's, so an EVM call gets the same model and the same two layouts without
   the ICRC-21 envelope: <code>evmConsent</code> in <code>@meantjs/consent/evm</code> decodes the calldata
   strictly and ends the text with the contract's address and chain, because a pack applies to any contract
