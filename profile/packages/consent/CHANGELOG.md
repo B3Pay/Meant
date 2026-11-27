@@ -10,7 +10,9 @@ The five Meant profile library packages (`@meantjs/profile`, `/format`, `/consen
   as its method lists them. A `named` position whose value exactly one entry has reads "name (value)", in both forms;
   any other value reads as before. The name is one line and sits in the value's code span in the Markdown form. In the
   fields form such a value is a `Text` field ("Savings (4 TOK)") even where it would otherwise be a `TokenAmount`,
-  `TimestampSeconds` or `DurationSeconds`, which have no room for the name. The Rust crate does not take names yet.
+  `TimestampSeconds` or `DurationSeconds`, which have no room for the name. Without an intent template, a named
+  record that one entry holds is one field ("Savings (record { id = 4 })"), not one field per part; `buildModel` takes
+  `names` for that. The Rust crate does not take names yet.
 
 ## 0.8.0 — 2026-11-02
 

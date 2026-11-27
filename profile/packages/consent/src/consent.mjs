@@ -30,7 +30,7 @@ import { methodOf } from "./resolved.mjs";
  */
 export function generateConsent({ resolved, method, arg, refs = {}, form = "generic", utcOffsetMinutes = null, rawArguments = false, limits, canisterId, names = {} }) {
   const called = canisterId === undefined ? undefined : canisterText(canisterId);
-  const model = buildModel({ resolved, method, arg, limits });
+  const model = buildModel({ resolved, method, arg, limits, names });
   const diagnostics = model.diagnostics;
   const grant = called === undefined ? null : grantOf({ name: method, method: methodOf(resolved, method), argValues: model.argValues, called, diagnostics });
   const done = (rest) => ({ ...rest, values: model.argValues, grant, diagnostics: dedupe(diagnostics), provenance: model.provenance, model });

@@ -18,6 +18,19 @@ const U64_MAX = 2n ** 64n - 1n;
 const INTEGERS = new Set(["nat", "int", "nat8", "nat16", "nat32", "nat64", "int8", "int16", "int32", "int64"]);
 
 /**
+ * The one entry of a `named` position's set that holds `value`, or null (spec section 5.3, D-045).
+ * @param {Record<string, unknown>} names  the entries of each names set
+ * @param {object} node  the resolved-form position
+ * @param {unknown} value  its decoded value
+ */
+export function nameOwner(names, node, value) {
+  const named = node.tags?.named?.args;
+  const entries = named ? names?.[named.set] : undefined;
+  if (!Array.isArray(entries)) return null;
+  return ownerOf(entries, asEntryValue(node, value), { by: named.by }) ?? null;
+}
+
+/**
  * A decoded value (integers as decimal strings) in the shape a names set's entries hold values in (integers as
  * numbers or bigints), so the two compare as Candid values.
  */
@@ -129,12 +142,8 @@ export class Renderer {
     return owner ? `${oneLine(owner.name).trim()} (${shown})` : shown;
   }
 
-  /** The one entry of a `named` position's set that holds `value`, or null (spec section 5.3, D-045). */
   #owner(node, value) {
-    const named = node.tags?.named?.args;
-    const entries = named ? this.names[named.set] : undefined;
-    if (!Array.isArray(entries)) return null;
-    return ownerOf(entries, asEntryValue(node, value), { by: named.by }) ?? null;
+    return nameOwner(this.names, node, value);
   }
 
   /** Candid text of a whole argument tuple (the "raw arguments" of spec section 11 item 1), tagged children formatted. */

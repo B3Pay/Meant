@@ -180,7 +180,7 @@ export function generateConsent(input: GenerateConsentInput): {
   provenance: Provenance;
   model: Model;
 };
-export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits }): Model;
+export function buildModel(input: { resolved: ResolvedForm; method: string; arg: Bytes; limits?: DecodeLimits; names?: Record<string, NameEntry[]> }): Model;
 /** Argument bytes to one value tree per argument. Throws E_DECODE, E_TOO_LARGE, E_UNSUPPORTED_TYPE or E_RESOLVED_FORM. */
 export function decodeArguments(method: { args: unknown[] }, arg: Bytes, limits?: DecodeLimits): unknown[];
 /** The Meant codec schema of one resolved-form position. */

@@ -100,3 +100,24 @@ test("a named amount is a Text field with its name, and a TokenAmount without on
   assert.deepEqual(fields(4), [["From", { Text: { content: "Savings (4 TOK)" } }]]);
   assert.deepEqual(fields(5), [["From", { TokenAmount: { decimals: 0, amount: 5n, symbol: "TOK" } }]]);
 });
+
+test("a named record with no template is one field with its name, and its parts without one", () => {
+  const did = "service : { use : (record { pot : record { id : nat32 } }) -> () }";
+  const use = syntheticResolved("use", [
+    {
+      candid: "record",
+      fields: {
+        pot: {
+          candid: "record",
+          fields: { id: { candid: "nat32", tags: { describe: tag({ label: "Id" }) } } },
+          tags: { describe: tag({ label: "Pot" }), named: tag({ set: "pot" }) },
+        },
+      },
+    },
+  ]);
+  const fields = (id) =>
+    generateConsent({ resolved: use, method: "use", arg: encodeCall("use", `(record { pot = record { id = ${id} : nat32 } })`, did), names: { pot: [{ name: "Savings", value: { id: 4 } }] }, form: "fields" })
+      .message.FieldsDisplayMessage.fields;
+  assert.deepEqual(fields(4), [["Pot", { Text: { content: "Savings (record { id = 4 })" } }]]);
+  assert.deepEqual(fields(5), [["Id", { Text: { content: "5" } }]]);
+});

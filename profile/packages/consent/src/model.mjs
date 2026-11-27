@@ -13,6 +13,7 @@
 
 import { VALUE_TAGS } from "@meantjs/format";
 import { decodeArguments } from "./decode.mjs";
+import { nameOwner } from "./display.mjs";
 import { CODES, ConsentError, fail } from "./errors.mjs";
 import { callTag, effectKind, entriesOf, labelOf, methodOf } from "./resolved.mjs";
 import { parseTemplate } from "./template.mjs";
@@ -44,16 +45,17 @@ export const MAX_ELEMENTS = 256;
  */
 
 /**
- * @param {{ resolved: object, method: string, arg: Uint8Array | ArrayBuffer | number[], limits?: object }} input
+ * @param {{ resolved: object, method: string, arg: Uint8Array | ArrayBuffer | number[], limits?: object, names?: Record<string, unknown> }} input
+ *   `names`: the entries of each names set; a record one entry holds is one field, not its parts (D-045)
  * @returns {Model}
  */
-export function buildModel({ resolved, method: name, arg, limits }) {
+export function buildModel({ resolved, method: name, arg, limits, names = {} }) {
   const method = methodOf(resolved, name);
-  return modelOf(resolved, name, method, decodeArguments(method, arg, limits));
+  return modelOf(resolved, name, method, decodeArguments(method, arg, limits), names);
 }
 
 /** The model of a call whose arguments are decoded already (evm.mjs decodes calldata, then comes here). */
-export function modelOf(resolved, name, method, argValues) {
+export function modelOf(resolved, name, method, argValues, names = {}) {
   const diagnostics = [];
   const intentTag = callTag(method, argValues, "intent"); // the call's intent: its case's, else its method's (D-053)
   const intent = intentTag?.args;
@@ -73,7 +75,7 @@ export function modelOf(resolved, name, method, argValues) {
       diagnostics.push({ code: "W_TEMPLATE_FALLBACK", at: name, message: `${e.code}: ${e.message}; the generic intent is used instead` });
     }
   }
-  return { ...base, sentence: null, fields: flatten(method, argValues) };
+  return { ...base, sentence: null, fields: flatten(method, argValues, names) };
 }
 
 // ---------------------------------------------------------------------------------------------- template
@@ -144,7 +146,7 @@ function presentationOrder(entries) {
   return entries.map((e, i) => ({ e, i })).sort((a, b) => order(a.e[1]) - order(b.e[1]) || a.i - b.i).map(({ e }) => e);
 }
 
-function flatten(method, argValues) {
+function flatten(method, argValues, names) {
   const fields = [];
   const multi = method.args.length > 1;
   const emit = (node, value, keys, index) => {
@@ -156,7 +158,10 @@ function flatten(method, argValues) {
   };
   const walk = (node, value, keys, index) => {
     if (node.optional === true && value === null) return;
-    const children = node.candid === "record" && node.recursive !== true && !hasValueTag(node) ? presentationOrder(entriesOf(node.fields)) : [];
+    // A record with a name (spec section 5.3, D-045) is one field, "Savings (record { id = 4 })", not its parts: the
+    // name belongs to the whole value. Without one it is flattened as before.
+    const leaf = hasValueTag(node) || nameOwner(names, node, value) !== null;
+    const children = node.candid === "record" && node.recursive !== true && !leaf ? presentationOrder(entriesOf(node.fields)) : [];
     if (children.length > 0) for (const [key, child] of children) walk(child, value[key], [...keys, key], index);
     else emit(node, value, keys, index);
   };
