@@ -125,11 +125,16 @@ export class Renderer {
    * caller escapes it with the value.
    */
   #named(node, value, shown) {
+    const owner = this.#owner(node, value);
+    return owner ? `${oneLine(owner.name).trim()} (${shown})` : shown;
+  }
+
+  /** The one entry of a `named` position's set that holds `value`, or null (spec section 5.3, D-045). */
+  #owner(node, value) {
     const named = node.tags?.named?.args;
     const entries = named ? this.names[named.set] : undefined;
-    if (!Array.isArray(entries)) return shown;
-    const owner = ownerOf(entries, asEntryValue(node, value), { by: named.by });
-    return owner ? `${oneLine(owner.name).trim()} (${shown})` : shown;
+    if (!Array.isArray(entries)) return null;
+    return ownerOf(entries, asEntryValue(node, value), { by: named.by }) ?? null;
   }
 
   /** Candid text of a whole argument tuple (the "raw arguments" of spec section 11 item 1), tagged children formatted. */
@@ -269,7 +274,9 @@ export class Renderer {
    */
   icrc21Value(node, value, where) {
     const f = this.formatter(node);
-    if (f !== null && typeof value === "string") {
+    // A value that has a name is a Text field, "Savings (4 TOK)": a typed field has no room for the name, and the
+    // fields form would show it nowhere (spec section 5.3, D-045).
+    if (f !== null && typeof value === "string" && this.#owner(node, value) === null) {
       const typed = this.#typed(f, value);
       if (typed !== null) return typed;
     }

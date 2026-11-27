@@ -8,8 +8,9 @@ The five Meant profile library packages (`@meantjs/profile`, `/format`, `/consen
   v0 (D-065); `evmConsent` for calls and the ERC-7730 export stay experimental. No code change.
 - Names in consent messages (spec section 5.3, D-045): `generateConsent` takes `names`, the entries of each names set
   as its method lists them. A `named` position whose value exactly one entry has reads "name (value)", in both forms;
-  any other value reads as before. The name is one line and sits in the value's code span in the Markdown form. The
-  Rust crate does not take names yet.
+  any other value reads as before. The name is one line and sits in the value's code span in the Markdown form. In the
+  fields form such a value is a `Text` field ("Savings (4 TOK)") even where it would otherwise be a `TokenAmount`,
+  `TimestampSeconds` or `DurationSeconds`, which have no room for the name. The Rust crate does not take names yet.
 
 ## 0.8.0 — 2026-11-02
 

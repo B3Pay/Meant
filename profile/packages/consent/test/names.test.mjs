@@ -76,3 +76,27 @@ test("a variant case with no payload matches an entry that holds it as a bare { 
   assert.match(fields("Viewer")[0][1].Text.content, /^Read only \(/);
   assert.doesNotMatch(fields("Owner")[0][1].Text.content, /Read only/);
 });
+
+test("a named amount is a Text field with its name, and a TokenAmount without one", () => {
+  const did = "service : { pay : (record { from : nat }) -> () }";
+  const pay = syntheticResolved(
+    "pay",
+    [
+      {
+        candid: "record",
+        fields: {
+          from: {
+            candid: "nat",
+            tags: { describe: tag({ label: "From" }), amount: tag({ decimals: 0, symbol: "TOK" }), named: tag({ set: "pot" }) },
+          },
+        },
+      },
+    ],
+    { intent: tag({ title: "Pay", template: "Pay from {from}" }) },
+  );
+  const fields = (n) =>
+    generateConsent({ resolved: pay, method: "pay", arg: encodeCall("pay", `(record { from = ${n} : nat })`, did), names: { pot: [{ name: "Savings", value: 4n }] }, form: "fields" })
+      .message.FieldsDisplayMessage.fields;
+  assert.deepEqual(fields(4), [["From", { Text: { content: "Savings (4 TOK)" } }]]);
+  assert.deepEqual(fields(5), [["From", { TokenAmount: { decimals: 0, amount: 5n, symbol: "TOK" } }]]);
+});
